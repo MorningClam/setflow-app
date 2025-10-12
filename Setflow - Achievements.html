@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Achievements</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body{font-family:'Inter',sans-serif}
+    .badge-locked { filter: grayscale(100%) brightness(60%); }
+  </style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+<div class="max-w-md mx-auto min-h-screen flex flex-col">
+  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="Setflow - MoreMenu.html" class="p-2 rounded-lg hover:bg-neutral-700">
+        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1 class="text-lg font-bold tracking-tight">Achievements</h1>
+    <div class="w-9"></div>
+  </header>
+  <main class="flex-1 px-5 py-4 pb-28">
+    <div class="text-center mb-6">
+        <h2 class="text-xl font-bold">Your Trophy Case</h2>
+        <p class="text-neutral-400 text-sm mt-1">Unlock badges for reaching new milestones.</p>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+        
+        <div class="text-center">
+            <div class="w-24 h-24 bg-emerald-500/10 border-2 border-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
+                <svg class="w-12 h-12 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.834 9.168-4.432l.256-.512a1.125 1.125 0 011.125 0l.256.512c1.543 2.598 5.068 4.432 9.168 4.432H20a4 4 0 013.564 7.683l-2.147 6.15a1.76 1.76 0 01-3.417-.592V13a3 3 0 10-6 0v6.24a1.76 1.76 0 01-3.417-.592l-2.147-6.15z"></path></svg>
+            </div>
+            <h3 class="font-semibold text-sm mt-2">First Gig</h3>
+            <p class="text-xs text-neutral-400">Booked on Setflow</p>
+        </div>
+
+        <div class="text-center">
+             <div class="w-24 h-24 bg-yellow-900/40 border-2 border-yellow-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-yellow-500/10">
+                <svg class="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+            <h3 class="font-semibold text-sm mt-2">Local Legend <span class="text-yellow-400">(Silver)</span></h3>
+            <p class="text-xs text-neutral-400">5/15 gigs in your city</p>
+        </div>
+
+        <div class="text-center badge-locked">
+            <div class="w-24 h-24 bg-neutral-800 border-2 border-neutral-700 rounded-full flex items-center justify-center mx-auto">
+                <svg class="w-12 h-12 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="font-semibold text-sm mt-2">Road Warrior</h3>
+            <p class="text-xs text-neutral-500 mb-1">Play a gig 50+ mi away</p>
+            <a href="Setflow - Browse Gigs.html" class="text-xs font-semibold text-emerald-600 hover:text-emerald-500">Find Gigs →</a>
+        </div>
+        
+        <div class="text-center">
+            <div class="w-24 h-24 bg-stone-700/50 border-2 border-stone-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-stone-500/10">
+                 <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+            </div>
+            <h3 class="font-semibold text-sm mt-2">Pro Booker <span class="text-stone-400">(Bronze)</span></h3>
+            <p class="text-xs text-neutral-400">10/25 gigs booked</p>
+        </div>
+    </div>
+  </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Gig Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Inter',sans-serif}</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
+      <a href="Setflow - Browse Gigs.html" class="p-2 rounded-full hover:bg-neutral-700 transition-colors">
+        <svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="text-lg font-bold tracking-tight mx-auto pr-10">Gig Details</h1>
+    </header>
+    <main class="flex-grow pb-28">
+      <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
+        <div class="flex justify-between items-center">
+          <a href="Setflow - Venue Profile.html" class="text-2xl font-bold text-white hover:text-emerald-400">Blue Note Brewpub</a>
+          <span class="text-2xl font-bold text-emerald-400">$400</span>
+        </div>
+        <p class="text-md text-neutral-400 mt-1">Durham, NC</p>
+        <button id="view-map-btn" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">View on Map</button>
+      </div>
+      <div class="px-5 py-4 border-b border-neutral-800">
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Date and Time</p><p class="text-neutral-100 font-medium mt-1">Saturday, Nov 6</p><p class="text-neutral-300">8:00 PM - 10:00 PM</p></div>
+          <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Genre</p><p class="text-neutral-100 font-medium mt-1">Funk / Soul</p><p class="text-neutral-300">2-hour set</p></div>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">House Specs</h3>
+        <div class="text-sm space-y-2">
+          <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Full PA system provided</span></div>
+          <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Sound engineer on site</span></div>
+        </div>
+      </div>
+    </main>
+    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
+      <button id="apply-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Apply for Gig</button>
+    </footer>
+  </div>
+
+  <script>
+    const applyBtn = document.getElementById('apply-btn');
+    applyBtn.addEventListener('click', () => {
+      // 1. Change button state
+      applyBtn.innerText = '✓ Applied';
+      applyBtn.disabled = true;
+      applyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+      applyBtn.classList.add('bg-neutral-600', 'cursor-not-allowed');
+
+      // 2. Redirect to the applied gigs page after a short delay
+      setTimeout(() => {
+        window.location.href = 'Setflow - Applied Gigs.html';
+      }, 1000); // 1 second delay
+    });
+
+    const viewMapBtn = document.getElementById('view-map-btn');
+    viewMapBtn.addEventListener('click', () => {
+        const venueAddress = "Blue Note Brewpub, Durham, NC";
+        const encodedAddress = encodeURIComponent(venueAddress);
+        window.open(`https://maps.google.com/?q=${encodedAddress}`);
+    });
+  </script>
+</body>
+</html>

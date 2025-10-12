@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale-1.0"/>
+  <title>Setflow - Post New Event</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Inter',sans-serif;}.form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); }</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+<div class="max-w-md mx-auto min-h-screen flex flex-col">
+  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="Setflow - Promoter Dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <h1 class="text-lg font-bold tracking-tight">Post New Event</h1>
+    <div class="w-9"></div>
+  </header>
+  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
+    <div>
+        <label for="event-name" class="block text-sm font-medium text-neutral-300 mb-2">Event Name</label>
+        <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+    </div>
+    <div>
+        <label for="event-location" class="block text-sm font-medium text-neutral-300 mb-2">Location / Address</label>
+        <input id="event-location" type="text" placeholder="123 Main St, Apex, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
+            <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+        </div>
+        <div>
+            <label for="event-payout" class="block text-sm font-medium text-neutral-300 mb-2">Artist Payout ($)</label>
+            <input id="event-payout" type="number" placeholder="500" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+        </div>
+    </div>
+    <div>
+        <label for="event-description" class="block text-sm font-medium text-neutral-300 mb-2">Artist Requirements</label>
+        <textarea id="event-description" rows="4" placeholder="Looking for a 4-piece funk band. 2-hour set. PA provided, bring backline." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+    </div>
+  </main>
+  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
+    <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Post Event & Find Artists</button>
+  </footer>
+</div>
+</body>
+</html>

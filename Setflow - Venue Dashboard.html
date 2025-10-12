@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Venue Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Inter',sans-serif}</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
+    <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <div><h1 class="text-lg font-bold tracking-tight">The Pour House</h1><p class="text-xs text-neutral-400">Venue Dashboard</p></div>
+      <button id="open-post-modal-btn" class="p-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </header>
+    <main class="flex-grow pb-28">
+      <div class="px-5 pt-6 pb-4">
+        <h2 class="text-2xl font-bold text-neutral-100">Upcoming Gigs</h2>
+      </div>
+      
+      <div class="space-y-4 px-5">
+        <div><h3 class="font-bold text-amber-400">Friday, Nov 5</h3>
+          <a href="Setflow - Review Applicants.html" class="block bg-neutral-800 rounded-xl p-4 border border-emerald-500 shadow-lg shadow-emerald-500/10 mt-2">
+            <div class="flex justify-between items-center"><p class="font-bold text-white">Funk Night - $400</p><span class="text-xs font-semibold text-emerald-400">REVIEW</span></div>
+            <p class="text-sm text-neutral-300">9-11 PM • 5 applications</p>
+          </a>
+        </div>
+        <div><h3 class="font-bold text-amber-400">Saturday, Nov 6</h3>
+          <a href="Setflow - Show Sheet.html" class="block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 mt-2">
+            <div class="flex justify-between items-center"><p class="font-bold text-white">George & The Vibe</p><span class="text-xs font-semibold text-neutral-300">VIEW</span></div>
+            <p class="text-sm text-neutral-300">Funk/Soul • 9-11 PM</p>
+          </a>
+        </div>
+      </div>
+      
+      <div class="px-5 pt-8 pb-4">
+        <h2 class="text-xl font-bold text-neutral-100">Past Gigs</h2>
+      </div>
+      <div class="space-y-4 px-5">
+         <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 opacity-70">
+            <p class="font-bold text-white">Indie Night ft. The Sidewinders</p>
+            <p class="text-sm text-neutral-300">Friday, Oct 29</p>
+            <a href="Setflow - Leave Review Venue.html" class="mt-3 block w-full text-center py-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-300 text-sm font-bold rounded-xl">Leave a Review</a>
+          </div>
+      </div>
+    </main>
+    
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
+        <a href="Setflow - Venue Dashboard.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
+        <a href="Setflow - Post Event Page.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Post</span></button></a>
+        <a href="Setflow - Inbox.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
+    </nav>
+  </div>
+
+  <div id="post-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5 z-50">
+      <div class="bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm">
+          <div class="p-6 text-center">
+              <h3 class="text-xl font-bold text-white mt-4">Post a New Gig</h3>
+              <p class="text-sm text-neutral-400 mt-1">Choose an option below to get started.</p>
+          </div>
+          <div class="p-4 flex flex-col space-y-3">
+              <a href="Setflow - Post Event Page.html" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Create New Gig</a>
+              <a href="Setflow - Gig Templates.html" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center">Use a Template</a>
+              <button id="close-post-modal-btn" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl text-center">Cancel</button>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    const openModalBtn = document.getElementById('open-post-modal-btn');
+    const closeModalBtn = document.getElementById('close-post-modal-btn');
+    const modal = document.getElementById('post-modal');
+    openModalBtn.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
+    closeModalBtn.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
+  </script>
+</body>
+</html>

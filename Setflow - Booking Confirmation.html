@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setflow - Confirm Booking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col relative">
+    <div class="flex-grow blur-sm">
+        <header class="px-3 py-4 flex items-center justify-between"><a href="#" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a><h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1><a href="#" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a></header>
+        <main><div class="p-5 flex flex-col items-center text-center border-b border-neutral-800"><img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop" alt="Band photo"><h2 class="text-2xl font-bold text-white mt-4">George & The Vibe</h2><p class="text-md text-neutral-400">Raleigh, NC</p></div></main>
+    </div>
+    
+    <div class="absolute inset-0 bg-black/60 flex items-center justify-center p-5 z-30">
+        <div class="bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm">
+            <div class="p-6 text-center">
+                <div class="w-12 h-12 bg-emerald-500/20 border-4 border-emerald-500/30 rounded-full flex items-center justify-center mx-auto"><svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg></div>
+                <h3 class="text-xl font-bold text-white mt-4">Confirm Booking</h3>
+                <p class="text-sm text-neutral-400 mt-1">You are about to book this artist. A show sheet will be sent to them upon confirmation.</p>
+            </div>
+            <div class="bg-neutral-900/50 p-4 mx-4 mb-6 rounded-lg space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-neutral-400">Artist</span><span class="font-semibold text-white">George & The Vibe</span></div>
+                <div class="flex justify-between"><span class="text-neutral-400">Date</span><span class="font-semibold text-white">Friday, Nov 5</span></div>
+                <div class="flex justify-between"><span class="text-neutral-400">Payout</span><span class="font-bold text-emerald-400">$400</span></div>
+            </div>
+            <div class="px-4 pb-4 flex flex-col space-y-3">
+                <p class="text-xs text-center text-neutral-500">By confirming, you agree to the <a href="Setflow - Booking Terms.html" class="underline text-neutral-400 hover:text-white">Setflow Booking Agreement</a>.</p>
+                <button id="confirm-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Confirm & Send Show Sheet</button>
+                <a href="Setflow - Applicant Profile.html" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl text-center">Cancel</a>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    const confirmBtn = document.getElementById('confirm-btn');
+    confirmBtn.addEventListener('click', () => {
+        confirmBtn.innerText = 'Booking...';
+        confirmBtn.disabled = true;
+
+        setTimeout(() => {
+            // Redirect to dashboard with a query parameter to show the success message
+            window.location.href = 'Setflow - Venue Dashboard.html?booked=true';
+        }, 1500); // 1.5 second delay to simulate processing
+    });
+  </script>
+</body>
+</html>

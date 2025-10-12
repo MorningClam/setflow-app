@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setflow - Show Sheet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
+      <a href="Setflow - Venue Dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Show Sheet</h1>
+    </header>
+    <main class="flex-grow pb-28">
+      <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
+        <h2 class="text-2xl font-bold text-white">The Pour House</h2>
+        <p class="text-lg text-amber-400 font-medium mt-1">Saturday, Nov 6</p>
+        <p class="text-sm text-neutral-300 mt-2">Artist: George & The Vibe</p>
+      </div>
+      
+      <div class="px-5 py-4 grid grid-cols-2 gap-3 border-b border-neutral-800">
+        <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Add to Calendar</button>
+        <a href="Setflow - Promo Kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center">View Promo Kit</a>
+      </div>
+
+      <div class="px-5 py-4 border-b border-neutral-800">
+        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Schedule</h3>
+        <div class="space-y-3 text-sm">
+            <div class="flex"><span class="text-neutral-400 w-24">6:00 PM</span><span class="text-neutral-100 font-medium">Load-in & Setup</span></div>
+            <div class="flex"><span class="text-neutral-400 w-24">8:00 PM</span><span class="text-neutral-100 font-medium">Soundcheck</span></div>
+            <div class="flex"><span class="text-neutral-400 w-24">9:00 PM</span><span class="text-emerald-400 font-bold">Set 1 Begins</span></div>
+        </div>
+      </div>
+      <div class="px-5 py-4 border-b border-neutral-800">
+        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Details</h3>
+        <div class="space-y-3 text-sm">
+            <div class="flex"><span class="text-neutral-400 w-24">Payout</span><span class="text-emerald-400 font-bold text-base">$400</span></div>
+            <div class="flex"><span class="text-neutral-400 w-24">Notes</span><span class="text-neutral-100 font-medium">Green room is backstage left. 2 drink tickets per member.</span></div>
+        </div>
+      </div>
+      
+      <div class="px-5 py-4">
+        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Guest List & Team (3/5 spots used)</h3>
+        <div id="guest-list" class="space-y-2 text-sm">
+            <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Sarah (Merch)</span><button class="text-red-400 text-xs font-semibold">Remove</button></div>
+            <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>John Vibe</span><button class="text-red-400 text-xs font-semibold">Remove</button></div>
+            <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Maria Vibe</span><button class="text-red-400 text-xs font-semibold">Remove</button></div>
+        </div>
+        <div class="mt-3 flex space-x-2">
+            <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg p-2 text-sm text-white">
+            <button id="add-guest-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Add</button>
+        </div>
+      </div>
+    </main>
+    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
+        <a href="Setflow - Conversation View.html" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Contact Venue</a>
+    </footer>
+  </div>
+
+  <script>
+    // --- Add to Calendar Functionality (Placeholder) ---
+    document.getElementById('add-to-calendar-btn').addEventListener('click', () => {
+        alert("This would download an .ics file for your calendar.");
+    });
+
+    // --- Guest List Functionality ---
+    const guestList = document.getElementById('guest-list');
+    const guestNameInput = document.getElementById('guest-name-input');
+    const addGuestBtn = document.getElementById('add-guest-btn');
+
+    addGuestBtn.addEventListener('click', () => {
+        const name = guestNameInput.value.trim();
+        if (name) {
+            const newGuest = document.createElement('div');
+            newGuest.className = 'flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg';
+            newGuest.innerHTML = `<span>${name}</span><button class="text-red-400 text-xs font-semibold">Remove</button>`;
+            guestList.appendChild(newGuest);
+            guestNameInput.value = '';
+        }
+    });
+
+    guestList.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            e.target.parentElement.remove();
+        }
+    });
+  </script>
+</body>
+</html>

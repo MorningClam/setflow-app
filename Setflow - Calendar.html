@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Calendar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="max-w-md mx-auto min-h-screen flex flex-col">
+    <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <h1 class="text-lg font-bold tracking-tight">Calendar</h1>
+      <a href="Setflow - New Calendar Event.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium transition-colors">New Event</a>
+    </header>
+    <main class="flex-grow pb-28 p-5">
+      <div class="mt-5">
+        <h3 class="text-sm font-medium text-neutral-400 mb-2">Upcoming</h3>
+        <div class="space-y-2">
+            <div class="bg-neutral-800/50 border border-neutral-700/30 rounded-lg p-3">
+                <div class="flex items-center justify-between"><div><p class="text-sm text-white">The Underground • Oct 2</p><p class="text-xs text-neutral-400">Status: Confirmed</p></div><a href="Setflow - Show Sheet.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">View Details</a></div>
+                <hr class="border-neutral-700 my-2">
+                <a href="Setflow - Setlist Editor.html" class="w-full text-left text-sm text-neutral-300 hover:text-white flex items-center space-x-2"><svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg><span>View/Edit Setlist</span></a>
+            </div>
+        </div>
+      </div>
+    </main>
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
+      <a href="Setflow - Musician Dashboard.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
+      <a href="Setflow - Browse Gigs.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
+      <a href="Setflow - Calendar.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Calendar</span></button></a>
+      <a href="Setflow - Inbox.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
+    </nav>
+  </div>
+</body>
+</html>

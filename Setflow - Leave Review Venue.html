@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setflow - Leave a Review</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
+      <a href="Setflow - Venue Dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Leave a Review</h1>
+    </header>
+    <main class="flex-grow p-5">
+      <div class="text-center">
+        <h2 class="text-xl font-bold text-white">How was the performance by</h2>
+        <h3 class="text-2xl font-bold text-emerald-400 mt-1">George & The Vibe?</h3>
+      </div>
+       <div class="mt-8">
+        <p class="text-center text-sm font-medium text-neutral-300 mb-2">Overall Rating</p>
+        <div class="flex justify-center text-4xl text-neutral-600 space-x-2">
+            <button class="hover:text-amber-400">★</button>
+            <button class="hover:text-amber-400">★</button>
+            <button class="hover:text-amber-400">★</button>
+            <button class="hover:text-amber-400">★</button>
+            <button class="hover:text-amber-400">★</button>
+        </div>
+      </div>
+      <div class="mt-8">
+        <label for="review-text" class="block text-sm font-medium text-neutral-300 mb-2">Public Review (Optional)</label>
+        <textarea id="review-text" rows="5" placeholder="e.g., True professionals. They sounded amazing and were a pleasure to work with..." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+      </div>
+    </main>
+     <footer class="p-4">
+        <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Submit Review</button>
+    </footer>
+  </div>
+</body>
+</html>
