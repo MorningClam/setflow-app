@@ -9,6 +9,7 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     .form-input:focus { border-color:#10B981; box-shadow:0 0 0 2px rgba(16,185,129,.2); }
+    .role-btn-active { background-color: #10B981; color: white; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -24,8 +25,16 @@
     <main class="flex-grow px-5">
       <form class="space-y-6">
         <div>
+            <label class="block text-sm font-medium text-neutral-300 mb-2">I am a...</label>
+            <div class="grid grid-cols-3 gap-2 bg-neutral-800 p-1 rounded-lg">
+                <button type="button" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md role-btn-active">Musician</button>
+                <button type="button" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md">Venue</button>
+                <button type="button" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md">Promoter</button>
+            </div>
+        </div>
+        <div>
           <label for="name" class="block text-sm font-medium text-neutral-300 mb-2">Name</label>
-          <input id="name" type="text" placeholder="Your Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
+          <input id="name" type="text" placeholder="Your Name or Band Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
         </div>
         <div>
           <label for="email" class="block text-sm font-medium text-neutral-300 mb-2">Email</label>
@@ -35,7 +44,7 @@
           <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">Password</label>
           <input id="password" type="password" placeholder="Create a password" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
         </div>
-        <a href="Setflow - Musician Dashboard.html" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
+        <a href="Setflow - Musician Dashboard.html" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
             Create Account
         </a>
       </form>
@@ -48,5 +57,23 @@
       </p>
     </footer>
   </div>
+  <script>
+    const roleButtons = document.querySelectorAll('.role-btn');
+    const createAccountBtn = document.getElementById('create-account-btn');
+    const roleRedirectMap = {
+        'Musician': 'Setflow - Musician Dashboard.html',
+        'Venue': 'Setflow - Venue Dashboard.html',
+        'Promoter': 'Setflow - Promoter Dashboard.html'
+    };
+
+    roleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            roleButtons.forEach(btn => btn.classList.remove('role-btn-active'));
+            button.classList.add('role-btn-active');
+            const selectedRole = button.innerText;
+            createAccountBtn.href = roleRedirectMap[selectedRole];
+        });
+    });
+  </script>
 </body>
 </html>
