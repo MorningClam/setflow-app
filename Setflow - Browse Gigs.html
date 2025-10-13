@@ -27,24 +27,7 @@
     </div>
   </header>
   <main class="flex-1 px-5 py-4 pb-28 space-y-3">
-    <a href="Setflow - Gig Detail View.html" class="block bg-neutral-800 rounded-xl border border-neutral-700/60 hover:border-neutral-600 p-4">
-      <div class="flex items-start justify-between">
-        <div><h3 class="text-white font-semibold">Blue Note Brewpub</h3><p class="text-sm text-neutral-400">Durham, NC</p><p class="text-sm text-neutral-300 mt-1">Saturday, Nov 6 • 8:00 PM</p></div>
-        <div class="text-right"><p class="text-emerald-400 font-bold text-lg">$400</p><p class="text-xs text-neutral-500">Funk / Soul</p></div>
-      </div>
-    </a>
-    <a href="Setflow - Gig Detail View.html" class="block bg-neutral-800 rounded-xl border border-neutral-700/60 hover:border-neutral-600 p-4">
-      <div class="flex items-start justify-between">
-        <div><h3 class="text-white font-semibold">Catawba Live</h3><p class="text-sm text-neutral-400">Raleigh, NC</p><p class="text-sm text-neutral-300 mt-1">Friday, Nov 12 • 8:30 PM</p></div>
-        <div class="text-right"><p class="text-emerald-400 font-bold text-lg">$500</p><p class="text-xs text-neutral-500">Indie Rock</p></div>
-      </div>
-    </a>
-    <div class="hidden text-center py-16">
-        <svg class="w-12 h-12 text-neutral-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
-        <h3 class="mt-2 text-lg font-semibold text-neutral-300">No Gigs Found</h3>
-        <p class="mt-1 text-sm text-neutral-500">Try adjusting your search or filters.</p>
-    </div>
-  </main>
+    </main>
   <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
       <a href="Setflow - Musician Dashboard.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
       <a href="Setflow - Browse Gigs.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
@@ -89,20 +72,47 @@
 </script>
 
 <script type="module">
-  // Import the function from our api.js file
   import { fetchGigs } from './api.js';
 
-  // Wait for the page to fully load
+  function renderGigs(gigs) {
+    const mainElement = document.querySelector('main');
+    mainElement.innerHTML = '';
+
+    if (gigs.length === 0) {
+      mainElement.innerHTML = `<div class="text-center py-16">
+        <svg class="w-12 h-12 text-neutral-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+        <h3 class="mt-2 text-lg font-semibold text-neutral-300">No Gigs Found</h3>
+        <p class="mt-1 text-sm text-neutral-500">No gigs have been posted yet.</p>
+      </div>`;
+      return;
+    }
+
+    gigs.forEach(gig => {
+      const gigElement = document.createElement('a');
+      gigElement.href = 'Setflow - Gig Detail View.html';
+      gigElement.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 hover:border-neutral-600 p-4';
+      gigElement.innerHTML = `
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="text-white font-semibold">${gig.venueName}</h3>
+            <p class="text-sm text-neutral-400">${gig.location}</p>
+            <p class="text-sm text-neutral-300 mt-1">${gig.formattedDate}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-emerald-400 font-bold text-lg">$${gig.payout}</p>
+            <p class="text-xs text-neutral-500">${gig.genre || ''}</p>
+          </div>
+        </div>
+      `;
+      mainElement.appendChild(gigElement);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
-    console.log("Page loaded. Fetching gigs from Firebase...");
-
     try {
-      // Call the function to get the gigs
       const allGigs = await fetchGigs();
-
-      // Log the results to the console to confirm it works!
       console.log("Successfully fetched gigs:", allGigs);
-
+      renderGigs(allGigs);
     } catch (error) {
       console.error("Error fetching gigs:", error);
     }

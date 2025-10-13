@@ -4,11 +4,10 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
-// This object is unique to your project
 const firebaseConfig = {
   apiKey: "AIzaSyCsgE4N9TIud4Udydkb9lF0u1EynG8lCX8",
   authDomain: "setflow-app.firebaseapp.com",
@@ -29,8 +28,7 @@ export const auth = getAuth(app);
 console.log("Firebase has been initialized.");
 
 /**
- * A placeholder function to fetch all gigs from the 'gigs' collection.
- * You can expand this to fetch gigs for the "Browse Gigs" page.
+ * Fetches all gigs from the 'gigs' collection and formats the timestamp.
  * @returns {Promise<Array>} A promise that resolves to an array of gig documents.
  */
 export async function fetchGigs() {
@@ -38,7 +36,34 @@ export async function fetchGigs() {
   const querySnapshot = await getDocs(collection(db, "gigs"));
   const gigs = [];
   querySnapshot.forEach((doc) => {
-    gigs.push({ id: doc.id, ...doc.data() });
+    const gigData = doc.data();
+    // Convert Firestore Timestamp to a readable date string
+    const date = gigData.date.toDate().toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric'
+    });
+    gigs.push({ id: doc.id, ...gigData, formattedDate: date });
   });
   return gigs;
+}
+
+/**
+ * Signs up a new user and creates a corresponding document in the 'users' collection.
+ * @param {string} name - The user's name or band name.
+ * @param {string} email - The user's email address.
+ * @param {string} password - The user's chosen password.
+ * @param {string} role - The user's selected role (e.g., 'Musician', 'Venue').
+ * @returns {Promise<UserCredential>} A promise that resolves with the user credential object.
+ */
+export async function signUpUser(name, email, password, role) {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+
+  // Now, create the user document in Firestore
+  await setDoc(doc(db, "users", user.uid), {
+    name: name,
+    email: email,
+    roles: [role.toLowerCase()] // Storing role as an array e.g., ['musician']
+  });
+
+  return userCredential;
 }
