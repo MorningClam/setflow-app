@@ -4,7 +4,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -155,4 +155,25 @@ export async function fetchCalendarEvents(userId) {
     });
   });
   return events;
+}
+
+/**
+ * Creates a new application document in Firestore for a user applying to a gig.
+ * @param {string} gigId - The ID of the gig being applied for.
+ * @param {string} userId - The ID of the user applying.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function applyForGig(gigId, userId) {
+  if (!gigId || !userId) {
+    throw new Error("Gig ID and User ID are required to apply for a gig.");
+  }
+  
+  const applicationData = {
+    gigId: gigId,
+    userId: userId,
+    status: 'applied',
+    appliedAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "applications"), applicationData);
 }

@@ -44,26 +44,53 @@
     </footer>
   </div>
 
-  <script>
-    const applyBtn = document.getElementById('apply-btn');
-    applyBtn.addEventListener('click', () => {
-      // 1. Change button state
-      applyBtn.innerText = '✓ Applied';
-      applyBtn.disabled = true;
-      applyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
-      applyBtn.classList.add('bg-neutral-600', 'cursor-not-allowed');
+  <script type="module">
+    import { onAuthState, applyForGig } from './api.js';
 
-      // 2. Redirect to the applied gigs page after a short delay
-      setTimeout(() => {
-        window.location.href = 'Setflow - Applied Gigs.html';
-      }, 1000); // 1 second delay
+    const applyBtn = document.getElementById('apply-btn');
+    let currentUserId = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const gigId = urlParams.get('id');
+
+    onAuthState(user => {
+      if (user) {
+        currentUserId = user.uid;
+      }
     });
 
-    const viewMapBtn = document.getElementById('view-map-btn');
-    viewMapBtn.addEventListener('click', () => {
-        const venueAddress = "Blue Note Brewpub, Durham, NC";
-        const encodedAddress = encodeURIComponent(venueAddress);
-        window.open(`https://maps.google.com/?q=${encodedAddress}`);
+    applyBtn.addEventListener('click', async () => {
+      if (!currentUserId) {
+        alert("Please log in to apply for a gig.");
+        window.location.href = 'Setflow - Login Page.html';
+        return;
+      }
+
+      if (!gigId) {
+        alert("Could not find Gig ID. Please go back to the browse page and try again.");
+        return;
+      }
+      
+      applyBtn.disabled = true;
+      applyBtn.innerText = 'Applying...';
+
+      try {
+        await applyForGig(gigId, currentUserId);
+        
+        applyBtn.innerText = '✓ Applied';
+        applyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+        applyBtn.classList.add('bg-neutral-600', 'cursor-not-allowed');
+
+        setTimeout(() => {
+          window.location.href = 'Setflow - Applied Gigs.html';
+        }, 1000);
+
+      } catch (error) {
+        console.error("Failed to apply for gig:", error);
+        alert("There was an error submitting your application. Please try again.");
+        applyBtn.disabled = false;
+        applyBtn.innerText = 'Apply for Gig';
+      }
     });
   </script>
 </body>
