@@ -23,7 +23,7 @@
     </header>
 
     <main class="flex-grow px-5">
-      <form class="space-y-6">
+      <form id="signup-form" class="space-y-6">
         <div>
             <label class="block text-sm font-medium text-neutral-300 mb-2">I am a...</label>
             <div class="grid grid-cols-3 gap-2 bg-neutral-800 p-1 rounded-lg">
@@ -44,9 +44,9 @@
           <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">Password</label>
           <input id="password" type="password" placeholder="Create a password" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
         </div>
-        <a href="Setflow - Musician Dashboard.html" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
+        <button type="submit" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
             Create Account
-        </a>
+        </button>
       </form>
     </main>
 
@@ -57,22 +57,55 @@
       </p>
     </footer>
   </div>
-  <script>
+  
+  <script type="module">
+    import { signUpUser } from './api.js';
+
     const roleButtons = document.querySelectorAll('.role-btn');
-    const createAccountBtn = document.getElementById('create-account-btn');
+    const signupForm = document.getElementById('signup-form');
+    let selectedRole = 'Musician'; // Default role
+
     const roleRedirectMap = {
         'Musician': 'Setflow - Musician Dashboard.html',
         'Venue': 'Setflow - Venue Dashboard.html',
         'Promoter': 'Setflow - Promoter Dashboard.html'
     };
 
+    // --- Role Selection Logic ---
     roleButtons.forEach(button => {
         button.addEventListener('click', () => {
             roleButtons.forEach(btn => btn.classList.remove('role-btn-active'));
             button.classList.add('role-btn-active');
-            const selectedRole = button.innerText;
-            createAccountBtn.href = roleRedirectMap[selectedRole];
+            selectedRole = button.innerText;
         });
+    });
+
+    // --- Form Submission Logic ---
+    signupForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitButton = document.getElementById('create-account-btn');
+
+        const name = nameInput.value;
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        
+        submitButton.disabled = true;
+        submitButton.innerText = 'Creating Account...';
+
+        try {
+            await signUpUser(name, email, password, selectedRole);
+            // On success, redirect to the correct dashboard
+            window.location.href = roleRedirectMap[selectedRole];
+        } catch (error) {
+            console.error('Signup Error:', error);
+            alert('Could not create account: ' + error.message);
+            submitButton.disabled = false;
+            submitButton.innerText = 'Create Account';
+        }
     });
   </script>
 </body>
