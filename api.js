@@ -4,7 +4,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -110,4 +110,25 @@ export async function fetchGigs() {
     gigs.push({ id: doc.id, ...gigData, formattedDate: date });
   });
   return gigs;
+}
+
+/**
+ * Creates a new event in the 'calendarEvents' collection.
+ * @param {object} eventData - The data for the event.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function createCalendarEvent(eventData) {
+  // Combine date and time strings and convert to a JavaScript Date object, then to a Firestore Timestamp
+  const dateTimeString = `${eventData.date}T${eventData.time}`;
+  const eventTimestamp = Timestamp.fromDate(new Date(dateTimeString));
+
+  const eventToSave = {
+    userId: eventData.userId,
+    title: eventData.title,
+    type: eventData.type,
+    date: eventTimestamp,
+    notes: eventData.notes
+  };
+
+  return await addDoc(collection(db, "calendarEvents"), eventToSave);
 }

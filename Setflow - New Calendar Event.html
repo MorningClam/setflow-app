@@ -18,37 +18,89 @@
     <div class="w-9"></div>
   </header>
   <main class="flex-1 px-5 py-4 pb-28 space-y-6">
-    <div>
-        <label for="event-title" class="block text-sm font-medium text-neutral-300 mb-2">Event Title</label>
-        <input id="event-title" type="text" placeholder="e.g., Rehearsal, Songwriting Session" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-    </div>
-     <div>
-        <label for="event-type" class="block text-sm font-medium text-neutral-300 mb-2">Event Type</label>
-        <select id="event-type" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-            <option>Rehearsal</option>
-            <option>Personal (Blocked Off)</option>
-            <option>Tentative Gig</option>
-            <option>Other</option>
-        </select>
-    </div>
-    <div class="grid grid-cols-2 gap-4">
+    <form id="event-form">
         <div>
-            <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-            <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <label for="event-title" class="block text-sm font-medium text-neutral-300 mb-2">Event Title</label>
+            <input id="event-title" type="text" placeholder="e.g., Rehearsal, Songwriting Session" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
         </div>
-        <div>
-            <label for="event-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
-            <input id="event-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+        <div class="mt-6">
+            <label for="event-type" class="block text-sm font-medium text-neutral-300 mb-2">Event Type</label>
+            <select id="event-type" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+                <option>Rehearsal</option>
+                <option>Personal (Blocked Off)</option>
+                <option>Tentative Gig</option>
+                <option>Other</option>
+            </select>
         </div>
-    </div>
-    <div>
-        <label for="event-notes" class="block text-sm font-medium text-neutral-300 mb-2">Notes</label>
-        <textarea id="event-notes" rows="4" placeholder="e.g., Work on new song bridges." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
-    </div>
+        <div class="grid grid-cols-2 gap-4 mt-6">
+            <div>
+                <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
+                <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
+            <div>
+                <label for="event-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
+                <input id="event-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
+        </div>
+        <div class="mt-6">
+            <label for="event-notes" class="block text-sm font-medium text-neutral-300 mb-2">Notes</label>
+            <textarea id="event-notes" rows="4" placeholder="e.g., Work on new song bridges." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+        </div>
+    </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Save Event</button>
+    <button type="submit" form="event-form" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Save Event</button>
   </footer>
 </div>
+
+<script type="module">
+    import { onAuthState, createCalendarEvent } from './api.js';
+
+    const eventForm = document.getElementById('event-form');
+    let currentUserId = null;
+
+    // Protect the page: only allow logged-in users
+    onAuthState(user => {
+        if (user) {
+            currentUserId = user.uid;
+        } else {
+            // If no user, redirect to login
+            window.location.href = 'Setflow - Login Page.html';
+        }
+    });
+
+    eventForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentUserId) {
+            alert('You must be logged in to create an event.');
+            return;
+        }
+
+        const submitButton = document.querySelector('footer button');
+        submitButton.disabled = true;
+        submitButton.innerText = 'Saving...';
+
+        const eventData = {
+            userId: currentUserId,
+            title: document.getElementById('event-title').value,
+            type: document.getElementById('event-type').value,
+            date: document.getElementById('event-date').value,
+            time: document.getElementById('event-time').value,
+            notes: document.getElementById('event-notes').value
+        };
+
+        try {
+            await createCalendarEvent(eventData);
+            // On success, redirect back to the calendar
+            window.location.href = 'Setflow - Calendar.html';
+        } catch (error) {
+            console.error("Error creating event:", error);
+            alert("Failed to save event. Please try again.");
+            submitButton.disabled = false;
+            submitButton.innerText = 'Save Event';
+        }
+    });
+</script>
+
 </body>
 </html>
