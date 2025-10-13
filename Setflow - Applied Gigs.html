@@ -17,32 +17,64 @@
     <h1 class="text-lg font-bold tracking-tight">My Applications</h1>
     <div class="w-9"></div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-3">
-    <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
-        <h3 class="text-white font-semibold">Blue Note Brewpub</h3>
-        <p class="text-sm text-neutral-400">Funk / Soul • Saturday, Nov 6</p>
-        <div class="mt-2 pt-2 border-t border-neutral-700/60 flex items-center">
-            <div class="w-2 h-2 rounded-full bg-amber-400 mr-2"></div>
-            <p class="text-xs font-semibold text-amber-400">Status: Application Sent</p>
-        </div>
-    </div>
-    <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
-        <h3 class="text-white font-semibold">Catawba Live</h3>
-        <p class="text-sm text-neutral-400">Indie Rock • Friday, Nov 12</p>
-        <div class="mt-2 pt-2 border-t border-neutral-700/60 flex items-center">
-            <div class="w-2 h-2 rounded-full bg-sky-400 mr-2"></div>
-            <p class="text-xs font-semibold text-sky-400">Status: Venue Viewed</p>
-        </div>
-    </div>
-     <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4 opacity-60">
-        <h3 class="text-white font-semibold">The Pour House</h3>
-        <p class="text-sm text-neutral-400">Funk Night • Friday, Nov 5</p>
-        <div class="mt-2 pt-2 border-t border-neutral-700/60 flex items-center">
-            <div class="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
-            <p class="text-xs font-semibold text-red-400">Status: Not Selected</p>
-        </div>
-    </div>
+  <main id="applications-container" class="flex-1 px-5 py-4 pb-28 space-y-3">
+    <p class="text-neutral-500">Loading your applications...</p>
   </main>
 </div>
+
+<script type="module">
+    import { onAuthState, fetchMyApplications } from './api.js';
+
+    const applicationsContainer = document.getElementById('applications-container');
+
+    // Maps application statuses to Tailwind CSS classes for display
+    const statusStyles = {
+        'applied': { text: 'Application Sent', textColor: 'text-amber-400', bgColor: 'bg-amber-400' },
+        'viewed': { text: 'Venue Viewed', textColor: 'text-sky-400', bgColor: 'bg-sky-400' },
+        'not selected': { text: 'Not Selected', textColor: 'text-red-400', bgColor: 'bg-red-400' },
+        'default': { text: 'Unknown Status', textColor: 'text-neutral-400', bgColor: 'bg-neutral-400' }
+    };
+
+    function renderApplications(applications) {
+        applicationsContainer.innerHTML = ''; // Clear the loading message
+
+        if (applications.length === 0) {
+            applicationsContainer.innerHTML = `<p class="text-neutral-500 text-center mt-8">You haven't applied to any gigs yet.</p>`;
+            return;
+        }
+
+        applications.forEach(app => {
+            const style = statusStyles[app.status] || statusStyles.default;
+            const applicationCard = document.createElement('div');
+            applicationCard.className = `bg-neutral-800 rounded-xl border border-neutral-700/60 p-4 ${app.status === 'not selected' ? 'opacity-60' : ''}`;
+
+            applicationCard.innerHTML = `
+                <h3 class="text-white font-semibold">${app.gigVenue}</h3>
+                <p class="text-sm text-neutral-400">${app.gigGenre} • ${app.gigDate}</p>
+                <div class="mt-2 pt-2 border-t border-neutral-700/60 flex items-center">
+                    <div class="w-2 h-2 rounded-full ${style.bgColor} mr-2"></div>
+                    <p class="text-xs font-semibold ${style.textColor}">Status: ${style.text}</p>
+                </div>
+            `;
+            applicationsContainer.appendChild(applicationCard);
+        });
+    }
+
+    onAuthState(async (user) => {
+        if (user) {
+            try {
+                const myApplications = await fetchMyApplications(user.uid);
+                renderApplications(myApplications);
+            } catch (error) {
+                console.error("Failed to fetch applications:", error);
+                applicationsContainer.innerHTML = `<p class="text-red-400">Could not load your applications.</p>`;
+            }
+        } else {
+            // No user is signed in.
+            window.location.href = 'Setflow - Login Page.html';
+        }
+    });
+</script>
+
 </body>
 </html>

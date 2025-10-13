@@ -176,4 +176,44 @@ export async function applyForGig(gigId, userId) {
   };
 
   return await addDoc(collection(db, "applications"), applicationData);
+  /**
+ * Fetches all applications for a specific user, along with the details of each associated gig.
+ * @param {string} userId - The ID of the user whose applications to fetch.
+ * @returns {Promise<Array>} A promise that resolves to an array of combined application and gig data.
+ */
+export async function fetchMyApplications(userId) {
+  // Step 1: Create a query to find all applications by the current user
+  const applicationsRef = collection(db, "applications");
+  const q = query(applicationsRef, where("userId", "==", userId));
+
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) {
+    return []; // Return an empty array if the user has no applications
+  }
+
+  // Step 2: For each application, fetch the corresponding gig details
+  const applicationPromises = querySnapshot.docs.map(async (appDoc) => {
+    const applicationData = appDoc.data();
+    const gigDocRef = doc(db, "gigs", applicationData.gigId);
+    const gigDocSnap = await getDoc(gigDocRef);
+
+    if (gigDocSnap.exists()) {
+      const gigData = gigDocSnap.data();
+      // Step 3: Combine application status with gig data
+      return {
+        ...applicationData, // status, appliedAt, etc.
+        id: appDoc.id,       // application ID
+        gigVenue: gigData.venueName,
+        gigGenre: gigData.genre,
+        gigDate: gigData.date.toDate().toLocaleDateString('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric'
+        }),
+      };
+    }
+    return null; // Return null if a gig is not found
+  });
+
+  const applications = await Promise.all(applicationPromises);
+  // Filter out any null results where a gig might have been deleted
+  return applications.filter(app => app !== null);
 }
