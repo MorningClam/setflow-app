@@ -4,7 +4,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -118,7 +118,6 @@ export async function fetchGigs() {
  * @returns {Promise<import("firebase/firestore").DocumentReference>}
  */
 export async function createCalendarEvent(eventData) {
-  // Combine date and time strings and convert to a JavaScript Date object, then to a Firestore Timestamp
   const dateTimeString = `${eventData.date}T${eventData.time}`;
   const eventTimestamp = Timestamp.fromDate(new Date(dateTimeString));
 
@@ -131,4 +130,29 @@ export async function createCalendarEvent(eventData) {
   };
 
   return await addDoc(collection(db, "calendarEvents"), eventToSave);
+}
+
+/**
+ * Fetches all calendar events for a specific user, ordered by date.
+ * @param {string} userId - The ID of the user whose events to fetch.
+ * @returns {Promise<Array>} A promise that resolves to an array of event documents.
+ */
+export async function fetchCalendarEvents(userId) {
+  const eventsCollectionRef = collection(db, "calendarEvents");
+  const q = query(eventsCollectionRef, where("userId", "==", userId), orderBy("date", "asc"));
+  
+  const querySnapshot = await getDocs(q);
+  const events = [];
+  querySnapshot.forEach((doc) => {
+    const eventData = doc.data();
+    const date = eventData.date.toDate();
+    
+    events.push({
+      id: doc.id,
+      ...eventData,
+      formattedDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      formattedTime: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    });
+  });
+  return events;
 }
