@@ -216,4 +216,33 @@ export async function fetchMyApplications(userId) {
   const applications = await Promise.all(applicationPromises);
   // Filter out any null results where a gig might have been deleted
   return applications.filter(app => app !== null);
+  /**
+ * Fetches all applicants for a specific gig.
+ * @param {string} gigId - The ID of the gig to fetch applicants for.
+ * @returns {Promise<Array>} A promise that resolves to an array of applicant user data.
+ */
+export async function fetchApplicantsForGig(gigId) {
+  if (!gigId) {
+    throw new Error("Gig ID is required to fetch applicants.");
+  }
+
+  // Step 1: Find all applications for the given gigId
+  const applicationsRef = collection(db, "applications");
+  const q = query(applicationsRef, where("gigId", "==", gigId));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    return []; // No applicants for this gig
+  }
+
+  // Step 2: For each application, fetch the applicant's user data
+  const applicantPromises = querySnapshot.docs.map(appDoc => {
+    const applicantId = appDoc.data().userId;
+    return getUserData(applicantId); // Re-use the existing getUserData function
+  });
+
+  const applicants = await Promise.all(applicantPromises);
+
+  // Filter out any potential null values if a user profile was not found
+  return applicants.filter(applicant => applicant !== null);
 }

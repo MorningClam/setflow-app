@@ -12,8 +12,9 @@
   <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
     <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
       <a href="Setflow - Venue Dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <div class="text-center mx-auto"><h1 class="text-lg font-bold tracking-tight">Applicants: Funk Night</h1><p class="text-sm text-neutral-400">For Friday, Nov 5</p></div>
-      <div class="w-8 h-8"></div>
+      <div id="header-title" class="text-center mx-auto pr-8">
+        <h1 class="text-lg font-bold tracking-tight">Review Applicants</h1>
+      </div>
     </header>
     
     <div class="px-5 py-3 border-b border-neutral-800">
@@ -21,51 +22,72 @@
         <select id="sort" class="bg-neutral-700 text-white text-sm rounded-md p-1 border-0 focus:ring-0">
             <option>Best Match</option>
             <option>Newest</option>
-            <option>Highest Rated</option>
         </select>
     </div>
 
-    <main class="flex-grow pb-28 divide-y divide-neutral-800">
-      <div class="p-4 hover:bg-neutral-800/50">
-        <a href="Setflow - Applicant Profile.html" class="flex items-center space-x-4">
-          <img class="w-16 h-16 rounded-lg object-cover" src="https://images.unsplash.com/photo-1521402321589-6689539a9557?q=80&w=2187&auto=format&fit=crop" alt="George & The Vibe">
-          <div class="flex-1">
-            <p class="font-bold text-lg text-white">George & The Vibe</p>
-            <p class="text-sm text-neutral-300">Funk, Soul, R&B</p>
-            <div class="flex items-center space-x-3 mt-1">
-                <span class="text-xs font-semibold text-amber-400">★ 4.9 / 5</span>
-                <span class="text-xs font-semibold text-emerald-400">98% Gig Match</span>
-            </div>
-          </div>
-        </a>
-        <div class="flex items-center space-x-2 mt-3">
-            <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg">Message</button>
-            <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg">Bookmark</button>
-        </div>
-      </div>
-       <div class="p-4 hover:bg-neutral-800/50">
-        <a href="Setflow - Applicant Profile.html" class="flex items-center space-x-4">
-            <img class="w-16 h-16 rounded-lg object-cover" src="https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop" alt="The Sidewinders">
-            <div class="flex-1">
-                <p class="font-bold text-lg text-white">The Sidewinders</p>
-                <p class="text-sm text-neutral-300">Blues Rock, Soul</p>
-                 <div class="flex items-center space-x-3 mt-1">
-                    <span class="text-xs font-semibold text-amber-400">★ 4.7 / 5</span>
-                    <span class="text-xs font-semibold text-neutral-400">75% Gig Match</span>
-                </div>
-            </div>
-        </a>
-         <div class="flex items-center space-x-2 mt-3">
-            <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg">Message</button>
-            <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg">Bookmark</button>
-        </div>
-      </div>
+    <main id="applicants-container" class="flex-grow pb-28 divide-y divide-neutral-800">
+      <p class="p-4 text-neutral-500">Loading applicants...</p>
     </main>
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
-        <a href="Setflow - Venue Dashboard.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
-        <a href="Setflow - Post Event Page.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Post</span></button></a>
-        <a href="Setflow - Inbox.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
-    </nav>
+    
   </div>
+
+  <script type="module">
+    import { onAuthState, fetchApplicantsForGig } from './api.js';
+
+    const applicantsContainer = document.getElementById('applicants-container');
+    const headerTitle = document.getElementById('header-title');
+    const urlParams = new URLSearchParams(window.location.search);
+    const gigId = urlParams.get('gigId');
+    const gigName = urlParams.get('gigName') || 'a Gig';
+
+    // Update header to be more descriptive
+    headerTitle.innerHTML = `<h1 class="text-lg font-bold tracking-tight">Applicants for</h1><p class="text-sm text-neutral-400">${decodeURIComponent(gigName)}</p>`;
+
+    function renderApplicants(applicants) {
+      applicantsContainer.innerHTML = ''; // Clear loading message
+
+      if (!applicants || applicants.length === 0) {
+        applicantsContainer.innerHTML = `<p class="p-4 text-center text-neutral-500 mt-8">No one has applied to this gig yet.</p>`;
+        return;
+      }
+
+      applicants.forEach(applicant => {
+        const applicantCard = document.createElement('div');
+        applicantCard.className = 'p-4 hover:bg-neutral-800/50';
+        applicantCard.innerHTML = `
+          <a href="Setflow - Applicant Profile.html?userId=${applicant.id}" class="flex items-center space-x-4">
+            <img class="w-16 h-16 rounded-lg object-cover" src="${applicant.profileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${applicant.name}">
+            <div class="flex-1">
+              <p class="font-bold text-lg text-white">${applicant.name}</p>
+              <p class="text-sm text-neutral-300">${applicant.genres ? applicant.genres.join(', ') : 'Music'}</p>
+            </div>
+          </a>
+          <div class="flex items-center space-x-2 mt-3">
+              <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg">Message</button>
+              <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg">Bookmark</button>
+          </div>
+        `;
+        applicantsContainer.appendChild(applicantCard);
+      });
+    }
+
+    onAuthState(async (user) => {
+      if (user) {
+        if (!gigId) {
+          applicantsContainer.innerHTML = '<p class="p-4 text-red-400">Error: No Gig ID provided in the URL.</p>';
+          return;
+        }
+        try {
+          const applicants = await fetchApplicantsForGig(gigId);
+          renderApplicants(applicants);
+        } catch (error) {
+          console.error("Failed to fetch applicants:", error);
+          applicantsContainer.innerHTML = '<p class="p-4 text-red-400">Could not load applicants.</p>';
+        }
+      } else {
+        window.location.href = 'Setflow - Login Page.html';
+      }
+    });
+  </script>
 </body>
 </html>
