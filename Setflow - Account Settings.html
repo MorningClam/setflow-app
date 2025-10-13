@@ -23,11 +23,11 @@
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Personal Info</h2>
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
             <div class="p-4 flex justify-between items-center">
-                <div><p class="text-neutral-400 text-sm">Name</p><p class="text-white">George</p></div>
+                <div><p class="text-neutral-400 text-sm">Name</p><p class="text-white" id="user-name">George</p></div>
                 <button class="text-sm font-semibold text-emerald-400">Edit</button>
             </div>
             <div class="p-4 flex justify-between items-center">
-                <div><p class="text-neutral-400 text-sm">Email</p><p class="text-white">george@thevibe.com</p></div>
+                <div><p class="text-neutral-400 text-sm">Email</p><p class="text-white" id="user-email">george@thevibe.com</p></div>
                 <button class="text-sm font-semibold text-emerald-400">Edit</button>
             </div>
             <div class="p-4 flex justify-between items-center">
@@ -60,12 +60,44 @@
     </div>
 
     <div>
-        <a href="Setflow - Login Page.html" class="w-full block text-center py-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 text-base font-bold rounded-xl transition-colors">
+        <a href="#" id="logout-btn" class="w-full block text-center py-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 text-base font-bold rounded-xl transition-colors">
             Log Out
         </a>
     </div>
 
   </main>
 </div>
+
+<script type="module">
+    import { signOutUser, onAuthState, getUserData } from './api.js';
+
+    const logoutButton = document.getElementById('logout-btn');
+
+    logoutButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            await signOutUser();
+            console.log('User signed out successfully.');
+            window.location.href = 'Setflow - Login Page.html';
+        } catch (error) {
+            console.error('Sign out error:', error);
+            alert('Failed to log out.');
+        }
+    });
+
+    // Also protect this page and display user data
+    onAuthState(async (user) => {
+        if (user) {
+            const userData = await getUserData(user.uid);
+            if (userData) {
+                document.getElementById('user-name').innerText = userData.name;
+                document.getElementById('user-email').innerText = userData.email;
+            }
+        } else {
+            window.location.href = 'Setflow - Login Page.html';
+        }
+    });
+</script>
+
 </body>
 </html>

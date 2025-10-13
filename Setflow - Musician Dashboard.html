@@ -119,5 +119,29 @@
     });
   </script>
 
+  <script type="module">
+    import { onAuthState, getUserData } from './api.js';
+
+    onAuthState(async (user) => {
+      if (user) {
+        // User is signed in.
+        console.log('User is logged in:', user);
+        
+        // You can now fetch and display user-specific data
+        const userData = await getUserData(user.uid);
+        if (userData) {
+          // For example, let's change the main dashboard title
+          // You could add an ID to the h1 tag to make this easier
+          const dashboardTitle = document.querySelector('header h1');
+          dashboardTitle.innerText = `${userData.name}'s Dashboard`;
+        }
+      } else {
+        // User is signed out. Redirect to login page.
+        console.log('User is not logged in. Redirecting...');
+        window.location.href = 'Setflow - Login Page.html';
+      }
+    });
+  </script>
+
 </body>
 </html>
