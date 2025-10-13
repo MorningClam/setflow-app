@@ -21,7 +21,7 @@
       <p class="text-neutral-400 mt-2">Your Music Command Center.</p>
     </header>
     <main class="flex-grow px-5">
-      <form class="space-y-6">
+      <form id="login-form" class="space-y-6">
         <div>
           <label for="email" class="block text-sm font-medium text-neutral-300 mb-2">Email</label>
           <input id="email" name="email" type="email" placeholder="your@email.com" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
@@ -30,9 +30,9 @@
           <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">Password</label>
           <input id="password" name="password" type="password" placeholder="Enter your password" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
         </div>
-        <a href="Setflow - Login Gateway.html" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
+        <button type="submit" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
           Sign In
-        </a>
+        </button>
       </form>
     </main>
     <footer class="px-5 py-6 text-center">
@@ -42,5 +42,58 @@
       </p>
     </footer>
   </div>
+
+  <script type="module">
+    import { signInUser, getUserData } from './api.js';
+
+    const loginForm = document.getElementById('login-form');
+
+    const roleRedirectMap = {
+      'musician': 'Setflow - Musician Dashboard.html',
+      'venue': 'Setflow - Venue Dashboard.html',
+      'promoter': 'Setflow - Promoter Dashboard.html'
+    };
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const submitButton = loginForm.querySelector('button[type="submit"]');
+
+      submitButton.disabled = true;
+      submitButton.innerText = 'Signing In...';
+
+      try {
+        // Step 1: Sign in the user
+        const userCredential = await signInUser(email, password);
+        const user = userCredential.user;
+
+        // Step 2: Get the user's data (including their role)
+        const userData = await getUserData(user.uid);
+        
+        if (userData && userData.roles && userData.roles.length > 0) {
+          // Step 3: Redirect to the correct dashboard
+          const primaryRole = userData.roles[0]; // Get the first role
+          const redirectUrl = roleRedirectMap[primaryRole];
+
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          } else {
+            // Fallback if the role is unknown, though this shouldn't happen
+            alert('Login successful, but your role is not recognized. Defaulting to musician dashboard.');
+            window.location.href = roleRedirectMap['musician'];
+          }
+        } else {
+          throw new Error("Could not find user role. Please contact support.");
+        }
+
+      } catch (error) {
+        console.error('Login Error:', error);
+        alert('Login failed: ' + error.message);
+        submitButton.disabled = false;
+        submitButton.innerText = 'Sign In';
+      }
+    });
+  </script>
 </body>
 </html>
