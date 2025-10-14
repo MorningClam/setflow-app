@@ -176,7 +176,9 @@ export async function applyForGig(gigId, userId) {
   };
 
   return await addDoc(collection(db, "applications"), applicationData);
-  /**
+}
+
+/**
  * Fetches all applications for a specific user, along with the details of each associated gig.
  * @param {string} userId - The ID of the user whose applications to fetch.
  * @returns {Promise<Array>} A promise that resolves to an array of combined application and gig data.
@@ -216,7 +218,9 @@ export async function fetchMyApplications(userId) {
   const applications = await Promise.all(applicationPromises);
   // Filter out any null results where a gig might have been deleted
   return applications.filter(app => app !== null);
-  /**
+}
+
+/**
  * Fetches all applicants for a specific gig.
  * @param {string} gigId - The ID of the gig to fetch applicants for.
  * @returns {Promise<Array>} A promise that resolves to an array of applicant user data.
@@ -245,7 +249,9 @@ export async function fetchApplicantsForGig(gigId) {
 
   // Filter out any potential null values if a user profile was not found
   return applicants.filter(applicant => applicant !== null);
-  /**
+}
+
+/**
  * Fetches all gigs for a specific owner (venue or promoter).
  * @param {string} userId - The ID of the user whose gigs to fetch.
  * @returns {Promise<Array>} A promise that resolves to an array of gig documents.
@@ -284,4 +290,31 @@ export async function fetchGigsForOwner(userId) {
   }
 
   return gigs;
+}
+
+/**
+ * Creates a new gig document in Firestore.
+ * @param {object} gigData - The data for the new gig.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function createGig(gigData) {
+  if (!gigData.ownerId) {
+    throw new Error("An ownerId must be provided to create a gig.");
+  }
+
+  // Convert the date string from the form into a Firebase Timestamp
+  const eventTimestamp = Timestamp.fromDate(new Date(gigData.date));
+
+  const gigToSave = {
+    ownerId: gigData.ownerId,
+    venueName: gigData.eventName,
+    location: gigData.location,
+    date: eventTimestamp,
+    payout: Number(gigData.payout), // Ensure payout is stored as a number
+    description: gigData.description,
+    status: 'open', // Gigs are open by default
+    createdAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "gigs"), gigToSave);
 }

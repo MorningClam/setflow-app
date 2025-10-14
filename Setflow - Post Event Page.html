@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale-1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Setflow - Post New Event</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -15,33 +15,93 @@
     <h1 class="text-lg font-bold tracking-tight">Post New Event</h1>
     <div class="w-9"></div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
-    <div>
-        <label for="event-name" class="block text-sm font-medium text-neutral-300 mb-2">Event Name</label>
-        <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-    </div>
-    <div>
-        <label for="event-location" class="block text-sm font-medium text-neutral-300 mb-2">Location / Address</label>
-        <input id="event-location" type="text" placeholder="123 Main St, Apex, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-    </div>
-    <div class="grid grid-cols-2 gap-4">
+  <main class="flex-1 px-5 py-4 pb-28">
+    <form id="post-gig-form" class="space-y-6">
         <div>
-            <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-            <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <label for="event-name" class="block text-sm font-medium text-neutral-300 mb-2">Event Name</label>
+            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
         </div>
         <div>
-            <label for="event-payout" class="block text-sm font-medium text-neutral-300 mb-2">Artist Payout ($)</label>
-            <input id="event-payout" type="number" placeholder="500" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <label for="event-location" class="block text-sm font-medium text-neutral-300 mb-2">Location / Address</label>
+            <input id="event-location" type="text" placeholder="123 Main St, Apex, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
         </div>
-    </div>
-    <div>
-        <label for="event-description" class="block text-sm font-medium text-neutral-300 mb-2">Artist Requirements</label>
-        <textarea id="event-description" rows="4" placeholder="Looking for a 4-piece funk band. 2-hour set. PA provided, bring backline." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
-    </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
+                <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
+            <div>
+                <label for="event-payout" class="block text-sm font-medium text-neutral-300 mb-2">Artist Payout ($)</label>
+                <input id="event-payout" type="number" placeholder="500" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
+        </div>
+        <div>
+            <label for="event-description" class="block text-sm font-medium text-neutral-300 mb-2">Artist Requirements / Description</label>
+            <textarea id="event-description" rows="4" placeholder="Looking for a 4-piece funk band. 2-hour set. PA provided, bring backline." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+        </div>
+    </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Post Event & Find Artists</button>
+    <button type="submit" form="post-gig-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Post Event & Find Artists</button>
   </footer>
 </div>
+
+<script type="module">
+  import { onAuthState, createGig } from './api.js';
+
+  const gigForm = document.getElementById('post-gig-form');
+  const submitButton = document.getElementById('submit-btn');
+  let currentUserId = null;
+
+  onAuthState(user => {
+    if (user) {
+      currentUserId = user.uid;
+    } else {
+      // If user is not logged in, redirect them
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+
+  gigForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUserId) {
+      alert("You must be logged in to post a gig.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.innerText = 'Posting Event...';
+
+    const gigData = {
+      ownerId: currentUserId,
+      eventName: document.getElementById('event-name').value,
+      location: document.getElementById('event-location').value,
+      date: document.getElementById('event-date').value,
+      payout: document.getElementById('event-payout').value,
+      description: document.getElementById('event-description').value
+    };
+    
+    // Basic validation
+    if (!gigData.eventName || !gigData.location || !gigData.date || !gigData.payout) {
+        alert("Please fill out all required fields.");
+        submitButton.disabled = false;
+        submitButton.innerText = 'Post Event & Find Artists';
+        return;
+    }
+
+    try {
+      await createGig(gigData);
+      alert('Event posted successfully!');
+      // Redirect to the dashboard to see the new gig
+      window.location.href = 'Setflow - Promoter Dashboard.html';
+    } catch (error) {
+      console.error("Error creating gig:", error);
+      alert("Failed to post event. Please try again.");
+      submitButton.disabled = false;
+      submitButton.innerText = 'Post Event & Find Artists';
+    }
+  });
+</script>
+
 </body>
 </html>
