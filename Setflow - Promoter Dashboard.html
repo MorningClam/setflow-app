@@ -24,44 +24,83 @@
       </a>
     </div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-4">
+  <main id="events-container" class="flex-1 px-5 py-4 pb-28 space-y-4">
     <div class="py-4">
       <h2 class="text-2xl font-bold text-neutral-100">Your Events</h2>
     </div>
-    
-    <div class="bg-neutral-800 rounded-xl border border-emerald-500 shadow-lg shadow-emerald-500/10">
-      <div class="p-4">
-        <h3 class="font-bold text-white">Apex Fall Fest</h3>
-        <p class="text-sm text-neutral-300">Saturday, Nov 22, 2025 • Downtown Apex</p>
-        <p class="text-sm text-emerald-400 mt-1">Status: Accepting Applications (5 Applicants)</p>
-      </div>
-      <div class="bg-neutral-900/50 rounded-b-xl px-4 py-2 border-t border-neutral-700">
-        <a href="Setflow - Review Applicants.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Review Applicants →</a>
-      </div>
-    </div>
-
-    <div class="bg-neutral-800 rounded-xl border border-neutral-700/60">
-      <div class="p-4">
-        <h3 class="font-bold text-white">Raleigh Corporate Gala</h3>
-        <p class="text-sm text-neutral-300">Friday, Dec 5, 2025 • Raleigh Convention Center</p>
-        <p class="text-sm text-neutral-400 mt-1">Artist Booked: George & The Vibe</p>
-      </div>
-      <div class="bg-neutral-900/50 rounded-b-xl px-4 py-2 border-t border-neutral-700">
-        <a href="Setflow - Show Sheet.html" class="text-sm font-semibold text-neutral-300 hover:text-white">View Show Sheet →</a>
-      </div>
-    </div>
-    
-    <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 opacity-60">
-      <div class="p-4">
-        <h3 class="font-bold text-white">Apex Fall Fest (2024)</h3>
-        <p class="text-sm text-neutral-400 mt-1">Status: Completed</p>
-      </div>
-      <div class="bg-neutral-900/50 rounded-b-xl px-4 py-2 border-t border-neutral-700">
-        <a href="#" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Clone Event</a>
-      </div>
-    </div>
-
+    <p class="text-neutral-500">Loading your events...</p>
   </main>
-  </div>
+</div>
+
+<script type="module">
+  import { onAuthState, fetchGigsForOwner } from './api.js';
+
+  const eventsContainer = document.getElementById('events-container');
+
+  function renderEvents(gigs) {
+    // Clear the loading message, but keep the header
+    eventsContainer.innerHTML = `
+      <div class="py-4">
+        <h2 class="text-2xl font-bold text-neutral-100">Your Events</h2>
+      </div>
+    `;
+
+    if (!gigs || gigs.length === 0) {
+      eventsContainer.innerHTML += `<p class="text-neutral-500 text-center mt-8">You haven't posted any events yet.</p>`;
+      return;
+    }
+
+    gigs.forEach(gig => {
+      const isBooked = gig.status === 'booked';
+      const eventCard = document.createElement('div');
+      
+      let cardContent = `
+        <div class="p-4">
+          <h3 class="font-bold text-white">${gig.venueName}</h3>
+          <p class="text-sm text-neutral-300">${gig.formattedDate} • ${gig.location}</p>
+      `;
+
+      if (isBooked) {
+        eventCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60';
+        cardContent += `<p class="text-sm text-neutral-400 mt-1">Artist Booked: ${gig.bookedArtistName || 'N/A'}</p>`;
+      } else {
+        eventCard.className = 'bg-neutral-800 rounded-xl border border-emerald-500 shadow-lg shadow-emerald-500/10';
+        cardContent += `<p class="text-sm text-emerald-400 mt-1">Status: Accepting Applications (${gig.applicantCount} Applicants)</p>`;
+      }
+      
+      cardContent += '</div>';
+
+      // Use the correct link based on whether the gig is booked or still open
+      const reviewLink = `Setflow - Review Applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}`;
+      const showSheetLink = `Setflow - Show Sheet.html?gigId=${gig.id}`;
+      
+      cardContent += `
+        <div class="bg-neutral-900/50 rounded-b-xl px-4 py-2 border-t border-neutral-700">
+          <a href="${isBooked ? showSheetLink : reviewLink}" class="text-sm font-semibold ${isBooked ? 'text-neutral-300 hover:text-white' : 'text-emerald-400 hover:text-emerald-300'}">
+            ${isBooked ? 'View Show Sheet →' : 'Review Applicants →'}
+          </a>
+        </div>
+      `;
+
+      eventCard.innerHTML = cardContent;
+      eventsContainer.appendChild(eventCard);
+    });
+  }
+
+  onAuthState(async (user) => {
+    if (user) {
+      try {
+        const gigs = await fetchGigsForOwner(user.uid);
+        renderEvents(gigs);
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
+        eventsContainer.innerHTML += `<p class="text-red-400">Could not load your events.</p>`;
+      }
+    } else {
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+</script>
+
 </body>
 </html>

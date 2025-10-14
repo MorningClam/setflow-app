@@ -245,4 +245,43 @@ export async function fetchApplicantsForGig(gigId) {
 
   // Filter out any potential null values if a user profile was not found
   return applicants.filter(applicant => applicant !== null);
+  /**
+ * Fetches all gigs for a specific owner (venue or promoter).
+ * @param {string} userId - The ID of the user whose gigs to fetch.
+ * @returns {Promise<Array>} A promise that resolves to an array of gig documents.
+ */
+export async function fetchGigsForOwner(userId) {
+  if (!userId) {
+    throw new Error("User ID is required to fetch gigs.");
+  }
+
+  const gigsRef = collection(db, "gigs");
+  // This query finds all gigs where the 'ownerId' field matches the current user's ID
+  const q = query(gigsRef, where("ownerId", "==", userId), orderBy("date", "desc"));
+
+  const querySnapshot = await getDocs(q);
+  const gigs = [];
+
+  // We also need to count the number of applicants for each gig.
+  // This is a bit more advanced as it requires a separate query for each gig.
+  for (const doc of querySnapshot.docs) {
+    const gigData = doc.data();
+
+    // Create a sub-query to count applications for this gig
+    const appsRef = collection(db, "applications");
+    const appsQuery = query(appsRef, where("gigId", "==", doc.id));
+    const appsSnapshot = await getDocs(appsQuery);
+    const applicantCount = appsSnapshot.size; // Get the number of documents found
+
+    gigs.push({
+      id: doc.id,
+      ...gigData,
+      applicantCount: applicantCount, // Add the count to our gig object
+      formattedDate: gigData.date.toDate().toLocaleDateString('en-US', {
+        weekday: 'long', month: 'short', day: 'numeric'
+      }),
+    });
+  }
+
+  return gigs;
 }
