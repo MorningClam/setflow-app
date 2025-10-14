@@ -23,24 +23,54 @@
       </div>
     </div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 grid grid-cols-2 gap-4">
-    <a href="Setflow - Gear Detail.html" class="block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden">
-        <img class="h-32 w-full object-cover" src="https://images.unsplash.com/photo-1611982739720-3c5a6d55ac4d?q=80&w=2187&auto=format&fit=crop" alt="Guitar pedal">
-        <div class="p-3">
-            <h3 class="font-semibold text-white truncate">Strymon BlueSky Reverb</h3>
-            <p class="text-sm text-neutral-400">Raleigh, NC</p>
-            <p class="text-lg font-bold text-emerald-400 mt-1">$250</p>
-        </div>
-    </a>
-    <a href="Setflow - Gear Detail.html" class="block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden">
-        <img class="h-32 w-full object-cover" src="https://images.unsplash.com/photo-1590726914972-6a605869e548?q=80&w=2187&auto=format&fit=crop" alt="Fender Telecaster">
-        <div class="p-3">
-            <h3 class="font-semibold text-white truncate">Fender Telecaster</h3>
-            <p class="text-sm text-neutral-400">Durham, NC</p>
-            <p class="text-lg font-bold text-emerald-400 mt-1">$900</p>
-        </div>
-    </a>
+  <main id="gear-container" class="flex-1 px-5 py-4 pb-28 grid grid-cols-2 gap-4">
+    <p class="col-span-2 text-neutral-500">Loading gear...</p>
   </main>
-  </div>
+</div>
+
+<script type="module">
+  import { onAuthState, fetchGearListings } from './api.js';
+
+  const gearContainer = document.getElementById('gear-container');
+
+  function renderListings(listings) {
+    gearContainer.innerHTML = ''; // Clear loading message
+
+    if (!listings || listings.length === 0) {
+      gearContainer.innerHTML = `<p class="col-span-2 text-center mt-8 text-neutral-500">No gear has been listed for sale yet.</p>`;
+      return;
+    }
+
+    listings.forEach(item => {
+      const itemCard = document.createElement('a');
+      // In a real app, the link would go to a detailed view of the item
+      itemCard.href = `Setflow - Gear Detail.html?id=${item.id}`; 
+      itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden';
+      itemCard.innerHTML = `
+        <img class="h-32 w-full object-cover" src="${item.imageUrl}" alt="${item.name}">
+        <div class="p-3">
+            <h3 class="font-semibold text-white truncate">${item.name}</h3>
+            <p class="text-sm text-neutral-400">${item.location || 'USA'}</p>
+            <p class="text-lg font-bold text-emerald-400 mt-1">$${item.price}</p>
+        </div>
+      `;
+      gearContainer.appendChild(itemCard);
+    });
+  }
+
+  onAuthState(async (user) => {
+    if (user) {
+      try {
+        const listings = await fetchGearListings();
+        renderListings(listings);
+      } catch (error) {
+        console.error("Failed to fetch gear listings:", error);
+        gearContainer.innerHTML = `<p class="col-span-2 text-red-400">Could not load gear listings.</p>`;
+      }
+    } else {
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+</script>
 </body>
 </html>

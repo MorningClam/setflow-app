@@ -17,43 +17,94 @@
     <h1 class="text-lg font-bold tracking-tight">List Your Item</h1>
     <div class="w-9"></div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
-    <div>
-        <label class="block text-sm font-medium text-neutral-300 mb-2">Upload Photos</label>
-        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-700 border-dashed rounded-md">
-            <div class="space-y-1 text-center">
-                <svg class="mx-auto h-12 w-12 text-neutral-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                <div class="flex text-sm text-neutral-500"><p class="pl-1">Click to upload files</p></div>
+  <main class="flex-1 px-5 py-4 pb-28">
+    <form id="sell-item-form" class="space-y-6">
+        <div>
+            <label class="block text-sm font-medium text-neutral-300 mb-2">Upload Photos</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-700 border-dashed rounded-md">
+                <div class="space-y-1 text-center">
+                    <svg class="mx-auto h-12 w-12 text-neutral-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <div class="flex text-sm text-neutral-500"><p class="pl-1">Click to upload files</p></div>
+                </div>
             </div>
         </div>
-    </div>
-    <div>
-        <label for="item-name" class="block text-sm font-medium text-neutral-300 mb-2">Item Name</label>
-        <input id="item-name" type="text" placeholder="e.g., Strymon BlueSky Reverb" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-    </div>
-     <div class="grid grid-cols-2 gap-4">
         <div>
-            <label for="item-category" class="block text-sm font-medium text-neutral-300 mb-2">Category</label>
-            <select id="item-category" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-                <option>Guitar Pedals</option>
-                <option>Guitars</option>
-                <option>Amps</option>
-                <option>Drums & Percussion</option>
-            </select>
+            <label for="item-name" class="block text-sm font-medium text-neutral-300 mb-2">Item Name</label>
+            <input id="item-name" type="text" placeholder="e.g., Strymon BlueSky Reverb" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="item-category" class="block text-sm font-medium text-neutral-300 mb-2">Category</label>
+                <select id="item-category" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                    <option>Guitar Pedals</option>
+                    <option>Guitars</option>
+                    <option>Amps</option>
+                    <option>Drums & Percussion</option>
+                </select>
+            </div>
+            <div>
+                <label for="item-price" class="block text-sm font-medium text-neutral-300 mb-2">Price ($)</label>
+                <input id="item-price" type="number" placeholder="250" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
         </div>
         <div>
-            <label for="item-price" class="block text-sm font-medium text-neutral-300 mb-2">Price ($)</label>
-            <input id="item-price" type="number" placeholder="250" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <label for="item-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
+            <textarea id="item-description" rows="4" placeholder="Describe the item's condition, features, etc." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
         </div>
-    </div>
-    <div>
-        <label for="item-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-        <textarea id="item-description" rows="4" placeholder="Describe the item's condition, features, etc." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
-    </div>
+    </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">List Item for Sale</button>
+    <button type="submit" form="sell-item-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">List Item for Sale</button>
   </footer>
 </div>
+
+<script type="module">
+  import { onAuthState, createGearListing } from './api.js';
+
+  const sellItemForm = document.getElementById('sell-item-form');
+  const submitButton = document.getElementById('submit-btn');
+  let currentUserId = null;
+
+  onAuthState(user => {
+    if (user) {
+      currentUserId = user.uid;
+    } else {
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+
+  sellItemForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUserId) {
+      alert("Please log in to list an item.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.innerText = 'Listing Item...';
+
+    const itemData = {
+      sellerId: currentUserId,
+      name: document.getElementById('item-name').value,
+      category: document.getElementById('item-category').value,
+      price: Number(document.getElementById('item-price').value),
+      description: document.getElementById('item-description').value,
+      // In a real app, you would handle image uploads and get a URL here.
+      // For now, we'll use a placeholder.
+      imageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop'
+    };
+    
+    try {
+      await createGearListing(itemData);
+      alert('Your item has been listed!');
+      window.location.href = 'Setflow - Gear Swap.html';
+    } catch (error) {
+      console.error("Error listing item:", error);
+      alert("Could not list your item. Please try again.");
+      submitButton.disabled = false;
+      submitButton.innerText = 'List Item for Sale';
+    }
+  });
+</script>
 </body>
 </html>

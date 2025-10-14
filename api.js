@@ -318,3 +318,37 @@ export async function createGig(gigData) {
 
   return await addDoc(collection(db, "gigs"), gigToSave);
 }
+/**
+ * Creates a new gear listing in Firestore.
+ * @param {object} itemData - The data for the item being listed.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function createGearListing(itemData) {
+  if (!itemData.sellerId) {
+    throw new Error("A sellerId must be provided to create a listing.");
+  }
+
+  const itemToSave = {
+    ...itemData,
+    createdAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "gear_listings"), itemToSave);
+}
+
+/**
+ * Fetches all gear listings from the 'gear_listings' collection.
+ * @returns {Promise<Array>} A promise that resolves to an array of gear listing documents.
+ */
+export async function fetchGearListings() {
+  const listingsRef = collection(db, "gear_listings");
+  const q = query(listingsRef, orderBy("createdAt", "desc"));
+  
+  const querySnapshot = await getDocs(q);
+  const listings = [];
+  querySnapshot.forEach((doc) => {
+    listings.push({ id: doc.id, ...doc.data() });
+  });
+  
+  return listings;
+}
