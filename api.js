@@ -4,7 +4,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -88,7 +88,7 @@ export async function getUserData(userId) {
   const userDocRef = doc(db, "users", userId);
   const userDocSnap = await getDoc(userDocRef);
   if (userDocSnap.exists()) {
-    return userDocSnap.data();
+    return { id: userDocSnap.id, ...userDocSnap.data() };
   } else {
     console.error("No user data found for ID:", userId);
     return null;
@@ -240,9 +240,10 @@ export async function fetchApplicantsForGig(gigId) {
   }
 
   // Step 2: For each application, fetch the applicant's user data
-  const applicantPromises = querySnapshot.docs.map(appDoc => {
+  const applicantPromises = querySnapshot.docs.map(async (appDoc) => {
     const applicantId = appDoc.data().userId;
-    return getUserData(applicantId); // Re-use the existing getUserData function
+    const userData = await getUserData(applicantId);
+    return userData ? { ...userData, id: applicantId } : null;
   });
 
   const applicants = await Promise.all(applicantPromises);
@@ -269,7 +270,6 @@ export async function fetchGigsForOwner(userId) {
   const gigs = [];
 
   // We also need to count the number of applicants for each gig.
-  // This is a bit more advanced as it requires a separate query for each gig.
   for (const doc of querySnapshot.docs) {
     const gigData = doc.data();
 
@@ -277,12 +277,12 @@ export async function fetchGigsForOwner(userId) {
     const appsRef = collection(db, "applications");
     const appsQuery = query(appsRef, where("gigId", "==", doc.id));
     const appsSnapshot = await getDocs(appsQuery);
-    const applicantCount = appsSnapshot.size; // Get the number of documents found
+    const applicantCount = appsSnapshot.size; 
 
     gigs.push({
       id: doc.id,
       ...gigData,
-      applicantCount: applicantCount, // Add the count to our gig object
+      applicantCount: applicantCount,
       formattedDate: gigData.date.toDate().toLocaleDateString('en-US', {
         weekday: 'long', month: 'short', day: 'numeric'
       }),
@@ -302,7 +302,6 @@ export async function createGig(gigData) {
     throw new Error("An ownerId must be provided to create a gig.");
   }
 
-  // Convert the date string from the form into a Firebase Timestamp
   const eventTimestamp = Timestamp.fromDate(new Date(gigData.date));
 
   const gigToSave = {
@@ -310,14 +309,15 @@ export async function createGig(gigData) {
     venueName: gigData.eventName,
     location: gigData.location,
     date: eventTimestamp,
-    payout: Number(gigData.payout), // Ensure payout is stored as a number
+    payout: Number(gigData.payout),
     description: gigData.description,
-    status: 'open', // Gigs are open by default
+    status: 'open',
     createdAt: serverTimestamp()
   };
 
   return await addDoc(collection(db, "gigs"), gigToSave);
 }
+
 /**
  * Creates a new gear listing in Firestore.
  * @param {object} itemData - The data for the item being listed.
@@ -372,8 +372,8 @@ export async function createPlayerPost(postData) {
 }
 
 /**
- * Fetches all player posts from the 'player_posts' collection.
- * @returns {Promise<Array>} A promise that resolves to an array of player post documents.
+ * Fetches all player posts from the 'player_posts' collection, including user data.
+ * @returns {Promise<Array>} A promise that resolves to an array of player post documents with user info.
  */
 export async function fetchPlayerPosts() {
   const postsRef = collection(db, "player_posts");
@@ -382,12 +382,12 @@ export async function fetchPlayerPosts() {
   const querySnapshot = await getDocs(q);
   const posts = [];
   
-  for (const doc of querySnapshot.docs) {
-    const postData = doc.data();
-    const userData = await getUserData(postData.userId); // Fetch user data for each post
+  for (const postDoc of querySnapshot.docs) {
+    const postData = postDoc.data();
+    const userData = await getUserData(postData.userId); 
     
     posts.push({ 
-      id: doc.id, 
+      id: postDoc.id, 
       ...postData,
       userName: userData ? userData.name : 'Unknown User',
       userProfileImage: userData ? userData.profileImageUrl : null 
@@ -395,4 +395,18 @@ export async function fetchPlayerPosts() {
   }
   
   return posts;
+}
+
+/**
+ * Updates a user's preferences in their profile document.
+ * @param {string} userId - The ID of the user to update.
+ * @param {object} preferences - An object containing the preferences to update (e.g., { travelRadius: 100 }).
+ * @returns {Promise<void>}
+ */
+export async function updateUserPreferences(userId, preferences) {
+  if (!userId) {
+    throw new Error("User ID is required to update preferences.");
+  }
+  const userDocRef = doc(db, "users", userId);
+  return await updateDoc(userDocRef, preferences);
 }

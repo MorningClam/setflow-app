@@ -18,8 +18,11 @@
       <div class="px-5 pt-6 pb-5 border-b border-neutral-800">
         <h3 class="text-neutral-300 font-semibold uppercase tracking-wider text-xs mb-1">Travel Radius</h3>
         <p class="text-sm text-neutral-400 mb-4">Set the max distance you'll travel for a gig.</p>
-        <div class="flex items-center justify-between mb-2"><label class="text-neutral-400">From <span class="font-bold text-white">Apex, NC</span></label><span class="text-xl font-bold text-emerald-400">75 miles</span></div>
-        <input type="range" min="5" max="200" value="75" step="5" class="w-full">
+        <div class="flex items-center justify-between mb-2">
+          <label id="location-label" class="text-neutral-400">From <span class="font-bold text-white">your location</span></label>
+          <span id="radius-display" class="text-xl font-bold text-emerald-400">75 miles</span>
+        </div>
+        <input id="radius-slider" type="range" min="5" max="200" value="75" step="5" class="w-full">
       </div>
       <div class="px-5 py-5">
         <h3 class="text-neutral-300 font-semibold uppercase tracking-wider text-xs mb-1">Availability</h3>
@@ -30,8 +33,72 @@
       </div>
     </main>
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-        <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Save Changes</button>
+        <button id="save-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Save Changes</button>
     </footer>
   </div>
+
+  <script type="module">
+    import { onAuthState, getUserData, updateUserPreferences } from './api.js';
+
+    const radiusSlider = document.getElementById('radius-slider');
+    const radiusDisplay = document.getElementById('radius-display');
+    const locationLabel = document.getElementById('location-label');
+    const saveButton = document.getElementById('save-btn');
+    let currentUserId = null;
+
+    // --- Update display when slider moves ---
+    radiusSlider.addEventListener('input', () => {
+      radiusDisplay.innerText = `${radiusSlider.value} miles`;
+    });
+
+    // --- Load user data and populate form ---
+    onAuthState(async (user) => {
+      if (user) {
+        currentUserId = user.uid;
+        const userData = await getUserData(user.uid);
+        if (userData) {
+          // Set location text
+          if(userData.location) {
+            locationLabel.innerHTML = `From <span class="font-bold text-white">${userData.location}</span>`;
+          }
+          // Set slider value if it exists
+          if (userData.travelRadius) {
+            radiusSlider.value = userData.travelRadius;
+            radiusDisplay.innerText = `${userData.travelRadius} miles`;
+          }
+        }
+      } else {
+        window.location.href = 'Setflow - Login Page.html';
+      }
+    });
+
+    // --- Save button functionality ---
+    saveButton.addEventListener('click', async () => {
+      if (!currentUserId) {
+        alert("You must be logged in to save preferences.");
+        return;
+      }
+
+      saveButton.disabled = true;
+      saveButton.innerText = 'Saving...';
+
+      try {
+        const newRadius = Number(radiusSlider.value);
+        await updateUserPreferences(currentUserId, { travelRadius: newRadius });
+        
+        saveButton.innerText = '✓ Saved!';
+        setTimeout(() => {
+          saveButton.disabled = false;
+          saveButton.innerText = 'Save Changes';
+        }, 1500);
+
+      } catch (error) {
+        console.error("Error updating preferences:", error);
+        alert("Failed to save changes. Please try again.");
+        saveButton.disabled = false;
+        saveButton.innerText = 'Save Changes';
+      }
+    });
+  </script>
 </body>
 </html>
