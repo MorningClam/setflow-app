@@ -96,6 +96,20 @@ export async function getUserData(userId) {
 }
 
 /**
+ * Updates a user's profile data in their document.
+ * @param {string} userId - The ID of the user to update.
+ * @param {object} profileData - An object containing the fields to update (e.g., { name: 'New Name', bio: 'New Bio' }).
+ * @returns {Promise<void>}
+ */
+export async function updateUserProfile(userId, profileData) {
+  if (!userId) {
+    throw new Error("User ID is required to update a profile.");
+  }
+  const userDocRef = doc(db, "users", userId);
+  return await updateDoc(userDocRef, profileData);
+}
+
+/**
  * Fetches all gigs from the 'gigs' collection and formats the timestamp.
  * @returns {Promise<Array>} A promise that resolves to an array of gig documents.
  */
@@ -184,16 +198,14 @@ export async function applyForGig(gigId, userId) {
  * @returns {Promise<Array>} A promise that resolves to an array of combined application and gig data.
  */
 export async function fetchMyApplications(userId) {
-  // Step 1: Create a query to find all applications by the current user
   const applicationsRef = collection(db, "applications");
   const q = query(applicationsRef, where("userId", "==", userId));
 
   const querySnapshot = await getDocs(q);
   if (querySnapshot.empty) {
-    return []; // Return an empty array if the user has no applications
+    return [];
   }
 
-  // Step 2: For each application, fetch the corresponding gig details
   const applicationPromises = querySnapshot.docs.map(async (appDoc) => {
     const applicationData = appDoc.data();
     const gigDocRef = doc(db, "gigs", applicationData.gigId);
@@ -201,10 +213,9 @@ export async function fetchMyApplications(userId) {
 
     if (gigDocSnap.exists()) {
       const gigData = gigDocSnap.data();
-      // Step 3: Combine application status with gig data
       return {
-        ...applicationData, // status, appliedAt, etc.
-        id: appDoc.id,       // application ID
+        ...applicationData,
+        id: appDoc.id,
         gigVenue: gigData.venueName,
         gigGenre: gigData.genre,
         gigDate: gigData.date.toDate().toLocaleDateString('en-US', {
@@ -212,11 +223,10 @@ export async function fetchMyApplications(userId) {
         }),
       };
     }
-    return null; // Return null if a gig is not found
+    return null;
   });
 
   const applications = await Promise.all(applicationPromises);
-  // Filter out any null results where a gig might have been deleted
   return applications.filter(app => app !== null);
 }
 
@@ -230,16 +240,14 @@ export async function fetchApplicantsForGig(gigId) {
     throw new Error("Gig ID is required to fetch applicants.");
   }
 
-  // Step 1: Find all applications for the given gigId
   const applicationsRef = collection(db, "applications");
   const q = query(applicationsRef, where("gigId", "==", gigId));
   const querySnapshot = await getDocs(q);
 
   if (querySnapshot.empty) {
-    return []; // No applicants for this gig
+    return [];
   }
 
-  // Step 2: For each application, fetch the applicant's user data
   const applicantPromises = querySnapshot.docs.map(async (appDoc) => {
     const applicantId = appDoc.data().userId;
     const userData = await getUserData(applicantId);
@@ -247,8 +255,6 @@ export async function fetchApplicantsForGig(gigId) {
   });
 
   const applicants = await Promise.all(applicantPromises);
-
-  // Filter out any potential null values if a user profile was not found
   return applicants.filter(applicant => applicant !== null);
 }
 
@@ -263,17 +269,12 @@ export async function fetchGigsForOwner(userId) {
   }
 
   const gigsRef = collection(db, "gigs");
-  // This query finds all gigs where the 'ownerId' field matches the current user's ID
   const q = query(gigsRef, where("ownerId", "==", userId), orderBy("date", "desc"));
-
   const querySnapshot = await getDocs(q);
   const gigs = [];
 
-  // We also need to count the number of applicants for each gig.
   for (const doc of querySnapshot.docs) {
     const gigData = doc.data();
-
-    // Create a sub-query to count applications for this gig
     const appsRef = collection(db, "applications");
     const appsQuery = query(appsRef, where("gigId", "==", doc.id));
     const appsSnapshot = await getDocs(appsQuery);
@@ -288,7 +289,6 @@ export async function fetchGigsForOwner(userId) {
       }),
     });
   }
-
   return gigs;
 }
 
@@ -301,9 +301,7 @@ export async function createGig(gigData) {
   if (!gigData.ownerId) {
     throw new Error("An ownerId must be provided to create a gig.");
   }
-
   const eventTimestamp = Timestamp.fromDate(new Date(gigData.date));
-
   const gigToSave = {
     ownerId: gigData.ownerId,
     venueName: gigData.eventName,
@@ -314,7 +312,6 @@ export async function createGig(gigData) {
     status: 'open',
     createdAt: serverTimestamp()
   };
-
   return await addDoc(collection(db, "gigs"), gigToSave);
 }
 
@@ -327,12 +324,10 @@ export async function createGearListing(itemData) {
   if (!itemData.sellerId) {
     throw new Error("A sellerId must be provided to create a listing.");
   }
-
   const itemToSave = {
     ...itemData,
     createdAt: serverTimestamp()
   };
-
   return await addDoc(collection(db, "gear_listings"), itemToSave);
 }
 
@@ -343,13 +338,11 @@ export async function createGearListing(itemData) {
 export async function fetchGearListings() {
   const listingsRef = collection(db, "gear_listings");
   const q = query(listingsRef, orderBy("createdAt", "desc"));
-  
   const querySnapshot = await getDocs(q);
   const listings = [];
   querySnapshot.forEach((doc) => {
     listings.push({ id: doc.id, ...doc.data() });
   });
-  
   return listings;
 }
 
@@ -362,12 +355,10 @@ export async function createPlayerPost(postData) {
   if (!postData.userId) {
     throw new Error("A userId must be provided to create a player post.");
   }
-
   const postToSave = {
     ...postData,
     createdAt: serverTimestamp()
   };
-
   return await addDoc(collection(db, "player_posts"), postToSave);
 }
 
@@ -378,14 +369,11 @@ export async function createPlayerPost(postData) {
 export async function fetchPlayerPosts() {
   const postsRef = collection(db, "player_posts");
   const q = query(postsRef, orderBy("createdAt", "desc"));
-
   const querySnapshot = await getDocs(q);
   const posts = [];
-  
   for (const postDoc of querySnapshot.docs) {
     const postData = postDoc.data();
     const userData = await getUserData(postData.userId); 
-    
     posts.push({ 
       id: postDoc.id, 
       ...postData,
@@ -393,22 +381,7 @@ export async function fetchPlayerPosts() {
       userProfileImage: userData ? userData.profileImageUrl : null 
     });
   }
-  
   return posts;
-}
-
-/**
- * Updates a user's preferences in their profile document.
- * @param {string} userId - The ID of the user to update.
- * @param {object} preferences - An object containing the preferences to update (e.g., { travelRadius: 100 }).
- * @returns {Promise<void>}
- */
-export async function updateUserPreferences(userId, preferences) {
-  if (!userId) {
-    throw new Error("User ID is required to update preferences.");
-  }
-  const userDocRef = doc(db, "users", userId);
-  return await updateDoc(userDocRef, preferences);
 }
 
 /**
@@ -439,12 +412,10 @@ export async function createReview(reviewData) {
   if (!reviewData.reviewerId || !reviewData.subjectId || !reviewData.gigId) {
     throw new Error("Reviewer ID, subject ID, and gig ID are required to create a review.");
   }
-
   const reviewToSave = {
     ...reviewData,
     createdAt: serverTimestamp()
   };
-
   return await addDoc(collection(db, "reviews"), reviewToSave);
 }
 
@@ -457,10 +428,8 @@ export async function createJamSession(sessionData) {
   if (!sessionData.hostId) {
     throw new Error("A hostId must be provided to create a jam session.");
   }
-
   const dateTimeString = `${sessionData.date}T${sessionData.time}`;
   const sessionTimestamp = Timestamp.fromDate(new Date(dateTimeString));
-
   const sessionToSave = {
     hostId: sessionData.hostId,
     title: sessionData.title,
@@ -469,7 +438,6 @@ export async function createJamSession(sessionData) {
     description: sessionData.description,
     createdAt: serverTimestamp()
   };
-
   return await addDoc(collection(db, "jam_sessions"), sessionToSave);
 }
 
@@ -480,16 +448,12 @@ export async function createJamSession(sessionData) {
 export async function fetchJamSessions() {
   const sessionsRef = collection(db, "jam_sessions");
   const q = query(sessionsRef, orderBy("dateTime", "asc"));
-
   const querySnapshot = await getDocs(q);
   const sessions = [];
-  
   for (const sessionDoc of querySnapshot.docs) {
     const sessionData = sessionDoc.data();
     const hostData = await getUserData(sessionData.hostId); 
-    
     const date = sessionData.dateTime.toDate();
-
     sessions.push({ 
       id: sessionDoc.id, 
       ...sessionData,
@@ -499,12 +463,10 @@ export async function fetchJamSessions() {
       formattedTime: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     });
   }
-  
   return sessions;
 }
 
 // --- MESSAGING FUNCTIONS ---
-
 /**
  * Creates or retrieves a conversation between two users.
  * @param {string} userId1 - The ID of the current user.
@@ -515,7 +477,6 @@ export async function createOrGetConversation(userId1, userId2) {
   const conversationId = [userId1, userId2].sort().join('_');
   const conversationRef = doc(db, "conversations", conversationId);
   const conversationSnap = await getDoc(conversationRef);
-
   if (!conversationSnap.exists()) {
     await setDoc(conversationRef, {
       participants: [userId1, userId2],
@@ -548,7 +509,6 @@ export async function sendMessage(conversationId, messageData) {
 export function getMessages(conversationId, callback) {
   const messagesRef = collection(db, "conversations", conversationId, "messages");
   const q = query(messagesRef, orderBy("timestamp", "asc"));
-
   return onSnapshot(q, (querySnapshot) => {
     const messages = [];
     querySnapshot.forEach((doc) => {
@@ -566,27 +526,20 @@ export function getMessages(conversationId, callback) {
 export async function getConversations(userId) {
   const convosRef = collection(db, "conversations");
   const q = query(convosRef, where("participants", "array-contains", userId));
-
   const querySnapshot = await getDocs(q);
   const conversations = [];
-
   for (const convoDoc of querySnapshot.docs) {
     const convoData = convoDoc.data();
-    
     const otherParticipantId = convoData.participants.find(id => id !== userId);
     if (!otherParticipantId) continue;
-
     const otherUserData = await getUserData(otherParticipantId);
-
     const messagesRef = collection(db, "conversations", convoDoc.id, "messages");
     const lastMessageQuery = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
     const lastMessageSnapshot = await getDocs(lastMessageQuery);
-    
     let lastMessage = { text: 'No messages yet...', timestamp: convoData.createdAt };
     if (!lastMessageSnapshot.empty) {
       lastMessage = lastMessageSnapshot.docs[0].data();
     }
-    
     conversations.push({
       id: convoDoc.id,
       ...convoData,
@@ -596,8 +549,6 @@ export async function getConversations(userId) {
       lastMessage: lastMessage
     });
   }
-  
   conversations.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
-
   return conversations;
 }
