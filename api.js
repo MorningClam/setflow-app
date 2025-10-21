@@ -352,3 +352,47 @@ export async function fetchGearListings() {
   
   return listings;
 }
+
+/**
+ * Creates a new player post in the 'player_posts' collection.
+ * @param {object} postData - The data for the post.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function createPlayerPost(postData) {
+  if (!postData.userId) {
+    throw new Error("A userId must be provided to create a player post.");
+  }
+
+  const postToSave = {
+    ...postData,
+    createdAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "player_posts"), postToSave);
+}
+
+/**
+ * Fetches all player posts from the 'player_posts' collection.
+ * @returns {Promise<Array>} A promise that resolves to an array of player post documents.
+ */
+export async function fetchPlayerPosts() {
+  const postsRef = collection(db, "player_posts");
+  const q = query(postsRef, orderBy("createdAt", "desc"));
+
+  const querySnapshot = await getDocs(q);
+  const posts = [];
+  
+  for (const doc of querySnapshot.docs) {
+    const postData = doc.data();
+    const userData = await getUserData(postData.userId); // Fetch user data for each post
+    
+    posts.push({ 
+      id: doc.id, 
+      ...postData,
+      userName: userData ? userData.name : 'Unknown User',
+      userProfileImage: userData ? userData.profileImageUrl : null 
+    });
+  }
+  
+  return posts;
+}
