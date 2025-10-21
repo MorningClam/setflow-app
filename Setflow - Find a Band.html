@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Find a Band</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Inter',sans-serif}</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+<div class="max-w-md mx-auto min-h-screen flex flex-col">
+  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 shadow-md border-b border-neutral-700/50">
+    <div class="flex items-center justify-between">
+      <a href="Setflow - Account Settings.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight">Find a Band</h1>
+      <div class="w-9"></div>
+    </div>
+    <div class="mt-3">
+      <div class="flex items-center bg-neutral-800 border border-neutral-700 rounded-lg px-3">
+        <svg class="w-4 h-4 text-neutral-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <input id="search-input" type="search" placeholder="Search for a band by name..." class="w-full py-2 bg-transparent text-sm outline-none placeholder-neutral-500">
+      </div>
+    </div>
+  </header>
+  <main id="band-results" class="flex-1 px-5 py-4 pb-28 space-y-3">
+    <p class="text-center text-neutral-500 mt-8">Search for a band to get started.</p>
+  </main>
+</div>
+
+<script type="module">
+  import { onAuthState, searchBands, requestToJoinBand } from './api.js';
+
+  const searchInput = document.getElementById('search-input');
+  const bandResultsContainer = document.getElementById('band-results');
+  let currentUser = null;
+
+  onAuthState(user => {
+    if (!user) {
+      window.location.href = 'Setflow - Login Page.html';
+    } else {
+      currentUser = user;
+    }
+  });
+
+  function renderResults(bands) {
+    bandResultsContainer.innerHTML = '';
+    if (bands.length === 0) {
+      bandResultsContainer.innerHTML = `<p class="text-center text-neutral-500 mt-8">No bands found.</p>`;
+      return;
+    }
+
+    bands.forEach(band => {
+      const bandCard = document.createElement('div');
+      bandCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
+      bandCard.innerHTML = `
+        <div class="flex items-center space-x-3">
+          <img class="w-12 h-12 rounded-lg object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Band photo">
+          <div>
+            <p class="font-semibold text-white">${band.name}</p>
+            <p class="text-xs text-neutral-400">${band.genre || 'Music'}</p>
+          </div>
+        </div>
+        <button data-band-id="${band.id}" class="request-join-btn px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">Request to Join</button>
+      `;
+      bandResultsContainer.appendChild(bandCard);
+    });
+  }
+
+  searchInput.addEventListener('input', async (e) => {
+    const query = e.target.value.trim();
+    if (query.length > 2) {
+      const results = await searchBands(query);
+      renderResults(results);
+    } else {
+      bandResultsContainer.innerHTML = '<p class="text-center text-neutral-500 mt-8">Search for a band to get started.</p>';
+    }
+  });
+
+  bandResultsContainer.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('request-join-btn')) {
+      const bandId = event.target.dataset.bandId;
+      event.target.disabled = true;
+      event.target.innerText = 'Sent!';
+      try {
+        await requestToJoinBand(bandId, currentUser.uid);
+        alert('Your request to join has been sent.');
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+        event.target.disabled = false;
+        event.target.innerText = 'Request to Join';
+      }
+    }
+  });
+
+</script>
+</body>
+</html>

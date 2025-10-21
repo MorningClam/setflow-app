@@ -6,7 +6,11 @@
   <title>Setflow - Edit Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .toggle-checkbox:checked { right: 0; border-color: #10B981; }
+    .toggle-checkbox:checked + .toggle-label { background-color: #10B981; }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
@@ -37,6 +41,16 @@
             <label for="bio" class="block text-sm font-medium text-neutral-300 mb-2">Your Bio</label>
             <textarea id="bio" rows="4" placeholder="Describe your style, experience, and what makes you unique..." class="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white resize-none"></textarea>
         </div>
+        <div>
+            <label for="looking-for-bands" class="block text-sm font-medium text-neutral-300 mb-2">Availability</label>
+            <div class="flex items-center justify-between bg-neutral-800 p-3 rounded-lg border border-neutral-700">
+                <span class="font-medium">Looking for Bands</span>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" name="looking-for-bands" id="looking-for-bands" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                    <label for="looking-for-bands" class="toggle-label block overflow-hidden h-6 rounded-full bg-neutral-700 cursor-pointer"></label>
+                </div>
+            </div>
+        </div>
       </form>
     </main>
   </div>
@@ -49,11 +63,11 @@
     const nameInput = document.getElementById('name');
     const locationInput = document.getElementById('location');
     const bioInput = document.getElementById('bio');
+    const lookingForBandsToggle = document.getElementById('looking-for-bands');
     const profileImage = document.getElementById('profile-image');
 
     let currentUserId = null;
 
-    // --- Load current user data into the form ---
     onAuthState(async (user) => {
         if (user) {
             currentUserId = user.uid;
@@ -62,6 +76,7 @@
                 nameInput.value = userData.name || '';
                 locationInput.value = userData.location || '';
                 bioInput.value = userData.bio || '';
+                lookingForBandsToggle.checked = userData.isLookingForBands || false;
                 if(userData.profileImageUrl) {
                     profileImage.src = userData.profileImageUrl;
                 }
@@ -71,7 +86,6 @@
         }
     });
 
-    // --- Handle form submission ---
     profileForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!currentUserId) return;
@@ -83,13 +97,13 @@
             name: nameInput.value,
             location: locationInput.value,
             bio: bioInput.value,
+            isLookingForBands: lookingForBandsToggle.checked
         };
 
         try {
             await updateUserProfile(currentUserId, profileData);
             saveButton.innerText = '✓ Saved';
             setTimeout(() => {
-                // Redirect back to the profile page after saving
                 window.location.href = 'Setflow - Musician Profile.html';
             }, 1000);
         } catch (error) {

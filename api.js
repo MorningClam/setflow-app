@@ -699,3 +699,104 @@ export async function getConversations(userId) {
   conversations.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
   return conversations;
 }
+
+// Add these new functions to your api.js file, preferably within the "BAND MANAGEMENT" section
+
+/**
+ * Searches for bands by name.
+ * @param {string} searchText - The text to search for.
+ * @returns {Promise<Array>} A promise that resolves to an array of band objects.
+ */
+export async function searchBands(searchText) {
+    const bandsRef = collection(db, "bands");
+    // NOTE: Firestore does not support native text search.
+    // This query performs a basic prefix match. For a real app, a third-party search service like Algolia is recommended.
+    const q = query(bandsRef, where("name", ">=", searchText), where("name", "<=", searchText + '\uf8ff'));
+    
+    const querySnapshot = await getDocs(q);
+    const bands = [];
+    querySnapshot.forEach((doc) => {
+        bands.push({ id: doc.id, ...doc.data() });
+    });
+    return bands;
+}
+
+/**
+ * Creates a request for a user to join a band.
+ * @param {string} bandId - The ID of the band to join.
+ * @param {string} userId - The ID of the user requesting to join.
+ * @returns {Promise<void>}
+ */
+export async function requestToJoinBand(bandId, userId) {
+    const requestRef = doc(collection(db, "join_requests"));
+    return await setDoc(requestRef, {
+        bandId: bandId,
+        userId: userId,
+        status: 'pending',
+        createdAt: serverTimestamp()
+    });
+}
+
+/**
+ * Fetches all pending join requests for a band.
+ * @param {string} bandId - The ID of the band.
+ * @returns {Promise<Array>} A promise that resolves to an array of request objects.
+ */
+export async function getJoinRequests(bandId) {
+    const requestsRef = collection(db, "join_requests");
+    const q = query(requestsRef, where("bandId", "==", bandId), where("status", "==", "pending"));
+    
+    const querySnapshot = await getDocs(q);
+    const requests = [];
+
+    for (const doc of querySnapshot.docs) {
+        const requestData = doc.data();
+        const userData = await getUserData(requestData.userId);
+        if (userData) {
+            requests.push({
+                id: doc.id,
+                ...requestData,
+                userName: userData.name
+            });
+        }
+    }
+    return requests;
+}
+
+/**
+ * Approves a join request, adding the user to the band.
+ * @param {string} requestId - The ID of the join request to approve.
+ * @returns {Promise<void>}
+ */
+export async function approveJoinRequest(requestId) {
+    const requestRef = doc(db, "join_requests", requestId);
+    const requestSnap = await getDoc(requestRef);
+
+    if (!requestSnap.exists()) {
+        throw new Error("Request not found.");
+    }
+
+    const { bandId, userId } = requestSnap.data();
+    const bandRef = doc(db, "bands", bandId);
+    const userRef = doc(db, "users", userId);
+    const userData = await getUserData(userId);
+
+    const batch = writeBatch(db);
+
+    batch.update(bandRef, {
+        [`members.${userId}`]: {
+            name: userData.name,
+            role: 'member'
+        }
+    });
+
+    batch.update(userRef, {
+        [`bands.${bandId}`]: 'member'
+    });
+
+    batch.update(requestRef, {
+        status: 'approved'
+    });
+
+    return await batch.commit();
+}
