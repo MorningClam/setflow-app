@@ -410,3 +410,22 @@ export async function updateUserPreferences(userId, preferences) {
   const userDocRef = doc(db, "users", userId);
   return await updateDoc(userDocRef, preferences);
 }
+
+/**
+ * Confirms a booking by updating the gig's status and assigning the artist.
+ * @param {string} gigId - The ID of the gig to confirm.
+ * @param {string} artistId - The ID of the artist being booked.
+ * @param {string} artistName - The name of the artist being booked.
+ * @returns {Promise<void>}
+ */
+export async function confirmBooking(gigId, artistId, artistName) {
+  if (!gigId || !artistId || !artistName) {
+    throw new Error("Gig ID, Artist ID, and Artist Name are required to confirm a booking.");
+  }
+  const gigDocRef = doc(db, "gigs", gigId);
+  return await updateDoc(gigDocRef, {
+    status: 'booked',
+    bookedArtistId: artistId,
+    bookedArtistName: artistName 
+  });
+}
