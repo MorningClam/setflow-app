@@ -17,33 +17,83 @@
     <h1 class="text-lg font-bold tracking-tight">Host a Jam Session</h1>
     <div class="w-9"></div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
-    <div>
-        <label for="jam-title" class="block text-sm font-medium text-neutral-300 mb-2">Session Title</label>
-        <input id="jam-title" type="text" placeholder="e.g., Blues Jam, Acoustic Songwriting" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-    </div>
-     <div class="grid grid-cols-2 gap-4">
+  <main class="flex-1 px-5 py-4 pb-28">
+    <form id="jam-session-form" class="space-y-6">
         <div>
-            <label for="jam-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-            <input id="jam-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <label for="jam-title" class="block text-sm font-medium text-neutral-300 mb-2">Session Title</label>
+            <input id="jam-title" type="text" placeholder="e.g., Blues Jam, Acoustic Songwriting" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+        </div>
+         <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="jam-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
+                <input id="jam-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
+            <div>
+                <label for="jam-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
+                <input id="jam-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            </div>
         </div>
         <div>
-            <label for="jam-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
-            <input id="jam-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <label for="jam-location" class="block text-sm font-medium text-neutral-300 mb-2">Location</label>
+            <input id="jam-location" type="text" placeholder="e.g., My garage, Motorco Music Hall" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
         </div>
-    </div>
-    <div>
-        <label for="jam-location" class="block text-sm font-medium text-neutral-300 mb-2">Location</label>
-        <input id="jam-location" type="text" placeholder="e.g., My garage, Motorco Music Hall" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
-    </div>
-    <div>
-        <label for="jam-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-        <textarea id="jam-description" rows="4" placeholder="e.g., Looking for a drummer and bassist to jam on some blues standards." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
-    </div>
+        <div>
+            <label for="jam-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
+            <textarea id="jam-description" rows="4" placeholder="e.g., Looking for a drummer and bassist to jam on some blues standards." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+        </div>
+    </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Post Jam Session</button>
+    <button type="submit" form="jam-session-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Post Jam Session</button>
   </footer>
 </div>
+
+<script type="module">
+  import { onAuthState, createJamSession } from './api.js';
+
+  const jamForm = document.getElementById('jam-session-form');
+  const submitButton = document.getElementById('submit-btn');
+  let currentUserId = null;
+
+  onAuthState(user => {
+    if (user) {
+      currentUserId = user.uid;
+    } else {
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+
+  jamForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUserId) {
+      alert("Please log in to host a jam session.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.innerText = 'Posting...';
+
+    const sessionData = {
+      hostId: currentUserId,
+      title: document.getElementById('jam-title').value,
+      date: document.getElementById('jam-date').value,
+      time: document.getElementById('jam-time').value,
+      location: document.getElementById('jam-location').value,
+      description: document.getElementById('jam-description').value,
+    };
+
+    try {
+      await createJamSession(sessionData);
+      alert('Your jam session has been posted!');
+      window.location.href = 'Setflow - Jam Sessions.html';
+    } catch (error) {
+      console.error("Error posting jam session:", error);
+      alert("Could not post your session. Please try again.");
+      submitButton.disabled = false;
+      submitButton.innerText = 'Post Jam Session';
+    }
+  });
+</script>
+
 </body>
 </html>

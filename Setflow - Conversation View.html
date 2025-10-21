@@ -12,17 +12,10 @@
   <div class="max-w-md mx-auto min-h-screen flex flex-col">
     <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
       <a href="Setflow - Inbox.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <div class="text-center mx-auto pr-10"><h1 class="text-lg font-bold tracking-tight">The Pour House</h1></div>
+      <div class="text-center mx-auto pr-10"><h1 id="recipient-name" class="text-lg font-bold tracking-tight">Loading...</h1></div>
     </header>
-    <main class="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-4">
-        <div>
-            <div class="flex justify-start"><div class="max-w-[80%] text-sm px-3 py-2 rounded-2xl border bg-neutral-800/60 border-neutral-700/70 text-neutral-100">Hey George, load-in is at 6 PM.</div></div>
-            <p class="text-xs text-neutral-500 mt-1 pl-2">8:15 PM</p>
-        </div>
-        <div>
-            <div class="flex justify-end"><div class="max-w-[80%] text-sm px-3 py-2 rounded-2xl border bg-emerald-700/30 border-emerald-600/40 text-emerald-100">Sounds good, see you then!</div></div>
-            <p class="text-xs text-neutral-500 mt-1 pr-2 text-right">8:16 PM</p>
-        </div>
+    <main id="messages-container" class="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-4">
+        <p class="text-neutral-500 text-center">Loading messages...</p>
     </main>
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
       <div class="flex items-center space-x-2 mb-2">
@@ -30,10 +23,92 @@
         <button class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600">Thanks!</button>
       </div>
       <div class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2">
-        <input type="text" placeholder="Type a message" class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500"/>
-        <button class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Send</button>
+        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500"/>
+        <button id="send-btn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Send</button>
       </div>
     </footer>
   </div>
+
+<script type="module">
+  import { onAuthState, getUserData, createOrGetConversation, sendMessage, getMessages } from './api.js';
+
+  const recipientNameHeader = document.getElementById('recipient-name');
+  const messagesContainer = document.getElementById('messages-container');
+  const messageInput = document.getElementById('message-input');
+  const sendButton = document.getElementById('send-btn');
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const recipientId = urlParams.get('recipientId');
+  let currentUserId = null;
+  let conversationId = null;
+
+  function renderMessages(messages) {
+    messagesContainer.innerHTML = '';
+    if (messages.length === 0) {
+      messagesContainer.innerHTML = `<p class="text-neutral-500 text-center text-sm">No messages yet. Say hello!</p>`;
+      return;
+    }
+
+    messages.forEach(msg => {
+      const isSender = msg.senderId === currentUserId;
+      const messageElement = document.createElement('div');
+      
+      let timestampText = '';
+      if (msg.timestamp) {
+          timestampText = msg.timestamp.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      }
+
+      messageElement.innerHTML = `
+        <div class="flex ${isSender ? 'justify-end' : 'justify-start'}">
+          <div class="max-w-[80%] text-sm px-3 py-2 rounded-2xl border ${isSender ? 'bg-emerald-700/30 border-emerald-600/40 text-emerald-100' : 'bg-neutral-800/60 border-neutral-700/70 text-neutral-100'}">
+            ${msg.text}
+          </div>
+        </div>
+        <p class="text-xs text-neutral-500 mt-1 ${isSender ? 'pr-2 text-right' : 'pl-2'}">${timestampText}</p>
+      `;
+      messagesContainer.appendChild(messageElement);
+    });
+    // Auto-scroll to the latest message
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  sendButton.addEventListener('click', async () => {
+    const text = messageInput.value.trim();
+    if (text && currentUserId && conversationId) {
+      const messageData = {
+        text: text,
+        senderId: currentUserId
+      };
+      await sendMessage(conversationId, messageData);
+      messageInput.value = ''; // Clear the input
+    }
+  });
+
+  onAuthState(async (user) => {
+    if (user) {
+      currentUserId = user.uid;
+      if (!recipientId) {
+        messagesContainer.innerHTML = `<p class="text-red-400 text-center">Error: No recipient specified.</p>`;
+        return;
+      }
+
+      // Fetch recipient data for the header
+      const recipientData = await getUserData(recipientId);
+      if (recipientData) {
+        recipientNameHeader.innerText = recipientData.name;
+      }
+
+      // Establish or get the conversation ID
+      conversationId = await createOrGetConversation(currentUserId, recipientId);
+
+      // Start listening for messages in real-time
+      getMessages(conversationId, renderMessages);
+
+    } else {
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+</script>
+
 </body>
 </html>

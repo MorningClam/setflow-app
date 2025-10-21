@@ -429,3 +429,76 @@ export async function confirmBooking(gigId, artistId, artistName) {
     bookedArtistName: artistName 
   });
 }
+
+/**
+ * Creates a new review in the 'reviews' collection.
+ * @param {object} reviewData - The data for the review.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function createReview(reviewData) {
+  if (!reviewData.reviewerId || !reviewData.subjectId || !reviewData.gigId) {
+    throw new Error("Reviewer ID, subject ID, and gig ID are required to create a review.");
+  }
+
+  const reviewToSave = {
+    ...reviewData,
+    createdAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "reviews"), reviewToSave);
+}
+
+/**
+ * Creates a new jam session in the 'jam_sessions' collection.
+ * @param {object} sessionData - The data for the jam session.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function createJamSession(sessionData) {
+  if (!sessionData.hostId) {
+    throw new Error("A hostId must be provided to create a jam session.");
+  }
+
+  const dateTimeString = `${sessionData.date}T${sessionData.time}`;
+  const sessionTimestamp = Timestamp.fromDate(new Date(dateTimeString));
+
+  const sessionToSave = {
+    hostId: sessionData.hostId,
+    title: sessionData.title,
+    location: sessionData.location,
+    dateTime: sessionTimestamp,
+    description: sessionData.description,
+    createdAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "jam_sessions"), sessionToSave);
+}
+
+/**
+ * Fetches all jam sessions from the 'jam_sessions' collection, including host user data.
+ * @returns {Promise<Array>} A promise that resolves to an array of jam session documents with host info.
+ */
+export async function fetchJamSessions() {
+  const sessionsRef = collection(db, "jam_sessions");
+  const q = query(sessionsRef, orderBy("dateTime", "asc"));
+
+  const querySnapshot = await getDocs(q);
+  const sessions = [];
+  
+  for (const sessionDoc of querySnapshot.docs) {
+    const sessionData = sessionDoc.data();
+    const hostData = await getUserData(sessionData.hostId); 
+    
+    const date = sessionData.dateTime.toDate();
+
+    sessions.push({ 
+      id: sessionDoc.id, 
+      ...sessionData,
+      hostName: hostData ? hostData.name : 'Unknown Host',
+      hostProfileImage: hostData ? hostData.profileImageUrl : null,
+      formattedDate: date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+      formattedTime: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    });
+  }
+  
+  return sessions;
+}
