@@ -39,22 +39,23 @@
       const postCard = document.createElement('div');
       postCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
       
-      const title = isLooking ? `Looking for ${post.instrument}` : `${post.instrument} Available`;
-      const location = isLooking ? post.eventDetails : post.location || 'Location not specified';
-      const details = isLooking ? `${post.date} • Paid Gig` : `Available: ${post.date || 'Weekends'}`;
+      const title = isLooking ? `Looking for ${post.instrument}` : `${post.instrument || 'Musician'} Available`;
       const buttonText = isLooking ? 'Message' : 'View Profile';
+      const messageLink = `Setflow - Conversation View.html?recipientId=${post.userId}`;
 
       postCard.innerHTML = `
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-xs font-semibold ${isLooking ? 'text-amber-400 bg-amber-900/50' : 'text-emerald-400 bg-emerald-900/50'} px-2 py-0.5 rounded-full">${isLooking ? 'LOOKING FOR' : 'AVAILABLE'}</span>
-            <h3 class="text-white font-semibold mt-2">${title}</h3>
-            <p class="text-sm text-neutral-400">${location}</p>
-            <p class="text-sm text-neutral-300 mt-1">${post.description}</p>
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs font-semibold ${isLooking ? 'text-amber-400 bg-amber-900/50' : 'text-emerald-400 bg-emerald-900/50'} px-2 py-0.5 rounded-full">${isLooking ? 'LOOKING FOR' : 'AVAILABLE'}</span>
+          <div class="flex items-center space-x-2 text-right">
+            <img class="w-6 h-6 rounded-full object-cover" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
+            <p class="text-sm text-neutral-300 font-medium">${post.userName}</p>
           </div>
-          <img class="w-12 h-12 rounded-full object-cover" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
         </div>
-        <button class="mt-3 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-colors">${buttonText}</button>
+        <div>
+          <h3 class="text-white font-semibold">${title}</h3>
+          <p class="text-sm text-neutral-400 mt-1">${post.description}</p>
+        </div>
+        <a href="${messageLink}" class="mt-4 block w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-center text-sm font-bold rounded-xl transition-colors">${buttonText}</a>
       `;
       postsContainer.appendChild(postCard);
     });
