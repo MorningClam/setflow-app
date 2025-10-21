@@ -21,7 +21,7 @@
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, db } from './api.js';
+    import { onAuthState, getUserData, db, confirmBooking } from './api.js';
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const modalContainer = document.getElementById('modal-container');
@@ -67,13 +67,22 @@
 
       // Add event listener to the newly created button
       const confirmBtn = document.getElementById('confirm-btn');
-      confirmBtn.addEventListener('click', () => {
+      confirmBtn.addEventListener('click', async () => {
           confirmBtn.innerText = 'Booking...';
           confirmBtn.disabled = true;
-          // Here you would add logic to update the gig status and notify the artist
-          setTimeout(() => {
+          
+          try {
+            await confirmBooking(gig.id, artist.id, artist.name);
+            confirmBtn.innerText = '✓ Booked!';
+            setTimeout(() => {
               window.location.href = 'Setflow - Venue Dashboard.html?booked=true';
-          }, 1500);
+            }, 1500);
+          } catch(error) {
+            console.error("Booking failed: ", error);
+            alert("There was an error confirming the booking. Please try again.");
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = 'Confirm & Send Show Sheet';
+          }
       });
     }
 
