@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Create a New Band</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Inter',sans-serif;}</style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+<div class="max-w-md mx-auto min-h-screen flex flex-col">
+  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="Setflow - Account Settings.html" class="p-2 rounded-lg hover:bg-neutral-700">
+        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1 class="text-lg font-bold tracking-tight">Create a New Band</h1>
+    <div class="w-9"></div>
+  </header>
+  <main class="flex-1 px-5 py-4 pb-28">
+    <form id="create-band-form" class="space-y-6">
+        <div>
+            <label for="band-name" class="block text-sm font-medium text-neutral-300 mb-2">Band Name</label>
+            <input id="band-name" type="text" placeholder="e.g., George & The Vibe" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+        </div>
+    </form>
+  </main>
+  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
+    <button type="submit" form="create-band-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Create Band</button>
+  </footer>
+</div>
+
+<script type="module">
+  import { onAuthState, createBand } from './api.js';
+
+  const createBandForm = document.getElementById('create-band-form');
+  const submitButton = document.getElementById('submit-btn');
+  let currentUser = null;
+
+  onAuthState(user => {
+    if (user) {
+      currentUser = user;
+    } else {
+      window.location.href = 'Setflow - Login Page.html';
+    }
+  });
+
+  createBandForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUser) {
+      alert("Please log in to create a band.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.innerText = 'Creating...';
+
+    const bandName = document.getElementById('band-name').value;
+    
+    try {
+      await createBand(bandName, currentUser);
+      alert('Band created successfully!');
+      window.location.href = 'Setflow - Account Settings.html';
+    } catch (error) {
+      console.error("Error creating band:", error);
+      alert("Could not create the band. Please try again.");
+      submitButton.disabled = false;
+      submitButton.innerText = 'Create Band';
+    }
+  });
+</script>
+
+</body>
+</html>

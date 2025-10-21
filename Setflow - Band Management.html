@@ -20,26 +20,8 @@
   <main class="flex-1 px-5 py-4 pb-28">
     <div class="mb-6">
       <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Current Members</h2>
-      <div class="space-y-3">
-        <div class="bg-neutral-800 rounded-xl p-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <img class="w-10 h-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1521402321589-6689539a9557?q=80&w=2187&auto=format&fit=crop" alt="Member photo">
-                <div>
-                    <p class="font-semibold text-white">George (You)</p>
-                    <p class="text-xs text-emerald-400">Admin</p>
-                </div>
-            </div>
-        </div>
-        <div class="bg-neutral-800 rounded-xl p-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <img class="w-10 h-10 rounded-full object-cover" src="https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=2187&auto=format&fit=crop" alt="Member photo">
-                <div>
-                    <p class="font-semibold text-white">Dave (Drums)</p>
-                    <p class="text-xs text-neutral-400">Member</p>
-                </div>
-            </div>
-            <button class="text-xs font-semibold text-red-400">Remove</button>
-        </div>
+      <div id="member-list" class="space-y-3">
+        <p class="text-neutral-500">Loading members...</p>
       </div>
     </div>
     <div>
@@ -48,11 +30,93 @@
             <label for="invite-email" class="block text-sm font-medium text-neutral-300 mb-2">Member's Email</label>
             <div class="flex space-x-2">
                 <input id="invite-email" type="email" placeholder="email@example.com" class="flex-1 form-input w-full bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white">
-                <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Send Invite</button>
+                <button id="send-invite-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Send Invite</button>
             </div>
         </div>
     </div>
   </main>
 </div>
+
+<script type="module">
+    import { onAuthState, getBandData, inviteToBand, removeMemberFromBand } from './api.js';
+
+    const memberListContainer = document.getElementById('member-list');
+    const inviteEmailInput = document.getElementById('invite-email');
+    const sendInviteBtn = document.getElementById('send-invite-btn');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const bandId = urlParams.get('bandId');
+    let currentUser = null;
+
+    function renderMembers(bandData) {
+        memberListContainer.innerHTML = '';
+        if (!bandData || !bandData.members) return;
+
+        for (const memberId in bandData.members) {
+            const member = bandData.members[memberId];
+            const memberCard = document.createElement('div');
+            memberCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
+
+            let removeButton = '';
+            if (memberId !== currentUser.uid) { // Prevent removing yourself
+                removeButton = `<button data-member-id="${memberId}" class="remove-btn text-xs font-semibold text-red-400">Remove</button>`;
+            }
+
+            memberCard.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <img class="w-10 h-10 rounded-full object-cover" src="${member.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Member photo">
+                    <div>
+                        <p class="font-semibold text-white">${member.name}</p>
+                        <p class="text-xs ${member.role === 'admin' ? 'text-emerald-400' : 'text-neutral-400'}">${member.role}</p>
+                    </div>
+                </div>
+                ${removeButton}
+            `;
+            memberListContainer.appendChild(memberCard);
+        }
+    }
+
+    sendInviteBtn.addEventListener('click', async () => {
+        const email = inviteEmailInput.value.trim();
+        if (email && bandId) {
+            try {
+                await inviteToBand(bandId, email);
+                alert('Invitation sent!');
+                inviteEmailInput.value = '';
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+    });
+
+    memberListContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('remove-btn')) {
+            const memberId = event.target.dataset.memberId;
+            if (confirm('Are you sure you want to remove this member?')) {
+                try {
+                    await removeMemberFromBand(bandId, memberId);
+                    const bandData = await getBandData(bandId); // Re-fetch data
+                    renderMembers(bandData);
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
+            }
+        }
+    });
+
+    onAuthState(async (user) => {
+        if (user) {
+            currentUser = user;
+            if (!bandId) {
+                memberListContainer.innerHTML = '<p class="text-red-400">No band specified.</p>';
+                return;
+            }
+            const bandData = await getBandData(bandId);
+            renderMembers(bandData);
+        } else {
+            window.location.href = 'Setflow - Login Page.html';
+        }
+    });
+</script>
 </body>
 </html>

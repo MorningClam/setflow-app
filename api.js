@@ -4,7 +4,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -63,7 +63,8 @@ export async function signUpUser(name, email, password, role) {
   await setDoc(doc(db, "users", user.uid), {
     name: name,
     email: email,
-    roles: [role.toLowerCase()]
+    roles: [role.toLowerCase()],
+    bands: {}
   });
   return userCredential;
 }
@@ -77,7 +78,153 @@ export async function signOutUser() {
 }
 
 
-// --- FIRESTORE FUNCTIONS ---
+// --- BAND MANAGEMENT FUNCTIONS ---
+
+/**
+ * Creates a new band and assigns the creator as the admin.
+ * @param {string} bandName - The name of the new band.
+ * @param {object} adminUser - The user object of the creator.
+ * @returns {Promise<void>}
+ */
+export async function createBand(bandName, adminUser) {
+    const bandRef = doc(collection(db, "bands"));
+    const userRef = doc(db, "users", adminUser.uid);
+
+    const batch = writeBatch(db);
+
+    batch.set(bandRef, {
+        name: bandName,
+        createdAt: serverTimestamp(),
+        members: {
+            [adminUser.uid]: {
+                name: adminUser.displayName || adminUser.email,
+                role: 'admin'
+            }
+        }
+    });
+
+    batch.update(userRef, {
+        [`bands.${bandRef.id}`]: 'admin'
+    });
+
+    return await batch.commit();
+}
+
+/**
+ * Fetches all bands a user is a member of.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<Array>} A promise that resolves to an array of band objects.
+ */
+export async function getBandsForUser(userId) {
+    const userData = await getUserData(userId);
+    if (!userData || !userData.bands) return [];
+
+    const bandIds = Object.keys(userData.bands);
+    if (bandIds.length === 0) return [];
+
+    const bandPromises = bandIds.map(async (bandId) => {
+        const bandDoc = await getDoc(doc(db, "bands", bandId));
+        if (bandDoc.exists()) {
+            return {
+                id: bandDoc.id,
+                ...bandDoc.data(),
+                role: userData.bands[bandId]
+            };
+        }
+        return null;
+    });
+
+    const bands = await Promise.all(bandPromises);
+    return bands.filter(band => band !== null);
+}
+
+/**
+ * Fetches a single band's data, including detailed info for each member.
+ * @param {string} bandId - The ID of the band to fetch.
+ * @returns {Promise<Object>} A promise that resolves with the band's data object.
+ */
+export async function getBandData(bandId) {
+    const bandRef = doc(db, "bands", bandId);
+    const bandSnap = await getDoc(bandRef);
+
+    if (!bandSnap.exists()) {
+        throw new Error("Band not found.");
+    }
+
+    const bandData = bandSnap.data();
+    const memberIds = Object.keys(bandData.members);
+
+    const memberPromises = memberIds.map(async (id) => {
+        const userData = await getUserData(id);
+        return {
+            id,
+            name: userData ? userData.name : 'Unknown Member',
+            photoURL: userData ? userData.profileImageUrl : null,
+            role: bandData.members[id].role
+        };
+    });
+
+    const members = await Promise.all(memberPromises);
+    const memberMap = members.reduce((acc, member) => {
+        acc[member.id] = member;
+        return acc;
+    }, {});
+
+    return { id: bandSnap.id, ...bandData, members: memberMap };
+}
+
+
+/**
+ * Invites a user to a band by their email.
+ * @param {string} bandId - The ID of the band.
+ * @param {string} inviteeEmail - The email of the user to invite.
+ * @returns {Promise<void>}
+ */
+export async function inviteToBand(bandId, inviteeEmail) {
+    // In a real app, this would trigger a backend function to send an email.
+    // For this prototype, we will create an 'invitations' document.
+    const q = query(collection(db, "users"), where("email", "==", inviteeEmail));
+    const userSnapshot = await getDocs(q);
+
+    if (userSnapshot.empty) {
+        throw new Error("User with that email does not exist.");
+    }
+    const inviteeId = userSnapshot.docs[0].id;
+
+    const inviteRef = doc(collection(db, "invitations"));
+    return await setDoc(inviteRef, {
+        bandId: bandId,
+        inviteeId: inviteeId,
+        status: 'pending',
+        createdAt: serverTimestamp()
+    });
+}
+
+/**
+ * Removes a member from a band.
+ * @param {string} bandId - The ID of the band.
+ * @param {string} memberId - The ID of the member to remove.
+ * @returns {Promise<void>}
+ */
+export async function removeMemberFromBand(bandId, memberId) {
+    const bandRef = doc(db, "bands", bandId);
+    const userRef = doc(db, "users", memberId);
+    const batch = writeBatch(db);
+
+    // This uses dot notation with a field path to remove a key from a map.
+    batch.update(bandRef, {
+        [`members.${memberId}`]: deleteField()
+    });
+    batch.update(userRef, {
+        [`bands.${bandId}`]: deleteField()
+    });
+
+    return await batch.commit();
+}
+
+
+
+// --- FIRESTORE FUNCTIONS (Existing code below, no changes needed to these) ---
 
 /**
  * Fetches a user's data from the Firestore 'users' collection.
