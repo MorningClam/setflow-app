@@ -17,22 +17,80 @@
         <h1 class="text-lg font-bold tracking-tight">Inbox</h1>
         <div class="w-9"></div>
     </header>
-    <main class="flex-grow divide-y divide-neutral-800">
-      <a href="Setflow - Conversation View.html" class="w-full text-left p-5 flex items-center space-x-4 hover:bg-neutral-800/50">
-        <div class="relative flex-shrink-0"><div class="w-12 h-12 bg-emerald-500 rounded-lg"></div><span class="absolute top-0 right-0 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-neutral-900"></span></div>
-        <div class="flex-grow overflow-hidden">
-          <div class="flex justify-between items-baseline"><p class="font-bold text-white truncate">The Pour House</p><p class="text-xs text-neutral-400">8:15 PM</p></div>
-          <div class="flex justify-between items-baseline mt-1"><p class="text-sm text-neutral-300 truncate">Hey George, load-in is at 6 PM.</p><span class="text-xs font-bold bg-emerald-500 text-white rounded-full w-5 h-5 flex items-center justify-center ml-2">1</span></div>
-        </div>
-      </a>
-      <a href="Setflow - Conversation View.html" class="w-full text-left p-5 flex items-center space-x-4 hover:bg-neutral-800/50">
-        <div class="w-12 h-12 bg-neutral-700 rounded-lg flex-shrink-0"></div>
-        <div class="flex-grow overflow-hidden">
-          <div class="flex justify-between items-baseline"><p class="font-semibold text-neutral-200 truncate">Catawba Live</p><p class="text-xs text-neutral-500">Yesterday</p></div>
-          <p class="text-sm text-neutral-500 truncate mt-1">You: Thanks for the consideration.</p>
-        </div>
-      </a>
+    <main id="inbox-container" class="flex-grow divide-y divide-neutral-800">
+      <p class="p-5 text-neutral-500">Loading conversations...</p>
     </main>
-    </div>
+  </div>
+
+  <script type="module">
+    import { onAuthState, getConversations } from './api.js';
+
+    const inboxContainer = document.getElementById('inbox-container');
+    const placeholderImage = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop';
+
+    function formatTimestamp(timestamp) {
+        if (!timestamp) return '';
+        const date = timestamp.toDate();
+        const now = new Date();
+        const diffSeconds = Math.floor((now - date) / 1000);
+        const diffDays = Math.floor(diffSeconds / 86400);
+
+        if (diffDays > 1) {
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        } else if (diffDays === 1) {
+            return 'Yesterday';
+        } else {
+            return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        }
+    }
+
+    function renderConversations(conversations, currentUserId) {
+        inboxContainer.innerHTML = '';
+        if (!conversations || conversations.length === 0) {
+            inboxContainer.innerHTML = `<p class="p-5 text-center text-neutral-500">You have no messages yet.</p>`;
+            return;
+        }
+
+        conversations.forEach(convo => {
+            const convoLink = document.createElement('a');
+            convoLink.href = `Setflow - Conversation View.html?recipientId=${convo.otherUserId}`;
+            convoLink.className = 'w-full text-left p-5 flex items-center space-x-4 hover:bg-neutral-800/50';
+
+            const lastMessageText = convo.lastMessage.senderId === currentUserId 
+                ? `You: ${convo.lastMessage.text}` 
+                : convo.lastMessage.text;
+
+            convoLink.innerHTML = `
+                <div class="relative flex-shrink-0">
+                    <img class="w-12 h-12 rounded-lg object-cover" src="${convo.otherUserImage || placeholderImage}" alt="${convo.otherUserName}">
+                </div>
+                <div class="flex-grow overflow-hidden">
+                    <div class="flex justify-between items-baseline">
+                        <p class="font-bold text-white truncate">${convo.otherUserName}</p>
+                        <p class="text-xs text-neutral-400 flex-shrink-0 ml-2">${formatTimestamp(convo.lastMessage.timestamp)}</p>
+                    </div>
+                    <div class="flex justify-between items-baseline mt-1">
+                        <p class="text-sm text-neutral-400 truncate">${lastMessageText}</p>
+                    </div>
+                </div>
+            `;
+            inboxContainer.appendChild(convoLink);
+        });
+    }
+
+    onAuthState(async (user) => {
+        if (user) {
+            try {
+                const conversations = await getConversations(user.uid);
+                renderConversations(conversations, user.uid);
+            } catch (error) {
+                console.error("Failed to load conversations:", error);
+                inboxContainer.innerHTML = `<p class="p-5 text-red-400">Could not load conversations.</p>`;
+            }
+        } else {
+            window.location.href = 'Setflow - Login Page.html';
+        }
+    });
+  </script>
 </body>
 </html>

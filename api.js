@@ -4,7 +4,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -501,4 +501,103 @@ export async function fetchJamSessions() {
   }
   
   return sessions;
+}
+
+// --- MESSAGING FUNCTIONS ---
+
+/**
+ * Creates or retrieves a conversation between two users.
+ * @param {string} userId1 - The ID of the current user.
+ * @param {string} userId2 - The ID of the other user.
+ * @returns {Promise<string>} The ID of the conversation.
+ */
+export async function createOrGetConversation(userId1, userId2) {
+  const conversationId = [userId1, userId2].sort().join('_');
+  const conversationRef = doc(db, "conversations", conversationId);
+  const conversationSnap = await getDoc(conversationRef);
+
+  if (!conversationSnap.exists()) {
+    await setDoc(conversationRef, {
+      participants: [userId1, userId2],
+      createdAt: serverTimestamp(),
+    });
+  }
+  return conversationId;
+}
+
+/**
+ * Sends a message in a specific conversation.
+ * @param {string} conversationId - The ID of the conversation.
+ * @param {object} messageData - The message object { text, senderId }.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function sendMessage(conversationId, messageData) {
+  const messagesRef = collection(db, "conversations", conversationId, "messages");
+  return await addDoc(messagesRef, {
+    ...messageData,
+    timestamp: serverTimestamp(),
+  });
+}
+
+/**
+ * Listens for real-time messages in a conversation.
+ * @param {string} conversationId - The ID of the conversation.
+ * @param {function} callback - Function to be called with the array of messages.
+ * @returns {import("firebase/firestore").Unsubscribe} A function to unsubscribe from the listener.
+ */
+export function getMessages(conversationId, callback) {
+  const messagesRef = collection(db, "conversations", conversationId, "messages");
+  const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+  return onSnapshot(q, (querySnapshot) => {
+    const messages = [];
+    querySnapshot.forEach((doc) => {
+      messages.push({ id: doc.id, ...doc.data() });
+    });
+    callback(messages);
+  });
+}
+
+/**
+ * Fetches all conversations for a user, including the other participant's info and the last message.
+ * @param {string} userId - The ID of the current user.
+ * @returns {Promise<Array>} A promise that resolves to an array of conversation objects.
+ */
+export async function getConversations(userId) {
+  const convosRef = collection(db, "conversations");
+  const q = query(convosRef, where("participants", "array-contains", userId));
+
+  const querySnapshot = await getDocs(q);
+  const conversations = [];
+
+  for (const convoDoc of querySnapshot.docs) {
+    const convoData = convoDoc.data();
+    
+    const otherParticipantId = convoData.participants.find(id => id !== userId);
+    if (!otherParticipantId) continue;
+
+    const otherUserData = await getUserData(otherParticipantId);
+
+    const messagesRef = collection(db, "conversations", convoDoc.id, "messages");
+    const lastMessageQuery = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
+    const lastMessageSnapshot = await getDocs(lastMessageQuery);
+    
+    let lastMessage = { text: 'No messages yet...', timestamp: convoData.createdAt };
+    if (!lastMessageSnapshot.empty) {
+      lastMessage = lastMessageSnapshot.docs[0].data();
+    }
+    
+    conversations.push({
+      id: convoDoc.id,
+      ...convoData,
+      otherUserName: otherUserData ? otherUserData.name : 'Unknown User',
+      otherUserImage: otherUserData ? otherUserData.profileImageUrl : null,
+      otherUserId: otherParticipantId,
+      lastMessage: lastMessage
+    });
+  }
+  
+  conversations.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
+
+  return conversations;
 }
