@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
+  <script src="version.js"></script>
   <style>body{font-family:'Inter',sans-serif}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -96,7 +97,7 @@
                 Delete Account
             </button>
         </div>
-         <p class="text-xs text-neutral-500 mt-2 px-1">Version 1.0.0</p> </div>
+         <p id="app-version-display" class="text-xs text-neutral-500 mt-2 px-1">Version...</p> </div>
 
     <div>
         <button id="logout-btn" class="w-full block text-center py-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 text-base font-bold rounded-xl transition-colors">
@@ -245,6 +246,16 @@
     <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
+
+<script>
+    // --- Set App Version ---
+    if (typeof APP_VERSION !== 'undefined') {
+        const versionEl = document.getElementById('app-version-display');
+        if (versionEl) {
+            versionEl.innerText = `Version ${APP_VERSION}`;
+        }
+    }
+</script>
 
 </body>
 </html>
