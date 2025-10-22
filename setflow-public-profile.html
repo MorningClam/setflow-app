@@ -7,6 +7,7 @@
   <title>Setflow - Musician Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -25,7 +26,7 @@
 
   <script src="nav.js"></script>
   <script type="module">
-    import { onAuthState, getUserData, getBandsForUser } from './api.js';
+    import { onAuthState, getUserData, getBandsForUser, reportContent } from './api.js';
 
     const profileContainer = document.getElementById('profile-container');
     const footerActions = document.getElementById('footer-actions');
@@ -33,6 +34,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
+    let currentUserId = null; // To store the logged-in user's ID
 
     function renderProfile(userData, bands) {
       if (!userData) {
@@ -52,13 +54,39 @@
           <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Bio</h3>
           <p class="text-neutral-300 text-sm leading-relaxed">${userData.bio || 'No bio provided.'}</p>
         </div>
+        <div class="p-5 text-center">
+            <button id="report-user-btn" data-user-id="${userData.id}" class="text-sm text-neutral-500 hover:text-red-400">Report this user</button>
+        </div>
       `;
       
       footerActions.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Send Message</a>`;
+    
+      // Add event listener for the new report button
+      const reportBtn = document.getElementById('report-user-btn');
+      if (reportBtn) {
+          reportBtn.addEventListener('click', () => handleReport('user', userId));
+      }
+    }
+
+    async function handleReport(type, id) {
+        if (!currentUserId) {
+            toast.show('You must be logged in to report content.', 'error');
+            return;
+        }
+        if (confirm('Are you sure you want to report this user?')) {
+            try {
+                await reportContent(id, type, currentUserId, 'User reported from public profile page');
+                toast.show('User reported. Thank you.', 'success');
+            } catch (error) {
+                console.error('Error reporting user:', error);
+                toast.show('Could not submit report. Please try again.', 'error');
+            }
+        }
     }
 
     onAuthState(async (user) => {
       if (user) {
+        currentUserId = user.uid; // Store the current user's ID
         if (!userId) {
           profileContainer.innerHTML = '<p class="p-5 text-center text-red-400">No user ID specified.</p>';
           return;
@@ -75,5 +103,10 @@
       }
     });
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
 </body>
 </html>

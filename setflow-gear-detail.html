@@ -7,6 +7,7 @@
   <title>Setflow - Gear Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -24,12 +25,13 @@
 </div>
 
 <script type="module">
-  import { onAuthState, getGearListing, getUserData } from './api.js';
+  import { onAuthState, getGearListing, getUserData, reportContent } from './api.js';
 
   const container = document.getElementById('gear-detail-container');
   const footer = document.getElementById('footer-container');
   const urlParams = new URLSearchParams(window.location.search);
   const listingId = urlParams.get('id');
+  let currentUserId = null;
 
   function renderListing(item) {
     if (!item) {
@@ -53,11 +55,14 @@
         </div>
         <div class="mt-4 pt-4 border-t border-neutral-800">
             <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Seller</h3>
-            <div class="flex items-center space-x-3">
-                <img class="w-12 h-12 rounded-full object-cover" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
-                <div>
-                    <p class="font-semibold text-white">${item.sellerName}</p>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <img class="w-12 h-12 rounded-full object-cover" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
+                    <div>
+                        <p class="font-semibold text-white">${item.sellerName}</p>
+                    </div>
                 </div>
+                <button id="report-item-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Item</button>
             </div>
         </div>
       </div>
@@ -68,10 +73,34 @@
             Message Seller
         </a>
     `;
+
+    // Add event listener for the new report button
+    const reportBtn = document.getElementById('report-item-btn');
+    if (reportBtn) {
+        reportBtn.addEventListener('click', () => handleReport('gear_listing', item.id));
+    }
+  }
+
+  // Add a new function to handle reporting
+  async function handleReport(type, id) {
+    if (!currentUserId) {
+        toast.show('You must be logged in to report content.', 'error');
+        return;
+    }
+    if (confirm('Are you sure you want to report this item?')) {
+        try {
+            await reportContent(id, type, currentUserId, 'User reported from gear detail page');
+            toast.show('Item reported. Thank you.', 'success');
+        } catch (error) {
+            console.error('Error reporting item:', error);
+            toast.show('Could not submit report. Please try again.', 'error');
+        }
+    }
   }
 
   onAuthState(async (user) => {
     if (user) {
+        currentUserId = user.uid; // Store the user ID
         if (!listingId) {
             container.innerHTML = `<p class="p-5 text-center text-red-400">No item ID provided.</p>`;
             return;
@@ -88,6 +117,11 @@
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

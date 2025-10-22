@@ -26,6 +26,9 @@
         </div>
         <p class="text-md text-neutral-400 mt-1">Durham, NC</p>
         <button id="view-map-btn" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">View on Map</button>
+        <div class="mt-2 text-right">
+             <button id="report-gig-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Gig</button>
+        </div>
       </div>
       <div class="px-5 py-4 border-b border-neutral-800">
         <div class="grid grid-cols-2 gap-4 text-sm">
@@ -47,10 +50,11 @@
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, applyForGig } from './api.js';
+    import { onAuthState, getUserData, applyForGig, reportContent } from './api.js';
 
     const footerContainer = document.getElementById('footer-container');
     const applyBtn = document.getElementById('apply-btn'); // Can be null if replaced
+    const reportGigBtn = document.getElementById('report-gig-btn');
     let currentUserId = null;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -149,6 +153,31 @@
              const encodedAddress = encodeURIComponent(venueAddress);
              window.open(`https://www.google.com/maps/search/?api=1&query=...?q=${encodedAddress}`, '_blank');
         });
+    }
+
+    // --- Report Gig Functionality ---
+    async function handleReportGig() {
+        if (!currentUserId) {
+            toast.show('You must be logged in to report content.', 'error');
+            return;
+        }
+        if (!gigId) {
+             toast.show('Cannot report: Gig ID is missing.', 'error');
+             return;
+        }
+        if (confirm('Are you sure you want to report this gig?')) {
+            try {
+                await reportContent(gigId, 'gig', currentUserId, 'User reported from gig detail page');
+                toast.show('Gig reported. Thank you.', 'success');
+            } catch (error) {
+                console.error('Error reporting gig:', error);
+                toast.show('Could not submit report. Please try again.', 'error');
+            }
+        }
+    }
+
+    if (reportGigBtn) {
+        reportGigBtn.addEventListener('click', handleReportGig);
     }
 
   </script>

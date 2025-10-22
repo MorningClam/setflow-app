@@ -7,6 +7,7 @@
   <title>Setflow - Find a Player</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -19,74 +20,137 @@
   <main class="flex-1 px-5 py-4 pb-28 space-y-6">
     <div>
         <h2 class="text-base font-semibold text-emerald-400 mb-2">✓ Available Now</h2>
-        <div id="available-players" class="space-y-3">
-            <p class="text-neutral-500">Loading available players...</p>
+        <div id="available-players-posts" class="space-y-3">
+            <p class="text-neutral-500">Loading available player posts...</p>
         </div>
     </div>
     <div>
-        <h2 class="text-base font-semibold text-white mb-2">Local Musicians</h2>
-        <div id="all-players" class="space-y-3">
-            <p class="text-neutral-500">Loading musicians...</p>
+        <h2 class="text-base font-semibold text-white mb-2">Looking For Players</h2>
+        <div id="looking-for-players-posts" class="space-y-3">
+            <p class="text-neutral-500">Loading posts seeking players...</p>
         </div>
     </div>
   </main>
 </div>
 
 <script type="module">
-  import { onAuthState, getAvailablePlayers, getAllPlayers } from './api.js';
+  import { onAuthState, fetchPlayerPosts, reportContent } from './api.js';
 
-  const availablePlayersContainer = document.getElementById('available-players');
-  const allPlayersContainer = document.getElementById('all-players');
+  const availableContainer = document.getElementById('available-players-posts');
+  const lookingContainer = document.getElementById('looking-for-players-posts');
   const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop";
+  let currentUserId = null;
 
-  function renderPlayers(container, players) {
-    container.innerHTML = '';
-    if (!players || players.length === 0) {
-      container.innerHTML = `<p class="text-center text-neutral-500 mt-8">No musicians found.</p>`;
-      return;
+  function renderPosts(posts) {
+    availableContainer.innerHTML = '';
+    lookingContainer.innerHTML = ''; // Clear both containers initially
+
+    const availablePosts = posts.filter(p => p.type === 'available');
+    const lookingPosts = posts.filter(p => p.type === 'looking');
+
+    if (availablePosts.length === 0) {
+      availableContainer.innerHTML = `<p class="text-center text-neutral-500">No players currently available.</p>`;
+    } else {
+        availablePosts.forEach(post => renderPostCard(availableContainer, post));
     }
 
-    players.forEach(player => {
-      const playerCard = document.createElement('div');
-      playerCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
-      
-      // CORRECTED LINK
-      const profileLink = `setflow-public-profile.html?userId=${player.id}`;
+    if (lookingPosts.length === 0) {
+      lookingContainer.innerHTML = `<p class="text-center text-neutral-500">No posts currently seeking players.</p>`;
+    } else {
+        lookingPosts.forEach(post => renderPostCard(lookingContainer, post));
+    }
+  }
 
-      playerCard.innerHTML = `
-        <div class="flex items-center justify-between">
-            <a href="${profileLink}" class="flex items-center space-x-3">
-                <img class="w-12 h-12 rounded-full object-cover" src="${player.profileImageUrl || placeholderImage}" alt="${player.name}'s photo">
-                <div>
-                    <p class="font-bold text-white">${player.name}</p>
-                    <p class="text-sm text-neutral-400">${player.instrument || 'Musician'}</p>
+  function renderPostCard(container, post) {
+      const postCard = document.createElement('div');
+      postCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
+      
+      const profileLink = `setflow-public-profile.html?userId=${post.userId}`;
+
+      // Customize content based on post type
+      let detailsHtml = '';
+      if (post.type === 'available') {
+          detailsHtml = `
+            <p class="text-sm text-neutral-300 mt-2">Plays: <span class="font-semibold text-white">${post.instrument}</span></p>
+            <p class="text-sm text-neutral-400">Location: ${post.location || 'N/A'}</p>
+            <p class="text-sm text-neutral-400">Availability: ${post.availability || 'N/A'}</p>
+          `;
+      } else { // 'looking'
+          detailsHtml = `
+            <p class="text-sm text-neutral-300 mt-2">Needs: <span class="font-semibold text-white">${post.instrument}</span></p>
+            <p class="text-sm text-neutral-400">For: ${post.eventDetails || 'N/A'}</p>
+            <p class="text-sm text-neutral-400">Date: ${post.date ? new Date(post.date).toLocaleDateString() : 'N/A'}</p>
+          `;
+      }
+
+      postCard.innerHTML = `
+        <div class="flex items-start justify-between">
+            <a href="${profileLink}" class="flex items-center space-x-3 flex-1 min-w-0">
+                <img class="w-10 h-10 rounded-full object-cover flex-shrink-0" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
+                <div class="min-w-0">
+                    <p class="font-bold text-white truncate">${post.userName}</p>
+                    <p class="text-xs text-neutral-500">${post.type === 'available' ? 'Available Player' : 'Seeking Player'}</p>
                 </div>
             </a>
-            <a href="setflow-conversation-view.html?recipientId=${player.id}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">Message</a>
+            <a href="setflow-conversation-view.html?recipientId=${post.userId}" class="ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0">Message</a>
+        </div>
+        ${detailsHtml}
+        <p class="text-sm text-neutral-300 mt-2 border-t border-neutral-700 pt-2">${post.description || 'No description provided.'}</p>
+        <div class="mt-2 text-right">
+             <button data-post-id="${post.id}" class="report-post-btn text-xs text-neutral-500 hover:text-red-400">Report Post</button>
         </div>
       `;
-      container.appendChild(playerCard);
-    });
+      container.appendChild(postCard);
   }
+
+  // --- Report Post Functionality ---
+  async function handleReportPost(postId) {
+    if (!currentUserId) {
+        toast.show('You must be logged in to report content.', 'error');
+        return;
+    }
+    if (confirm('Are you sure you want to report this post?')) {
+        try {
+            await reportContent(postId, 'player_post', currentUserId, 'User reported from find a player page');
+            toast.show('Post reported. Thank you.', 'success');
+        } catch (error) {
+            console.error('Error reporting post:', error);
+            toast.show('Could not submit report. Please try again.', 'error');
+        }
+    }
+  }
+
+  // --- Event Delegation for Report Buttons ---
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.classList.contains('report-post-btn')) {
+        const postId = target.dataset.postId;
+        handleReportPost(postId);
+    }
+  });
+
 
   onAuthState(async (user) => {
     if (user) {
+      currentUserId = user.uid; // Store user ID
       try {
-        const availablePlayers = await getAvailablePlayers();
-        renderPlayers(availablePlayersContainer, availablePlayers);
-        
-        const allPlayers = await getAllPlayers();
-        renderPlayers(allPlayersContainer, allPlayers);
+        const posts = await fetchPlayerPosts();
+        renderPosts(posts);
       } catch (error) {
-        console.error("Failed to fetch players:", error);
-        availablePlayersContainer.innerHTML = '<p class="text-red-400">Could not load players.</p>';
-        allPlayersContainer.innerHTML = '';
+        console.error("Failed to fetch player posts:", error);
+        availableContainer.innerHTML = '<p class="text-red-400">Could not load posts.</p>';
+        lookingContainer.innerHTML = ''; // Clear the other container too on error
       }
     } else {
       window.location.href = 'setflow-login-page.html';
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

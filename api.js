@@ -619,7 +619,7 @@ export async function fetchPlayerPosts() {
  * @param {string} gigId - The ID of the gig to confirm.
  * @param {string} artistId - The ID of the artist being booked.
  * @param {string} artistName - The name of the artist being booked.
- * @returns {Promise<void>}
+ *• @returns {Promise<void>}
  */
 export async function confirmBooking(gigId, artistId, artistName) {
   if (!gigId || !artistId || !artistName) {
@@ -941,4 +941,29 @@ export async function getAllBands() {
         bands.push({ id: doc.id, ...doc.data() });
     });
     return bands;
+}
+
+/**
+ * Creates a report document in the 'reports' collection.
+ * @param {string} reportedItemId - The ID of the item being reported (e.g., gigId, userId, listingId).
+ * @param {string} reportedItemType - The type of item (e.g., 'user', 'gig', 'gear_listing', 'jam_session').
+ * @param {string} reporterId - The ID of the user making the report.
+ * @param {string} [reason] - An optional reason for the report.
+ * @returns {Promise<import("firebase/firestore").DocumentReference>}
+ */
+export async function reportContent(reportedItemId, reportedItemType, reporterId, reason = 'N/A') {
+  if (!reportedItemId || !reportedItemType || !reporterId) {
+    throw new Error("Missing required fields to submit a report.");
+  }
+
+  const reportData = {
+    reportedItemId,
+    reportedItemType,
+    reporterId,
+    reason,
+    status: 'pending',
+    createdAt: serverTimestamp()
+  };
+
+  return await addDoc(collection(db, "reports"), reportData);
 }

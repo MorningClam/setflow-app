@@ -7,6 +7,7 @@
   <title>Setflow - Jam Sessions</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -22,10 +23,11 @@
 </div>
 
 <script type="module">
-  import { onAuthState, fetchJamSessions } from './api.js';
+  import { onAuthState, fetchJamSessions, reportContent } from './api.js';
 
   const sessionsContainer = document.getElementById('sessions-container');
   const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop";
+  let currentUserId = null;
 
   function renderSessions(sessions) {
     sessionsContainer.innerHTML = '';
@@ -49,14 +51,42 @@
           </div>
           <img class="w-12 h-12 rounded-full object-cover" src="${session.hostProfileImage || placeholderImage}" alt="${session.hostName}'s photo">
         </div>
-        <button class="mt-3 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-colors">Join Session</button>
+        <div class="mt-3 flex items-center space-x-2">
+            <button class="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-colors">Join Session</button>
+            <button data-session-id="${session.id}" class="report-session-btn px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 text-xs font-bold rounded-xl">Report</button>
+        </div>
       `;
       sessionsContainer.appendChild(sessionCard);
     });
   }
 
+  async function handleReport(type, id) {
+    if (!currentUserId) {
+        toast.show('You must be logged in to report content.', 'error');
+        return;
+    }
+    if (confirm('Are you sure you want to report this jam session?')) {
+        try {
+            await reportContent(id, type, currentUserId, 'User reported from jam sessions page');
+            toast.show('Session reported. Thank you.', 'success');
+        } catch (error) {
+            console.error('Error reporting session:', error);
+            toast.show('Could not submit report. Please try again.', 'error');
+        }
+    }
+  }
+
+  sessionsContainer.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.classList.contains('report-session-btn')) {
+        const sessionId = target.dataset.sessionId;
+        handleReport('jam_session', sessionId);
+    }
+  });
+
   onAuthState(async (user) => {
     if (user) {
+      currentUserId = user.uid; // Store user ID
       try {
         const sessions = await fetchJamSessions();
         renderSessions(sessions);
@@ -69,6 +99,11 @@
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>
