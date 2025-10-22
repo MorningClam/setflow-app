@@ -11,7 +11,7 @@
 <body class="bg-neutral-900 text-white antialiased">
 <div class="max-w-md mx-auto min-h-screen flex flex-col">
   <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="Setflow - Account Settings.html" class="p-2 rounded-lg hover:bg-neutral-700">
+    <a href="setflow-account-settings.html" class="p-2 rounded-lg hover:bg-neutral-700">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">Create a New Band</h1>
@@ -41,7 +41,7 @@
     if (user) {
       currentUser = user;
     } else {
-      window.location.href = 'Setflow - Login Page.html';
+      window.location.href = 'setflow-login-page.html';
     }
   });
 
@@ -60,7 +60,7 @@
     try {
       await createBand(bandName, currentUser);
       alert('Band created successfully!');
-      window.location.href = 'Setflow - Account Settings.html';
+      window.location.href = 'setflow-account-settings.html';
     } catch (error) {
       console.error("Error creating band:", error);
       alert("Could not create the band. Please try again.");

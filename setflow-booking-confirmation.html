@@ -58,7 +58,7 @@
                 <div class="flex justify-between"><span class="text-neutral-400">Payout</span><span class="font-bold text-emerald-400">$${gig.payout}</span></div>
             </div>
             <div class="px-4 pb-4 flex flex-col space-y-3">
-                <p class="text-xs text-center text-neutral-500">By confirming, you agree to the <a href="Setflow - Booking Terms.html" class="underline text-neutral-400 hover:text-white">Setflow Booking Agreement</a>.</p>
+                <p class="text-xs text-center text-neutral-500">By confirming, you agree to the <a href="setflow-booking-terms.html" class="underline text-neutral-400 hover:text-white">Setflow Booking Agreement</a>.</p>
                 <button id="confirm-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Confirm & Send Show Sheet</button>
                 <a href="javascript:history.back()" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl text-center">Cancel</a>
             </div>
@@ -75,7 +75,7 @@
             await confirmBooking(gig.id, artist.id, artist.name);
             confirmBtn.innerText = '✓ Booked!';
             setTimeout(() => {
-              window.location.href = 'Setflow - Venue Dashboard.html?booked=true';
+              window.location.href = 'setflow-venue-dashboard.html?booked=true';
             }, 1500);
           } catch(error) {
             console.error("Booking failed: ", error);
@@ -96,7 +96,7 @@
           console.error("Error loading booking data:", error);
         }
       } else {
-        window.location.href = 'Setflow - Login Page.html';
+        window.location.href = 'setflow-login-page.html';
       }
     });
   </script>

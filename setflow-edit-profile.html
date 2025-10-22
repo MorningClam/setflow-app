@@ -15,7 +15,7 @@
 <body class="bg-neutral-900 text-white antialiased">
   <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
     <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50">
-      <a href="Setflow - Musician Profile.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <a href="setflow-musician-profile.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight">Edit Profile</h1>
       <button id="save-btn" form="profile-form" type="submit" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2">Save</button>
     </header>
@@ -82,7 +82,7 @@
                 }
             }
         } else {
-            window.location.href = 'Setflow - Login Page.html';
+            window.location.href = 'setflow-login-page.html';
         }
     });
 
@@ -104,7 +104,7 @@
             await updateUserProfile(currentUserId, profileData);
             saveButton.innerText = '✓ Saved';
             setTimeout(() => {
-                window.location.href = 'Setflow - Musician Profile.html';
+                window.location.href = 'setflow-musician-profile.html';
             }, 1000);
         } catch (error) {
             console.error("Error updating profile:", error);

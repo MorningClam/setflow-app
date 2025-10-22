@@ -14,7 +14,7 @@
 <body class="bg-neutral-900 text-white antialiased">
   <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
     <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
-      <a href="Setflow - Venue Dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <a href="setflow-venue-dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Leave a Review</h1>
     </header>
     <main class="flex-grow p-5">
@@ -74,7 +74,7 @@
     // --- User Authentication ---
     onAuthState((user) => {
       if (!user) {
-        window.location.href = 'Setflow - Login Page.html';
+        window.location.href = 'setflow-login-page.html';
       } else {
         currentUserId = user.uid;
       }
@@ -110,7 +110,7 @@
       try {
         await createReview(reviewData);
         alert('Thank you for your review!');
-        window.location.href = 'Setflow - Venue Dashboard.html';
+        window.location.href = 'setflow-venue-dashboard.html';
       } catch (error) {
         console.error("Failed to submit review:", error);
         alert("There was an error submitting your review. Please try again.");

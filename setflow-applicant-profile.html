@@ -11,7 +11,7 @@
 <body class="bg-neutral-900 text-white antialiased">
   <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
     <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50">
-      <a href="Setflow - Review Applicants.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <a href="setflow-review-applicants.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1>
       <a href="#" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a>
     </header>
@@ -51,9 +51,9 @@
         `;
 
       // Populate footer actions
-      const bookingLink = `Setflow - Booking Confirmation.html?userId=${userId}&gigId=${gigId}`;
+      const bookingLink = `setflow-booking-confirmation.html?userId=${userId}&gigId=${gigId}`;
       footerActions.innerHTML = `
-        <a href="Setflow - Conversation View.html?recipientId=${userId}" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center">Send Message</a>
+        <a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center">Send Message</a>
         <a href="${bookingLink}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Book Gig</a>
       `;
     }
@@ -71,7 +71,7 @@
           console.error("Error fetching applicant data:", error);
         }
       } else {
-        window.location.href = 'Setflow - Login Page.html';
+        window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
