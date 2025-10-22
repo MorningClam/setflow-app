@@ -16,10 +16,10 @@
       <p class="text-xs text-neutral-400">Manage Your Events</p>
     </div>
     <div class="flex items-center space-x-2">
-      <a href="Setflow - Talent Pool.html" class="p-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg">
+      <a href="setflow-talent-pool.html" class="p-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg>
       </a>
-      <a href="Setflow - Post Event Page.html" class="p-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg">
+      <a href="setflow-post-event-page.html" class="p-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
@@ -71,8 +71,8 @@
       cardContent += '</div>';
 
       // Use the correct link based on whether the gig is booked or still open
-      const reviewLink = `Setflow - Review Applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}`;
-      const showSheetLink = `Setflow - Show Sheet.html?gigId=${gig.id}`;
+      const reviewLink = `setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}`;
+      const showSheetLink = `setflow-show-sheet.html?gigId=${gig.id}`;
       
       cardContent += `
         <div class="bg-neutral-900/50 rounded-b-xl px-4 py-2 border-t border-neutral-700">
@@ -97,7 +97,7 @@
         eventsContainer.innerHTML += `<p class="text-red-400">Could not load your events.</p>`;
       }
     } else {
-      window.location.href = 'Setflow - Login Page.html';
+      window.location.href = 'setflow-login-page.html';
     }
   });
 </script>

@@ -12,9 +12,9 @@
 <div class="max-w-md mx-auto min-h-screen flex flex-col">
   <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 shadow-md border-b border-neutral-700/50">
     <div class="flex items-center justify-between">
-      <a href="Setflow - MoreMenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+      <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight">Gear Swap</h1>
-      <a href="Setflow - Sell Item.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Sell</a>
+      <a href="setflow-sell-item.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Sell</a>
     </div>
     <div class="mt-3">
       <div class="flex items-center bg-neutral-800 border border-neutral-700 rounded-lg px-3">
@@ -44,7 +44,7 @@
     listings.forEach(item => {
       const itemCard = document.createElement('a');
       // In a real app, the link would go to a detailed view of the item
-      itemCard.href = `Setflow - Gear Detail.html?id=${item.id}`; 
+      itemCard.href = `setflow-gear-detail.html?id=${item.id}`; 
       itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden';
       itemCard.innerHTML = `
         <img class="h-32 w-full object-cover" src="${item.imageUrl}" alt="${item.name}">
@@ -68,7 +68,7 @@
         gearContainer.innerHTML = `<p class="col-span-2 text-red-400">Could not load gear listings.</p>`;
       }
     } else {
-      window.location.href = 'Setflow - Login Page.html';
+      window.location.href = 'setflow-login-page.html';
     }
   });
 </script>
