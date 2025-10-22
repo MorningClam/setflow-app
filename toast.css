@@ -1,0 +1,32 @@
+/* =========================================================================
+ * Setflow Toast Notification Styles
+ * ========================================================================= */
+
+#toast-notification {
+  position: fixed;
+  bottom: 5rem; /* Adjust as needed, ensure it's above bottom nav */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.25rem; /* py-3 px-5 */
+  border-radius: 0.5rem; /* rounded-lg */
+  color: white;
+  font-size: 0.875rem; /* text-sm */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-lg */
+  transition: opacity 300ms ease-in-out;
+  opacity: 0;
+  z-index: 9999; /* Ensure it's above other content */
+  max-width: 90%;
+  text-align: center;
+}
+
+#toast-notification.toast-success {
+  background-color: #10B981; /* bg-emerald-500 */
+}
+
+#toast-notification.toast-error {
+  background-color: #EF4444; /* bg-red-500 */
+}
+
+#toast-notification.opacity-100 {
+  opacity: 1;
+}

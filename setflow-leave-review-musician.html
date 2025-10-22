@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Leave a Review</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .star-rating button.selected { color: #FBBF24; }
@@ -53,7 +55,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const subjectId = urlParams.get('venueId'); // The ID of the venue being reviewed
-    const gigId = urlParams.get('gigId'); 
+    const gigId = urlParams.get('gigId');
     const venueName = urlParams.get('venueName') || 'the Venue';
 
     venueNameDisplay.innerText = decodeURIComponent(venueName);
@@ -83,15 +85,15 @@
     // --- Form Submission Logic ---
     submitButton.addEventListener('click', async () => {
       if (!currentUserId) {
-        alert("You must be logged in to leave a review.");
+        toast.show("You must be logged in to leave a review.", 'error');
         return;
       }
       if (rating === 0) {
-        alert("Please select a star rating.");
+        toast.show("Please select a star rating.", 'error');
         return;
       }
       if (!subjectId || !gigId) {
-        alert("Error: Could not identify the venue or gig for this review. Please go back and try again.");
+        toast.show("Error: Could not identify the venue or gig for this review. Please go back and try again.", 'error');
         return;
       }
 
@@ -109,15 +111,22 @@
 
       try {
         await createReview(reviewData);
-        alert('Thank you for your review!');
-        window.location.href = 'setflow-musician-dashboard.html';
+        toast.show('Thank you for your review!', 'success');
+        setTimeout(() => { // Redirect after showing success
+           window.location.href = 'setflow-musician-dashboard.html';
+        }, 1500);
       } catch (error) {
         console.error("Failed to submit review:", error);
-        alert("There was an error submitting your review. Please try again.");
+        toast.show("There was an error submitting your review. Please try again.", 'error');
         submitButton.disabled = false;
         submitButton.innerText = 'Submit Review';
       }
     });
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
 </body>
 </html>
