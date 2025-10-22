@@ -62,5 +62,5 @@ document.addEventListener('DOMContentLoaded', () => {
   toast.init();
 });
 
-// Make toast globally accessible (or manage through modules if preferred)
+// Make toast globally accessible
 window.toast = toast;
