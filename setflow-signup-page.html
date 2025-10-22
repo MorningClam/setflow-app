@@ -53,7 +53,7 @@
     <footer class="px-5 py-6 text-center">
       <p class="text-neutral-400 text-sm">
         Already have an account?
-        <a href="Setflow - Login Page.html" class="text-emerald-400 hover:text-emerald-300 font-medium">Sign in</a>
+        <a href="setflow-login-page.html" class="text-emerald-400 hover:text-emerald-300 font-medium">Sign in</a>
       </p>
     </footer>
   </div>
@@ -64,12 +64,6 @@
     const roleButtons = document.querySelectorAll('.role-btn');
     const signupForm = document.getElementById('signup-form');
     let selectedRole = 'Musician'; // Default role
-
-    const roleRedirectMap = {
-        'Musician': 'Setflow - Musician Dashboard.html',
-        'Venue': 'Setflow - Venue Dashboard.html',
-        'Promoter': 'Setflow - Promoter Dashboard.html'
-    };
 
     // --- Role Selection Logic ---
     roleButtons.forEach(button => {
@@ -82,24 +76,20 @@
 
     // --- Form Submission Logic ---
     signupForm.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
 
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
         const submitButton = document.getElementById('create-account-btn');
-
-        const name = nameInput.value;
-        const email = emailInput.value;
-        const password = passwordInput.value;
         
         submitButton.disabled = true;
         submitButton.innerText = 'Creating Account...';
 
         try {
             await signUpUser(name, email, password, selectedRole);
-            // On success, redirect to the correct dashboard
-            window.location.href = roleRedirectMap[selectedRole];
+            // CRITICAL FIX: Redirect to profile setup, not the dashboard.
+            window.location.href = `setflow-profile-setup.html?role=${selectedRole.toLowerCase()}`;
         } catch (error) {
             console.error('Signup Error:', error);
             alert('Could not create account: ' + error.message);

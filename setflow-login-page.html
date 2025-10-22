@@ -38,7 +38,7 @@
     <footer class="px-5 py-6 text-center">
       <p class="text-neutral-400 text-sm">
         Don't have an account?
-        <a href="Setflow - Signup Page.html" class="text-emerald-400 hover:text-emerald-300 font-medium">Sign up</a>
+        <a href="setflow-signup-page.html" class="text-emerald-400 hover:text-emerald-300 font-medium">Sign up</a>
       </p>
     </footer>
   </div>
@@ -49,9 +49,9 @@
     const loginForm = document.getElementById('login-form');
 
     const roleRedirectMap = {
-      'musician': 'Setflow - Musician Dashboard.html',
-      'venue': 'Setflow - Venue Dashboard.html',
-      'promoter': 'Setflow - Promoter Dashboard.html'
+      'musician': 'setflow-musician-dashboard.html',
+      'venue': 'setflow-venue-dashboard.html',
+      'promoter': 'setflow-promoter-dashboard.html'
     };
 
     loginForm.addEventListener('submit', async (event) => {
@@ -64,27 +64,25 @@
       submitButton.innerText = 'Signing In...';
 
       try {
-        // Step 1: Sign in the user
         const userCredential = await signInUser(email, password);
         const user = userCredential.user;
-
-        // Step 2: Get the user's data (including their role)
         const userData = await getUserData(user.uid);
         
         if (userData && userData.roles && userData.roles.length > 0) {
-          // Step 3: Redirect to the correct dashboard
-          const primaryRole = userData.roles[0]; // Get the first role
+          const primaryRole = userData.roles[0];
           const redirectUrl = roleRedirectMap[primaryRole];
 
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else {
-            // Fallback if the role is unknown, though this shouldn't happen
             alert('Login successful, but your role is not recognized. Defaulting to musician dashboard.');
             window.location.href = roleRedirectMap['musician'];
           }
         } else {
-          throw new Error("Could not find user role. Please contact support.");
+          // This case handles users who might exist in Auth but not in Firestore.
+          // For a robust app, you might want to force them through profile setup again.
+          alert('Could not find user data. Please complete your profile setup.');
+          window.location.href = 'setflow-profile-setup.html';
         }
 
       } catch (error) {
