@@ -11,7 +11,7 @@
 <body class="bg-neutral-900 text-white antialiased">
 <div class="max-w-md mx-auto min-h-screen flex flex-col">
   <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="Setflow - Musician Dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
+    <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">Account Settings</h1>
@@ -43,7 +43,20 @@
             <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
                 <p class="font-semibold text-white">Musician Profile</p>
                 <p class="text-sm text-neutral-400">Manage your artist page and availability.</p>
-                <a href="Setflow - Musician Profile.html" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:text-emerald-300">Edit Profile →</a>
+                <a href="setflow-musician-profile.html" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:text-emerald-300">Edit Profile →</a>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Subscription</h2>
+        <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="font-semibold text-white">Current Plan: <span class="text-emerald-400">Setflow Free</span></p>
+                    <p class="text-sm text-neutral-400">Upgrade to unlock unlimited features.</p>
+                </div>
+                <a href="setflow-pricing-page.html" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg">Upgrade</a>
             </div>
         </div>
     </div>
@@ -54,10 +67,10 @@
             <p class="text-neutral-500">Loading bands...</p>
         </div>
         <div class="grid grid-cols-2 gap-3 mt-3">
-            <a href="Setflow - Create Band.html" class="block w-full text-center py-3 bg-emerald-800 hover:bg-emerald-700 text-emerald-300 text-sm font-bold rounded-xl">
+            <a href="setflow-create-band.html" class="block w-full text-center py-3 bg-emerald-800 hover:bg-emerald-700 text-emerald-300 text-sm font-bold rounded-xl">
                 Create a Band
             </a>
-            <a href="Setflow - Find a Band.html" class="block w-full text-center py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl">
+            <a href="setflow-find-a-band.html" class="block w-full text-center py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl">
                 Find a Band
             </a>
         </div>
@@ -65,7 +78,7 @@
     
     <div>
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Community & Features</h2>
-        <a href="Setflow - MoreMenu.html" class="flex items-center justify-between bg-neutral-800 p-4 rounded-lg hover:bg-neutral-700">
+        <a href="setflow-moremenu.html" class="flex items-center justify-between bg-neutral-800 p-4 rounded-lg hover:bg-neutral-700">
             <div class="flex items-center">
                 <svg class="w-6 h-6 text-neutral-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 <span class="font-medium text-white">More Options & Tools</span>
@@ -102,7 +115,7 @@
             bandCard.innerHTML = `
                 <p class="font-semibold text-white">${band.name}</p>
                 <p class="text-sm text-neutral-400">Your role: ${band.role}</p>
-                <a href="Setflow - Band Management.html?bandId=${band.id}" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:text-emerald-300">Manage Band →</a>
+                <a href="setflow-band-management.html?bandId=${band.id}" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:text-emerald-300">Manage Band →</a>
             `;
             bandListContainer.appendChild(bandCard);
         });
@@ -112,7 +125,7 @@
         event.preventDefault();
         try {
             await signOutUser();
-            window.location.href = 'Setflow - Login Page.html';
+            window.location.href = 'setflow-login-page.html';
         } catch (error) {
             alert('Failed to log out.');
         }
@@ -128,7 +141,7 @@
             const bands = await getBandsForUser(user.uid);
             renderBands(bands);
         } else {
-            window.location.href = 'Setflow - Login Page.html';
+            window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
