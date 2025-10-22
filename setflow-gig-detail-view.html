@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Gig Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -48,7 +50,7 @@
     import { onAuthState, getUserData, applyForGig } from './api.js';
 
     const footerContainer = document.getElementById('footer-container');
-    const applyBtn = document.getElementById('apply-btn');
+    const applyBtn = document.getElementById('apply-btn'); // Can be null if replaced
     let currentUserId = null;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -57,52 +59,75 @@
     onAuthState(user => {
       if (user) {
         currentUserId = user.uid;
-        // **NEW LOGIC:** Check user's subscription status
         checkUserStatus(user.uid);
+      } else {
+        // Redirect if not logged in and trying to apply (applyBtn exists)
+         if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                 toast.show("Please log in to apply for a gig.", 'error');
+                 setTimeout(() => window.location.href = 'setflow-login-page.html', 1000);
+            });
+         }
       }
     });
 
     async function checkUserStatus(userId) {
-        const userData = await getUserData(userId);
-        // This is a placeholder for a real check. 
-        // In a real app, you would have a field like 'applicationsLeft' in your database.
-        // For this demo, we'll simulate a user having 0 applications left.
-        const applicationsLeft = 0; // Simulated value
+        try {
+            const userData = await getUserData(userId);
+            // Placeholder: Check applicationsLeft or subscription tier
+            const applicationsLeft = userData?.applicationsLeft ?? 5; // Default to allow some free applications
+            const subscriptionTier = userData?.subscriptionTier ?? 'free';
 
-        if (userData && userData.subscriptionTier === 'free' && applicationsLeft <= 0) {
-            // User is on a free plan and has no applications left
-            footerContainer.innerHTML = `
-                <div class="text-center">
-                    <p class="text-sm text-amber-400 mb-2">You've used all your free applications this month.</p>
-                    <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Upgrade to Apply</a>
-                </div>
-            `;
+            if (subscriptionTier === 'free' && applicationsLeft <= 0) {
+                footerContainer.innerHTML = `
+                    <div class="text-center">
+                        <p class="text-sm text-amber-400 mb-2">You've used all your free applications this month.</p>
+                        <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Upgrade to Apply</a>
+                    </div>
+                `;
+            } else {
+                // User can apply, ensure the original button exists and wire it up
+                 const currentApplyBtn = document.getElementById('apply-btn'); // Re-select in case it was removed
+                 if (currentApplyBtn) {
+                     currentApplyBtn.addEventListener('click', handleApplyClick);
+                 }
+            }
+        } catch (error) {
+             console.error("Error checking user status:", error);
+             // Optionally show a generic apply button but handle error on click
+             const currentApplyBtn = document.getElementById('apply-btn');
+             if (currentApplyBtn) {
+                 currentApplyBtn.addEventListener('click', () => {
+                      toast.show('Could not verify your application status. Please try again.', 'error');
+                 });
+             }
         }
     }
 
-    // Ensure the applyBtn event listener only runs if the button exists
-    if (applyBtn) {
-        applyBtn.addEventListener('click', async () => {
+     // Define apply click handler separately
+    async function handleApplyClick() {
+          const btn = document.getElementById('apply-btn'); // Get the button reference again
           if (!currentUserId) {
-            alert("Please log in to apply for a gig.");
-            window.location.href = 'setflow-login-page.html';
+            toast.show("Please log in to apply for a gig.", 'error');
+            setTimeout(() => window.location.href = 'setflow-login-page.html', 1000);
             return;
           }
 
           if (!gigId) {
-            alert("Could not find Gig ID. Please go back to the browse page and try again.");
+            toast.show("Could not find Gig ID. Please go back and try again.", 'error');
             return;
           }
-          
-          applyBtn.disabled = true;
-          applyBtn.innerText = 'Applying...';
+
+          btn.disabled = true;
+          btn.innerText = 'Applying...';
 
           try {
             await applyForGig(gigId, currentUserId);
-            
-            applyBtn.innerText = '✓ Applied';
-            applyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
-            applyBtn.classList.add('bg-neutral-600', 'cursor-not-allowed');
+
+            btn.innerText = '✓ Applied';
+            btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+            btn.classList.add('bg-neutral-600', 'cursor-not-allowed');
+            toast.show('Application submitted successfully!', 'success');
 
             setTimeout(() => {
               window.location.href = 'setflow-applied-gigs.html';
@@ -110,12 +135,28 @@
 
           } catch (error) {
             console.error("Failed to apply for gig:", error);
-            alert("There was an error submitting your application. Please try again.");
-            applyBtn.disabled = false;
-            applyBtn.innerText = 'Apply for Gig';
+            toast.show("There was an error submitting your application. Please try again.", 'error');
+            btn.disabled = false;
+            btn.innerText = 'Apply for Gig';
           }
+    }
+
+     // Add listener for View on Map button (example of opening external link)
+    const viewMapBtn = document.getElementById('view-map-btn');
+    if (viewMapBtn) {
+        viewMapBtn.addEventListener('click', () => {
+             const venueAddress = "Blue Note Brewpub, Durham, NC"; // Hardcoded for demo
+             const encodedAddress = encodeURIComponent(venueAddress);
+             window.open(`https://www.google.com/maps/search/?api=1&query=...?q=${encodedAddress}`, '_blank');
         });
     }
+
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
 </body>
 </html>

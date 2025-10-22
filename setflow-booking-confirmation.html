@@ -3,18 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Confirm Booking</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="booking-confirmation-container" class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col relative">
     <div class="flex-grow blur-sm">
-        <header class="px-3 py-4 flex items-center justify-between"><a href="#" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a><h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1><a href="#" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a></header>
-        <main><div class="p-5 flex flex-col items-center text-center border-b border-neutral-800"><img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop" alt="Band photo"><h2 class="text-2xl font-bold text-white mt-4">Loading...</h2></p></div></main>
+        <header class="px-3 py-4 flex items-center justify-between"><a href="javascript:history.back()" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a><h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1><a href="#" class="p-2 opacity-0"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a></header>
+        <main><div class="p-5 flex flex-col items-center text-center border-b border-neutral-800"><img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop" alt="Band photo"><h2 id="blurred-artist-name" class="text-2xl font-bold text-white mt-4">Loading...</h2></div></main>
     </div>
-    
+
     <div id="modal-container" class="absolute inset-0 bg-black/60 flex items-center justify-center p-5 z-30">
         <p class="text-white">Loading booking details...</p>
     </div>
@@ -25,6 +27,7 @@
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const modalContainer = document.getElementById('modal-container');
+    const blurredArtistName = document.getElementById('blurred-artist-name'); // For background
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
     const gigId = urlParams.get('gigId');
@@ -42,6 +45,8 @@
         modalContainer.innerHTML = '<p class="text-red-400">Error: Could not load booking details.</p>';
         return;
       }
+
+      blurredArtistName.innerText = artist.name; // Update background name
 
       const gigDate = gig.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
@@ -70,16 +75,17 @@
       confirmBtn.addEventListener('click', async () => {
           confirmBtn.innerText = 'Booking...';
           confirmBtn.disabled = true;
-          
+
           try {
             await confirmBooking(gig.id, artist.id, artist.name);
             confirmBtn.innerText = '✓ Booked!';
+            toast.show('Booking confirmed! Show sheet sent.', 'success');
             setTimeout(() => {
               window.location.href = 'setflow-venue-dashboard.html?booked=true';
             }, 1500);
           } catch(error) {
             console.error("Booking failed: ", error);
-            alert("There was an error confirming the booking. Please try again.");
+            toast.show("There was an error confirming the booking. Please try again.", 'error');
             confirmBtn.disabled = false;
             confirmBtn.innerText = 'Confirm & Send Show Sheet';
           }
@@ -88,17 +94,28 @@
 
     onAuthState(async (user) => {
       if (user) {
+        if (!userId || !gigId) {
+             modalContainer.innerHTML = '<p class="text-red-400">Error: Missing user or gig ID in URL.</p>';
+             return;
+        }
         try {
           const artistData = await getUserData(userId);
           const gigData = await getGigData(gigId);
           renderConfirmationModal(artistData, gigData);
         } catch (error) {
           console.error("Error loading booking data:", error);
+          modalContainer.innerHTML = `<p class="text-red-400">Error loading data: ${error.message}</p>`;
         }
       } else {
         window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
 </body>
 </html>

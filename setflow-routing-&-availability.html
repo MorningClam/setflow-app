@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Routing & Availability</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -55,17 +57,22 @@
     onAuthState(async (user) => {
       if (user) {
         currentUserId = user.uid;
-        const userData = await getUserData(user.uid);
-        if (userData) {
-          // Set location text
-          if(userData.location) {
-            locationLabel.innerHTML = `From <span class="font-bold text-white">${userData.location}</span>`;
-          }
-          // Set slider value if it exists
-          if (userData.travelRadius) {
-            radiusSlider.value = userData.travelRadius;
-            radiusDisplay.innerText = `${userData.travelRadius} miles`;
-          }
+        try {
+            const userData = await getUserData(user.uid);
+            if (userData) {
+              // Set location text
+              if(userData.location) {
+                locationLabel.innerHTML = `From <span class="font-bold text-white">${userData.location}</span>`;
+              }
+              // Set slider value if it exists
+              if (userData.travelRadius) {
+                radiusSlider.value = userData.travelRadius;
+                radiusDisplay.innerText = `${userData.travelRadius} miles`;
+              }
+            }
+        } catch (error) {
+             console.error("Error loading user data:", error);
+             toast.show('Could not load your current settings.', 'error');
         }
       } else {
         window.location.href = 'setflow-login-page.html';
@@ -75,7 +82,7 @@
     // --- Save button functionality ---
     saveButton.addEventListener('click', async () => {
       if (!currentUserId) {
-        alert("You must be logged in to save preferences.");
+        toast.show("You must be logged in to save preferences.", 'error');
         return;
       }
 
@@ -85,8 +92,9 @@
       try {
         const newRadius = Number(radiusSlider.value);
         await updateUserPreferences(currentUserId, { travelRadius: newRadius });
-        
+
         saveButton.innerText = '✓ Saved!';
+        toast.show('Preferences saved successfully!', 'success');
         setTimeout(() => {
           saveButton.disabled = false;
           saveButton.innerText = 'Save Changes';
@@ -94,11 +102,17 @@
 
       } catch (error) {
         console.error("Error updating preferences:", error);
-        alert("Failed to save changes. Please try again.");
+        toast.show("Failed to save changes. Please try again.", 'error');
         saveButton.disabled = false;
         saveButton.innerText = 'Save Changes';
       }
     });
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
 </body>
 </html>

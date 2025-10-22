@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - New Player Post</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif;}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -26,7 +28,7 @@
                 <button type="button" data-type="available" class="post-type-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md">I'm Available for Gigs</button>
             </div>
         </div>
-        
+
         <div id="looking-for-fields" class="space-y-4">
             <div>
                 <label for="instrument-needed" class="block text-sm font-medium text-neutral-300 mb-2">Instrument Needed</label>
@@ -79,7 +81,7 @@
   const postTypeButtons = document.querySelectorAll('.post-type-btn');
   const lookingForFields = document.getElementById('looking-for-fields');
   const availableForFields = document.getElementById('available-for-fields');
-  
+
   let currentUserId = null;
   let postType = 'looking'; // Default post type
 
@@ -118,7 +120,7 @@
   postForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!currentUserId) {
-      alert("You must be logged in to create a post.");
+      toast.show("You must be logged in to create a post.", 'error');
       return;
     }
 
@@ -130,30 +132,48 @@
       type: postType,
     };
 
+    let isValid = true; // Flag for validation
+
     if (postType === 'looking') {
-      postData.instrument = document.getElementById('instrument-needed').value;
-      postData.eventDetails = document.getElementById('event-details').value;
+      postData.instrument = document.getElementById('instrument-needed').value.trim();
+      postData.eventDetails = document.getElementById('event-details').value.trim();
       postData.date = document.getElementById('date-details').value;
-      postData.description = document.getElementById('description-looking').value;
+      postData.description = document.getElementById('description-looking').value.trim();
+      if (!postData.instrument || !postData.date) isValid = false; // Basic required fields
     } else {
-      postData.instrument = document.getElementById('instrument-available').value;
-      postData.location = document.getElementById('location').value;
-      postData.availability = document.getElementById('availability').value;
-      postData.description = document.getElementById('description-available').value;
+      postData.instrument = document.getElementById('instrument-available').value.trim();
+      postData.location = document.getElementById('location').value.trim();
+      postData.availability = document.getElementById('availability').value.trim();
+      postData.description = document.getElementById('description-available').value.trim();
+      if (!postData.instrument) isValid = false; // Basic required field
     }
+
+     if (!isValid) {
+         toast.show("Please fill out the required fields for your post type.", 'error');
+         submitButton.disabled = false;
+         submitButton.innerText = 'Submit Post';
+         return;
+     }
 
     try {
       await createPlayerPost(postData);
-      alert('Your post has been published!');
-      window.location.href = 'setflow-find-a-player.html';
+      toast.show('Your post has been published!', 'success');
+       setTimeout(() => { // Redirect after showing success
+            window.location.href = 'setflow-find-a-player.html';
+       }, 1500);
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Failed to publish your post. Please try again.");
+      toast.show("Failed to publish your post. Please try again.", 'error');
       submitButton.disabled = false;
       submitButton.innerText = 'Submit Post';
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

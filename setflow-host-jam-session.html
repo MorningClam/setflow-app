@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Host a Jam Session</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif;}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -66,8 +68,19 @@
   jamForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!currentUserId) {
-      alert("Please log in to host a jam session.");
+      toast.show("Please log in to host a jam session.", 'error');
       return;
+    }
+
+    // Basic validation
+    const title = document.getElementById('jam-title').value.trim();
+    const date = document.getElementById('jam-date').value;
+    const time = document.getElementById('jam-time').value;
+    const location = document.getElementById('jam-location').value.trim();
+
+    if (!title || !date || !time || !location) {
+         toast.show("Please fill out all required fields (Title, Date, Time, Location).", 'error');
+         return;
     }
 
     submitButton.disabled = true;
@@ -75,25 +88,32 @@
 
     const sessionData = {
       hostId: currentUserId,
-      title: document.getElementById('jam-title').value,
-      date: document.getElementById('jam-date').value,
-      time: document.getElementById('jam-time').value,
-      location: document.getElementById('jam-location').value,
+      title: title,
+      date: date,
+      time: time,
+      location: location,
       description: document.getElementById('jam-description').value,
     };
 
     try {
       await createJamSession(sessionData);
-      alert('Your jam session has been posted!');
-      window.location.href = 'setflow-jam-sessions.html';
+      toast.show('Your jam session has been posted!', 'success');
+       setTimeout(() => { // Redirect after showing success
+           window.location.href = 'setflow-jam-sessions.html';
+       }, 1500);
     } catch (error) {
       console.error("Error posting jam session:", error);
-      alert("Could not post your session. Please try again.");
+      toast.show("Could not post your session. Please try again.", 'error');
       submitButton.disabled = false;
       submitButton.innerText = 'Post Jam Session';
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Band Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif;}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -56,8 +58,38 @@
     let currentUser = null;
 
     function renderMembers(bandData) {
-        // ... (renderMembers function remains the same)
+        memberListContainer.innerHTML = ''; // Clear loading
+        if (!bandData || !bandData.members) {
+             memberListContainer.innerHTML = '<p class="text-neutral-500">Could not load members.</p>';
+             return;
+        }
+
+        const membersArray = Object.values(bandData.members); // Use the processed map from getBandData
+
+        if(membersArray.length === 0) {
+             memberListContainer.innerHTML = '<p class="text-neutral-500">No members yet.</p>';
+             return;
+        }
+
+        membersArray.forEach(member => {
+            const memberCard = document.createElement('div');
+            memberCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
+            memberCard.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <img class="w-10 h-10 rounded-full object-cover" src="${member.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${member.name} photo">
+                    <div>
+                        <p class="font-semibold text-white">${member.name} ${member.id === currentUser.uid ? '(You)' : ''}</p>
+                        <p class="text-xs text-neutral-400 capitalize">${member.role}</p>
+                    </div>
+                </div>
+                ${member.id !== currentUser.uid && bandData.members[currentUser.uid]?.role === 'admin' ? // Only admins can remove others
+                `<button data-member-id="${member.id}" class="remove-member-btn px-2 py-1 bg-red-800 hover:bg-red-700 rounded-lg text-xs font-semibold text-red-300">Remove</button>`
+                : ''}
+            `;
+            memberListContainer.appendChild(memberCard);
+        });
     }
+
 
     function renderJoinRequests(requests) {
         if (requests.length > 0) {
@@ -74,10 +106,52 @@
                 `;
                 joinRequestsList.appendChild(reqCard);
             });
+        } else {
+             joinRequestsSection.classList.add('hidden'); // Hide if no requests
         }
     }
 
-    // ... (event listeners for sendInviteBtn and memberListContainer remain the same)
+    sendInviteBtn.addEventListener('click', async () => {
+        const email = inviteEmailInput.value.trim();
+        if (!email) {
+            toast.show("Please enter an email address.", 'error');
+            return;
+        }
+        sendInviteBtn.disabled = true;
+        sendInviteBtn.innerText = 'Sending...';
+        try {
+            await inviteToBand(bandId, email);
+            toast.show("Invite sent successfully!", 'success');
+            inviteEmailInput.value = '';
+        } catch (error) {
+            console.error("Invite Error:", error);
+            toast.show(`Error: ${error.message}`, 'error');
+        } finally {
+            sendInviteBtn.disabled = false;
+            sendInviteBtn.innerText = 'Send Invite';
+        }
+    });
+
+     memberListContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('remove-member-btn')) {
+            const memberIdToRemove = event.target.dataset.memberId;
+            if (confirm(`Are you sure you want to remove this member?`)) {
+                 event.target.disabled = true;
+                 try {
+                     await removeMemberFromBand(bandId, memberIdToRemove);
+                     toast.show('Member removed.', 'success');
+                      // Re-render members list
+                     const updatedBandData = await getBandData(bandId);
+                     renderMembers(updatedBandData);
+                 } catch (error) {
+                     console.error("Remove Member Error:", error);
+                     toast.show(`Error removing member: ${error.message}`, 'error');
+                     event.target.disabled = false;
+                 }
+            }
+        }
+    });
+
 
     joinRequestsList.addEventListener('click', async (event) => {
         if (event.target.classList.contains('approve-btn')) {
@@ -85,14 +159,14 @@
             event.target.disabled = true;
             try {
                 await approveJoinRequest(requestId);
-                alert('Member approved!');
+                toast.show('Member approved!', 'success');
                 // Re-render everything
                 const bandData = await getBandData(bandId);
-                const joinRequests = await getJoinRequests(bandId);
+                const joinRequests = await getJoinRequests(bandId); // Fetch again to update list
                 renderMembers(bandData);
                 renderJoinRequests(joinRequests);
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                toast.show(`Error: ${error.message}`, 'error');
                 event.target.disabled = false;
             }
         }
@@ -102,21 +176,35 @@
         if (user) {
             currentUser = user;
             if (!bandId) {
-                // ... (error handling remains the same)
+                memberListContainer.innerHTML = '<p class="text-red-400">Error: Band ID not found in URL.</p>';
                 return;
             }
-            const bandData = await getBandData(bandId);
-            renderMembers(bandData);
+            try {
+                const bandData = await getBandData(bandId);
+                renderMembers(bandData);
 
-            // Check if current user is an admin to show join requests
-            if (bandData.members[currentUser.uid]?.role === 'admin') {
-                const joinRequests = await getJoinRequests(bandId);
-                renderJoinRequests(joinRequests);
+                // Check if current user is an admin to show invite section & join requests
+                if (bandData.members[currentUser.uid]?.role === 'admin') {
+                     document.getElementById('invite-section').classList.remove('hidden'); // Show invite section for admins
+                     const joinRequests = await getJoinRequests(bandId);
+                     renderJoinRequests(joinRequests);
+                } else {
+                     document.getElementById('invite-section').classList.add('hidden'); // Hide for non-admins
+                }
+            } catch (error) {
+                 console.error("Error loading band data:", error);
+                 memberListContainer.innerHTML = `<p class="text-red-400">Error loading band data: ${error.message}</p>`;
             }
         } else {
             window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
+
 </body>
 </html>

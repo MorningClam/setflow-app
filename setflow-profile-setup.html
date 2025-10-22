@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Complete Your Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -66,7 +68,7 @@
 
     finishButton.addEventListener('click', async () => {
         if (!currentUserId) {
-            alert("Authentication error. Please log in again.");
+            toast.show("Authentication error. Please log in again.", 'error');
             return;
         }
 
@@ -84,11 +86,17 @@
 
         } catch (error) {
             console.error("Profile Setup Error:", error);
-            alert("Could not save your profile. Please try again.");
+            toast.show("Could not save your profile. Please try again.", 'error');
             finishButton.disabled = false;
             finishButton.innerText = 'Finish';
         }
     });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
+
 </body>
 </html>

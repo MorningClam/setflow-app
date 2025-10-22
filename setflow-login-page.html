@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); }
@@ -33,6 +35,9 @@
         <button type="submit" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
           Sign In
         </button>
+         <div class="text-center">
+             <a href="setflow-password-reset-flow.html" class="text-sm text-neutral-400 hover:text-emerald-400">Forgot Password?</a>
+         </div>
       </form>
     </main>
     <footer class="px-5 py-6 text-center">
@@ -67,7 +72,7 @@
         const userCredential = await signInUser(email, password);
         const user = userCredential.user;
         const userData = await getUserData(user.uid);
-        
+
         if (userData && userData.roles && userData.roles.length > 0) {
           const primaryRole = userData.roles[0];
           const redirectUrl = roleRedirectMap[primaryRole];
@@ -75,23 +80,38 @@
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else {
-            alert('Login successful, but your role is not recognized. Defaulting to musician dashboard.');
-            window.location.href = roleRedirectMap['musician'];
+             // This case should ideally not happen if roles are managed properly
+             console.warn('Login successful, but role not recognized:', primaryRole);
+             toast.show('Login successful, but role unknown. Defaulting to musician dashboard.', 'success');
+             setTimeout(() => window.location.href = roleRedirectMap['musician'], 1500);
           }
         } else {
-          // This case handles users who might exist in Auth but not in Firestore.
-          // For a robust app, you might want to force them through profile setup again.
-          alert('Could not find user data. Please complete your profile setup.');
-          window.location.href = 'setflow-profile-setup.html';
+          // User exists in Auth but not Firestore (or missing roles)
+          console.warn('Could not find complete user data for UID:', user.uid);
+          toast.show('Profile setup incomplete. Redirecting...', 'success');
+          setTimeout(() => window.location.href = 'setflow-profile-setup.html', 1500); // Send to profile setup
         }
 
       } catch (error) {
         console.error('Login Error:', error);
-        alert('Login failed: ' + error.message);
+        // Provide more specific feedback if possible
+        let message = 'Login failed. Please check your email and password.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            message = 'Invalid email or password.';
+        } else if (error.code === 'auth/too-many-requests') {
+             message = 'Too many attempts. Please try again later.';
+        }
+        toast.show(message, 'error');
         submitButton.disabled = false;
         submitButton.innerText = 'Sign In';
       }
     });
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
 </body>
 </html>

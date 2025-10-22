@@ -7,6 +7,7 @@
   <title>Setflow - Account Settings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -18,7 +19,7 @@
     <div class="w-9"></div>
   </header>
   <main class="flex-1 px-5 py-4 pb-28 space-y-8">
-    
+
     <div>
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Personal Info</h2>
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
@@ -73,7 +74,7 @@
             </a>
         </div>
     </div>
-    
+
     <div>
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Community & Features</h2>
         <a href="setflow-moremenu.html" class="flex items-center justify-between bg-neutral-800 p-4 rounded-lg hover:bg-neutral-700">
@@ -142,16 +143,12 @@
     function showToast(message, isError = false) {
         clearTimeout(toastTimeout);
         toastMessage.innerText = message;
-        toastElement.className = toastElement.className.replace(/bg-\w+-\d+/, isError ? 'bg-red-600' : 'bg-emerald-600'); // Change color based on type
-        toastElement.classList.remove('opacity-0');
-        toastTimeout = setTimeout(() => {
-            toastElement.classList.add('opacity-0');
-        }, 3000); // Hide after 3 seconds
+        // Use toast.js internal classes, not raw Tailwind
+        toast.show(message, isError ? 'error' : 'success');
     }
 
     // --- Band Rendering Logic ---
     function renderBands(bands) {
-        // ... (renderBands function remains the same) ...
         bandListContainer.innerHTML = '';
         if (!bands || bands.length === 0) {
             bandListContainer.innerHTML = '<p class="text-neutral-500 text-sm">You are not a member of any bands yet.</p>';
@@ -243,6 +240,11 @@
         }
     });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

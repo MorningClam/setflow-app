@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Post New Event</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif;}.form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); }</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -65,7 +67,7 @@
   gigForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!currentUserId) {
-      alert("You must be logged in to post a gig.");
+      toast.show("You must be logged in to post a gig.", 'error');
       return;
     }
 
@@ -74,34 +76,47 @@
 
     const gigData = {
       ownerId: currentUserId,
-      eventName: document.getElementById('event-name').value,
-      location: document.getElementById('event-location').value,
+      eventName: document.getElementById('event-name').value.trim(),
+      location: document.getElementById('event-location').value.trim(),
       date: document.getElementById('event-date').value,
       payout: document.getElementById('event-payout').value,
-      description: document.getElementById('event-description').value
+      description: document.getElementById('event-description').value.trim()
     };
-    
+
     // Basic validation
     if (!gigData.eventName || !gigData.location || !gigData.date || !gigData.payout) {
-        alert("Please fill out all required fields.");
+        toast.show("Please fill out all required fields.", 'error');
         submitButton.disabled = false;
         submitButton.innerText = 'Post Event & Find Artists';
         return;
     }
+     if (isNaN(gigData.payout) || Number(gigData.payout) <= 0) {
+         toast.show("Please enter a valid payout amount.", 'error');
+         submitButton.disabled = false;
+         submitButton.innerText = 'Post Event & Find Artists';
+         return;
+     }
+
 
     try {
       await createGig(gigData);
-      alert('Event posted successfully!');
-      // Redirect to the dashboard to see the new gig
-      window.location.href = 'setflow-promoter-dashboard.html';
+      toast.show('Event posted successfully!', 'success');
+       setTimeout(() => { // Redirect after showing success
+           window.location.href = 'setflow-promoter-dashboard.html'; // Or venue dashboard if applicable
+       }, 1500);
     } catch (error) {
       console.error("Error creating gig:", error);
-      alert("Failed to post event. Please try again.");
+      toast.show("Failed to post event. Please try again.", 'error');
       submitButton.disabled = false;
       submitButton.innerText = 'Post Event & Find Artists';
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

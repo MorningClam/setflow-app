@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Signup</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .form-input:focus { border-color:#10B981; box-shadow:0 0 0 2px rgba(16,185,129,.2); }
@@ -42,7 +44,7 @@
         </div>
         <div>
           <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">Password</label>
-          <input id="password" type="password" placeholder="Create a password" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
+          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required minlength="6">
         </div>
         <button type="submit" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
             Create Account
@@ -57,7 +59,7 @@
       </p>
     </footer>
   </div>
-  
+
   <script type="module">
     import { signUpUser } from './api.js';
 
@@ -82,21 +84,40 @@
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const submitButton = document.getElementById('create-account-btn');
-        
+
+         // Basic validation
+        if (password.length < 6) {
+             toast.show('Password must be at least 6 characters long.', 'error');
+             return;
+        }
+
+
         submitButton.disabled = true;
         submitButton.innerText = 'Creating Account...';
 
         try {
             await signUpUser(name, email, password, selectedRole);
-            // CRITICAL FIX: Redirect to profile setup, not the dashboard.
+            // Redirect to profile setup on successful signup
             window.location.href = `setflow-profile-setup.html?role=${selectedRole.toLowerCase()}`;
         } catch (error) {
             console.error('Signup Error:', error);
-            alert('Could not create account: ' + error.message);
+             let message = 'Could not create account. Please try again.';
+             if (error.code === 'auth/email-already-in-use') {
+                 message = 'This email address is already in use.';
+             } else if (error.code === 'auth/invalid-email') {
+                 message = 'Please enter a valid email address.';
+             }
+            toast.show(message, 'error');
             submitButton.disabled = false;
             submitButton.innerText = 'Create Account';
         }
     });
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
 </body>
 </html>

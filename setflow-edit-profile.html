@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Edit Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .toggle-checkbox:checked { right: 0; border-color: #10B981; }
@@ -103,17 +105,23 @@
         try {
             await updateUserProfile(currentUserId, profileData);
             saveButton.innerText = '✓ Saved';
+            toast.show('Profile saved successfully!', 'success');
             setTimeout(() => {
                 window.location.href = 'setflow-musician-profile.html';
             }, 1000);
         } catch (error) {
             console.error("Error updating profile:", error);
-            alert("Failed to save profile. Please try again.");
+            toast.show("Failed to save profile. Please try again.", 'error');
             saveButton.disabled = false;
             saveButton.innerText = 'Save';
         }
     });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Create a New Band</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
   <style>body{font-family:'Inter',sans-serif;}</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -48,27 +50,45 @@
   createBandForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!currentUser) {
-      alert("Please log in to create a band.");
+      toast.show("Please log in to create a band.", 'error');
       return;
     }
+
+    const bandName = document.getElementById('band-name').value.trim();
+    if (!bandName) {
+         toast.show("Please enter a band name.", 'error');
+         return;
+    }
+
 
     submitButton.disabled = true;
     submitButton.innerText = 'Creating...';
 
-    const bandName = document.getElementById('band-name').value;
-    
+
     try {
-      await createBand(bandName, currentUser);
-      alert('Band created successfully!');
-      window.location.href = 'setflow-account-settings.html';
+      // Pass user object which contains uid, displayName, email etc.
+      await createBand(bandName, {
+        uid: currentUser.uid,
+        displayName: currentUser.displayName, // Might be null initially
+        email: currentUser.email
+      });
+      toast.show('Band created successfully!', 'success');
+      setTimeout(() => { // Redirect after showing success
+         window.location.href = 'setflow-account-settings.html';
+      }, 1500);
     } catch (error) {
       console.error("Error creating band:", error);
-      alert("Could not create the band. Please try again.");
+      toast.show("Could not create the band. Please try again.", 'error');
       submitButton.disabled = false;
       submitButton.innerText = 'Create Band';
     }
   });
 </script>
+
+<div id="toast-notification" class="opacity-0">
+    <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 </body>
 </html>

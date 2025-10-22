@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Show Sheet</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
   <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
     <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <a href="javascript:history.back()" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Show Sheet</h1>
     </header>
     <main class="flex-grow pb-28">
@@ -20,7 +22,7 @@
         <p class="text-lg text-amber-400 font-medium mt-1">Saturday, Nov 6</p>
         <p class="text-sm text-neutral-300 mt-2">Artist: George & The Vibe</p>
       </div>
-      
+
       <div class="px-5 py-4 grid grid-cols-2 gap-3 border-b border-neutral-800">
         <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Add to Calendar</button>
         <a href="setflow-promo-kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center">View Promo Kit</a>
@@ -41,7 +43,7 @@
             <div class="flex"><span class="text-neutral-400 w-24">Notes</span><span class="text-neutral-100 font-medium">Green room is backstage left. 2 drink tickets per member.</span></div>
         </div>
       </div>
-      
+
       <div class="px-5 py-4">
         <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Guest List & Team (3/5 spots used)</h3>
         <div id="guest-list" class="space-y-2 text-sm">
@@ -63,30 +65,70 @@
   <script>
     // --- Add to Calendar Functionality (Placeholder) ---
     document.getElementById('add-to-calendar-btn').addEventListener('click', () => {
-        alert("This would download an .ics file for your calendar.");
+        // Use toast instead of alert
+        if (window.toast) {
+            toast.show("Calendar file download would start here.", 'success');
+        } else {
+            console.warn("Toast UI not ready for calendar message.");
+            alert("This would download an .ics file for your calendar."); // Fallback
+        }
     });
 
     // --- Guest List Functionality ---
     const guestList = document.getElementById('guest-list');
     const guestNameInput = document.getElementById('guest-name-input');
     const addGuestBtn = document.getElementById('add-guest-btn');
+    const maxGuests = 5; // Example limit
+
+    function updateGuestCount() {
+         const currentCount = guestList.children.length;
+         const countDisplay = document.querySelector('h3[class*="Guest List"]');
+         if (countDisplay) {
+             countDisplay.textContent = `Guest List & Team (${currentCount}/${maxGuests} spots used)`;
+         }
+         // Disable add button if limit reached
+         addGuestBtn.disabled = currentCount >= maxGuests;
+         guestNameInput.disabled = currentCount >= maxGuests;
+         guestNameInput.placeholder = currentCount >= maxGuests ? "Guest list full" : "Add guest name...";
+    }
+
 
     addGuestBtn.addEventListener('click', () => {
         const name = guestNameInput.value.trim();
-        if (name) {
+         const currentCount = guestList.children.length;
+
+        if (name && currentCount < maxGuests) {
             const newGuest = document.createElement('div');
             newGuest.className = 'flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg';
             newGuest.innerHTML = `<span>${name}</span><button class="text-red-400 text-xs font-semibold">Remove</button>`;
             guestList.appendChild(newGuest);
             guestNameInput.value = '';
+             updateGuestCount(); // Update count and button state
+        } else if (currentCount >= maxGuests) {
+             if (window.toast) {
+                toast.show("Guest list is full.", 'error');
+             } else {
+                 alert("Guest list is full."); // Fallback
+             }
         }
     });
 
     guestList.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
+        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('text-red-400')) {
             e.target.parentElement.remove();
+             updateGuestCount(); // Update count and button state
         }
     });
+
+     // Initial count update on load
+    document.addEventListener('DOMContentLoaded', updateGuestCount);
+
   </script>
+
+  <div id="toast-notification" class="opacity-0">
+      <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
 </body>
 </html>
