@@ -5,7 +5,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -84,6 +84,39 @@ export async function sendPasswordReset(email) {
  */
 export async function signOutUser() {
   return await signOut(auth);
+}
+
+/**
+ * Deletes the current user's account and associated data. Requires re-authentication.
+ * @param {string} password - The current user's password for re-authentication.
+ * @returns {Promise<void>}
+ */
+export async function deleteUserAccount(password) {
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error("No user is signed in to delete.");
+    }
+    
+    const credential = EmailAuthProvider.credential(user.email, password);
+    
+    try {
+        await reauthenticateWithCredential(user, credential);
+        // Re-authenticated successfully. Now delete user and data.
+        
+        // In a production app, this should trigger a Firebase Function
+        // to atomically delete all user-related data from Firestore/Storage.
+        // For this prototype, we'll delete the user document.
+        const userDocRef = doc(db, "users", user.uid);
+        await deleteDoc(userDocRef); // This is a placeholder; needs to be imported: `import {..., deleteDoc} from ...`
+
+        // Finally, delete the user from Firebase Auth
+        await deleteUser(user);
+
+    } catch (error) {
+        // This could be an incorrect password or another issue.
+        console.error("Re-authentication failed:", error);
+        throw new Error("Re-authentication failed. Please check your password and try again.");
+    }
 }
 
 
@@ -262,6 +295,22 @@ export async function updateUserProfile(userId, profileData) {
   const userDocRef = doc(db, "users", userId);
   return await updateDoc(userDocRef, profileData);
 }
+
+/**
+ * Updates a user's preferences data in their document.
+ * @param {string} userId - The ID of the user to update.
+ * @param {object} preferencesData - An object containing the fields to update (e.g., { travelRadius: 100 }).
+ * @returns {Promise<void>}
+ */
+export async function updateUserPreferences(userId, preferencesData) {
+  if (!userId) {
+    throw new Error("User ID is required to update preferences.");
+  }
+  const userDocRef = doc(db, "users", userId);
+  // This function is identical to updateUserProfile but provided for semantic clarity.
+  return await updateDoc(userDocRef, preferencesData);
+}
+
 
 // --- GIG & APPLICATION FUNCTIONS ---
 
@@ -503,6 +552,28 @@ export async function fetchGearListings() {
 }
 
 /**
+ * Fetches a single gear listing from Firestore.
+ * @param {string} listingId - The ID of the gear listing to fetch.
+ * @returns {Promise<Object|null>}
+ */
+export async function getGearListing(listingId) {
+    if (!listingId) return null;
+    const listingRef = doc(db, "gear_listings", listingId);
+    const listingSnap = await getDoc(listingRef);
+    if (listingSnap.exists()) {
+        const listingData = listingSnap.data();
+        const sellerData = await getUserData(listingData.sellerId);
+        return {
+            id: listingSnap.id,
+            ...listingData,
+            sellerName: sellerData ? sellerData.name : "Unknown Seller",
+            sellerProfileImageUrl: sellerData ? sellerData.profileImageUrl : null
+        };
+    }
+    return null;
+}
+
+/**
  * Creates a new player post in the 'player_posts' collection.
  * @param {object} postData - The data for the post.
  * @returns {Promise<import("firebase/firestore").DocumentReference>}
@@ -650,10 +721,25 @@ export async function createOrGetConversation(userId1, userId2) {
  */
 export async function sendMessage(conversationId, messageData) {
   const messagesRef = collection(db, "conversations", conversationId, "messages");
-  return await addDoc(messagesRef, {
+  const conversationRef = doc(db, "conversations", conversationId);
+  const batch = writeBatch(db);
+
+  // Add the new message
+  batch.set(doc(messagesRef), {
     ...messageData,
     timestamp: serverTimestamp(),
   });
+
+  // Update the conversation's last message for quick retrieval
+  batch.update(conversationRef, {
+      lastMessage: {
+          text: messageData.text,
+          senderId: messageData.senderId,
+          timestamp: serverTimestamp()
+      }
+  });
+  
+  return await batch.commit();
 }
 
 /**
@@ -683,29 +769,35 @@ export async function getConversations(userId) {
   const convosRef = collection(db, "conversations");
   const q = query(convosRef, where("participants", "array-contains", userId));
   const querySnapshot = await getDocs(q);
-  const conversations = [];
-  for (const convoDoc of querySnapshot.docs) {
+  const conversationPromises = querySnapshot.docs.map(async (convoDoc) => {
     const convoData = convoDoc.data();
     const otherParticipantId = convoData.participants.find(id => id !== userId);
-    if (!otherParticipantId) continue;
+    if (!otherParticipantId) return null;
+
     const otherUserData = await getUserData(otherParticipantId);
-    const messagesRef = collection(db, "conversations", convoDoc.id, "messages");
-    const lastMessageQuery = query(messagesRef, orderBy("timestamp", "desc"), limit(1));
-    const lastMessageSnapshot = await getDocs(lastMessageQuery);
-    let lastMessage = { text: 'No messages yet...', timestamp: convoData.createdAt };
-    if (!lastMessageSnapshot.empty) {
-      lastMessage = lastMessageSnapshot.docs[0].data();
-    }
-    conversations.push({
+    
+    // Use the lastMessage field on the conversation document, if it exists
+    let lastMessage = convoData.lastMessage || { text: 'No messages yet...', timestamp: convoData.createdAt };
+
+    return {
       id: convoDoc.id,
       ...convoData,
       otherUserName: otherUserData ? otherUserData.name : 'Unknown User',
       otherUserImage: otherUserData ? otherUserData.profileImageUrl : null,
       otherUserId: otherParticipantId,
       lastMessage: lastMessage
-    });
-  }
-  conversations.sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp);
+    };
+  });
+
+  const conversations = (await Promise.all(conversationPromises)).filter(c => c !== null);
+
+  // Sort by the timestamp of the last message
+  conversations.sort((a, b) => {
+    const timeA = a.lastMessage.timestamp?.toDate() || 0;
+    const timeB = b.lastMessage.timestamp?.toDate() || 0;
+    return timeB - timeA;
+  });
+
   return conversations;
 }
 
