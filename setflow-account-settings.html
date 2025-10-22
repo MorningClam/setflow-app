@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.gstatic.com; connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Account Settings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -11,8 +12,7 @@
 <body class="bg-neutral-900 text-white antialiased">
 <div class="max-w-md mx-auto min-h-screen flex flex-col">
   <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <a href="javascript:history.back()" class="p-2 rounded-lg hover:bg-neutral-700"> <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">Account Settings</h1>
     <div class="w-9"></div>
@@ -23,17 +23,15 @@
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Personal Info</h2>
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
             <div class="p-4 flex justify-between items-center">
-                <div><p class="text-neutral-400 text-sm">Name</p><p class="text-white" id="user-name">George</p></div>
-                <button class="text-sm font-semibold text-emerald-400">Edit</button>
-            </div>
+                <div><p class="text-neutral-400 text-sm">Name</p><p class="text-white" id="user-name">Loading...</p></div>
+                <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400">Edit</a> </div>
             <div class="p-4 flex justify-between items-center">
-                <div><p class="text-neutral-400 text-sm">Email</p><p class="text-white" id="user-email">george@thevibe.com</p></div>
-                <button class="text-sm font-semibold text-emerald-400">Edit</button>
+                <div><p class="text-neutral-400 text-sm">Email</p><p class="text-white" id="user-email">Loading...</p></div>
+                <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400">Edit</a>
             </div>
             <div class="p-4 flex justify-between items-center">
                 <div><p class="text-neutral-400 text-sm">Password</p><p class="text-white">••••••••</p></div>
-                <button class="text-sm font-semibold text-emerald-400">Change</button>
-            </div>
+                <a href="setflow-password-reset-flow.html" class="text-sm font-semibold text-emerald-400">Change</a> </div>
         </div>
     </div>
 
@@ -45,7 +43,7 @@
                 <p class="text-sm text-neutral-400">Manage your artist page and availability.</p>
                 <a href="setflow-musician-profile.html" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:text-emerald-300">Edit Profile →</a>
             </div>
-        </div>
+            </div>
     </div>
 
     <div>
@@ -53,10 +51,10 @@
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <p class="font-semibold text-white">Current Plan: <span class="text-emerald-400">Setflow Free</span></p>
-                    <p class="text-sm text-neutral-400">Upgrade to unlock unlimited features.</p>
+                    <p class="font-semibold text-white">Current Plan: <span class="text-emerald-400" id="subscription-status">Loading...</span></p>
+                    <p id="subscription-cta" class="text-sm text-neutral-400">Upgrade to unlock unlimited features.</p>
                 </div>
-                <a href="setflow-pricing-page.html" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg">Upgrade</a>
+                <a href="setflow-pricing-page.html" id="upgrade-btn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg">Upgrade</a>
             </div>
         </div>
     </div>
@@ -88,23 +86,74 @@
     </div>
 
     <div>
-        <a href="#" id="logout-btn" class="w-full block text-center py-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 text-base font-bold rounded-xl transition-colors">
+        <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Legal & Account</h2>
+        <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
+             <a href="setflow-privacy-policy.html" class="block p-4 hover:bg-neutral-700/50">
+                <p class="text-white">Privacy Policy</p>
+            </a>
+             <button id="delete-account-btn" class="w-full text-left p-4 text-red-400 hover:bg-red-900/30">
+                Delete Account
+            </button>
+        </div>
+         <p class="text-xs text-neutral-500 mt-2 px-1">Version 1.0.0</p> </div>
+
+    <div>
+        <button id="logout-btn" class="w-full block text-center py-3 bg-red-900/40 hover:bg-red-900/60 text-red-400 text-base font-bold rounded-xl transition-colors">
             Log Out
-        </a>
+        </button>
     </div>
 
   </main>
+
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-white text-sm shadow-lg transition-opacity duration-300 opacity-0 bg-neutral-700">
+      <span id="toast-message">Message here</span>
+  </div>
+
+  <div id="delete-confirm-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-5 z-50">
+      <div class="bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm">
+          <div class="p-6 text-center">
+              <svg class="w-12 h-12 text-red-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <h3 class="text-xl font-bold text-white mt-4">Delete Account?</h3>
+              <p class="text-sm text-neutral-400 mt-1">This action is permanent and cannot be undone. All your data, including gigs, applications, and messages, will be deleted.</p>
+          </div>
+          <div class="p-4 flex flex-col space-y-3">
+              <button id="confirm-delete-btn" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-base font-bold rounded-xl shadow-lg">Yes, Delete My Account</button>
+              <button id="cancel-delete-btn" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl">Cancel</button>
+          </div>
+      </div>
+  </div>
+
 </div>
 
 <script type="module">
-    import { signOutUser, onAuthState, getUserData, getBandsForUser } from './api.js';
+    import { signOutUser, onAuthState, getUserData, getBandsForUser, deleteUserAccount } from './api.js';
 
     const logoutButton = document.getElementById('logout-btn');
+    const deleteAccountButton = document.getElementById('delete-account-btn');
+    const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
     const bandListContainer = document.getElementById('band-list');
+    const toastElement = document.getElementById('toast-notification');
+    const toastMessage = document.getElementById('toast-message');
+    let toastTimeout;
 
+    // --- Toast Notification Logic ---
+    function showToast(message, isError = false) {
+        clearTimeout(toastTimeout);
+        toastMessage.innerText = message;
+        toastElement.className = toastElement.className.replace(/bg-\w+-\d+/, isError ? 'bg-red-600' : 'bg-emerald-600'); // Change color based on type
+        toastElement.classList.remove('opacity-0');
+        toastTimeout = setTimeout(() => {
+            toastElement.classList.add('opacity-0');
+        }, 3000); // Hide after 3 seconds
+    }
+
+    // --- Band Rendering Logic ---
     function renderBands(bands) {
+        // ... (renderBands function remains the same) ...
         bandListContainer.innerHTML = '';
-        if (bands.length === 0) {
+        if (!bands || bands.length === 0) {
             bandListContainer.innerHTML = '<p class="text-neutral-500 text-sm">You are not a member of any bands yet.</p>';
             return;
         }
@@ -121,25 +170,74 @@
         });
     }
 
+    // --- Delete Account Modal Logic ---
+    deleteAccountButton.addEventListener('click', () => {
+        deleteConfirmModal.classList.remove('hidden');
+        deleteConfirmModal.classList.add('flex');
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteConfirmModal.classList.add('hidden');
+        deleteConfirmModal.classList.remove('flex');
+    });
+
+    confirmDeleteBtn.addEventListener('click', async () => {
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.innerText = 'Deleting...';
+
+        try {
+            const result = await deleteUserAccount(); // Call the updated API function
+            if (result.success) {
+                showToast('Account deleted successfully.');
+                // Redirect to login after a short delay
+                setTimeout(() => {
+                    window.location.href = 'setflow-login-page.html';
+                }, 1500);
+            } else {
+                throw new Error(result.message || "Deletion failed on the server.");
+            }
+        } catch (error) {
+            console.error('Account Deletion Error:', error);
+            showToast(`Error: ${error.message}`, true);
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.innerText = 'Yes, Delete My Account';
+            // Keep the modal open so the user sees the error
+        }
+    });
+
+
+    // --- Logout Logic ---
     logoutButton.addEventListener('click', async (event) => {
         event.preventDefault();
         try {
             await signOutUser();
             window.location.href = 'setflow-login-page.html';
         } catch (error) {
-            alert('Failed to log out.');
+            showToast('Failed to log out.', true);
         }
     });
 
+    // --- Initial Data Loading ---
     onAuthState(async (user) => {
         if (user) {
-            const userData = await getUserData(user.uid);
-            if (userData) {
-                document.getElementById('user-name').innerText = userData.name;
-                document.getElementById('user-email').innerText = userData.email;
+            try {
+                const userData = await getUserData(user.uid);
+                if (userData) {
+                    document.getElementById('user-name').innerText = userData.name || 'N/A';
+                    document.getElementById('user-email').innerText = userData.email || 'N/A';
+                    // Example: Update subscription status display
+                    document.getElementById('subscription-status').innerText = userData.subscriptionTier || 'Setflow Free';
+                    if (userData.subscriptionTier && userData.subscriptionTier !== 'free') {
+                        document.getElementById('upgrade-btn').innerText = 'Manage';
+                        document.getElementById('subscription-cta').innerText = 'Manage your subscription.';
+                    }
+                }
+                const bands = await getBandsForUser(user.uid);
+                renderBands(bands);
+            } catch (error) {
+                 console.error("Error loading initial account data:", error);
+                 showToast('Could not load account details.', true);
             }
-            const bands = await getBandsForUser(user.uid);
-            renderBands(bands);
         } else {
             window.location.href = 'setflow-login-page.html';
         }

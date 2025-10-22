@@ -4,8 +4,9 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch, deleteField, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Added deleteDoc
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js"; // Added Functions imports
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -24,6 +25,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize and export Firebase services
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+const functions = getFunctions(app); // Initialize Functions
 
 console.log("Firebase has been initialized.");
 
@@ -87,40 +89,32 @@ export async function signOutUser() {
 }
 
 /**
- * Deletes the current user's account and associated data. Requires re-authentication.
- * @param {string} password - The current user's password for re-authentication.
- * @returns {Promise<void>}
+ * Calls the Firebase Cloud Function to delete the current user's account and associated data.
+ * Does NOT require password re-authentication here, assumes function checks auth context.
+ * @returns {Promise<{success: boolean, message: string}>} Result from the Cloud Function.
  */
-export async function deleteUserAccount(password) {
+export async function deleteUserAccount() {
     const user = auth.currentUser;
     if (!user) {
         throw new Error("No user is signed in to delete.");
     }
-    
-    const credential = EmailAuthProvider.credential(user.email, password);
-    
+
     try {
-        await reauthenticateWithCredential(user, credential);
-        // Re-authenticated successfully. Now delete user and data.
-        
-        // In a production app, this should trigger a Firebase Function
-        // to atomically delete all user-related data from Firestore/Storage.
-        // For this prototype, we'll delete the user document.
-        const userDocRef = doc(db, "users", user.uid);
-        await deleteDoc(userDocRef); // This is a placeholder; needs to be imported: `import {..., deleteDoc} from ...`
-
-        // Finally, delete the user from Firebase Auth
-        await deleteUser(user);
-
+        const deleteAccountAtomic = httpsCallable(functions, 'deleteAccountAtomic');
+        const result = await deleteAccountAtomic();
+        // The result contains { data: { success: boolean, message: string } }
+        console.log("Cloud Function result:", result.data);
+        return result.data;
     } catch (error) {
-        // This could be an incorrect password or another issue.
-        console.error("Re-authentication failed:", error);
-        throw new Error("Re-authentication failed. Please check your password and try again.");
+        console.error("Error calling deleteAccountAtomic function:", error);
+        // Firebase Functions errors have a 'code' and 'message' property
+        throw new Error(error.message || "Failed to call account deletion function.");
     }
 }
 
 
 // --- BAND MANAGEMENT FUNCTIONS ---
+// ... (Band functions remain the same) ...
 
 /**
  * Creates a new band and assigns the creator as the admin.
@@ -264,6 +258,7 @@ export async function removeMemberFromBand(bandId, memberId) {
     return await batch.commit();
 }
 
+
 // --- USER DATA & PROFILE FUNCTIONS ---
 
 /**
@@ -313,7 +308,7 @@ export async function updateUserPreferences(userId, preferencesData) {
 
 
 // --- GIG & APPLICATION FUNCTIONS ---
-
+// ... (Gig/App functions remain the same) ...
 /**
  * Fetches all gigs from the 'gigs' collection and formats the timestamp.
  * @returns {Promise<Array>} A promise that resolves to an array of gig documents.
@@ -359,13 +354,13 @@ export async function createCalendarEvent(eventData) {
 export async function fetchCalendarEvents(userId) {
   const eventsCollectionRef = collection(db, "calendarEvents");
   const q = query(eventsCollectionRef, where("userId", "==", userId), orderBy("date", "asc"));
-  
+
   const querySnapshot = await getDocs(q);
   const events = [];
   querySnapshot.forEach((doc) => {
     const eventData = doc.data();
     const date = eventData.date.toDate();
-    
+
     events.push({
       id: doc.id,
       ...eventData,
@@ -386,7 +381,7 @@ export async function applyForGig(gigId, userId) {
   if (!gigId || !userId) {
     throw new Error("Gig ID and User ID are required to apply for a gig.");
   }
-  
+
   const applicationData = {
     gigId: gigId,
     userId: userId,
@@ -483,7 +478,7 @@ export async function fetchGigsForOwner(userId) {
     const appsRef = collection(db, "applications");
     const appsQuery = query(appsRef, where("gigId", "==", doc.id));
     const appsSnapshot = await getDocs(appsQuery);
-    const applicantCount = appsSnapshot.size; 
+    const applicantCount = appsSnapshot.size;
 
     gigs.push({
       id: doc.id,
@@ -520,6 +515,9 @@ export async function createGig(gigData) {
   return await addDoc(collection(db, "gigs"), gigToSave);
 }
 
+
+// --- GEAR LISTING FUNCTIONS ---
+// ... (Gear Listing functions remain the same) ...
 /**
  * Creates a new gear listing in Firestore.
  * @param {object} itemData - The data for the item being listed.
@@ -573,6 +571,8 @@ export async function getGearListing(listingId) {
     return null;
 }
 
+// --- PLAYER POST FUNCTIONS ---
+// ... (Player Post functions remain the same) ...
 /**
  * Creates a new player post in the 'player_posts' collection.
  * @param {object} postData - The data for the post.
@@ -600,17 +600,20 @@ export async function fetchPlayerPosts() {
   const posts = [];
   for (const postDoc of querySnapshot.docs) {
     const postData = postDoc.data();
-    const userData = await getUserData(postData.userId); 
-    posts.push({ 
-      id: postDoc.id, 
+    const userData = await getUserData(postData.userId);
+    posts.push({
+      id: postDoc.id,
       ...postData,
       userName: userData ? userData.name : 'Unknown User',
-      userProfileImage: userData ? userData.profileImageUrl : null 
+      userProfileImage: userData ? userData.profileImageUrl : null
     });
   }
   return posts;
 }
 
+
+// --- BOOKING & REVIEW FUNCTIONS ---
+// ... (Booking/Review functions remain the same) ...
 /**
  * Confirms a booking by updating the gig's status and assigning the artist.
  * @param {string} gigId - The ID of the gig to confirm.
@@ -626,7 +629,7 @@ export async function confirmBooking(gigId, artistId, artistName) {
   return await updateDoc(gigDocRef, {
     status: 'booked',
     bookedArtistId: artistId,
-    bookedArtistName: artistName 
+    bookedArtistName: artistName
   });
 }
 
@@ -646,6 +649,9 @@ export async function createReview(reviewData) {
   return await addDoc(collection(db, "reviews"), reviewToSave);
 }
 
+
+// --- JAM SESSION FUNCTIONS ---
+// ... (Jam Session functions remain the same) ...
 /**
  * Creates a new jam session in the 'jam_sessions' collection.
  * @param {object} sessionData - The data for the jam session.
@@ -679,10 +685,10 @@ export async function fetchJamSessions() {
   const sessions = [];
   for (const sessionDoc of querySnapshot.docs) {
     const sessionData = sessionDoc.data();
-    const hostData = await getUserData(sessionData.hostId); 
+    const hostData = await getUserData(sessionData.hostId);
     const date = sessionData.dateTime.toDate();
-    sessions.push({ 
-      id: sessionDoc.id, 
+    sessions.push({
+      id: sessionDoc.id,
       ...sessionData,
       hostName: hostData ? hostData.name : 'Unknown Host',
       hostProfileImage: hostData ? hostData.profileImageUrl : null,
@@ -693,7 +699,9 @@ export async function fetchJamSessions() {
   return sessions;
 }
 
+
 // --- MESSAGING FUNCTIONS ---
+// ... (Messaging functions remain the same) ...
 /**
  * Creates or retrieves a conversation between two users.
  * @param {string} userId1 - The ID of the current user.
@@ -738,7 +746,7 @@ export async function sendMessage(conversationId, messageData) {
           timestamp: serverTimestamp()
       }
   });
-  
+
   return await batch.commit();
 }
 
@@ -775,7 +783,7 @@ export async function getConversations(userId) {
     if (!otherParticipantId) return null;
 
     const otherUserData = await getUserData(otherParticipantId);
-    
+
     // Use the lastMessage field on the conversation document, if it exists
     let lastMessage = convoData.lastMessage || { text: 'No messages yet...', timestamp: convoData.createdAt };
 
@@ -801,6 +809,9 @@ export async function getConversations(userId) {
   return conversations;
 }
 
+
+// --- BAND JOIN REQUEST FUNCTIONS ---
+// ... (Band Join Request functions remain the same) ...
 /**
  * Creates a request for a user to join a band.
  * @param {string} bandId - The ID of the band to join.
@@ -825,7 +836,7 @@ export async function requestToJoinBand(bandId, userId) {
 export async function getJoinRequests(bandId) {
     const requestsRef = collection(db, "join_requests");
     const q = query(requestsRef, where("bandId", "==", bandId), where("status", "==", "pending"));
-    
+
     const querySnapshot = await getDocs(q);
     const requests = [];
 
@@ -881,6 +892,9 @@ export async function approveJoinRequest(requestId) {
     return await batch.commit();
 }
 
+
+// --- PLAYER DISCOVERY FUNCTIONS ---
+// ... (Player Discovery functions remain the same) ...
 /**
  * Fetches all users who have marked themselves as "Looking for Bands".
  * @returns {Promise<Array>} A promise that resolves to an array of user objects.
@@ -888,7 +902,7 @@ export async function approveJoinRequest(requestId) {
 export async function getAvailablePlayers() {
   const usersRef = collection(db, "users");
   const q = query(usersRef, where("isLookingForBands", "==", true));
-  
+
   const querySnapshot = await getDocs(q);
   const players = [];
   querySnapshot.forEach((doc) => {
@@ -904,7 +918,7 @@ export async function getAvailablePlayers() {
 export async function getAllPlayers() {
   const usersRef = collection(db, "users");
   const q = query(usersRef);
-  
+
   const querySnapshot = await getDocs(q);
   const players = [];
   querySnapshot.forEach((doc) => {
@@ -920,7 +934,7 @@ export async function getAllPlayers() {
 export async function getAllBands() {
     const bandsRef = collection(db, "bands");
     const q = query(bandsRef, orderBy("name"));
-    
+
     const querySnapshot = await getDocs(q);
     const bands = [];
     querySnapshot.forEach((doc) => {
