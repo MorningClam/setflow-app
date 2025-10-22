@@ -800,3 +800,53 @@ export async function approveJoinRequest(requestId) {
 
     return await batch.commit();
 }
+
+// Add these new functions to your api.js file
+
+/**
+ * Fetches all users who have marked themselves as "Looking for Bands".
+ * @returns {Promise<Array>} A promise that resolves to an array of user objects.
+ */
+export async function getAvailablePlayers() {
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("isLookingForBands", "==", true));
+  
+  const querySnapshot = await getDocs(q);
+  const players = [];
+  querySnapshot.forEach((doc) => {
+    players.push({ id: doc.id, ...doc.data() });
+  });
+  return players;
+}
+
+/**
+ * Fetches all players.
+ * @returns {Promise<Array>} A promise that resolves to an array of user objects.
+ */
+export async function getAllPlayers() {
+  const usersRef = collection(db, "users");
+  const q = query(usersRef);
+  
+  const querySnapshot = await getDocs(q);
+  const players = [];
+  querySnapshot.forEach((doc) => {
+    players.push({ id: doc.id, ...doc.data() });
+  });
+  return players;
+}
+
+/**
+ * Fetches all bands from the database.
+ * @returns {Promise<Array>} A promise that resolves to an array of band objects.
+ */
+export async function getAllBands() {
+    const bandsRef = collection(db, "bands");
+    const q = query(bandsRef, orderBy("name"));
+    
+    const querySnapshot = await getDocs(q);
+    const bands = [];
+    querySnapshot.forEach((doc) => {
+        bands.push({ id: doc.id, ...doc.data() });
+    });
+    return bands;
+}

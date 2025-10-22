@@ -15,60 +15,70 @@
     <h1 class="text-lg font-bold tracking-tight">Find a Player</h1>
     <a href="Setflow - New Player Post.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Post</a>
   </header>
-  <main id="posts-container" class="flex-1 px-5 py-4 pb-28 space-y-3">
-    <p class="text-neutral-500">Loading posts...</p>
+  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
+    <div>
+        <h2 class="text-base font-semibold text-emerald-400 mb-2">✓ Available Now</h2>
+        <div id="available-players" class="space-y-3">
+            <p class="text-neutral-500">Loading available players...</p>
+        </div>
+    </div>
+    <div>
+        <h2 class="text-base font-semibold text-white mb-2">Local Musicians</h2>
+        <div id="all-players" class="space-y-3">
+            <p class="text-neutral-500">Loading musicians...</p>
+        </div>
+    </div>
   </main>
 </div>
 
 <script type="module">
-  import { onAuthState, fetchPlayerPosts } from './api.js';
+  import { onAuthState, getAvailablePlayers, getAllPlayers } from './api.js';
 
-  const postsContainer = document.getElementById('posts-container');
+  const availablePlayersContainer = document.getElementById('available-players');
+  const allPlayersContainer = document.getElementById('all-players');
   const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop";
 
-  function renderPosts(posts) {
-    postsContainer.innerHTML = ''; // Clear loading message
-
-    if (!posts || posts.length === 0) {
-      postsContainer.innerHTML = `<p class="text-center text-neutral-500 mt-8">No one has posted yet. Be the first!</p>`;
+  function renderPlayers(container, players) {
+    container.innerHTML = '';
+    if (!players || players.length === 0) {
+      container.innerHTML = `<p class="text-center text-neutral-500 mt-8">No musicians found.</p>`;
       return;
     }
 
-    posts.forEach(post => {
-      const isLooking = post.type === 'looking';
-      const postCard = document.createElement('div');
-      postCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
+    players.forEach(player => {
+      const playerCard = document.createElement('div');
+      playerCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
       
-      const title = isLooking ? `Looking for ${post.instrument}` : `${post.instrument || 'Musician'} Available`;
-      const buttonText = isLooking ? 'Message' : 'View Profile';
-      const messageLink = `Setflow - Conversation View.html?recipientId=${post.userId}`;
+      const profileLink = `Setflow - Musician Profile.html?userId=${player.id}`;
 
-      postCard.innerHTML = `
-        <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-semibold ${isLooking ? 'text-amber-400 bg-amber-900/50' : 'text-emerald-400 bg-emerald-900/50'} px-2 py-0.5 rounded-full">${isLooking ? 'LOOKING FOR' : 'AVAILABLE'}</span>
-          <div class="flex items-center space-x-2 text-right">
-            <img class="w-6 h-6 rounded-full object-cover" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
-            <p class="text-sm text-neutral-300 font-medium">${post.userName}</p>
-          </div>
+      playerCard.innerHTML = `
+        <div class="flex items-center justify-between">
+            <a href="${profileLink}" class="flex items-center space-x-3">
+                <img class="w-12 h-12 rounded-full object-cover" src="${player.profileImageUrl || placeholderImage}" alt="${player.name}'s photo">
+                <div>
+                    <p class="font-bold text-white">${player.name}</p>
+                    <p class="text-sm text-neutral-400">${player.instrument || 'Musician'}</p>
+                </div>
+            </a>
+            <a href="Setflow - Conversation View.html?recipientId=${player.id}" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">Message</a>
         </div>
-        <div>
-          <h3 class="text-white font-semibold">${title}</h3>
-          <p class="text-sm text-neutral-400 mt-1">${post.description}</p>
-        </div>
-        <a href="${messageLink}" class="mt-4 block w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-center text-sm font-bold rounded-xl transition-colors">${buttonText}</a>
       `;
-      postsContainer.appendChild(postCard);
+      container.appendChild(playerCard);
     });
   }
 
   onAuthState(async (user) => {
     if (user) {
       try {
-        const posts = await fetchPlayerPosts();
-        renderPosts(posts);
+        const availablePlayers = await getAvailablePlayers();
+        renderPlayers(availablePlayersContainer, availablePlayers);
+        
+        const allPlayers = await getAllPlayers();
+        renderPlayers(allPlayersContainer, allPlayers);
       } catch (error) {
-        console.error("Failed to fetch player posts:", error);
-        postsContainer.innerHTML = '<p class="text-red-400">Could not load posts. Please try again later.</p>';
+        console.error("Failed to fetch players:", error);
+        availablePlayersContainer.innerHTML = '<p class="text-red-400">Could not load players.</p>';
+        allPlayersContainer.innerHTML = '';
       }
     } else {
       window.location.href = 'Setflow - Login Page.html';
