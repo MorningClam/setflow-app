@@ -4,8 +4,8 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -67,6 +67,15 @@ export async function signUpUser(name, email, password, role) {
     bands: {}
   });
   return userCredential;
+}
+
+/**
+ * Sends a password reset email to the given address.
+ * @param {string} email The user's email address.
+ * @returns {Promise<void>}
+ */
+export async function sendPasswordReset(email) {
+    return await sendPasswordResetEmail(auth, email);
 }
 
 /**
@@ -222,9 +231,7 @@ export async function removeMemberFromBand(bandId, memberId) {
     return await batch.commit();
 }
 
-
-
-// --- FIRESTORE FUNCTIONS (Existing code below, no changes needed to these) ---
+// --- USER DATA & PROFILE FUNCTIONS ---
 
 /**
  * Fetches a user's data from the Firestore 'users' collection.
@@ -255,6 +262,8 @@ export async function updateUserProfile(userId, profileData) {
   const userDocRef = doc(db, "users", userId);
   return await updateDoc(userDocRef, profileData);
 }
+
+// --- GIG & APPLICATION FUNCTIONS ---
 
 /**
  * Fetches all gigs from the 'gigs' collection and formats the timestamp.
@@ -700,27 +709,6 @@ export async function getConversations(userId) {
   return conversations;
 }
 
-// Add these new functions to your api.js file, preferably within the "BAND MANAGEMENT" section
-
-/**
- * Searches for bands by name.
- * @param {string} searchText - The text to search for.
- * @returns {Promise<Array>} A promise that resolves to an array of band objects.
- */
-export async function searchBands(searchText) {
-    const bandsRef = collection(db, "bands");
-    // NOTE: Firestore does not support native text search.
-    // This query performs a basic prefix match. For a real app, a third-party search service like Algolia is recommended.
-    const q = query(bandsRef, where("name", ">=", searchText), where("name", "<=", searchText + '\uf8ff'));
-    
-    const querySnapshot = await getDocs(q);
-    const bands = [];
-    querySnapshot.forEach((doc) => {
-        bands.push({ id: doc.id, ...doc.data() });
-    });
-    return bands;
-}
-
 /**
  * Creates a request for a user to join a band.
  * @param {string} bandId - The ID of the band to join.
@@ -800,8 +788,6 @@ export async function approveJoinRequest(requestId) {
 
     return await batch.commit();
 }
-
-// Add these new functions to your api.js file
 
 /**
  * Fetches all users who have marked themselves as "Looking for Bands".
