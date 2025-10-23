@@ -7,24 +7,39 @@
   <title>Setflow - Privacy Policy</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
-      <a href="javascript:history.back()" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="javascript:history.back()" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Privacy Policy</h1>
     </header>
-    <main class="flex-grow p-5">
-      <h2 class="text-xl font-bold text-white mb-4">Privacy Policy</h2>
+    <main class="flex-grow p-5 pt-16"> <h2 class="text-xl font-bold text-white mb-4">Privacy Policy</h2>
       <div class="text-neutral-300 text-sm leading-relaxed space-y-4">
-        <p><strong>Last Updated: October 21, 2025</strong></p>
-        <p>[Placeholder] Your privacy is important to us. It is Setflow's policy to respect your privacy regarding any information we may collect from you across our application.</p>
+        <p><strong>Last Updated: October 22, 2025</strong></p> <p>[Placeholder] Your privacy is important to us. It is Setflow's policy to respect your privacy regarding any information we may collect from you across our application.</p>
         <p>We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.</p>
         <p>We only retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.</p>
         <p>We don’t share any personally identifying information publicly or with third-parties, except when required to by law.</p>
       </div>
     </main>
   </div>
-</body>
+   <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script> </body>
 </html>

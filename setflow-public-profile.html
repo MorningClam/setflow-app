@@ -7,42 +7,80 @@
   <title>Setflow - Musician Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50">
-      <a href="#" onclick="goBackOr('setflow-musician-dashboard.html')" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+  <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="#" onclick="goBackOr('setflow-musician-dashboard.html')" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 id="profile-header-name" class="text-lg font-bold tracking-tight">Profile</h1>
-      <div class="w-8 h-8"></div>
-    </header>
+      <div class="w-8 h-8"></div> </header>
     <main id="profile-container" class="flex-grow pb-36">
-      <div class="p-5 text-center text-neutral-500">Loading profile...</div>
-    </main>
+      </main>
     <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 flex items-center space-x-3">
     </footer>
   </div>
 
-  <script src="nav.js"></script>
-  <script type="module">
-    import { onAuthState, getUserData, getBandsForUser, reportContent } from './api.js';
+  <script src="nav.js"></script> <script type="module">
+    import { onAuthState, getUserData, getBandsForUser, reportContent, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
 
     const profileContainer = document.getElementById('profile-container');
     const footerActions = document.getElementById('footer-actions');
     const profileHeaderName = document.getElementById('profile-header-name');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
+    const userId = urlParams.get('userId'); // ID of the profile being viewed
     let currentUserId = null; // To store the logged-in user's ID
 
+    // Show initial loading spinner
+    ui.loading.show(profileContainer);
+
     function renderProfile(userData, bands) {
+      // gracefulGet handles spinner/error state
       if (!userData) {
-        profileContainer.innerHTML = '<p class="p-5 text-center text-red-400">Could not load profile.</p>';
+        profileHeaderName.innerText = "Error"; // Update header on error too
         return;
       }
 
-      profileHeaderName.innerText = userData.name;
+      profileHeaderName.innerText = userData.name || 'Profile'; // Set header name
+
+      // Clear container before rendering profile
+      profileContainer.innerHTML = '';
+
+      let bandsSection = '';
+       if (bands && bands.length > 0) {
+           bandsSection = `
+             <div class="p-5 border-b border-neutral-800">
+               <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Bands</h3>
+               <div class="space-y-3">
+                 ${bands.map(band => `
+                   <div class="flex items-center bg-neutral-800 p-3 rounded-lg"> <img class="w-12 h-12 bg-neutral-700 rounded-lg mr-4 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${band.name} photo">
+                     <div>
+                       <p class="font-semibold text-white">${band.name}</p>
+                       <p class="text-xs text-neutral-400">${band.genre || 'Music'}</p>
+                     </div>
+                   </div>
+                 `).join('')}
+               </div>
+             </div>
+           `;
+       }
+
 
       profileContainer.innerHTML = `
         <div class="p-5 flex flex-col items-center text-center border-b border-neutral-800">
@@ -54,14 +92,22 @@
           <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Bio</h3>
           <p class="text-neutral-300 text-sm leading-relaxed">${userData.bio || 'No bio provided.'}</p>
         </div>
-        <div class="p-5 text-center">
-            <button id="report-user-btn" data-user-id="${userData.id}" class="text-sm text-neutral-500 hover:text-red-400">Report this user</button>
+        ${bandsSection} <div class="p-5 text-center">
+            ${currentUserId !== userId ? // Only show report button if not viewing own profile
+            `<button id="report-user-btn" data-user-id="${userData.id}" class="text-sm text-neutral-500 hover:text-red-400">Report this user</button>`
+            : '<p class="text-sm text-neutral-500">(This is your public profile)</p>'}
         </div>
       `;
-      
-      footerActions.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Send Message</a>`;
-    
-      // Add event listener for the new report button
+
+      // Update footer actions - only show if not viewing own profile
+      if (currentUserId !== userId) {
+        footerActions.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Send Message</a>`;
+      } else {
+         footerActions.innerHTML = `<a href="setflow-edit-profile.html" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center">Edit My Profile</a>`;
+      }
+
+
+      // Add event listener for the report button if it exists
       const reportBtn = document.getElementById('report-user-btn');
       if (reportBtn) {
           reportBtn.addEventListener('click', () => handleReport('user', userId));
@@ -75,6 +121,7 @@
         }
         if (confirm('Are you sure you want to report this user?')) {
             try {
+                // reportContent works offline
                 await reportContent(id, type, currentUserId, 'User reported from public profile page');
                 toast.show('User reported. Thank you.', 'success');
             } catch (error) {
@@ -87,26 +134,35 @@
     onAuthState(async (user) => {
       if (user) {
         currentUserId = user.uid; // Store the current user's ID
-        if (!userId) {
-          profileContainer.innerHTML = '<p class="p-5 text-center text-red-400">No user ID specified.</p>';
-          return;
-        }
-        try {
-          const userData = await getUserData(userId);
-          const bands = await getBandsForUser(userId); // You might want to display their bands too
-          renderProfile(userData, bands);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      } else {
-        window.location.href = 'setflow-login-page.html';
       }
+      // Proceed even if not logged in, but reporting/messaging might fail later
+
+      if (!userId) {
+        profileContainer.innerHTML = '<p class="p-5 text-center text-red-400">No user ID specified.</p>';
+        profileHeaderName.innerText = "Error";
+        return;
+      }
+
+      try {
+        // Fetch profile and bands data concurrently using gracefulGet
+        const [userData, bands] = await Promise.all([
+             gracefulGet(getUserData(userId), profileContainer, "Could not load profile while offline."),
+             gracefulGet(getBandsForUser(userId), null, "Could not load bands while offline.") // Don't show bands loading error in main container
+        ]);
+
+        // Render profile if user data fetched successfully
+        if (userData) {
+          renderProfile(userData, bands);
+        }
+      } catch (error) {
+        // Errors handled by gracefulGet, log if needed
+        console.error("Error fetching public profile data (already handled by gracefulGet):", error);
+      }
+      // Note: If !user, the page still loads but footer/report actions adapt or fail gracefully.
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-</body>
+  <script src="toast.js"></script> </body>
 </html>

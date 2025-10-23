@@ -7,26 +7,42 @@
   <title>Setflow - Applied Gigs</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div id="offline-banner">You are currently offline. Showing cached application data.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">My Applications</h1>
-    <div class="w-9"></div>
-  </header>
+    <div class="w-9"></div> </header>
   <main id="applications-container" class="flex-1 px-5 py-4 pb-28 space-y-3">
-    <p class="text-neutral-500">Loading your applications...</p>
-  </main>
+    </main>
 </div>
 
 <script type="module">
-    import { onAuthState, fetchMyApplications } from './api.js';
+    import { onAuthState, fetchMyApplications, gracefulGet, ui } from './api.js'; // Import helpers
 
     const applicationsContainer = document.getElementById('applications-container');
+
+    // Show initial loading spinner
+    ui.loading.show(applicationsContainer);
 
     // Maps application statuses to Tailwind CSS classes for display
     const statusStyles = {
@@ -37,25 +53,30 @@
     };
 
     function renderApplications(applications) {
-        applicationsContainer.innerHTML = ''; // Clear the loading message
-
-        if (applications.length === 0) {
+        // gracefulGet handles spinner removal / error display
+        if (!applications || applications.length === 0) {
             applicationsContainer.innerHTML = `<p class="text-neutral-500 text-center mt-8">You haven't applied to any gigs yet.</p>`;
             return;
         }
 
+        // Clear container before rendering
+        applicationsContainer.innerHTML = '';
+
         applications.forEach(app => {
             const style = statusStyles[app.status] || statusStyles.default;
             const applicationCard = document.createElement('div');
-            applicationCard.className = `bg-neutral-800 rounded-xl border border-neutral-700/60 p-4 ${app.status === 'not selected' ? 'opacity-60' : ''}`;
+            // Link to the gig detail view
+            applicationCard.className = `bg-neutral-800 rounded-xl border border-neutral-700/60 p-4 hover:bg-neutral-700/50 transition-colors ${app.status === 'not selected' ? 'opacity-60' : ''}`;
 
             applicationCard.innerHTML = `
-                <h3 class="text-white font-semibold">${app.gigVenue}</h3>
-                <p class="text-sm text-neutral-400">${app.gigGenre} • ${app.gigDate}</p>
+             <a href="setflow-gig-detail-view.html?id=${app.gigId}">
+                <h3 class="text-white font-semibold">${app.gigVenue || 'Gig Details Unavailable'}</h3>
+                <p class="text-sm text-neutral-400">${app.gigGenre || ''} • ${app.gigDate || ''}</p>
                 <div class="mt-2 pt-2 border-t border-neutral-700/60 flex items-center">
                     <div class="w-2 h-2 rounded-full ${style.bgColor} mr-2"></div>
                     <p class="text-xs font-semibold ${style.textColor}">Status: ${style.text}</p>
                 </div>
+              </a>
             `;
             applicationsContainer.appendChild(applicationCard);
         });
@@ -64,18 +85,22 @@
     onAuthState(async (user) => {
         if (user) {
             try {
-                const myApplications = await fetchMyApplications(user.uid);
-                renderApplications(myApplications);
+                // Use gracefulGet to fetch applications, managing loading/error state
+                const myApplications = await gracefulGet(fetchMyApplications(user.uid), applicationsContainer, "Could not load applications while offline.");
+                // Render only if fetch succeeded
+                if (myApplications) {
+                  renderApplications(myApplications);
+                }
             } catch (error) {
-                console.error("Failed to fetch applications:", error);
-                applicationsContainer.innerHTML = `<p class="text-red-400">Could not load your applications.</p>`;
+                // Error already displayed by gracefulGet
+                console.error("Failed to fetch applications (already handled by gracefulGet):", error);
             }
         } else {
-            // No user is signed in.
             window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
-
-</body>
+ <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script> </body>
 </html>

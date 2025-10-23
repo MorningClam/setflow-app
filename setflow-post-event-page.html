@@ -7,21 +7,34 @@
   <title>Setflow - Post New Event</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>body{font-family:'Inter',sans-serif;}.form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); }</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif;}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+    .form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); }
+   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-promoter-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+<div id="offline-banner">You are currently offline. Event will post when back online.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-promoter-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <h1 class="text-lg font-bold tracking-tight">Post New Event</h1>
-    <div class="w-9"></div>
-  </header>
+    <div class="w-9"></div> </header>
   <main class="flex-1 px-5 py-4 pb-28">
     <form id="post-gig-form" class="space-y-6">
         <div>
-            <label for="event-name" class="block text-sm font-medium text-neutral-300 mb-2">Event Name</label>
-            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            <label for="event-name" class="block text-sm font-medium text-neutral-300 mb-2">Event Name / Venue</label> <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival / The Pour House" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
         </div>
         <div>
             <label for="event-location" class="block text-sm font-medium text-neutral-300 mb-2">Location / Address</label>
@@ -37,6 +50,10 @@
                 <input id="event-payout" type="number" placeholder="500" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
             </div>
         </div>
+         <div>
+             <label for="event-genre" class="block text-sm font-medium text-neutral-300 mb-2">Genre(s) Preferred (Optional)</label>
+             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul, Rock" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+         </div>
         <div>
             <label for="event-description" class="block text-sm font-medium text-neutral-300 mb-2">Artist Requirements / Description</label>
             <textarea id="event-description" rows="4" placeholder="Looking for a 4-piece funk band. 2-hour set. PA provided, bring backline." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
@@ -49,7 +66,7 @@
 </div>
 
 <script type="module">
-  import { onAuthState, createGig } from './api.js';
+  import { onAuthState, createGig, isOnline } from './api.js'; // Import isOnline
 
   const gigForm = document.getElementById('post-gig-form');
   const submitButton = document.getElementById('submit-btn');
@@ -80,6 +97,7 @@
       location: document.getElementById('event-location').value.trim(),
       date: document.getElementById('event-date').value,
       payout: document.getElementById('event-payout').value,
+      genre: document.getElementById('event-genre').value.trim(), // Added genre
       description: document.getElementById('event-description').value.trim()
     };
 
@@ -99,10 +117,12 @@
 
 
     try {
-      await createGig(gigData);
-      toast.show('Event posted successfully!', 'success');
+      await createGig(gigData); // Works offline
+       const successMessage = isOnline() ? 'Event posted successfully!' : 'Event saved locally. Will post when online.';
+      toast.show(successMessage, 'success');
        setTimeout(() => { // Redirect after showing success
-           window.location.href = 'setflow-promoter-dashboard.html'; // Or venue dashboard if applicable
+            // TODO: Detect if user is promoter or venue to redirect correctly
+           window.location.href = 'setflow-promoter-dashboard.html'; // Defaulting to promoter
        }, 1500);
     } catch (error) {
       console.error("Error creating gig:", error);
@@ -113,10 +133,7 @@
   });
 </script>
 
-<div id="toast-notification" class="opacity-0">
-    <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
 </div>
-<script src="toast.js"></script>
-
-</body>
+<script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
 </html>

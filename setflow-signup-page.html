@@ -7,16 +7,29 @@
   <title>Setflow - Signup</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>
+  <link rel="stylesheet" href="toast.css"> <style>
     body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
     .form-input:focus { border-color:#10B981; box-shadow:0 0 0 2px rgba(16,185,129,.2); }
     .role-btn-active { background-color: #10B981; color: white; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto min-h-screen flex flex-col">
-    <header class="px-5 py-8 text-center">
+  <div id="offline-banner">Sign up requires an internet connection.</div>
+  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-8 text-center">
       <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <img src="logo.png" alt="Setflow Logo" class="w-8 h-8">
       </div>
@@ -61,7 +74,7 @@
   </div>
 
   <script type="module">
-    import { signUpUser } from './api.js';
+    import { signUpUser, isOnline } from './api.js'; // Import isOnline
 
     const roleButtons = document.querySelectorAll('.role-btn');
     const signupForm = document.getElementById('signup-form');
@@ -80,6 +93,12 @@
     signupForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
+         // Check network connection first
+         if (!isOnline()) {
+              toast.show('Sign up requires an internet connection.', 'error');
+              return;
+         }
+
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -96,7 +115,7 @@
         submitButton.innerText = 'Creating Account...';
 
         try {
-            await signUpUser(name, email, password, selectedRole);
+            await signUpUser(name, email, password, selectedRole); // Requires network
             // Redirect to profile setup on successful signup
             window.location.href = `setflow-profile-setup.html?role=${selectedRole.toLowerCase()}`;
         } catch (error) {
@@ -106,6 +125,8 @@
                  message = 'This email address is already in use.';
              } else if (error.code === 'auth/invalid-email') {
                  message = 'Please enter a valid email address.';
+             } else if (error.message.includes('network error')) {
+                  message = 'Network error. Please check your connection and try again.';
              }
             toast.show(message, 'error');
             submitButton.disabled = false;
@@ -114,10 +135,7 @@
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-</body>
+  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
 </html>

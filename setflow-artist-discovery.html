@@ -7,53 +7,136 @@
   <title>Setflow - Artist Discovery</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 shadow-md border-b border-neutral-700/50">
-    <div class="flex items-center justify-between">
-      <a href="setflow-venue-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <h1 class="text-lg font-bold tracking-tight">Artist Discovery</h1>
-      <div class="w-9"></div>
-    </div>
-  </header>
+<div id="offline-banner">You are currently offline. Showing cached artist data.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-venue-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <h1 class="text-lg font-bold tracking-tight">Artist Discovery</h1>
+    <div class="w-9"></div> </header>
   <main class="flex-1 px-5 py-4 pb-28 space-y-6">
     <div>
         <h2 class="text-base font-semibold text-white">Raleigh Local Charts</h2>
         <p class="text-sm text-neutral-400">Trending artists in your area.</p>
-    </div>
-    <div>
+        </div>
+    <div id="highest-rated-container">
         <h3 class="text-sm font-medium text-amber-400 mb-2">★ Highest Rated</h3>
         <div class="space-y-3">
-            <div class="bg-neutral-800 rounded-xl p-3 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <img class="w-12 h-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop" alt="Band photo">
-                    <div>
-                        <p class="font-semibold text-white">George & The Vibe</p>
-                        <p class="text-xs text-neutral-400">Funk, Soul</p>
-                    </div>
-                </div>
-                <button class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">Scout</button>
-            </div>
+            <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
         </div>
     </div>
-    <div>
+    <div id="most-booked-container">
         <h3 class="text-sm font-medium text-emerald-400 mb-2">🚀 Most Booked</h3>
         <div class="space-y-3">
-            <div class="bg-neutral-800 rounded-xl p-3 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <img class="w-12 h-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop" alt="Band photo">
-                    <div>
-                        <p class="font-semibold text-white">The Sidewinders</p>
-                        <p class="text-xs text-neutral-400">Blues Rock</p>
-                    </div>
-                </div>
-                <button class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-xs font-semibold">Scouted</button>
-            </div>
+            <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
         </div>
     </div>
-  </main>
+     </main>
   </div>
-</body>
+   <script type="module">
+     // Placeholder: This page needs dynamic data loading using gracefulGet
+     // Example structure for loading and rendering artists:
+     import { onAuthState, getAllPlayers, gracefulGet, ui } from './api.js';
+
+     const highestRatedContainer = document.getElementById('highest-rated-container').querySelector('.space-y-3');
+     const mostBookedContainer = document.getElementById('most-booked-container').querySelector('.space-y-3');
+
+     function renderArtistCard(container, artist) {
+         const card = document.createElement('div');
+         card.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
+         const profileLink = `setflow-public-profile.html?userId=${artist.id}`;
+         const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop';
+
+         card.innerHTML = `
+            <a href="${profileLink}" class="flex items-center space-x-3 group flex-1 min-w-0">
+                <img class="w-12 h-12 rounded-lg object-cover bg-neutral-700 group-hover:opacity-80 transition-opacity" src="${artist.profileImageUrl || placeholderImg}" alt="${artist.name} photo">
+                <div class="min-w-0">
+                    <p class="font-semibold text-white truncate group-hover:text-emerald-400 transition-colors">${artist.name}</p>
+                    <p class="text-xs text-neutral-400">${artist.genres ? artist.genres.join(', ') : 'Music'} • ★ ${artist.rating || 'N/A'}</p>
+                </div>
+            </a>
+            <button data-artist-id="${artist.id}" class="scout-btn ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0">Scout</button>
+            `;
+            // TODO: Add 'Scouted' state persistence
+         container.appendChild(card);
+     }
+
+     function renderArtists(artists) {
+         highestRatedContainer.innerHTML = ''; // Clear spinners
+         mostBookedContainer.innerHTML = '';
+
+         if (!artists || artists.length === 0) {
+             highestRatedContainer.innerHTML = '<p class="text-neutral-500 text-sm">No artists found.</p>';
+             mostBookedContainer.innerHTML = '<p class="text-neutral-500 text-sm">No artists found.</p>';
+             return;
+         }
+
+         // Placeholder logic: Just splitting the list for demo
+         const midPoint = Math.ceil(artists.length / 2);
+         const ratedArtists = artists.slice(0, midPoint); // Replace with actual rating sort
+         const bookedArtists = artists.slice(midPoint); // Replace with actual booking sort
+
+         if (ratedArtists.length > 0) {
+             ratedArtists.forEach(artist => renderArtistCard(highestRatedContainer, artist));
+         } else {
+             highestRatedContainer.innerHTML = '<p class="text-neutral-500 text-sm">No highly rated artists found.</p>';
+         }
+
+         if (bookedArtists.length > 0) {
+             bookedArtists.forEach(artist => renderArtistCard(mostBookedContainer, artist));
+         } else {
+              mostBookedContainer.innerHTML = '<p class="text-neutral-500 text-sm">No frequently booked artists found.</p>';
+         }
+
+         // Add Scout button logic
+         document.querySelectorAll('.scout-btn').forEach(button => {
+             button.addEventListener('click', (e) => {
+                 // Placeholder for 'Scout' action - save to a list, etc.
+                 e.target.innerText = 'Scouted';
+                 e.target.disabled = true;
+                 e.target.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+                 e.target.classList.add('bg-neutral-700', 'cursor-not-allowed');
+                 toast.show(`${e.target.previousElementSibling.querySelector('.font-semibold').innerText} added to your scout list.`, 'success');
+             });
+         });
+     }
+
+
+     onAuthState(async (user) => {
+         if (user) {
+             try {
+                 // Use gracefulGet to fetch players, manage loading state in first container
+                 const artists = await gracefulGet(getAllPlayers(), highestRatedContainer, "Could not load artists while offline.");
+                 // Render only if fetch succeeded
+                 renderArtists(artists); // This function clears both spinners/containers internally
+             } catch (error) {
+                 // Error handled by gracefulGet
+                 console.error("Failed to load artists (already handled):", error);
+                  mostBookedContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading artists.</p>'; // Ensure error shown in second container too
+             }
+         } else {
+             window.location.href = 'setflow-login-page.html';
+         }
+     });
+
+   </script>
+   <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script> </body>
 </html>

@@ -7,13 +7,27 @@
   <title>Setflow - Find a Player</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+<div id="offline-banner">You are currently offline. Showing cached posts.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <h1 class="text-lg font-bold tracking-tight">Find a Player</h1>
     <a href="setflow-new-player-post.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Post</a>
   </header>
@@ -21,32 +35,44 @@
     <div>
         <h2 class="text-base font-semibold text-emerald-400 mb-2">✓ Available Now</h2>
         <div id="available-players-posts" class="space-y-3">
-            <p class="text-neutral-500">Loading available player posts...</p>
-        </div>
+            </div>
     </div>
     <div>
         <h2 class="text-base font-semibold text-white mb-2">Looking For Players</h2>
         <div id="looking-for-players-posts" class="space-y-3">
-            <p class="text-neutral-500">Loading posts seeking players...</p>
-        </div>
+            </div>
     </div>
   </main>
 </div>
 
 <script type="module">
-  import { onAuthState, fetchPlayerPosts, reportContent } from './api.js';
+  import { onAuthState, fetchPlayerPosts, reportContent, gracefulGet, ui } from './api.js'; // Import helpers
 
   const availableContainer = document.getElementById('available-players-posts');
   const lookingContainer = document.getElementById('looking-for-players-posts');
   const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop";
   let currentUserId = null;
 
+  // Show initial loading spinner in both containers
+  ui.loading.show(availableContainer);
+  ui.loading.show(lookingContainer);
+
   function renderPosts(posts) {
-    availableContainer.innerHTML = '';
-    lookingContainer.innerHTML = ''; // Clear both containers initially
+    // gracefulGet handles spinner removal/error display in the primary container (available)
+    // Clear the second container manually before rendering
+    lookingContainer.innerHTML = '';
+
+    if (!posts) { // Check if gracefulGet returned null (error occurred)
+        availableContainer.innerHTML = '<p class="text-red-400">Could not load posts.</p>'; // Ensure error is shown if gracefulGet didn't
+        lookingContainer.innerHTML = ''; // Clear second container on error
+        return;
+    }
 
     const availablePosts = posts.filter(p => p.type === 'available');
     const lookingPosts = posts.filter(p => p.type === 'looking');
+
+    // Clear available container before rendering (gracefulGet might have put spinner/error)
+    availableContainer.innerHTML = '';
 
     if (availablePosts.length === 0) {
       availableContainer.innerHTML = `<p class="text-center text-neutral-500">No players currently available.</p>`;
@@ -64,7 +90,7 @@
   function renderPostCard(container, post) {
       const postCard = document.createElement('div');
       postCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
-      
+
       const profileLink = `setflow-public-profile.html?userId=${post.userId}`;
 
       // Customize content based on post type
@@ -76,34 +102,49 @@
             <p class="text-sm text-neutral-400">Availability: ${post.availability || 'N/A'}</p>
           `;
       } else { // 'looking'
+           // Format date nicely if it exists
+           let formattedDate = 'N/A';
+           if (post.date) {
+               try {
+                  // Assuming post.date is a string like 'YYYY-MM-DDTHH:mm'
+                  formattedDate = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+               } catch (e) {
+                   console.warn("Could not parse date:", post.date);
+                   formattedDate = post.date; // Show raw string if parsing fails
+               }
+           }
           detailsHtml = `
             <p class="text-sm text-neutral-300 mt-2">Needs: <span class="font-semibold text-white">${post.instrument}</span></p>
             <p class="text-sm text-neutral-400">For: ${post.eventDetails || 'N/A'}</p>
-            <p class="text-sm text-neutral-400">Date: ${post.date ? new Date(post.date).toLocaleDateString() : 'N/A'}</p>
+            <p class="text-sm text-neutral-400">Date: ${formattedDate}</p>
           `;
       }
 
       postCard.innerHTML = `
         <div class="flex items-start justify-between">
-            <a href="${profileLink}" class="flex items-center space-x-3 flex-1 min-w-0">
-                <img class="w-10 h-10 rounded-full object-cover flex-shrink-0" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
+            <a href="${profileLink}" class="flex items-center space-x-3 flex-1 min-w-0 group">
+                <img class="w-10 h-10 rounded-full object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
                 <div class="min-w-0">
-                    <p class="font-bold text-white truncate">${post.userName}</p>
+                    <p class="font-bold text-white truncate group-hover:text-emerald-400 transition-colors">${post.userName}</p>
                     <p class="text-xs text-neutral-500">${post.type === 'available' ? 'Available Player' : 'Seeking Player'}</p>
                 </div>
             </a>
-            <a href="setflow-conversation-view.html?recipientId=${post.userId}" class="ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0">Message</a>
+            ${currentUserId !== post.userId ? // Only show message button if not own post
+            `<a href="setflow-conversation-view.html?recipientId=${post.userId}" class="ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0">Message</a>`
+            : '<span class="ml-2 text-xs text-neutral-500 flex-shrink-0">(Your Post)</span>'}
         </div>
         ${detailsHtml}
         <p class="text-sm text-neutral-300 mt-2 border-t border-neutral-700 pt-2">${post.description || 'No description provided.'}</p>
         <div class="mt-2 text-right">
-             <button data-post-id="${post.id}" class="report-post-btn text-xs text-neutral-500 hover:text-red-400">Report Post</button>
+             ${currentUserId !== post.userId ? // Only show report button if not own post
+             `<button data-post-id="${post.id}" class="report-post-btn text-xs text-neutral-500 hover:text-red-400">Report Post</button>`
+             : ''}
         </div>
       `;
       container.appendChild(postCard);
   }
 
-  // --- Report Post Functionality ---
+  // --- Report Post Functionality (works offline) ---
   async function handleReportPost(postId) {
     if (!currentUserId) {
         toast.show('You must be logged in to report content.', 'error');
@@ -121,7 +162,8 @@
   }
 
   // --- Event Delegation for Report Buttons ---
-  document.addEventListener('click', (event) => {
+  // Use event delegation on a parent element (main)
+  document.querySelector('main').addEventListener('click', (event) => {
     const target = event.target;
     if (target.classList.contains('report-post-btn')) {
         const postId = target.dataset.postId;
@@ -134,12 +176,15 @@
     if (user) {
       currentUserId = user.uid; // Store user ID
       try {
-        const posts = await fetchPlayerPosts();
+        // Use gracefulGet, passing only the primary container for loading/error state
+        const posts = await gracefulGet(fetchPlayerPosts(), availableContainer, "Could not load posts while offline.");
+        // Render posts (handles null response)
         renderPosts(posts);
       } catch (error) {
-        console.error("Failed to fetch player posts:", error);
-        availableContainer.innerHTML = '<p class="text-red-400">Could not load posts.</p>';
-        lookingContainer.innerHTML = ''; // Clear the other container too on error
+        // Error already displayed by gracefulGet
+        console.error("Failed to fetch player posts (already handled by gracefulGet):", error);
+        // Ensure second container is also cleared on error
+        lookingContainer.innerHTML = '';
       }
     } else {
       window.location.href = 'setflow-login-page.html';
@@ -147,10 +192,7 @@
   });
 </script>
 
-<div id="toast-notification" class="opacity-0">
-    <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
 </div>
-<script src="toast.js"></script>
-
-</body>
+<script src="toast.js"></script> </body>
 </html>

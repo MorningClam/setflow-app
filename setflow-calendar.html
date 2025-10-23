@@ -7,12 +7,27 @@
   <title>Setflow - Calendar</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style> body { font-family: 'Inter', sans-serif; } </style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto min-h-screen flex flex-col">
-    <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
+  <div id="offline-banner">You are currently offline. Showing cached calendar data.</div>
+  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       </a>
       <h1 class="text-lg font-bold tracking-tight">Calendar</h1>
@@ -22,8 +37,7 @@
       <div class="mt-5">
         <h3 class="text-sm font-medium text-neutral-400 mb-2">Upcoming</h3>
         <div id="upcoming-events-container" class="space-y-2">
-            <p class="text-neutral-500 text-sm">Loading events...</p>
-        </div>
+            </div>
       </div>
     </main>
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
@@ -35,22 +49,27 @@
   </div>
 
 <script type="module">
-    import { onAuthState, fetchCalendarEvents } from './api.js';
+    import { onAuthState, fetchCalendarEvents, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
 
     const eventsContainer = document.getElementById('upcoming-events-container');
 
-    function renderEvents(events) {
-        eventsContainer.innerHTML = '';
+    // Show initial loading spinner
+    ui.loading.show(eventsContainer);
 
-        if (events.length === 0) {
+    function renderEvents(events) {
+        // gracefulGet handles spinner removal / error display
+        if (!events || events.length === 0) {
             eventsContainer.innerHTML = '<p class="text-neutral-500 text-sm">You have no upcoming events.</p>';
             return;
         }
 
+        // Clear container before rendering
+        eventsContainer.innerHTML = '';
+
         events.forEach(event => {
             const eventElement = document.createElement('div');
             eventElement.className = 'bg-neutral-800/50 border border-neutral-700/30 rounded-lg p-3';
-            
+
             eventElement.innerHTML = `
                 <div class="flex items-center justify-between">
                     <div>
@@ -67,17 +86,22 @@
     onAuthState(async (user) => {
         if (user) {
             try {
-                const events = await fetchCalendarEvents(user.uid);
-                renderEvents(events);
+                // Use gracefulGet to fetch events, managing loading/error state
+                const events = await gracefulGet(fetchCalendarEvents(user.uid), eventsContainer, "Could not load calendar while offline.");
+                // Render only if fetch succeeded
+                if (events) {
+                  renderEvents(events);
+                }
             } catch (error) {
-                console.error("Failed to fetch calendar events:", error);
-                eventsContainer.innerHTML = '<p class="text-red-400 text-sm">Could not load events.</p>';
+                // Error already displayed by gracefulGet
+                console.error("Failed to fetch calendar events (already handled by gracefulGet):", error);
             }
         } else {
             window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
-
-</body>
+ <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script> </body>
 </html>

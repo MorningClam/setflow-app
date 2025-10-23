@@ -7,13 +7,27 @@
   <title>Setflow - Routing & Availability</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-moremenu.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+  <div id="offline-banner">You are currently offline. Changes will save locally and sync later.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-moremenu.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Routing & Availability</h1>
     </header>
     <main class="flex-grow pb-28">
@@ -21,7 +35,10 @@
         <h3 class="text-neutral-300 font-semibold uppercase tracking-wider text-xs mb-1">Travel Radius</h3>
         <p class="text-sm text-neutral-400 mb-4">Set the max distance you'll travel for a gig.</p>
         <div class="flex items-center justify-between mb-2">
-          <label id="location-label" class="text-neutral-400">From <span class="font-bold text-white">your location</span></label>
+           <label id="location-label" class="text-neutral-400 flex items-center h-5">From&nbsp;
+                <span class="loading-spinner-inline" id="location-spinner"></span>
+                <span class="font-bold text-white hidden" id="location-text">your location</span>
+            </label>
           <span id="radius-display" class="text-xl font-bold text-emerald-400">75 miles</span>
         </div>
         <input id="radius-slider" type="range" min="5" max="200" value="75" step="5" class="w-full">
@@ -40,11 +57,13 @@
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, updateUserPreferences } from './api.js';
+    import { onAuthState, getUserData, updateUserPreferences, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
 
     const radiusSlider = document.getElementById('radius-slider');
     const radiusDisplay = document.getElementById('radius-display');
     const locationLabel = document.getElementById('location-label');
+    const locationTextSpan = document.getElementById('location-text');
+    const locationSpinner = document.getElementById('location-spinner');
     const saveButton = document.getElementById('save-btn');
     let currentUserId = null;
 
@@ -57,22 +76,42 @@
     onAuthState(async (user) => {
       if (user) {
         currentUserId = user.uid;
+        saveButton.disabled = true; // Disable save until loaded
         try {
-            const userData = await getUserData(user.uid);
+            // Fetch user data gracefully (no main container, just manage inputs/spinners)
+            const userData = await gracefulGet(getUserData(user.uid), null, "Could not load settings offline.");
+
             if (userData) {
               // Set location text
+              locationSpinner.style.display = 'none';
               if(userData.location) {
-                locationLabel.innerHTML = `From <span class="font-bold text-white">${userData.location}</span>`;
+                locationTextSpan.innerText = userData.location;
+              } else {
+                 locationTextSpan.innerText = 'your location'; // Default
               }
+              locationTextSpan.classList.remove('hidden');
+
               // Set slider value if it exists
               if (userData.travelRadius) {
                 radiusSlider.value = userData.travelRadius;
                 radiusDisplay.innerText = `${userData.travelRadius} miles`;
               }
+            } else {
+                 // Error or offline without cache - gracefulGet handles toast/log
+                 locationSpinner.style.display = 'none';
+                 locationTextSpan.innerText = '(Unavailable)';
+                 locationTextSpan.classList.remove('hidden');
+                 radiusSlider.disabled = true; // Disable slider if data load failed
             }
         } catch (error) {
              console.error("Error loading user data:", error);
              toast.show('Could not load your current settings.', 'error');
+             locationSpinner.style.display = 'none';
+             locationTextSpan.innerText = '(Error)';
+             locationTextSpan.classList.remove('hidden');
+             radiusSlider.disabled = true;
+        } finally {
+             saveButton.disabled = radiusSlider.disabled; // Only enable save if slider is enabled
         }
       } else {
         window.location.href = 'setflow-login-page.html';
@@ -91,10 +130,11 @@
 
       try {
         const newRadius = Number(radiusSlider.value);
-        await updateUserPreferences(currentUserId, { travelRadius: newRadius });
+        await updateUserPreferences(currentUserId, { travelRadius: newRadius }); // Works offline
 
         saveButton.innerText = '✓ Saved!';
-        toast.show('Preferences saved successfully!', 'success');
+         const successMessage = isOnline() ? 'Preferences saved successfully!' : 'Preferences saved locally. Will sync when online.';
+        toast.show(successMessage, 'success');
         setTimeout(() => {
           saveButton.disabled = false;
           saveButton.innerText = 'Save Changes';
@@ -109,10 +149,7 @@
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-</body>
+  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
 </html>

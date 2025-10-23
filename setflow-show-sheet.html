@@ -7,128 +7,264 @@
   <title>Setflow - Show Sheet</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
-      <a href="javascript:history.back()" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+  <div id="offline-banner">You are currently offline. Show details may be cached.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="javascript:history.back()" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Show Sheet</h1>
     </header>
-    <main class="flex-grow pb-28">
-      <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
-        <h2 class="text-2xl font-bold text-white">The Pour House</h2>
-        <p class="text-lg text-amber-400 font-medium mt-1">Saturday, Nov 6</p>
-        <p class="text-sm text-neutral-300 mt-2">Artist: George & The Vibe</p>
-      </div>
+    <main class="flex-grow pb-28 pt-16"> <div id="show-sheet-content">
+         <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+     </div>
+      <div id="static-content" class="hidden">
+          <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
+            <h2 class="text-2xl font-bold text-white">The Pour House</h2>
+            <p class="text-lg text-amber-400 font-medium mt-1">Saturday, Nov 6</p>
+            <p class="text-sm text-neutral-300 mt-2">Artist: George & The Vibe</p>
+          </div>
 
-      <div class="px-5 py-4 grid grid-cols-2 gap-3 border-b border-neutral-800">
-        <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Add to Calendar</button>
-        <a href="setflow-promo-kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center">View Promo Kit</a>
-      </div>
+          <div class="px-5 py-4 grid grid-cols-2 gap-3 border-b border-neutral-800">
+            <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Add to Calendar</button>
+            <a href="setflow-promo-kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center">View Promo Kit</a>
+          </div>
 
-      <div class="px-5 py-4 border-b border-neutral-800">
-        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Schedule</h3>
-        <div class="space-y-3 text-sm">
-            <div class="flex"><span class="text-neutral-400 w-24">6:00 PM</span><span class="text-neutral-100 font-medium">Load-in & Setup</span></div>
-            <div class="flex"><span class="text-neutral-400 w-24">8:00 PM</span><span class="text-neutral-100 font-medium">Soundcheck</span></div>
-            <div class="flex"><span class="text-neutral-400 w-24">9:00 PM</span><span class="text-emerald-400 font-bold">Set 1 Begins</span></div>
-        </div>
-      </div>
-      <div class="px-5 py-4 border-b border-neutral-800">
-        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Details</h3>
-        <div class="space-y-3 text-sm">
-            <div class="flex"><span class="text-neutral-400 w-24">Payout</span><span class="text-emerald-400 font-bold text-base">$400</span></div>
-            <div class="flex"><span class="text-neutral-400 w-24">Notes</span><span class="text-neutral-100 font-medium">Green room is backstage left. 2 drink tickets per member.</span></div>
-        </div>
-      </div>
+          <div class="px-5 py-4 border-b border-neutral-800">
+            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Schedule</h3>
+            <div class="space-y-3 text-sm">
+                <div class="flex"><span class="text-neutral-400 w-24">6:00 PM</span><span class="text-neutral-100 font-medium">Load-in & Setup</span></div>
+                <div class="flex"><span class="text-neutral-400 w-24">8:00 PM</span><span class="text-neutral-100 font-medium">Soundcheck</span></div>
+                <div class="flex"><span class="text-neutral-400 w-24">9:00 PM</span><span class="text-emerald-400 font-bold">Set 1 Begins</span></div>
+            </div>
+          </div>
+          <div class="px-5 py-4 border-b border-neutral-800">
+            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Details</h3>
+            <div class="space-y-3 text-sm">
+                <div class="flex"><span class="text-neutral-400 w-24">Payout</span><span class="text-emerald-400 font-bold text-base">$400</span></div>
+                <div class="flex"><span class="text-neutral-400 w-24">Notes</span><span class="text-neutral-100 font-medium">Green room is backstage left. 2 drink tickets per member.</span></div>
+            </div>
+          </div>
 
-      <div class="px-5 py-4">
-        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Guest List & Team (3/5 spots used)</h3>
-        <div id="guest-list" class="space-y-2 text-sm">
-            <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Sarah (Merch)</span><button class="text-red-400 text-xs font-semibold">Remove</button></div>
-            <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>John Vibe</span><button class="text-red-400 text-xs font-semibold">Remove</button></div>
-            <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Maria Vibe</span><button class="text-red-400 text-xs font-semibold">Remove</button></div>
-        </div>
-        <div class="mt-3 flex space-x-2">
-            <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg p-2 text-sm text-white">
-            <button id="add-guest-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Add</button>
-        </div>
-      </div>
-    </main>
+          <div class="px-5 py-4">
+            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Guest List & Team (3/5 spots used)</h3>
+            <div id="guest-list" class="space-y-2 text-sm">
+                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Sarah (Merch)</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button></div>
+                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>John Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button></div>
+                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Maria Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button></div>
+            </div>
+            <div class="mt-3 flex space-x-2">
+                <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg p-2 text-sm text-white">
+                <button id="add-guest-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Add</button>
+            </div>
+          </div>
+        </div> </main>
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-        <a href="setflow-conversation-view.html" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Contact Venue</a>
+        <a href="setflow-conversation-view.html?recipientId=VENUE_USER_ID_HERE" id="contact-venue-link" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Contact Venue</a>
     </footer>
   </div>
 
-  <script>
-    // --- Add to Calendar Functionality (Placeholder) ---
-    document.getElementById('add-to-calendar-btn').addEventListener('click', () => {
-        // Use toast instead of alert
-        if (window.toast) {
-            toast.show("Calendar file download would start here.", 'success');
-        } else {
-            console.warn("Toast UI not ready for calendar message.");
-            alert("This would download an .ics file for your calendar."); // Fallback
-        }
-    });
+  <script type="module">
+    import { db, gracefulGet, ui, onAuthState } from './api.js'; // Import helpers
+    import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // --- Guest List Functionality ---
-    const guestList = document.getElementById('guest-list');
-    const guestNameInput = document.getElementById('guest-name-input');
-    const addGuestBtn = document.getElementById('add-guest-btn');
+    const showSheetContainer = document.getElementById('show-sheet-content');
+    const staticContentDiv = document.getElementById('static-content'); // Get static div
+    const urlParams = new URLSearchParams(window.location.search);
+    const gigId = urlParams.get('gigId');
+    let currentUser = null;
+    let gigData = null; // Store fetched gig data
     const maxGuests = 5; // Example limit
 
-    function updateGuestCount() {
-         const currentCount = guestList.children.length;
-         const countDisplay = document.querySelector('h3[class*="Guest List"]');
-         if (countDisplay) {
-             countDisplay.textContent = `Guest List & Team (${currentCount}/${maxGuests} spots used)`;
+    // --- Add to Calendar Functionality ---
+    function setupCalendarButton() {
+        const calendarBtn = document.getElementById('add-to-calendar-btn');
+        if (calendarBtn) {
+            calendarBtn.addEventListener('click', () => {
+                // In a real app, generate and download an .ics file based on gigData
+                if (window.toast) {
+                    toast.show("Calendar file download would start here.", 'success');
+                } else {
+                    console.warn("Toast UI not ready for calendar message.");
+                    alert("This would download an .ics file for your calendar."); // Fallback
+                }
+            });
+        }
+    }
+
+    // --- Guest List Functionality ---
+    function setupGuestList() {
+        const guestListEl = document.getElementById('guest-list');
+        const guestNameInput = document.getElementById('guest-name-input');
+        const addGuestBtn = document.getElementById('add-guest-btn');
+        const guestCountDisplay = document.querySelector('h3[class*="Guest List"]');
+
+        function updateGuestCount() {
+             const currentCount = guestListEl ? guestListEl.children.length : 0;
+             if (guestCountDisplay) {
+                 guestCountDisplay.textContent = `Guest List & Team (${currentCount}/${maxGuests} spots used)`;
+             }
+             const limitReached = currentCount >= maxGuests;
+             if (addGuestBtn) addGuestBtn.disabled = limitReached;
+             if (guestNameInput) {
+                 guestNameInput.disabled = limitReached;
+                 guestNameInput.placeholder = limitReached ? "Guest list full" : "Add guest name...";
+             }
+        }
+
+        if (addGuestBtn && guestNameInput && guestListEl) {
+            addGuestBtn.addEventListener('click', async () => {
+                const name = guestNameInput.value.trim();
+                const currentCount = guestListEl.children.length;
+
+                if (name && currentCount < maxGuests && gigId && currentUser) {
+                     addGuestBtn.disabled = true; // Disable while saving
+                    try {
+                        const gigRef = doc(db, "gigs", gigId);
+                        // Use arrayUnion to add guest atomically (works offline)
+                        await updateDoc(gigRef, {
+                            guestList: arrayUnion({ name: name, addedBy: currentUser.uid }) // Store who added
+                        });
+                        // Optimistically add to UI, then reload/refresh might be better
+                        renderSingleGuest(guestListEl, name); // Add visually
+                        guestNameInput.value = '';
+                        updateGuestCount();
+                         toast.show('Guest added.', 'success');
+                    } catch (error) {
+                         console.error("Error adding guest:", error);
+                         toast.show('Failed to add guest.', 'error');
+                    } finally {
+                         addGuestBtn.disabled = currentCount + 1 >= maxGuests; // Re-enable based on new count
+                    }
+                } else if (currentCount >= maxGuests) {
+                     toast.show("Guest list is full.", 'error');
+                }
+            });
+        }
+
+        if (guestListEl) {
+            guestListEl.addEventListener('click', async (e) => {
+                if (e.target.classList.contains('remove-guest-btn')) {
+                    const guestDiv = e.target.parentElement;
+                    const guestName = guestDiv.querySelector('span')?.innerText;
+                    if (guestName && confirm(`Remove ${guestName} from the guest list?`)) {
+                         e.target.disabled = true;
+                         try {
+                             const gigRef = doc(db, "gigs", gigId);
+                             // Find the exact object to remove (might need more info than just name)
+                             // For simplicity, assuming name is unique enough for now
+                             // In production, might need an ID or remove based on {name, addedBy}
+                             await updateDoc(gigRef, {
+                                 guestList: arrayRemove({ name: guestName, addedBy: currentUser.uid }) // Try removing based on adder
+                                 // Fallback if adder isn't stored/matched: fetch doc, find obj, use that in arrayRemove
+                             });
+                             guestDiv.remove();
+                             updateGuestCount();
+                             toast.show('Guest removed.', 'success');
+                         } catch (error) {
+                              console.error("Error removing guest:", error);
+                              toast.show('Failed to remove guest.', 'error');
+                              e.target.disabled = false; // Re-enable on error
+                         }
+                    }
+                }
+            });
+        }
+
+        // Initial count update
+        updateGuestCount();
+    }
+
+    function renderSingleGuest(listElement, name) {
+        const newGuest = document.createElement('div');
+        newGuest.className = 'flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg';
+        newGuest.innerHTML = `<span>${name}</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button>`;
+        listElement.appendChild(newGuest);
+    }
+
+    function renderShowSheet(gigSnap) {
+        if (!gigSnap || !gigSnap.exists()) {
+            if (!showSheetContainer.innerHTML.includes('Error') && !showSheetContainer.innerHTML.includes('offline')) {
+                showSheetContainer.innerHTML = `<p class="p-5 text-center text-red-400">Show Sheet not found.</p>`;
+            }
+            return;
+        }
+        gigData = { id: gigSnap.id, ...gigSnap.data() };
+        const dateFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
+        const timeFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'Time N/A';
+
+        // Use the static content as a template
+        showSheetContainer.innerHTML = staticContentDiv.innerHTML; // Copy structure
+        staticContentDiv.remove(); // Remove the original static div
+
+        // Populate dynamic data
+        showSheetContainer.querySelector('h2').innerText = gigData.venueName || 'Venue Name N/A';
+        showSheetContainer.querySelector('.text-amber-400').innerText = dateFormatted;
+        showSheetContainer.querySelector('.mt-2').innerText = `Artist: ${gigData.bookedArtistName || 'Artist N/A'}`;
+        // TODO: Populate Schedule dynamically if available in gigData
+        showSheetContainer.querySelector('.text-emerald-400.font-bold.text-base').innerText = `$${gigData.payout || 'N/A'}`;
+        // TODO: Populate Notes dynamically
+         const contactLink = document.getElementById('contact-venue-link');
+         if(contactLink && gigData.ownerId) {
+             contactLink.href = `setflow-conversation-view.html?recipientId=${gigData.ownerId}`;
          }
-         // Disable add button if limit reached
-         addGuestBtn.disabled = currentCount >= maxGuests;
-         guestNameInput.disabled = currentCount >= maxGuests;
-         guestNameInput.placeholder = currentCount >= maxGuests ? "Guest list full" : "Add guest name...";
+
+         // Populate Guest List
+         const guestListEl = document.getElementById('guest-list');
+         guestListEl.innerHTML = ''; // Clear static guests
+         if(gigData.guestList && Array.isArray(gigData.guestList)) {
+             gigData.guestList.forEach(guest => renderSingleGuest(guestListEl, guest.name));
+         }
+
+
+        // Setup event listeners for the dynamic content
+        setupCalendarButton();
+        setupGuestList();
     }
 
 
-    addGuestBtn.addEventListener('click', () => {
-        const name = guestNameInput.value.trim();
-         const currentCount = guestList.children.length;
+    // --- Initial Load ---
+    onAuthState(async (user) => {
+        if (user) {
+            currentUser = user;
+             if (!gigId) {
+                showSheetContainer.innerHTML = '<p class="p-5 text-center text-red-400">Error: Gig ID not found in URL.</p>';
+                return;
+            }
+            try {
+                // Fetch gig data using gracefulGet
+                const gigSnapshot = await gracefulGet(getDoc(doc(db, "gigs", gigId)), showSheetContainer, "Could not load show details offline.");
+                if (gigSnapshot) {
+                    renderShowSheet(gigSnapshot);
+                }
+            } catch(error) {
+                 console.error("Error loading show sheet:", error);
+                 // Error handled by gracefulGet
+            }
 
-        if (name && currentCount < maxGuests) {
-            const newGuest = document.createElement('div');
-            newGuest.className = 'flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg';
-            newGuest.innerHTML = `<span>${name}</span><button class="text-red-400 text-xs font-semibold">Remove</button>`;
-            guestList.appendChild(newGuest);
-            guestNameInput.value = '';
-             updateGuestCount(); // Update count and button state
-        } else if (currentCount >= maxGuests) {
-             if (window.toast) {
-                toast.show("Guest list is full.", 'error');
-             } else {
-                 alert("Guest list is full."); // Fallback
-             }
+        } else {
+             window.location.href = 'setflow-login-page.html';
         }
     });
-
-    guestList.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('text-red-400')) {
-            e.target.parentElement.remove();
-             updateGuestCount(); // Update count and button state
-        }
-    });
-
-     // Initial count update on load
-    document.addEventListener('DOMContentLoaded', updateGuestCount);
 
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-</body>
+  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
 </html>

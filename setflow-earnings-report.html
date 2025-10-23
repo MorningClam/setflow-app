@@ -7,50 +7,106 @@
   <title>Setflow - Earnings Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div id="offline-banner">You are currently offline. Earnings data may be cached.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">Earnings Report</h1>
-    <div class="w-9"></div>
-  </header>
-  <main class="flex-1 px-5 py-4 pb-28">
-    <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center mb-6">
+    <div class="w-9"></div> </header>
+  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center mb-6">
         <p class="text-sm text-neutral-400 uppercase tracking-wider">Total Earnings (YTD)</p>
-        <p class="text-4xl font-bold text-emerald-400 mt-1">$8,450</p>
-    </div>
+        <p class="text-4xl font-bold text-emerald-400 mt-1">$8,450</p> </div>
     <div>
       <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Completed Gigs</h2>
-      <div class="space-y-2">
-        <div class="bg-neutral-800/60 rounded-lg p-3 flex justify-between items-center">
-          <div><p class="font-semibold">The Underground</p><p class="text-xs text-neutral-400">Oct 10, 2025</p></div>
-          <p class="font-bold text-emerald-400">$450</p>
-        </div>
-        <div class="bg-neutral-800/60 rounded-lg p-3 flex justify-between items-center">
-          <div><p class="font-semibold">The Pour House</p><p class="text-xs text-neutral-400">Sep 26, 2025</p></div>
-          <p class="font-bold text-emerald-400">$400</p>
-        </div>
+      <div id="completed-gigs-list" class="space-y-2">
+        <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
       </div>
     </div>
-  </main>
+     </main>
 </div>
 
 <script type="module">
-    import { onAuthState } from './api.js';
+    import { onAuthState, gracefulGet, ui } from './api.js'; // Import helpers
+    // TODO: Need an API function like fetchCompletedGigsForUser(userId)
 
-    onAuthState((user) => {
-        if (!user) {
-            // If no user is signed in, redirect to login page.
-            window.location.href = 'setflow-login-page.html';
+    const gigsListContainer = document.getElementById('completed-gigs-list');
+
+    function renderCompletedGigs(gigs) {
+        // gracefulGet handles spinner removal/error display
+        if (!gigs || gigs.length === 0) {
+            gigsListContainer.innerHTML = '<p class="text-neutral-500 text-sm">No completed gigs found for this period.</p>';
+            return;
         }
-        // If user is signed in, proceed to fetch and render earnings data.
-        // (Add data fetching logic here)
+
+        // Clear container before rendering
+        gigsListContainer.innerHTML = '';
+
+        // Sort by date descending
+        gigs.sort((a,b) => (b.date?.toDate ? b.date.toDate() : 0) - (a.date?.toDate ? a.date.toDate() : 0));
+
+        gigs.forEach(gig => {
+            const gigElement = document.createElement('div');
+            gigElement.className = 'bg-neutral-800/60 rounded-lg p-3 flex justify-between items-center';
+            const dateFormatted = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'}) : 'Date N/A';
+
+            gigElement.innerHTML = `
+              <div>
+                <p class="font-semibold">${gig.venueName}</p>
+                <p class="text-xs text-neutral-400">${dateFormatted}</p>
+              </div>
+              <p class="font-bold text-emerald-400">$${gig.payout}</p>
+            `;
+            gigsListContainer.appendChild(gigElement);
+        });
+    }
+
+
+    onAuthState(async (user) => {
+        if (!user) {
+            window.location.href = 'setflow-login-page.html';
+        } else {
+            // Placeholder: Fetch actual completed gigs data
+            try {
+                // Replace with actual API call when available
+                const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
+                     // Example data structure (replace with real data)
+                     { id: 'gig1', venueName: 'The Underground', date: new Date('2025-10-10'), payout: 450 },
+                     { id: 'gig2', venueName: 'The Pour House', date: new Date('2025-09-26'), payout: 400 },
+                 ]), 1000)); // Simulate fetch delay
+
+                const completedGigs = await gracefulGet(fetchPromise, gigsListContainer, "Could not load earnings data offline.");
+
+                if (completedGigs) {
+                   renderCompletedGigs(completedGigs);
+                   // TODO: Calculate and update the YTD total dynamically
+                }
+            } catch (error) {
+                console.error("Error fetching earnings:", error);
+                // Error handled by gracefulGet
+            }
+        }
     });
 </script>
-
-</body>
+ <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script> </body>
 </html>

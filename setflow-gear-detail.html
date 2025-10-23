@@ -7,25 +7,37 @@
   <title>Setflow - Gear Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50">
-    <a href="setflow-gear-swap.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+<div id="offline-banner">You are currently offline. Item details may be cached.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-gear-swap.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
     <h1 class="text-lg font-bold tracking-tight">Gear Details</h1>
-    <div class="w-8 h-8"></div>
-  </header>
+    <div class="w-8 h-8"></div> </header>
   <main id="gear-detail-container" class="flex-grow pb-28">
-    <p class="p-5 text-center text-neutral-500">Loading item...</p>
-  </main>
+    </main>
   <footer id="footer-container" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-  </footer>
+    </footer>
 </div>
 
 <script type="module">
-  import { onAuthState, getGearListing, getUserData, reportContent } from './api.js';
+  import { onAuthState, getGearListing, getUserData, reportContent, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
 
   const container = document.getElementById('gear-detail-container');
   const footer = document.getElementById('footer-container');
@@ -33,14 +45,24 @@
   const listingId = urlParams.get('id');
   let currentUserId = null;
 
+  // Show initial loading spinner
+  ui.loading.show(container);
+
   function renderListing(item) {
+    // gracefulGet handles spinner removal / error display
     if (!item) {
-        container.innerHTML = `<p class="p-5 text-center text-red-400">Could not find this item.</p>`;
+        // Error or offline message already shown
         return;
     }
 
+    // Clear container before rendering
+    container.innerHTML = '';
+
+    // Provide a placeholder image if item.imageUrl is missing
+    const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop';
+
     container.innerHTML = `
-      <img class="w-full h-64 object-cover" src="${item.imageUrl}" alt="${item.name}">
+      <img class="w-full h-64 object-cover" src="${imageUrl}" alt="${item.name}">
       <div class="p-5">
         <div class="flex justify-between items-start">
             <div>
@@ -56,32 +78,38 @@
         <div class="mt-4 pt-4 border-t border-neutral-800">
             <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Seller</h3>
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <img class="w-12 h-12 rounded-full object-cover" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
+                <a href="setflow-public-profile.html?userId=${item.sellerId}" class="flex items-center space-x-3 group"> <img class="w-12 h-12 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
                     <div>
-                        <p class="font-semibold text-white">${item.sellerName}</p>
+                        <p class="font-semibold text-white group-hover:text-emerald-400 transition-colors">${item.sellerName}</p>
                     </div>
-                </div>
-                <button id="report-item-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Item</button>
+                </a>
+                ${currentUserId !== item.sellerId ? // Only show report if not own item
+                `<button id="report-item-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Item</button>`
+                 : '<span class="text-xs text-neutral-500">(Your Listing)</span>'}
             </div>
         </div>
       </div>
     `;
 
-    footer.innerHTML = `
-        <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">
-            Message Seller
-        </a>
-    `;
+    // Update footer - only show message button if not viewing own listing
+    if (currentUserId !== item.sellerId) {
+        footer.innerHTML = `
+            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">
+                Message Seller
+            </a>
+        `;
+    } else {
+        footer.innerHTML = ``;
+    }
 
-    // Add event listener for the new report button
+    // Add event listener for the report button if it exists
     const reportBtn = document.getElementById('report-item-btn');
     if (reportBtn) {
         reportBtn.addEventListener('click', () => handleReport('gear_listing', item.id));
     }
   }
 
-  // Add a new function to handle reporting
+  // Handle reporting (works offline)
   async function handleReport(type, id) {
     if (!currentUserId) {
         toast.show('You must be logged in to report content.', 'error');
@@ -101,27 +129,29 @@
   onAuthState(async (user) => {
     if (user) {
         currentUserId = user.uid; // Store the user ID
-        if (!listingId) {
-            container.innerHTML = `<p class="p-5 text-center text-red-400">No item ID provided.</p>`;
-            return;
-        }
-        try {
-            const itemData = await getGearListing(listingId);
-            renderListing(itemData);
-        } catch (error) {
-            console.error("Error fetching gear details:", error);
-            container.innerHTML = `<p class="p-5 text-center text-red-400">Failed to load item details.</p>`;
-        }
-    } else {
-        window.location.href = 'setflow-login-page.html';
     }
+    // Proceed even if not logged in, but messaging/reporting might fail later
+
+    if (!listingId) {
+        container.innerHTML = `<p class="p-5 text-center text-red-400">No item ID provided.</p>`;
+        return;
+    }
+    try {
+        // Use gracefulGet to fetch item details, managing loading/error state
+        const itemData = await gracefulGet(getGearListing(listingId), container, "Could not load item details while offline.");
+        // Render only if fetch succeeded
+        if(itemData) {
+            renderListing(itemData);
+        }
+    } catch (error) {
+        // Error already displayed by gracefulGet
+        console.error("Error fetching gear details (already handled by gracefulGet):", error);
+    }
+    // Note: If !user, page loads but footer/report adapt or fail gracefully.
   });
 </script>
 
-<div id="toast-notification" class="opacity-0">
-    <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
 </div>
-<script src="toast.js"></script>
-
-</body>
+<script src="toast.js"></script> </body>
 </html>

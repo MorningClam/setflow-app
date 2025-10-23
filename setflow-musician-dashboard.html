@@ -7,12 +7,27 @@
   <title>Setflow - Musician Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style> body { font-family: 'Inter', sans-serif; } </style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <h1 class="text-lg font-bold tracking-tight">Dashboard</h1>
+  <div id="offline-banner">You are currently offline. Showing cached dashboard data.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <h1 class="text-lg font-bold tracking-tight">Dashboard</h1>
       <div class="flex items-center space-x-4">
         <a href="setflow-notifications.html" class="relative w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600">
           <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
@@ -37,7 +52,7 @@
         </div>
         <a href="setflow-find-a-player.html" class="text-xs text-center block text-emerald-400 hover:text-emerald-300">Need a last-minute sub? Find a player.</a>
       </section>
-      
+
       <section class="px-5 py-5 space-y-4">
          <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50">
             <div class="flex items-center space-x-4">
@@ -49,7 +64,7 @@
                 </div>
             </div>
          </div>
-         
+
          <a href="setflow-pricing-page.html" class="block bg-neutral-800 rounded-xl p-4 border border-emerald-500/50 hover:border-emerald-500 transition-colors">
              <div class="flex items-center space-x-4">
                  <div class="flex-1">
@@ -58,7 +73,7 @@
                  </div>
              </div>
          </a>
-         
+
          <div class="grid grid-cols-2 gap-4">
             <a href="setflow-earnings-report.html" class="block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center hover:bg-neutral-700/50 transition-colors">
                 <p class="text-xs text-neutral-400 uppercase tracking-wider">This Month's Earnings</p>
@@ -70,10 +85,12 @@
             </div>
          </div>
       </section>
-      
+
       <section class="py-4">
         <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">Open Gigs Near You</h4><a href="setflow-browse-gigs.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300">See All</a></div>
-        <div class="space-y-3 px-5"><a href="setflow-gig-detail-view.html" class="block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50"><p class="font-medium text-white">Blue Note Brewpub</p><p class="text-xs text-neutral-400">Sat, Nov 6 • Funk / Soul • $400</p></a></div>
+        <div id="nearby-gigs-container" class="space-y-3 px-5">
+             <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+        </div>
       </section>
 
       <section class="py-4">
@@ -117,34 +134,77 @@
     const openModalBtn = document.getElementById('open-modal-btn');
     const closeModalBtn = document.getElementById('close-modal-btn');
     const modal = document.getElementById('block-date-modal');
-    openModalBtn.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
-    closeModalBtn.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
+    if (openModalBtn && closeModalBtn && modal) {
+        openModalBtn.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
+        closeModalBtn.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
+    }
 
     // --- Get Directions Functionality ---
     const getDirectionsBtn = document.getElementById('get-directions-btn');
-    getDirectionsBtn.addEventListener('click', () => {
-      const venueAddress = "The Underground, Raleigh, NC";
-      const encodedAddress = encodeURIComponent(venueAddress);
-      // CORRECTED URL
-      window.open(`https://maps.google.com/?q=${encodedAddress}`);
-    });
+    if(getDirectionsBtn) {
+        getDirectionsBtn.addEventListener('click', () => {
+          const venueAddress = "The Underground, Raleigh, NC"; // Placeholder
+          const encodedAddress = encodeURIComponent(venueAddress);
+          window.open(`http://googleusercontent.com/maps.google.com/3{encodedAddress}`); // Corrected URL
+        });
+    }
   </script>
 
   <script type="module">
-    import { onAuthState, getUserData } from './api.js';
+    import { onAuthState, getUserData, fetchGigs, gracefulGet, ui } from './api.js'; // Import helpers
+
+    const nearbyGigsContainer = document.getElementById('nearby-gigs-container');
+
+    // Function to render nearby gigs (placeholder implementation)
+    function renderNearbyGigs(gigs) {
+        if (!gigs || gigs.length === 0) {
+            nearbyGigsContainer.innerHTML = '<p class="text-neutral-500 text-sm">No open gigs found near you currently.</p>';
+            return;
+        }
+        // Clear container (spinner/error) before rendering
+        nearbyGigsContainer.innerHTML = '';
+
+        // Show only the first few gigs, e.g., 3
+        gigs.slice(0, 3).forEach(gig => {
+            const gigElement = document.createElement('a');
+            gigElement.href = `setflow-gig-detail-view.html?id=${gig.id}`;
+            gigElement.className = 'block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 hover:bg-neutral-700/50 transition-colors';
+            gigElement.innerHTML = `
+                <p class="font-medium text-white">${gig.venueName}</p>
+                <p class="text-xs text-neutral-400">${gig.formattedDate} • ${gig.genre || 'Music'} • $${gig.payout}</p>
+            `;
+            nearbyGigsContainer.appendChild(gigElement);
+        });
+    }
 
     onAuthState(async (user) => {
       if (user) {
-        const userData = await getUserData(user.uid);
-        if (userData) {
-          const dashboardTitle = document.querySelector('header h1');
-          dashboardTitle.innerText = `${userData.name}'s Dashboard`;
+        try {
+            // Fetch user data (no container, just get data or null)
+            const userData = await gracefulGet(getUserData(user.uid));
+            if (userData && userData.name) {
+              const dashboardTitle = document.querySelector('header h1');
+              dashboardTitle.innerText = `${userData.name}'s Dashboard`;
+            }
+
+            // Fetch nearby gigs using gracefulGet, manage container state
+            const nearbyGigs = await gracefulGet(fetchGigs(), nearbyGigsContainer, "Could not load nearby gigs offline.");
+            if (nearbyGigs) {
+                renderNearbyGigs(nearbyGigs); // Render only if fetch succeeded
+            }
+        } catch(error) {
+             console.error("Error loading dashboard data (error likely handled):", error);
+             // Ensure nearby gigs container shows an error if not already handled
+              if (!nearbyGigsContainer.innerHTML.includes('Error') && !nearbyGigsContainer.innerHTML.includes('offline')) {
+                   nearbyGigsContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading nearby gigs.</p>';
+              }
         }
       } else {
         window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
-
-</body>
+   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script> </body>
 </html>

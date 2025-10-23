@@ -7,48 +7,69 @@
   <title>Setflow - Confirm Booking</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="booking-confirmation-container" class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col relative">
-    <div class="flex-grow blur-sm">
-        <header class="px-3 py-4 flex items-center justify-between"><a href="javascript:history.back()" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a><h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1><a href="#" class="p-2 opacity-0"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a></header>
-        <main><div class="p-5 flex flex-col items-center text-center border-b border-neutral-800"><img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop" alt="Band photo"><h2 id="blurred-artist-name" class="text-2xl font-bold text-white mt-4">Loading...</h2></div></main>
+  <div id="offline-banner">You are currently offline. Booking confirmation requires connection.</div>
+  <div id="booking-confirmation-container" class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col relative pt-10"> <div class="flex-grow blur-sm pointer-events-none"> <header class="px-3 py-4 flex items-center justify-between"><a href="javascript:history.back()" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a><h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1><a href="#" class="p-2 opacity-0"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a></header>
+        <main><div class="p-5 flex flex-col items-center text-center border-b border-neutral-800"><img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto.format&fit=crop" alt="Band photo"><h2 id="blurred-artist-name" class="text-2xl font-bold text-white mt-4">Loading...</h2></div></main>
     </div>
 
     <div id="modal-container" class="absolute inset-0 bg-black/60 flex items-center justify-center p-5 z-30">
-        <p class="text-white">Loading booking details...</p>
-    </div>
+        </div>
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, db, confirmBooking } from './api.js';
+    import { onAuthState, getUserData, db, confirmBooking, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const modalContainer = document.getElementById('modal-container');
     const blurredArtistName = document.getElementById('blurred-artist-name'); // For background
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
+    const userId = urlParams.get('userId'); // Artist ID
     const gigId = urlParams.get('gigId');
+    let currentUser = null; // Venue/Promoter user
 
-    // Simple function to fetch a single gig's data
-    async function getGigData(gigId) {
+    // Show initial loading spinner inside modal
+    ui.loading.show(modalContainer);
+
+    // Simple function to fetch a single gig's data (used internally)
+    async function getGigDataInternal(gigId) {
         if (!gigId) return null;
         const gigRef = doc(db, "gigs", gigId);
-        const gigSnap = await getDoc(gigRef);
-        return gigSnap.exists() ? { id: gigSnap.id, ...gigSnap.data() } : null;
+        const gigSnap = await getDoc(gigRef); // Let gracefulGet handle the promise later
+        return gigSnap; // Return the snapshot
     }
 
-    function renderConfirmationModal(artist, gig) {
-      if (!artist || !gig) {
-        modalContainer.innerHTML = '<p class="text-red-400">Error: Could not load booking details.</p>';
-        return;
+    function renderConfirmationModal(artist, gigSnap) {
+      // gracefulGet handled loading/error display
+      if (!artist || !gigSnap || !gigSnap.exists()) {
+          // Error already displayed by gracefulGet or caught later
+          modalContainer.innerHTML = modalContainer.innerHTML || '<p class="text-red-400 text-center p-5">Error: Could not load booking details.</p>'; // Ensure error shown if gracefulGet didn't
+          blurredArtistName.innerText = "Error";
+          return;
       }
 
+      const gig = { id: gigSnap.id, ...gigSnap.data() };
       blurredArtistName.innerText = artist.name; // Update background name
 
-      const gigDate = gig.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      const gigDate = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
 
       modalContainer.innerHTML = `
         <div class="bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm">
@@ -76,11 +97,16 @@
           confirmBtn.innerText = 'Booking...';
           confirmBtn.disabled = true;
 
+          // Note: confirmBooking works offline, but sending the show sheet implicitly requires connection.
+          // For simplicity, we show success optimistically. If offline, Firestore syncs the booking status,
+          // but the "sheet sent" part might fail silently or need a backend trigger on sync.
           try {
-            await confirmBooking(gig.id, artist.id, artist.name);
+            await confirmBooking(gig.id, artist.id, artist.name); // Works offline
             confirmBtn.innerText = '✓ Booked!';
-            toast.show('Booking confirmed! Show sheet sent.', 'success');
+            const successMessage = isOnline() ? 'Booking confirmed! Show sheet sent.' : 'Booking saved locally. Will sync & send sheet when online.';
+            toast.show(successMessage, 'success');
             setTimeout(() => {
+              // TODO: Redirect to appropriate dashboard (venue/promoter)
               window.location.href = 'setflow-venue-dashboard.html?booked=true';
             }, 1500);
           } catch(error) {
@@ -94,17 +120,26 @@
 
     onAuthState(async (user) => {
       if (user) {
+         currentUser = user; // Store current user
         if (!userId || !gigId) {
-             modalContainer.innerHTML = '<p class="text-red-400">Error: Missing user or gig ID in URL.</p>';
+             modalContainer.innerHTML = '<p class="text-red-400 text-center p-5">Error: Missing user or gig ID in URL.</p>';
+             blurredArtistName.innerText = "Error";
              return;
         }
         try {
-          const artistData = await getUserData(userId);
-          const gigData = await getGigData(gigId);
-          renderConfirmationModal(artistData, gigData);
+          // Fetch artist and gig data concurrently using gracefulGet
+          const [artistData, gigSnap] = await Promise.all([
+               gracefulGet(getUserData(userId), modalContainer, "Could not load artist details offline."), // Manage modal state
+               gracefulGet(getGigDataInternal(gigId), null, "Could not load gig details offline.") // Don't manage modal state here
+          ]);
+
+          // Render only if both fetches were successful (gracefulGet returns data)
+          renderConfirmationModal(artistData, gigSnap);
+
         } catch (error) {
-          console.error("Error loading booking data:", error);
-          modalContainer.innerHTML = `<p class="text-red-400">Error loading data: ${error.message}</p>`;
+          // Error already displayed by gracefulGet in modalContainer
+          console.error("Error loading booking data (already handled by gracefulGet):", error);
+          blurredArtistName.innerText = "Error";
         }
       } else {
         window.location.href = 'setflow-login-page.html';
@@ -112,10 +147,7 @@
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-</body>
+  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
 </html>

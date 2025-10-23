@@ -7,26 +7,53 @@
   <title>Setflow - Edit Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>
+  <link rel="stylesheet" href="toast.css"> <style>
     body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
     .toggle-checkbox:checked { right: 0; border-color: #10B981; }
     .toggle-checkbox:checked + .toggle-label { background-color: #10B981; }
+     /* Basic spinner for image loading */
+    .image-loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #10B981;
+        animation: spin 1s linear infinite;
+        display: none; /* Initially hidden */
+    }
+     @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50">
-      <a href="setflow-musician-profile.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+  <div id="offline-banner">You are currently offline. Changes will save locally and sync later.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-musician-profile.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight">Edit Profile</h1>
       <button id="save-btn" form="profile-form" type="submit" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2">Save</button>
     </header>
     <main class="flex-grow p-5">
       <form id="profile-form" class="space-y-6">
         <div class="text-center">
-            <div class="relative inline-block">
-              <img id="profile-image" class="w-24 h-24 bg-neutral-800 rounded-full flex items-center justify-center border-4 border-neutral-700 overflow-hidden object-cover" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop" alt="Profile picture">
-              <button type="button" class="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center hover:bg-emerald-600">
+            <div class="relative inline-block w-24 h-24">
+              <img id="profile-image" class="w-full h-full bg-neutral-800 rounded-full flex items-center justify-center border-4 border-neutral-700 overflow-hidden object-cover" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop" alt="Profile picture">
+              <div class="image-loading-spinner"></div> <input type="file" id="image-upload" accept="image/*" class="hidden"> <button type="button" id="upload-btn" class="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center hover:bg-emerald-600">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
               </button>
             </div>
@@ -58,7 +85,7 @@
   </div>
 
 <script type="module">
-    import { onAuthState, getUserData, updateUserProfile } from './api.js';
+    import { onAuthState, getUserData, updateUserProfile, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
 
     const profileForm = document.getElementById('profile-form');
     const saveButton = document.getElementById('save-btn');
@@ -67,22 +94,70 @@
     const bioInput = document.getElementById('bio');
     const lookingForBandsToggle = document.getElementById('looking-for-bands');
     const profileImage = document.getElementById('profile-image');
+    const imageUploadInput = document.getElementById('image-upload');
+    const uploadButton = document.getElementById('upload-btn');
+    const imageSpinner = document.querySelector('.image-loading-spinner');
 
     let currentUserId = null;
+
+    // Trigger file input when upload button is clicked
+    uploadButton.addEventListener('click', () => imageUploadInput.click());
+
+    // Handle image preview (basic)
+    imageUploadInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                profileImage.src = e.target.result;
+                // In a real app, you'd start the actual upload process here
+                // For now, just show the preview
+                // TODO: Add upload logic (requires backend/storage setup)
+                toast.show("Image preview updated. Upload not implemented yet.", 'success');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 
     onAuthState(async (user) => {
         if (user) {
             currentUserId = user.uid;
-            const userData = await getUserData(currentUserId);
-            if (userData) {
-                nameInput.value = userData.name || '';
-                locationInput.value = userData.location || '';
-                bioInput.value = userData.bio || '';
-                lookingForBandsToggle.checked = userData.isLookingForBands || false;
-                if(userData.profileImageUrl) {
-                    profileImage.src = userData.profileImageUrl;
+            // Show loading state while fetching initial data
+            saveButton.disabled = true; // Disable save until loaded
+             // Optionally show spinners next to fields or a general one
+            nameInput.disabled = true;
+            locationInput.disabled = true;
+            bioInput.disabled = true;
+            lookingForBandsToggle.disabled = true;
+
+            try {
+                // Fetch user data gracefully (no container needed, just manage inputs)
+                const userData = await gracefulGet(getUserData(currentUserId));
+
+                if (userData) {
+                    nameInput.value = userData.name || '';
+                    locationInput.value = userData.location || '';
+                    bioInput.value = userData.bio || '';
+                    lookingForBandsToggle.checked = userData.isLookingForBands || false;
+                    if(userData.profileImageUrl) {
+                        profileImage.src = userData.profileImageUrl;
+                    }
+                } else {
+                     toast.show("Could not load current profile data.", 'error');
+                     // Leave fields potentially empty or with defaults if offline/error
                 }
+            } catch (error) {
+                 console.error("Error loading profile for editing:", error);
+                 toast.show("Error loading profile.", 'error');
+            } finally {
+                 // Re-enable form fields after loading attempt
+                 saveButton.disabled = false;
+                 nameInput.disabled = false;
+                 locationInput.disabled = false;
+                 bioInput.disabled = false;
+                 lookingForBandsToggle.disabled = false;
             }
+
         } else {
             window.location.href = 'setflow-login-page.html';
         }
@@ -100,14 +175,16 @@
             location: locationInput.value,
             bio: bioInput.value,
             isLookingForBands: lookingForBandsToggle.checked
+            // TODO: Add profileImageUrl once upload is implemented
         };
 
         try {
-            await updateUserProfile(currentUserId, profileData);
+            await updateUserProfile(currentUserId, profileData); // Works offline
             saveButton.innerText = '✓ Saved';
-            toast.show('Profile saved successfully!', 'success');
+            const successMessage = isOnline() ? 'Profile saved successfully!' : 'Profile saved locally. Will sync when online.';
+            toast.show(successMessage, 'success');
             setTimeout(() => {
-                window.location.href = 'setflow-musician-profile.html';
+                window.location.href = 'setflow-musician-profile.html'; // Go back to profile view
             }, 1000);
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -118,10 +195,7 @@
     });
 </script>
 
-<div id="toast-notification" class="opacity-0">
-    <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
 </div>
-<script src="toast.js"></script>
-
-</body>
+<script src="toast.js"></script> </body>
 </html>

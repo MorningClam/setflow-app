@@ -7,14 +7,30 @@
   <title>Setflow - Account Settings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <script src="version.js"></script>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <script src="version.js"></script>
+  <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+    /* Explicitly hide text spans initially */
+    .data-text { display: none; }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="javascript:history.back()" class="p-2 rounded-lg hover:bg-neutral-700"> <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="javascript:history.back()" class="p-2 rounded-lg hover:bg-neutral-700"> <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">Account Settings</h1>
     <div class="w-9"></div>
@@ -25,10 +41,23 @@
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Personal Info</h2>
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
             <div class="p-4 flex justify-between items-center">
-                <div><p class="text-neutral-400 text-sm">Name</p><p class="text-white" id="user-name">Loading...</p></div>
-                <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400">Edit</a> </div>
+                <div>
+                  <p class="text-neutral-400 text-sm">Name</p>
+                  <div class="flex items-center h-5">
+                    <span class="loading-spinner-inline" id="user-name-spinner"></span>
+                    <p class="text-white data-text" id="user-name"></p>
+                  </div>
+                </div>
+                <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400">Edit</a>
+            </div>
             <div class="p-4 flex justify-between items-center">
-                <div><p class="text-neutral-400 text-sm">Email</p><p class="text-white" id="user-email">Loading...</p></div>
+                 <div>
+                    <p class="text-neutral-400 text-sm">Email</p>
+                    <div class="flex items-center h-5">
+                        <span class="loading-spinner-inline" id="user-email-spinner"></span>
+                        <p class="text-white data-text" id="user-email"></p>
+                    </div>
+                </div>
                 <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400">Edit</a>
             </div>
             <div class="p-4 flex justify-between items-center">
@@ -53,7 +82,12 @@
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <p class="font-semibold text-white">Current Plan: <span class="text-emerald-400" id="subscription-status">Loading...</span></p>
+                    <p class="font-semibold text-white">Current Plan:
+                      <span class="inline-flex items-center h-5">
+                        <span class="loading-spinner-inline" id="subscription-status-spinner"></span>
+                        <span class="text-emerald-400 data-text" id="subscription-status"></span>
+                      </span>
+                    </p>
                     <p id="subscription-cta" class="text-sm text-neutral-400">Upgrade to unlock unlimited features.</p>
                 </div>
                 <a href="setflow-pricing-page.html" id="upgrade-btn" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-lg">Upgrade</a>
@@ -64,8 +98,7 @@
     <div id="band-management-section">
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Band Management</h2>
         <div id="band-list" class="space-y-3">
-            <p class="text-neutral-500">Loading bands...</p>
-        </div>
+            </div>
         <div class="grid grid-cols-2 gap-3 mt-3">
             <a href="setflow-create-band.html" class="block w-full text-center py-3 bg-emerald-800 hover:bg-emerald-700 text-emerald-300 text-sm font-bold rounded-xl">
                 Create a Band
@@ -128,7 +161,7 @@
 </div>
 
 <script type="module">
-    import { signOutUser, onAuthState, getUserData, getBandsForUser, deleteUserAccount } from './api.js';
+    import { signOutUser, onAuthState, getUserData, getBandsForUser, deleteUserAccount, gracefulGet, ui, isOnline } from './api.js'; // Added gracefulGet, ui, isOnline
 
     const logoutButton = document.getElementById('logout-btn');
     const deleteAccountButton = document.getElementById('delete-account-btn');
@@ -140,17 +173,19 @@
     const toastMessage = document.getElementById('toast-message');
     let toastTimeout;
 
+    // --- Show initial loading for bands ---
+    ui.loading.show(bandListContainer);
+
     // --- Toast Notification Logic ---
     function showToast(message, isError = false) {
         clearTimeout(toastTimeout);
         toastMessage.innerText = message;
-        // Use toast.js internal classes, not raw Tailwind
-        toast.show(message, isError ? 'error' : 'success');
+        toast.show(message, isError ? 'error' : 'success'); // Use imported toast utility
     }
 
     // --- Band Rendering Logic ---
     function renderBands(bands) {
-        bandListContainer.innerHTML = '';
+        bandListContainer.innerHTML = ''; // Clear spinner/previous content
         if (!bands || bands.length === 0) {
             bandListContainer.innerHTML = '<p class="text-neutral-500 text-sm">You are not a member of any bands yet.</p>';
             return;
@@ -183,14 +218,18 @@
         confirmDeleteBtn.disabled = true;
         confirmDeleteBtn.innerText = 'Deleting...';
 
+        if (!isOnline()) { // Check network status
+             showToast("Cannot delete account while offline.", true);
+             confirmDeleteBtn.disabled = false;
+             confirmDeleteBtn.innerText = 'Yes, Delete My Account';
+             return;
+        }
+
         try {
-            const result = await deleteUserAccount(); // Call the updated API function
+            const result = await deleteUserAccount();
             if (result.success) {
                 showToast('Account deleted successfully.');
-                // Redirect to login after a short delay
-                setTimeout(() => {
-                    window.location.href = 'setflow-login-page.html';
-                }, 1500);
+                setTimeout(() => window.location.href = 'setflow-login-page.html', 1500);
             } else {
                 throw new Error(result.message || "Deletion failed on the server.");
             }
@@ -199,7 +238,6 @@
             showToast(`Error: ${error.message}`, true);
             confirmDeleteBtn.disabled = false;
             confirmDeleteBtn.innerText = 'Yes, Delete My Account';
-            // Keep the modal open so the user sees the error
         }
     });
 
@@ -215,26 +253,66 @@
         }
     });
 
+    // --- Helper to hide spinner and show text ---
+    function showText(id, text) {
+        const textEl = document.getElementById(id);
+        const spinnerEl = document.getElementById(id + '-spinner');
+        if (textEl) {
+            textEl.innerText = text;
+            textEl.classList.remove('data-text'); // Make visible
+            textEl.style.display = 'inline';
+        }
+        if (spinnerEl) {
+            spinnerEl.style.display = 'none';
+        }
+    }
+
     // --- Initial Data Loading ---
     onAuthState(async (user) => {
         if (user) {
+            // Load user data and bands concurrently
             try {
-                const userData = await getUserData(user.uid);
+                 // gracefulGet handles its own loading/error display for user data, so no container needed here
+                const [userData, bands] = await Promise.all([
+                     gracefulGet(getUserData(user.uid)), // Fetch user data gracefully
+                     gracefulGet(getBandsForUser(user.uid), bandListContainer) // Fetch bands gracefully, managing bandListContainer state
+                ]);
+
+                // Update UI with user data if available
                 if (userData) {
-                    document.getElementById('user-name').innerText = userData.name || 'N/A';
-                    document.getElementById('user-email').innerText = userData.email || 'N/A';
-                    // Example: Update subscription status display
-                    document.getElementById('subscription-status').innerText = userData.subscriptionTier || 'Setflow Free';
+                    showText('user-name', userData.name || 'N/A');
+                    showText('user-email', userData.email || 'N/A');
+                    const subStatus = userData.subscriptionTier || 'Setflow Free';
+                    showText('subscription-status', subStatus);
                     if (userData.subscriptionTier && userData.subscriptionTier !== 'free') {
                         document.getElementById('upgrade-btn').innerText = 'Manage';
                         document.getElementById('subscription-cta').innerText = 'Manage your subscription.';
                     }
+                } else {
+                    // Handle case where user data failed to load (gracefulGet showed message)
+                    showText('user-name', 'Unavailable');
+                    showText('user-email', 'Unavailable');
+                    showText('subscription-status', 'Unavailable');
                 }
-                const bands = await getBandsForUser(user.uid);
-                renderBands(bands);
+
+                // Render bands if available (gracefulGet managed loading/error for bandListContainer)
+                if (bands) {
+                    renderBands(bands);
+                }
+                 // If bands is null/undefined, gracefulGet handled the error display in bandListContainer
+
             } catch (error) {
-                 console.error("Error loading initial account data:", error);
-                 showToast('Could not load account details.', true);
+                 // Catch errors from Promise.all or if gracefulGet re-throws
+                 console.error("Error loading account settings data:", error);
+                 // Show a general toast error if something unexpected happened
+                 showToast('Could not load all account details.', true);
+                 // Ensure spinners are hidden and show fallback text
+                 showText('user-name', 'Error');
+                 showText('user-email', 'Error');
+                 showText('subscription-status', 'Error');
+                 if (!bandListContainer.innerHTML.includes('Error') && !bandListContainer.innerHTML.includes('offline')) {
+                    bandListContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading bands.</p>';
+                 }
             }
         } else {
             window.location.href = 'setflow-login-page.html';

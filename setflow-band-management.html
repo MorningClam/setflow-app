@@ -7,64 +7,83 @@
   <title>Setflow - Band Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>body{font-family:'Inter',sans-serif;}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif;}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-account-settings.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div id="offline-banner">You are currently offline. Data may be cached. Changes will sync later.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-account-settings.html" class="p-2 rounded-lg hover:bg-neutral-700">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
     <h1 class="text-lg font-bold tracking-tight">Manage Band</h1>
-    <div class="w-9"></div>
-  </header>
+    <div class="w-9"></div> </header>
   <main class="flex-1 px-5 py-4 pb-28">
-    <div id="join-requests-section" class="mb-6 hidden">
-      <h2 class="text-sm font-medium uppercase tracking-wider text-amber-400 mb-3">Join Requests</h2>
+    <div id="join-requests-section" class="mb-6 hidden"> <h2 class="text-sm font-medium uppercase tracking-wider text-amber-400 mb-3">Join Requests</h2>
       <div id="join-requests-list" class="space-y-3">
         </div>
     </div>
     <div class="mb-6">
       <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Current Members</h2>
       <div id="member-list" class="space-y-3">
-        <p class="text-neutral-500">Loading members...</p>
-      </div>
+        </div>
     </div>
-    <div id="invite-section">
-        <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Invite New Member</h2>
+    <div id="invite-section" class="hidden"> <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Invite New Member</h2>
         <div class="bg-neutral-800 rounded-xl p-4">
             <label for="invite-email" class="block text-sm font-medium text-neutral-300 mb-2">Member's Email</label>
             <div class="flex space-x-2">
                 <input id="invite-email" type="email" placeholder="email@example.com" class="flex-1 form-input w-full bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white">
                 <button id="send-invite-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Send Invite</button>
             </div>
+             <p class="text-xs text-neutral-500 mt-2">Invites require an internet connection.</p>
         </div>
     </div>
   </main>
 </div>
 
 <script type="module">
-    import { onAuthState, getBandData, inviteToBand, removeMemberFromBand, getJoinRequests, approveJoinRequest } from './api.js';
+    import { onAuthState, getBandData, inviteToBand, removeMemberFromBand, getJoinRequests, approveJoinRequest, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
 
     const memberListContainer = document.getElementById('member-list');
     const inviteEmailInput = document.getElementById('invite-email');
     const sendInviteBtn = document.getElementById('send-invite-btn');
     const joinRequestsSection = document.getElementById('join-requests-section');
     const joinRequestsList = document.getElementById('join-requests-list');
+    const inviteSection = document.getElementById('invite-section');
 
     const urlParams = new URLSearchParams(window.location.search);
     const bandId = urlParams.get('bandId');
     let currentUser = null;
+    let isAdmin = false; // Flag to track admin status
+
+    // Show initial loading spinner for members
+    ui.loading.show(memberListContainer);
+    // Spinner for join requests isn't strictly needed as the section is hidden
 
     function renderMembers(bandData) {
-        memberListContainer.innerHTML = ''; // Clear loading
+        // gracefulGet handles spinner removal / error display
         if (!bandData || !bandData.members) {
-             memberListContainer.innerHTML = '<p class="text-neutral-500">Could not load members.</p>';
+             // Error already shown by gracefulGet
              return;
         }
 
-        const membersArray = Object.values(bandData.members); // Use the processed map from getBandData
+        const membersArray = Object.values(bandData.members);
+        // Clear container before rendering
+        memberListContainer.innerHTML = '';
 
         if(membersArray.length === 0) {
              memberListContainer.innerHTML = '<p class="text-neutral-500">No members yet.</p>';
@@ -74,15 +93,16 @@
         membersArray.forEach(member => {
             const memberCard = document.createElement('div');
             memberCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
+            const profileLink = `setflow-public-profile.html?userId=${member.id}`; // Link to public profile
             memberCard.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <img class="w-10 h-10 rounded-full object-cover" src="${member.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${member.name} photo">
+                <a href="${profileLink}" class="flex items-center space-x-3 group">
+                    <img class="w-10 h-10 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${member.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${member.name} photo">
                     <div>
-                        <p class="font-semibold text-white">${member.name} ${member.id === currentUser.uid ? '(You)' : ''}</p>
+                        <p class="font-semibold text-white group-hover:text-emerald-400 transition-colors">${member.name} ${member.id === currentUser.uid ? '(You)' : ''}</p>
                         <p class="text-xs text-neutral-400 capitalize">${member.role}</p>
                     </div>
-                </div>
-                ${member.id !== currentUser.uid && bandData.members[currentUser.uid]?.role === 'admin' ? // Only admins can remove others
+                </a>
+                ${member.id !== currentUser.uid && isAdmin ? // Only admins can remove others
                 `<button data-member-id="${member.id}" class="remove-member-btn px-2 py-1 bg-red-800 hover:bg-red-700 rounded-lg text-xs font-semibold text-red-300">Remove</button>`
                 : ''}
             `;
@@ -92,24 +112,29 @@
 
 
     function renderJoinRequests(requests) {
-        if (requests.length > 0) {
-            joinRequestsSection.classList.remove('hidden');
-            joinRequestsList.innerHTML = '';
-            requests.forEach(req => {
-                const reqCard = document.createElement('div');
-                reqCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
-                reqCard.innerHTML = `
-                    <div>
-                        <p class="font-semibold text-white">${req.userName} wants to join</p>
-                    </div>
-                    <button data-request-id="${req.id}" class="approve-btn px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">Approve</button>
-                `;
-                joinRequestsList.appendChild(reqCard);
-            });
-        } else {
-             joinRequestsSection.classList.add('hidden'); // Hide if no requests
+        // gracefulGet handles potential errors/offline state for fetching requests
+        if (!requests || requests.length === 0) {
+            joinRequestsSection.classList.add('hidden'); // Hide if no requests or fetch failed
+            return;
         }
+
+        joinRequestsSection.classList.remove('hidden');
+        joinRequestsList.innerHTML = ''; // Clear previous
+        requests.forEach(req => {
+            const reqCard = document.createElement('div');
+            reqCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between border border-amber-500/30'; // Highlight requests
+            const profileLink = `setflow-public-profile.html?userId=${req.userId}`; // Link to requester profile
+            reqCard.innerHTML = `
+                <a href="${profileLink}">
+                    <p class="font-semibold text-white hover:text-emerald-400 transition-colors">${req.userName} wants to join</p>
+                </a>
+                <button data-request-id="${req.id}" class="approve-btn px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">Approve</button>
+            `;
+            joinRequestsList.appendChild(reqCard);
+        });
     }
+
+    // --- Event Listeners ---
 
     sendInviteBtn.addEventListener('click', async () => {
         const email = inviteEmailInput.value.trim();
@@ -117,10 +142,15 @@
             toast.show("Please enter an email address.", 'error');
             return;
         }
+        if (!isOnline()) { // Check network status
+             toast.show("Cannot send invites while offline.", 'error');
+             return;
+        }
+
         sendInviteBtn.disabled = true;
         sendInviteBtn.innerText = 'Sending...';
         try {
-            await inviteToBand(bandId, email);
+            await inviteToBand(bandId, email); // Requires network
             toast.show("Invite sent successfully!", 'success');
             inviteEmailInput.value = '';
         } catch (error) {
@@ -137,16 +167,19 @@
             const memberIdToRemove = event.target.dataset.memberId;
             if (confirm(`Are you sure you want to remove this member?`)) {
                  event.target.disabled = true;
+                 event.target.innerText = 'Removing...';
                  try {
-                     await removeMemberFromBand(bandId, memberIdToRemove);
-                     toast.show('Member removed.', 'success');
-                      // Re-render members list
-                     const updatedBandData = await getBandData(bandId);
-                     renderMembers(updatedBandData);
+                     await removeMemberFromBand(bandId, memberIdToRemove); // Works offline
+                     toast.show('Member removed. Changes will sync.', 'success');
+                     // Re-fetch and render members list immediately (will use cache if offline)
+                     const updatedBandData = await gracefulGet(getBandData(bandId));
+                     if (updatedBandData) renderMembers(updatedBandData);
+
                  } catch (error) {
                      console.error("Remove Member Error:", error);
                      toast.show(`Error removing member: ${error.message}`, 'error');
                      event.target.disabled = false;
+                     event.target.innerText = 'Remove';
                  }
             }
         }
@@ -157,21 +190,55 @@
         if (event.target.classList.contains('approve-btn')) {
             const requestId = event.target.dataset.requestId;
             event.target.disabled = true;
+            event.target.innerText = 'Approving...';
             try {
-                await approveJoinRequest(requestId);
-                toast.show('Member approved!', 'success');
-                // Re-render everything
-                const bandData = await getBandData(bandId);
-                const joinRequests = await getJoinRequests(bandId); // Fetch again to update list
-                renderMembers(bandData);
-                renderJoinRequests(joinRequests);
+                await approveJoinRequest(requestId); // Works offline
+                toast.show('Member approved! Changes will sync.', 'success');
+                // Re-fetch and render everything immediately (will use cache if offline)
+                await loadBandDataAndRequests(); // Call combined load function
             } catch (error) {
                 toast.show(`Error: ${error.message}`, 'error');
                 event.target.disabled = false;
+                event.target.innerText = 'Approve';
             }
         }
     });
 
+    // --- Load Data Function ---
+    async function loadBandDataAndRequests() {
+         try {
+             // Fetch band data gracefully, managing memberListContainer state
+             const bandData = await gracefulGet(getBandData(bandId), memberListContainer, "Could not load band details while offline.");
+
+             if (bandData) {
+                 isAdmin = bandData.members[currentUser.uid]?.role === 'admin';
+                 renderMembers(bandData);
+
+                 if (isAdmin) {
+                     inviteSection.classList.remove('hidden'); // Show invite section for admins
+                     // Fetch join requests gracefully, don't pass container as section handles visibility
+                     const joinRequests = await gracefulGet(getJoinRequests(bandId), null, "Could not check join requests offline.");
+                     renderJoinRequests(joinRequests); // Handles null/empty response
+                 } else {
+                     inviteSection.classList.add('hidden'); // Hide for non-admins
+                     joinRequestsSection.classList.add('hidden'); // Also hide requests section
+                 }
+             }
+             // If bandData is null, gracefulGet handled the error display in memberListContainer
+
+         } catch (error) {
+              // Catch errors from Promise.all or if gracefulGet re-throws
+              console.error("Error loading band management data:", error);
+              // Ensure error is shown if gracefulGet didn't already
+              if (!memberListContainer.innerHTML.includes('Error') && !memberListContainer.innerHTML.includes('offline')) {
+                 memberListContainer.innerHTML = `<p class="text-red-400">Error loading band data: ${error.message}</p>`;
+              }
+              inviteSection.classList.add('hidden');
+              joinRequestsSection.classList.add('hidden');
+         }
+    }
+
+    // --- Initial Load ---
     onAuthState(async (user) => {
         if (user) {
             currentUser = user;
@@ -179,32 +246,14 @@
                 memberListContainer.innerHTML = '<p class="text-red-400">Error: Band ID not found in URL.</p>';
                 return;
             }
-            try {
-                const bandData = await getBandData(bandId);
-                renderMembers(bandData);
-
-                // Check if current user is an admin to show invite section & join requests
-                if (bandData.members[currentUser.uid]?.role === 'admin') {
-                     document.getElementById('invite-section').classList.remove('hidden'); // Show invite section for admins
-                     const joinRequests = await getJoinRequests(bandId);
-                     renderJoinRequests(joinRequests);
-                } else {
-                     document.getElementById('invite-section').classList.add('hidden'); // Hide for non-admins
-                }
-            } catch (error) {
-                 console.error("Error loading band data:", error);
-                 memberListContainer.innerHTML = `<p class="text-red-400">Error loading band data: ${error.message}</p>`;
-            }
+            await loadBandDataAndRequests();
         } else {
             window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
 
-<div id="toast-notification" class="opacity-0">
-    <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
 </div>
-<script src="toast.js"></script>
-
-</body>
+<script src="toast.js"></script> </body>
 </html>

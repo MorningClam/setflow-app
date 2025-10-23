@@ -7,118 +7,206 @@
   <title>Setflow - Gig Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-browse-gigs.html" class="p-2 rounded-full hover:bg-neutral-700 transition-colors">
+  <div id="offline-banner">You are currently offline. Gig details may be cached.</div>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-browse-gigs.html" class="p-2 rounded-full hover:bg-neutral-700 transition-colors">
         <svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-10">Gig Details</h1>
     </header>
-    <main class="flex-grow pb-28">
-      <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
-        <div class="flex justify-between items-center">
-          <a href="setflow-venue-profile.html" class="text-2xl font-bold text-white hover:text-emerald-400">Blue Note Brewpub</a>
-          <span class="text-2xl font-bold text-emerald-400">$400</span>
-        </div>
-        <p class="text-md text-neutral-400 mt-1">Durham, NC</p>
-        <button id="view-map-btn" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">View on Map</button>
-        <div class="mt-2 text-right">
-             <button id="report-gig-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Gig</button>
-        </div>
-      </div>
-      <div class="px-5 py-4 border-b border-neutral-800">
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Date and Time</p><p class="text-neutral-100 font-medium mt-1">Saturday, Nov 6</p><p class="text-neutral-300">8:00 PM - 10:00 PM</p></div>
-          <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Genre</p><p class="text-neutral-100 font-medium mt-1">Funk / Soul</p><p class="text-neutral-300">2-hour set</p></div>
-        </div>
-      </div>
-      <div class="px-5 py-4">
-        <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">House Specs</h3>
-        <div class="text-sm space-y-2">
-          <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Full PA system provided</span></div>
-          <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Sound engineer on site</span></div>
-        </div>
-      </div>
-    </main>
+    <main id="gig-detail-content" class="flex-grow pb-28">
+      </main>
     <footer id="footer-container" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-      <button id="apply-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Apply for Gig</button>
-    </footer>
+      <div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div> </footer>
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, applyForGig, reportContent } from './api.js';
+    import { onAuthState, getUserData, applyForGig, reportContent, gracefulGet, ui, isOnline } from './api.js';
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { db } from './api.js'; // Import db instance
 
     const footerContainer = document.getElementById('footer-container');
-    const applyBtn = document.getElementById('apply-btn'); // Can be null if replaced
-    const reportGigBtn = document.getElementById('report-gig-btn');
+    const gigDetailContainer = document.getElementById('gig-detail-content');
     let currentUserId = null;
+    let gigData = null; // Store fetched gig data
 
     const urlParams = new URLSearchParams(window.location.search);
     const gigId = urlParams.get('id');
 
+    // Show initial loading spinner
+    ui.loading.show(gigDetailContainer);
+
+    // Function to fetch single gig data
+    async function getGigDetails(id) {
+        if (!id) throw new Error("Gig ID missing");
+        const gigRef = doc(db, "gigs", id);
+        return await getDoc(gigRef); // Let gracefulGet handle the promise
+    }
+
+    function renderGigDetails(gigSnap) {
+        // gracefulGet handles spinner removal / error display if gigSnap is falsy
+        if (!gigSnap || !gigSnap.exists()) {
+             if (!gigDetailContainer.innerHTML.includes('Error') && !gigDetailContainer.innerHTML.includes('offline')) {
+                gigDetailContainer.innerHTML = `<p class="p-5 text-center text-red-400">Gig not found.</p>`;
+             }
+             footerContainer.innerHTML = ''; // Clear footer loading state on error
+             return;
+        }
+
+        gigData = { id: gigSnap.id, ...gigSnap.data() }; // Store data
+        const dateFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
+        // Basic time formatting (improve if needed)
+        const timeFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'Time N/A';
+
+        gigDetailContainer.innerHTML = `
+          <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
+            <div class="flex justify-between items-center">
+              <a href="setflow-venue-profile.html?venueId=${gigData.ownerId}" class="text-2xl font-bold text-white hover:text-emerald-400">${gigData.venueName}</a>
+              <span class="text-2xl font-bold text-emerald-400">$${gigData.payout}</span>
+            </div>
+            <p class="text-md text-neutral-400 mt-1">${gigData.location}</p>
+            <button id="view-map-btn" data-location="${gigData.location}" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">View on Map</button>
+            <div class="mt-2 text-right">
+                 <button id="report-gig-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Gig</button>
+            </div>
+          </div>
+          <div class="px-5 py-4 border-b border-neutral-800">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Date and Time</p><p class="text-neutral-100 font-medium mt-1">${dateFormatted}</p><p class="text-neutral-300">${timeFormatted}</p></div>
+              <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Genre</p><p class="text-neutral-100 font-medium mt-1">${gigData.genre || 'N/A'}</p><p class="text-neutral-300">${gigData.details || ''}</p></div>
+            </div>
+          </div>
+           <div class="px-5 py-4 border-b border-neutral-800">
+                <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Description / Requirements</h3>
+                <p class="text-neutral-300 text-sm leading-relaxed">${gigData.description || 'No specific requirements listed.'}</p>
+            </div>
+          <div class="px-5 py-4">
+            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">House Specs</h3>
+            <div class="text-sm space-y-2">
+              <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Full PA system provided</span></div>
+              <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Sound engineer on site</span></div>
+              </div>
+          </div>
+        `;
+
+        // Add event listeners after rendering
+        addDynamicEventListeners();
+    }
+
+     function addDynamicEventListeners() {
+        const reportGigBtn = document.getElementById('report-gig-btn');
+        const viewMapBtn = document.getElementById('view-map-btn');
+
+        if (reportGigBtn) {
+            reportGigBtn.addEventListener('click', handleReportGig);
+        }
+        if (viewMapBtn) {
+            viewMapBtn.addEventListener('click', () => {
+                 const location = viewMapBtn.dataset.location || "USA"; // Fallback location
+                 const encodedLocation = encodeURIComponent(location);
+                 window.open(`https://www.google.com/maps/search/?api=1&query=...?q=$${encodedLocation}`, '_blank');
+            });
+        }
+     }
+
+
     onAuthState(user => {
       if (user) {
         currentUserId = user.uid;
-        checkUserStatus(user.uid);
+        checkUserStatus(user.uid); // Check application status/limits after login
       } else {
-        // Redirect if not logged in and trying to apply (applyBtn exists)
-         if (applyBtn) {
-            applyBtn.addEventListener('click', () => {
-                 toast.show("Please log in to apply for a gig.", 'error');
-                 setTimeout(() => window.location.href = 'setflow-login-page.html', 1000);
-            });
-         }
+        // User not logged in, show Apply button but handle click
+        renderApplyButton(true); // Render the button, but it will check auth on click
       }
     });
 
     async function checkUserStatus(userId) {
+        // Clear initial footer loading
+        footerContainer.innerHTML = '';
         try {
-            const userData = await getUserData(userId);
-            // Placeholder: Check applicationsLeft or subscription tier
-            const applicationsLeft = userData?.applicationsLeft ?? 5; // Default to allow some free applications
-            const subscriptionTier = userData?.subscriptionTier ?? 'free';
+            // Use gracefulGet for user data, don't show loading in footer
+            const userData = await gracefulGet(getUserData(userId), null, "Could not verify user status offline.");
 
-            if (subscriptionTier === 'free' && applicationsLeft <= 0) {
-                footerContainer.innerHTML = `
-                    <div class="text-center">
-                        <p class="text-sm text-amber-400 mb-2">You've used all your free applications this month.</p>
-                        <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Upgrade to Apply</a>
-                    </div>
-                `;
+            if (!userData) {
+                 // Error handled by gracefulGet, show default apply button? Or error state?
+                 renderApplyButton(true); // Let apply handler manage errors
+                 return;
+            }
+
+            // Placeholder: Check applicationsLeft or subscription tier
+            const applicationsLeft = userData?.applicationsLeft ?? 5;
+            const subscriptionTier = userData?.subscriptionTier ?? 'free';
+            const hasApplied = userData?.appliedGigs?.[gigId]; // Simple check if gigId is in appliedGigs map
+
+            if (hasApplied) {
+                renderAppliedState();
+            } else if (subscriptionTier === 'free' && applicationsLeft <= 0) {
+                renderUpgradeState();
             } else {
-                // User can apply, ensure the original button exists and wire it up
-                 const currentApplyBtn = document.getElementById('apply-btn'); // Re-select in case it was removed
-                 if (currentApplyBtn) {
-                     currentApplyBtn.addEventListener('click', handleApplyClick);
-                 }
+                renderApplyButton();
             }
         } catch (error) {
              console.error("Error checking user status:", error);
-             // Optionally show a generic apply button but handle error on click
-             const currentApplyBtn = document.getElementById('apply-btn');
-             if (currentApplyBtn) {
-                 currentApplyBtn.addEventListener('click', () => {
-                      toast.show('Could not verify your application status. Please try again.', 'error');
-                 });
-             }
+             // Show default apply button on error, click handler will manage
+             renderApplyButton(true);
         }
     }
 
-     // Define apply click handler separately
-    async function handleApplyClick() {
-          const btn = document.getElementById('apply-btn'); // Get the button reference again
-          if (!currentUserId) {
-            toast.show("Please log in to apply for a gig.", 'error');
-            setTimeout(() => window.location.href = 'setflow-login-page.html', 1000);
-            return;
-          }
+    function renderApplyButton(needsAuthCheck = false) {
+        footerContainer.innerHTML = `<button id="apply-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Apply for Gig</button>`;
+        const applyBtn = document.getElementById('apply-btn');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', needsAuthCheck ? handleApplyClickAuthCheck : handleApplyClick);
+        }
+    }
 
-          if (!gigId) {
-            toast.show("Could not find Gig ID. Please go back and try again.", 'error');
+    function renderAppliedState() {
+        footerContainer.innerHTML = `<button disabled class="w-full py-3 bg-neutral-600 text-white text-base font-bold rounded-xl cursor-not-allowed">✓ Applied</button>`;
+    }
+
+    function renderUpgradeState() {
+        footerContainer.innerHTML = `
+            <div class="text-center">
+                <p class="text-sm text-amber-400 mb-2">You've used all your free applications this month.</p>
+                <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Upgrade to Apply</a>
+            </div>
+        `;
+    }
+
+     // Apply handler when auth check might be needed
+    function handleApplyClickAuthCheck() {
+         if (!currentUserId) {
+            toast.show("Please log in to apply for a gig.", 'error');
+            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000); // Redirect back after login
+            return;
+         }
+         // If logged in, proceed with the normal apply logic
+         handleApplyClick();
+    }
+
+     // Define apply click handler when user is definitely logged in
+    async function handleApplyClick() {
+          const btn = document.getElementById('apply-btn');
+          if (!gigId || !currentUserId) {
+            toast.show("Could not apply. Missing required information.", 'error');
             return;
           }
 
@@ -126,36 +214,25 @@
           btn.innerText = 'Applying...';
 
           try {
-            await applyForGig(gigId, currentUserId);
+            await applyForGig(gigId, currentUserId); // Works offline
 
-            btn.innerText = '✓ Applied';
-            btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
-            btn.classList.add('bg-neutral-600', 'cursor-not-allowed');
-            toast.show('Application submitted successfully!', 'success');
+            // Update UI immediately (optimistic update)
+            renderAppliedState();
+            const successMessage = isOnline() ? 'Application submitted successfully!' : 'Application saved locally. Will sync when online.';
+            toast.show(successMessage, 'success');
 
-            setTimeout(() => {
-              window.location.href = 'setflow-applied-gigs.html';
-            }, 1000);
+            // Optionally redirect after a delay
+            // setTimeout(() => { window.location.href = 'setflow-applied-gigs.html'; }, 1000);
 
           } catch (error) {
             console.error("Failed to apply for gig:", error);
             toast.show("There was an error submitting your application. Please try again.", 'error');
-            btn.disabled = false;
+            btn.disabled = false; // Re-enable button on error
             btn.innerText = 'Apply for Gig';
           }
     }
 
-     // Add listener for View on Map button (example of opening external link)
-    const viewMapBtn = document.getElementById('view-map-btn');
-    if (viewMapBtn) {
-        viewMapBtn.addEventListener('click', () => {
-             const venueAddress = "Blue Note Brewpub, Durham, NC"; // Hardcoded for demo
-             const encodedAddress = encodeURIComponent(venueAddress);
-             window.open(`https://www.google.com/maps/search/?api=1&query=...?q=${encodedAddress}`, '_blank');
-        });
-    }
-
-    // --- Report Gig Functionality ---
+    // --- Report Gig Functionality (works offline) ---
     async function handleReportGig() {
         if (!currentUserId) {
             toast.show('You must be logged in to report content.', 'error');
@@ -176,16 +253,24 @@
         }
     }
 
-    if (reportGigBtn) {
-        reportGigBtn.addEventListener('click', handleReportGig);
-    }
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Use gracefulGet for initial gig fetch, managing main container state
+            const gigSnapshot = await gracefulGet(getGigDetails(gigId), gigDetailContainer, "Could not load gig details while offline.");
+            if (gigSnapshot) {
+              renderGigDetails(gigSnapshot);
+            }
+        } catch (error) {
+            // Error handled by gracefulGet
+            console.error("Error loading gig details (already handled):", error);
+            footerContainer.innerHTML = ''; // Clear footer loading state on error
+        }
+    });
 
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-</body>
+  <script src="toast.js"></script> </body>
 </html>

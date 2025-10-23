@@ -7,12 +7,27 @@
   <title>Setflow - Gear Swap</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 shadow-md border-b border-neutral-700/50">
-    <div class="flex items-center justify-between">
+<div id="offline-banner">You are currently offline. Showing cached gear listings.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <div class="flex items-center justify-between">
       <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
       <h1 class="text-lg font-bold tracking-tight">Gear Swap</h1>
       <a href="setflow-sell-item.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Sell</a>
@@ -25,30 +40,35 @@
     </div>
   </header>
   <main id="gear-container" class="flex-1 px-5 py-4 pb-28 grid grid-cols-2 gap-4">
-    <p class="col-span-2 text-neutral-500">Loading gear...</p>
-  </main>
+    </main>
 </div>
 
 <script type="module">
-  import { onAuthState, fetchGearListings } from './api.js';
+  import { onAuthState, fetchGearListings, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
 
   const gearContainer = document.getElementById('gear-container');
 
-  function renderListings(listings) {
-    gearContainer.innerHTML = ''; // Clear loading message
+  // Show initial loading spinner
+  ui.loading.show(gearContainer);
 
+  function renderListings(listings) {
+    // gracefulGet handles spinner removal / error display
     if (!listings || listings.length === 0) {
       gearContainer.innerHTML = `<p class="col-span-2 text-center mt-8 text-neutral-500">No gear has been listed for sale yet.</p>`;
       return;
     }
 
+    // Clear container before rendering
+    gearContainer.innerHTML = '';
+
     listings.forEach(item => {
       const itemCard = document.createElement('a');
-      // In a real app, the link would go to a detailed view of the item
       itemCard.href = `setflow-gear-detail.html?id=${item.id}`;
-      itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden';
+      itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden hover:border-neutral-600'; // Added hover state
+      // Provide a placeholder image if item.imageUrl is missing
+      const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop';
       itemCard.innerHTML = `
-        <img class="h-32 w-full object-cover" src="${item.imageUrl}" alt="${item.name}">
+        <img class="h-32 w-full object-cover" src="${imageUrl}" alt="${item.name}">
         <div class="p-3">
             <h3 class="font-semibold text-white truncate">${item.name}</h3>
             <p class="text-sm text-neutral-400">${item.location || 'USA'}</p>
@@ -62,16 +82,22 @@
   onAuthState(async (user) => {
     if (user) {
       try {
-        const listings = await fetchGearListings();
-        renderListings(listings);
+        // Use gracefulGet to fetch listings, managing loading/error state
+        const listings = await gracefulGet(fetchGearListings(), gearContainer, "Could not load gear listings while offline.");
+        // Render only if fetch succeeded
+        if (listings) {
+            renderListings(listings);
+        }
       } catch (error) {
-        console.error("Failed to fetch gear listings:", error);
-        gearContainer.innerHTML = `<p class="col-span-2 text-red-400">Could not load gear listings.</p>`;
+        // Error already displayed by gracefulGet
+        console.error("Failed to fetch gear listings (already handled by gracefulGet):", error);
       }
     } else {
       window.location.href = 'setflow-login-page.html';
     }
   });
 </script>
-</body>
+ <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script> </body>
 </html>

@@ -7,15 +7,28 @@
   <title>Setflow - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>
+  <link rel="stylesheet" href="toast.css"> <style>
     body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
     .form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div class="max-w-md mx-auto min-h-screen flex flex-col">
-    <header class="px-5 py-8 text-center">
+  <div id="offline-banner">You are currently offline. Login requires connection.</div>
+  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-8 text-center">
       <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <img src="logo.png" alt="Setflow Logo" class="w-8 h-8">
       </div>
@@ -49,7 +62,7 @@
   </div>
 
   <script type="module">
-    import { signInUser, getUserData } from './api.js';
+    import { signInUser, getUserData, isOnline } from './api.js'; // Import isOnline
 
     const loginForm = document.getElementById('login-form');
 
@@ -65,12 +78,19 @@
       const password = document.getElementById('password').value;
       const submitButton = loginForm.querySelector('button[type="submit"]');
 
+      // Check network connection before attempting login
+      if (!isOnline()) {
+           toast.show('Login requires an internet connection.', 'error');
+           return;
+      }
+
       submitButton.disabled = true;
       submitButton.innerText = 'Signing In...';
 
       try {
         const userCredential = await signInUser(email, password);
         const user = userCredential.user;
+        // Fetch user data after successful auth (requires network, but auth succeeded)
         const userData = await getUserData(user.uid);
 
         if (userData && userData.roles && userData.roles.length > 0) {
@@ -80,26 +100,25 @@
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else {
-             // This case should ideally not happen if roles are managed properly
              console.warn('Login successful, but role not recognized:', primaryRole);
-             toast.show('Login successful, but role unknown. Defaulting to musician dashboard.', 'success');
+             toast.show('Login successful, role unknown. Defaulting...', 'success');
              setTimeout(() => window.location.href = roleRedirectMap['musician'], 1500);
           }
         } else {
-          // User exists in Auth but not Firestore (or missing roles)
           console.warn('Could not find complete user data for UID:', user.uid);
           toast.show('Profile setup incomplete. Redirecting...', 'success');
-          setTimeout(() => window.location.href = 'setflow-profile-setup.html', 1500); // Send to profile setup
+          setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${userData?.roles?.[0] || 'musician'}`, 1500); // Pass role if possible
         }
 
       } catch (error) {
         console.error('Login Error:', error);
-        // Provide more specific feedback if possible
         let message = 'Login failed. Please check your email and password.';
         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
             message = 'Invalid email or password.';
         } else if (error.code === 'auth/too-many-requests') {
              message = 'Too many attempts. Please try again later.';
+        } else if (error.message.includes('network error')) { // Check for network specific errors
+             message = 'Network error. Please check your connection and try again.';
         }
         toast.show(message, 'error');
         submitButton.disabled = false;
@@ -108,10 +127,7 @@
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0">
-      <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-</body>
+  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
 </html>

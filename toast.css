@@ -30,3 +30,39 @@
 #toast-notification.opacity-100 {
   opacity: 1;
 }
+
+/* =========================================================================
+ * Loading Spinner Styles
+ * ========================================================================= */
+
+.loading-spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem; /* p-5 */
+  min-height: 80px; /* Give it some space */
+}
+.loading-spinner {
+  display: inline-block;
+  width: 24px; /* w-6 */
+  height: 24px; /* h-6 */
+  border: 3px solid rgba(115, 115, 115, 0.3); /* border-neutral-500/30 */
+  border-radius: 50%;
+  border-top-color: #10B981; /* border-top-emerald-500 */
+  animation: spin 1s ease-in-out infinite;
+}
+.loading-spinner-inline {
+  display: inline-block;
+  vertical-align: middle; /* Align better with text */
+  width: 16px; /* Smaller for inline use */
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3); /* Lighter border for contrast on dark bg */
+  border-radius: 50%;
+  border-top-color: #10B981; /* border-top-emerald-500 */
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px; /* Space between spinner and text */
+  flex-shrink: 0; /* Prevent shrinking in flex containers */
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

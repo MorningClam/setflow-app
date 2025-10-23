@@ -7,59 +7,83 @@
   <title>Setflow - Jam Sessions</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+<div id="offline-banner">You are currently offline. Showing cached jam sessions.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
     <h1 class="text-lg font-bold tracking-tight">Jam Sessions</h1>
     <a href="setflow-host-jam-session.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Host</a>
   </header>
   <main id="sessions-container" class="flex-1 px-5 py-4 pb-28 space-y-3">
-    <p class="text-neutral-500">Loading jam sessions...</p>
-  </main>
+    </main>
 </div>
 
 <script type="module">
-  import { onAuthState, fetchJamSessions, reportContent } from './api.js';
+  import { onAuthState, fetchJamSessions, reportContent, gracefulGet, ui } from './api.js'; // Import helpers
 
   const sessionsContainer = document.getElementById('sessions-container');
   const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop";
   let currentUserId = null;
 
-  function renderSessions(sessions) {
-    sessionsContainer.innerHTML = '';
+  // Show initial loading spinner
+  ui.loading.show(sessionsContainer);
 
+  function renderSessions(sessions) {
+    // gracefulGet handles spinner removal / error display
     if (!sessions || sessions.length === 0) {
       sessionsContainer.innerHTML = `<p class="text-center text-neutral-500 mt-8">No jam sessions have been posted yet. Host one!</p>`;
       return;
     }
 
+    // Clear container before rendering
+    sessionsContainer.innerHTML = '';
+
     sessions.forEach(session => {
       const sessionCard = document.createElement('div');
       sessionCard.className = 'bg-neutral-800 rounded-xl border border-neutral-700/60 p-4';
-      
+      const profileLink = `setflow-public-profile.html?userId=${session.hostId}`; // Link to host profile
+
       sessionCard.innerHTML = `
         <div class="flex justify-between items-start">
           <div>
             <span class="text-xs font-semibold text-sky-400 bg-sky-900/50 px-2 py-0.5 rounded-full">OPEN INVITE</span>
             <h3 class="text-white font-semibold mt-2">${session.title}</h3>
-            <p class="text-sm text-neutral-400">${session.location} • ${session.formattedTime}</p>
-            <p class="text-sm text-neutral-300 mt-1">${session.description}</p>
+            <p class="text-sm text-neutral-400">${session.location} • ${session.formattedDate} @ ${session.formattedTime}</p> <p class="text-sm text-neutral-300 mt-1">${session.description}</p>
           </div>
-          <img class="w-12 h-12 rounded-full object-cover" src="${session.hostProfileImage || placeholderImage}" alt="${session.hostName}'s photo">
+          <a href="${profileLink}" class="group flex-shrink-0">
+             <img class="w-12 h-12 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${session.hostProfileImage || placeholderImage}" alt="${session.hostName}'s photo">
+             <p class="text-xs text-center text-neutral-400 mt-1 group-hover:text-emerald-400 transition-colors">${session.hostName}</p>
+           </a>
         </div>
         <div class="mt-3 flex items-center space-x-2">
             <button class="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-colors">Join Session</button>
-            <button data-session-id="${session.id}" class="report-session-btn px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 text-xs font-bold rounded-xl">Report</button>
+            ${currentUserId !== session.hostId ? // Only show report if not own session
+            `<button data-session-id="${session.id}" class="report-session-btn px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 text-xs font-bold rounded-xl">Report</button>`
+            : ''}
         </div>
       `;
       sessionsContainer.appendChild(sessionCard);
     });
   }
 
+  // --- Report Functionality (works offline) ---
   async function handleReport(type, id) {
     if (!currentUserId) {
         toast.show('You must be logged in to report content.', 'error');
@@ -76,23 +100,30 @@
     }
   }
 
+  // --- Event Delegation for Report Buttons ---
   sessionsContainer.addEventListener('click', (event) => {
     const target = event.target;
     if (target.classList.contains('report-session-btn')) {
         const sessionId = target.dataset.sessionId;
         handleReport('jam_session', sessionId);
     }
+    // Add logic for "Join Session" button if needed
   });
 
+  // --- Initial Load ---
   onAuthState(async (user) => {
     if (user) {
       currentUserId = user.uid; // Store user ID
       try {
-        const sessions = await fetchJamSessions();
-        renderSessions(sessions);
+        // Use gracefulGet to fetch sessions, managing loading/error state
+        const sessions = await gracefulGet(fetchJamSessions(), sessionsContainer, "Could not load sessions while offline.");
+        // Render only if fetch succeeded
+        if(sessions) {
+            renderSessions(sessions);
+        }
       } catch (error) {
-        console.error("Failed to fetch jam sessions:", error);
-        sessionsContainer.innerHTML = '<p class="text-red-400">Could not load jam sessions.</p>';
+        // Error already displayed by gracefulGet
+        console.error("Failed to fetch jam sessions (already handled by gracefulGet):", error);
       }
     } else {
       window.location.href = 'setflow-login-page.html';
@@ -100,10 +131,7 @@
   });
 </script>
 
-<div id="toast-notification" class="opacity-0">
-    <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
 </div>
-<script src="toast.js"></script>
-
-</body>
+<script src="toast.js"></script> </body>
 </html>

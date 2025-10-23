@@ -7,16 +7,33 @@
   <title>Setflow - Gig Templates</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>body{font-family:'Inter',sans-serif}</style>
+  <link rel="stylesheet" href="toast.css"> <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem;
+      background-color: #dc2626; /* red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div class="max-w-md mx-auto min-h-screen flex flex-col">
-  <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm sticky top-0 z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-venue-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+<div id="offline-banner">You are currently offline. Templates may be cached.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-venue-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <h1 class="text-lg font-bold tracking-tight">Gig Templates</h1>
     <button class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">New</button>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-3">
+  <main class="flex-1 px-5 py-4 pb-28 space-y-3 pt-16"> <div id="templates-list">
+         <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+    </div>
     <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
       <div class="flex justify-between items-start">
         <div>
@@ -39,5 +56,31 @@
     </div>
   </main>
   </div>
-</body>
+   <script type="module">
+     // Placeholder script to demonstrate loading state removal
+     import { ui } from './api.js';
+
+     document.addEventListener('DOMContentLoaded', () => {
+         const listContainer = document.getElementById('templates-list');
+         // Replace spinner with placeholder content after a delay (replace with actual data fetch)
+         setTimeout(() => {
+             // If fetch succeeds, render real templates
+             // If fetch fails or offline, show appropriate message
+             // For now, just remove spinner and keep static examples
+              const spinner = listContainer.querySelector('.loading-spinner-container');
+              if (spinner) spinner.remove();
+
+              // Add logic here to fetch templates using gracefulGet if this page becomes dynamic
+              // Example:
+              // try {
+              //    const templates = await gracefulGet(fetchGigTemplates(), listContainer);
+              //    renderTemplates(templates);
+              // } catch (e) { console.error("Could not load templates"); }
+
+         }, 1000); // Simulate network request
+     });
+ </script>
+ <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script> </body>
 </html>
