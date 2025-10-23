@@ -7,6 +7,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch, deleteField, deleteDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Added deleteDoc and enableIndexedDbPersistence
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js"; // Added Functions imports
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js"; // Added App Check import
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,6 +22,19 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// --- Initialize App Check ---
+// IMPORTANT: Replace "YOUR_RECAPTCHA_V3_SITE_KEY" with your actual reCAPTCHA v3 site key
+// You can get this from the Google Cloud Console -> Security -> reCAPTCHA Enterprise
+// Ensure you have enabled the "Firebase App Check API" in Google Cloud Console.
+// Debug token allows testing on localhost/unregistered domains. REMOVE for production.
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; // Set to false or remove for production
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("YOUR_RECAPTCHA_V3_SITE_KEY"), // <-- Replace this key!
+  isTokenAutoRefreshEnabled: true
+});
+console.log("Firebase App Check initialized.");
+
 
 // Initialize and export Firebase services
 export const db = getFirestore(app);
