@@ -39,9 +39,8 @@
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, applyForGig, reportContent, gracefulGet, ui, isOnline } from './api.js';
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { db } from './api.js'; // Import db instance
+    import { onAuthState, getUserData, applyForGig, reportContent, gracefulGet, ui, isOnline, getGigDetails } from './api.js'; // Added getGigDetails
+    // Removed local getDoc, db imports as getGigDetails is now in api.js
 
     const footerContainer = document.getElementById('footer-container');
     const gigDetailContainer = document.getElementById('gig-detail-content');
@@ -54,12 +53,8 @@
     // Show initial loading spinner
     ui.loading.show(gigDetailContainer);
 
-    // Function to fetch single gig data
-    async function getGigDetails(id) {
-        if (!id) throw new Error("Gig ID missing");
-        const gigRef = doc(db, "gigs", id);
-        return await getDoc(gigRef); // Let gracefulGet handle the promise
-    }
+    // Function to fetch single gig data (MOVED TO api.js)
+    // async function getGigDetails(id) { ... }
 
     function renderGigDetails(gigSnap) {
         // gracefulGet handles spinner removal / error display if gigSnap is falsy
@@ -122,7 +117,8 @@
             viewMapBtn.addEventListener('click', () => {
                  const location = viewMapBtn.dataset.location || "USA"; // Fallback location
                  const encodedLocation = encodeURIComponent(location);
-                 window.open(`https://www.google.com/maps/search/?api=1&query=...?q=$${encodedLocation}`, '_blank');
+                 // Correct Google Maps URL structure and open in new tab
+                 window.open(`https://www.google.com/maps/...?q=${encodedLocation}`, '_blank');
             });
         }
      }
@@ -195,7 +191,8 @@
     function handleApplyClickAuthCheck() {
          if (!currentUserId) {
             toast.show("Please log in to apply for a gig.", 'error');
-            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000); // Redirect back after login
+            // Redirect to login, including the current page as a redirect parameter
+            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
             return;
          }
          // If logged in, proceed with the normal apply logic
@@ -256,7 +253,7 @@
     // --- Initial Load ---
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            // Use gracefulGet for initial gig fetch, managing main container state
+            // Use gracefulGet for initial gig fetch using the function from api.js
             const gigSnapshot = await gracefulGet(getGigDetails(gigId), gigDetailContainer, "Could not load gig details while offline.");
             if (gigSnapshot) {
               renderGigDetails(gigSnapshot);

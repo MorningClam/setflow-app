@@ -65,6 +65,8 @@
     import { signInUser, getUserData, isOnline } from './api.js'; // Import isOnline
 
     const loginForm = document.getElementById('login-form');
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrlParam = urlParams.get('redirect'); // Get redirect parameter
 
     const roleRedirectMap = {
       'musician': 'setflow-musician-dashboard.html',
@@ -90,24 +92,35 @@
       try {
         const userCredential = await signInUser(email, password);
         const user = userCredential.user;
-        // Fetch user data after successful auth (requires network, but auth succeeded)
+
+        // Check for redirect URL *before* fetching user data
+        if (redirectUrlParam) {
+            console.log("Redirecting to:", redirectUrlParam);
+            window.location.href = redirectUrlParam; // Go to the deep link target
+            return; // Stop further processing
+        }
+
+        // --- If no redirect, proceed with normal role-based dashboard logic ---
         const userData = await getUserData(user.uid);
 
         if (userData && userData.roles && userData.roles.length > 0) {
           const primaryRole = userData.roles[0];
-          const redirectUrl = roleRedirectMap[primaryRole];
+          const defaultRedirect = roleRedirectMap[primaryRole];
 
-          if (redirectUrl) {
-            window.location.href = redirectUrl;
+          if (defaultRedirect) {
+            window.location.href = defaultRedirect;
           } else {
              console.warn('Login successful, but role not recognized:', primaryRole);
              toast.show('Login successful, role unknown. Defaulting...', 'success');
              setTimeout(() => window.location.href = roleRedirectMap['musician'], 1500);
           }
         } else {
+          // If profile setup is incomplete
           console.warn('Could not find complete user data for UID:', user.uid);
           toast.show('Profile setup incomplete. Redirecting...', 'success');
-          setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${userData?.roles?.[0] || 'musician'}`, 1500); // Pass role if possible
+          // Ensure role is passed if possible, otherwise default to musician
+          const setupRole = userData?.roles?.[0] || 'musician';
+          setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${setupRole}`, 1500);
         }
 
       } catch (error) {

@@ -48,7 +48,7 @@
         </div>
         <div class="grid grid-cols-2 gap-3 mb-3">
             <a href="setflow-show-sheet.html" class="w-full text-center py-2 bg-emerald-500/80 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-colors">View Show Sheet</a>
-            <button id="get-directions-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Get Directions</button>
+            <button id="get-directions-btn" data-address="The Underground, Raleigh, NC" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Get Directions</button>
         </div>
         <a href="setflow-find-a-player.html" class="text-xs text-center block text-emerald-400 hover:text-emerald-300">Need a last-minute sub? Find a player.</a>
       </section>
@@ -119,11 +119,11 @@
           </div>
           <div class="p-4">
             <div class="bg-neutral-900/50 p-4 rounded-lg">
-              <input type="date" class="w-full bg-neutral-700 border-neutral-600 rounded-lg p-2 text-white">
+              <input id="block-date-input" type="date" class="w-full bg-neutral-700 border-neutral-600 rounded-lg p-2 text-white">
             </div>
           </div>
           <div class="p-4 flex flex-col space-y-3">
-              <button class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Confirm & Block Date</button>
+              <button id="confirm-block-date-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Confirm & Block Date</button>
               <button id="close-modal-btn" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl">Cancel</button>
           </div>
       </div>
@@ -143,17 +143,21 @@
     const getDirectionsBtn = document.getElementById('get-directions-btn');
     if(getDirectionsBtn) {
         getDirectionsBtn.addEventListener('click', () => {
-          const venueAddress = "The Underground, Raleigh, NC"; // Placeholder
+          const venueAddress = getDirectionsBtn.dataset.address || "The Underground, Raleigh, NC"; // Get address from data attribute or use placeholder
           const encodedAddress = encodeURIComponent(venueAddress);
-          window.open(`http://googleusercontent.com/maps.google.com/3{encodedAddress}`); // Corrected URL
+          // Use standard Google Maps URL and open in new tab
+          window.open(`https://www.google.com/maps/...?q=${encodedAddress}`, '_blank');
         });
     }
   </script>
 
   <script type="module">
-    import { onAuthState, getUserData, fetchGigs, gracefulGet, ui } from './api.js'; // Import helpers
+    import { onAuthState, getUserData, fetchGigs, gracefulGet, ui, createCalendarEvent, isOnline } from './api.js'; // Added createCalendarEvent, isOnline
 
     const nearbyGigsContainer = document.getElementById('nearby-gigs-container');
+    const confirmBlockDateBtn = document.getElementById('confirm-block-date-btn'); // Button inside modal
+    const blockDateInput = document.getElementById('block-date-input'); // Date input inside modal
+    let currentUserId = null; // Store current user ID
 
     // Function to render nearby gigs (placeholder implementation)
     function renderNearbyGigs(gigs) {
@@ -177,11 +181,55 @@
         });
     }
 
+    // --- Block Date Modal Logic ---
+     if (confirmBlockDateBtn && blockDateInput && modal && closeModalBtn) {
+         confirmBlockDateBtn.addEventListener('click', async () => {
+             const dateValue = blockDateInput.value;
+             if (!dateValue) {
+                 toast.show('Please select a date.', 'error');
+                 return;
+             }
+             if (!currentUserId) {
+                 toast.show('Error: User not identified.', 'error');
+                 return;
+             }
+
+             confirmBlockDateBtn.disabled = true;
+             confirmBlockDateBtn.innerText = 'Blocking...';
+
+             try {
+                 // Create a calendar event for the blocked date
+                 await createCalendarEvent({
+                     userId: currentUserId,
+                     title: 'Unavailable',
+                     type: 'Personal (Blocked Off)',
+                     date: dateValue,
+                     time: '00:00', // Default time, maybe make this optional or allow time range
+                     notes: 'Blocked off via dashboard quick-add.'
+                 }); // Works offline
+
+                 const successMessage = isOnline() ? 'Date blocked successfully!' : 'Date blocked locally. Will sync when online.';
+                 toast.show(successMessage, 'success');
+                 modal.classList.add('hidden'); modal.classList.remove('flex'); // Close modal
+                 blockDateInput.value = ''; // Reset date input
+
+             } catch (error) {
+                 console.error("Error blocking date:", error);
+                 toast.show('Could not block date. Please try again.', 'error');
+             } finally {
+                 confirmBlockDateBtn.disabled = false;
+                 confirmBlockDateBtn.innerText = 'Confirm & Block Date';
+             }
+         });
+     }
+
+
     onAuthState(async (user) => {
       if (user) {
+        currentUserId = user.uid; // Store user ID
         try {
             // Fetch user data (no container, just get data or null)
-            const userData = await gracefulGet(getUserData(user.uid));
+            const userData = await gracefulGet(getUserData(user.uid), null); // Pass null container
             if (userData && userData.name) {
               const dashboardTitle = document.querySelector('header h1');
               dashboardTitle.innerText = `${userData.name}'s Dashboard`;
