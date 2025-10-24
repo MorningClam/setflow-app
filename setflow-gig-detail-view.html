@@ -114,7 +114,7 @@
                  const location = viewMapBtn.dataset.location || "USA"; // Fallback location
                  const encodedLocation = encodeURIComponent(location);
                  // Correct Google Maps URL structure and open in new tab
-                 window.open(`https://www.google.com/maps/...?q=${encodedLocation}`, '_blank');
+                 window.open(`https://maps.google.com/?q=${encodedLocation}`, '_blank');
             });
         }
      }

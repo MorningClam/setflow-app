@@ -146,7 +146,7 @@
           const venueAddress = getDirectionsBtn.dataset.address || "The Underground, Raleigh, NC"; // Get address from data attribute or use placeholder
           const encodedAddress = encodeURIComponent(venueAddress);
           // Use standard Google Maps URL and open in new tab
-          window.open(`https://www.google.com/maps/...?q=${encodedAddress}`, '_blank');
+          window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank');
         });
     }
   </script>
