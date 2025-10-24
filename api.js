@@ -7,7 +7,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, setDoc, doc, getDoc, getDocs, collection, addDoc, Timestamp, query, where, orderBy, serverTimestamp, updateDoc, onSnapshot, limit, writeBatch, deleteField, deleteDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Added deleteDoc and enableIndexedDbPersistence
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js"; // Added Functions imports
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js"; // Added App Check import
+import { initializeAppCheck } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js"; // Removed ReCaptchaV3Provider
 
 // Your web app's Firebase configuration
 // IMPORTANT: It's generally recommended to load this from a config file or environment variables
@@ -26,15 +26,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// --- Initialize App Check ---
-// BLOCKER: Replace "YOUR_RECAPTCHA_V3_SITE_KEY" with your actual reCAPTCHA v3 site key
-// BLOCKER: Set self.FIREBASE_APPCHECK_DEBUG_TOKEN to false or remove for production release.
-self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; // Set to false or remove for production
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("YOUR_RECAPTCHA_V3_SITE_KEY"), // <-- Replace this key!
-  isTokenAutoRefreshEnabled: true
-});
-console.log("Firebase App Check initialized.");
+// --- (Web-specific App Check removed) ---
+// Native Android/iOS App Check is configured in the Firebase Console
+// and initialized via the native SDKs, not here in the JS.
+console.log("Firebase App Check for native apps is handled by the native SDKs.");
 
 
 // Initialize and export Firebase services
@@ -592,7 +587,8 @@ export async function fetchGigs(loadingContainer = null) {
 export async function getGigDetails(id) {
     if (!id) throw new Error("Gig ID missing");
     const gigRef = doc(db, "gigs", id);
-    return await getDoc(gigRef); // Let gracefulGet handle the promise in the caller
+    // Returns the promise, expects gracefulGet in the caller
+    return await getDoc(gigRef);
 }
 
 
@@ -1113,7 +1109,7 @@ export async function fetchJamSessions(loadingContainer = null) {
 /**
  * Creates or retrieves a conversation document. Works offline for retrieval if cached, create works offline.
  * @param {string} userId1 - The ID of the current user.
- * @param {string} userId2 - The ID of the other user.
+ *@param {string} userId2 - The ID of the other user.
  * @returns {Promise<string>} The ID of the conversation.
  */
 export async function createOrGetConversation(userId1, userId2) {
