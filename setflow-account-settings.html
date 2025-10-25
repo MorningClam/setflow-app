@@ -45,7 +45,7 @@
                   <p class="text-neutral-400 text-sm">Name</p>
                   <div class="flex items-center h-5">
                     <span class="loading-spinner-inline" id="user-name-spinner"></span>
-                    <p class="text-white data-text" id="user-name"></p>
+                    <p class="text-white data-text" id="user-name">Loading...</p>
                   </div>
                 </div>
                 <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Edit</a>
@@ -55,7 +55,7 @@
                     <p class="text-neutral-400 text-sm">Email</p>
                     <div class="flex items-center h-5">
                         <span class="loading-spinner-inline" id="user-email-spinner"></span>
-                        <p class="text-white data-text" id="user-email"></p>
+                        <p class="text-white data-text" id="user-email">Loading...</p>
                     </div>
                 </div>
                 <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Edit</a>
@@ -85,7 +85,7 @@
                     <p class="font-semibold text-white">Current Plan:
                       <span class="inline-flex items-center h-5">
                         <span class="loading-spinner-inline" id="subscription-status-spinner"></span>
-                        <span class="text-emerald-400 data-text" id="subscription-status"></span>
+                        <span class="text-emerald-400 data-text" id="subscription-status">Free</span>
                       </span>
                     </p>
                     <p id="subscription-cta" class="text-sm text-neutral-400">Upgrade to unlock unlimited features.</p>
@@ -111,16 +111,30 @@
     </div>
 
     <div>
-        <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Community & Features</h2>
-        <a href="setflow-moremenu.html" class="flex items-center justify-between bg-neutral-800 p-4 rounded-lg hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-            <div class="flex items-center">
-                <svg class="w-6 h-6 text-neutral-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                <span class="font-medium text-white">More Options & Tools</span>
+        <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Community & Tools</h2>
+        <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
+            <a href="setflow-gear-swap.html" class="flex items-center justify-between p-4 hover:bg-neutral-700/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 rounded-t-xl">
+                <span class="font-medium text-white">Gear Swap</span>
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+            <a href="setflow-find-a-player.html" class="flex items-center justify-between p-4 hover:bg-neutral-700/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                <span class="font-medium text-white">Find a Player</span>
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+             <a href="setflow-jam-sessions.html" class="flex items-center justify-between p-4 hover:bg-neutral-700/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                <span class="font-medium text-white">Jam Sessions</span>
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+            <a href="setflow-achievements.html" class="flex items-center justify-between p-4 hover:bg-neutral-700/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                <span class="font-medium text-white">Achievements</span>
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+            <a href="setflow-routing-availability.html" class="flex items-center justify-between p-4 hover:bg-neutral-700/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 rounded-b-xl">
+                <span class="font-medium text-white">Routing & Availability</span>
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
             </div>
-            <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </a>
     </div>
-
     <div>
         <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Legal & Account</h2>
         <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 divide-y divide-neutral-700/60">
@@ -163,6 +177,7 @@
 
 <script type="module">
     import { signOutUser, onAuthState, getUserData, getBandsForUser, deleteUserAccount, gracefulGet, ui, isOnline } from './api.js'; // Added gracefulGet, ui, isOnline
+    import { toast } from './toast.js'; // Use module import
 
     const logoutButton = document.getElementById('logout-btn');
     const deleteAccountButton = document.getElementById('delete-account-btn');
@@ -170,17 +185,9 @@
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
     const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
     const bandListContainer = document.getElementById('band-list');
-    const toastElement = document.getElementById('toast-notification'); // Reference existing toast
-    const toastMessage = document.getElementById('toast-message'); // Reference existing message span
-    let toastTimeout;
 
     // --- Show initial loading for bands ---
     ui.loading.show(bandListContainer);
-
-    // --- Toast Notification Logic (Uses imported toast utility) ---
-    function showToast(message, isError = false) {
-        window.toast.show(message, isError ? 'error' : 'success'); // Use imported toast utility
-    }
 
     // --- Band Rendering Logic ---
     function renderBands(bands) {
@@ -218,7 +225,7 @@
         confirmDeleteBtn.innerText = 'Deleting...';
 
         if (!isOnline()) { // Check network status
-             showToast("Cannot delete account while offline.", true);
+             toast.show("Cannot delete account while offline.", 'error');
              confirmDeleteBtn.disabled = false;
              confirmDeleteBtn.innerText = 'Yes, Delete My Account';
              return;
@@ -227,14 +234,14 @@
         try {
             const result = await deleteUserAccount();
             if (result.success) {
-                showToast('Account deleted successfully.');
+                toast.show('Account deleted successfully.');
                 setTimeout(() => window.location.href = 'setflow-login-page.html', 1500);
             } else {
                 throw new Error(result.message || "Deletion failed on the server.");
             }
         } catch (error) {
             console.error('Account Deletion Error:', error);
-            showToast(`Error: ${error.message}`, true);
+            toast.show(`Error: ${error.message}`, 'error');
             confirmDeleteBtn.disabled = false;
             confirmDeleteBtn.innerText = 'Yes, Delete My Account';
         }
@@ -248,7 +255,7 @@
             await signOutUser();
             window.location.href = 'setflow-login-page.html';
         } catch (error) {
-            showToast('Failed to log out.', true);
+            toast.show('Failed to log out.', 'error');
         }
     });
 
@@ -304,7 +311,7 @@
                  // Catch errors from Promise.all or if gracefulGet re-throws
                  console.error("Error loading account settings data:", error);
                  // Show a general toast error if something unexpected happened
-                 showToast('Could not load all account details.', true);
+                 toast.show('Could not load all account details.', 'error');
                  // Ensure spinners are hidden and show fallback text
                  showText('user-name', 'Error');
                  showText('user-email', 'Error');

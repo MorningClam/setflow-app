@@ -75,7 +75,7 @@
 
   <script type="module">
     import { onAuthState, getUserData, updateUserPreferences, isOnline } from './api.js'; // Removed gracefulGet, ui
-    import { toast } from './toast.js'; // FIX: Import toast as a module
+    import { toast } from './toast.js'; // Import toast as a module
 
     const radiusSlider = document.getElementById('radius-slider');
     const radiusDisplay = document.getElementById('radius-display');
@@ -179,5 +179,7 @@
 
   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  </body>
+  <script src="toast.js"></script>
+  <script type="module" src="./api.js"></script>
+</body>
 </html>
