@@ -27,20 +27,22 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Showing cached gear listings.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <div class="flex items-center justify-between">
-      <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight">Gear Swap</h1>
-      <a href="setflow-sell-item.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Sell</a>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 shadow-md border-b border-neutral-700/50">
+    <div class="flex items-center justify-between">
+      <a href="setflow-moremenu.html" aria-label="Go back to more options" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Gear Swap</h1>
+      <a href="setflow-sell-item.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sell</a>
     </div>
     <div class="mt-3">
-      <div class="flex items-center bg-neutral-800 border border-neutral-700 rounded-lg px-3">
-        <svg class="w-4 h-4 text-neutral-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        <input type="search" placeholder="Search for pedals, guitars, amps..." class="w-full py-2 bg-transparent text-sm outline-none placeholder-neutral-500">
+      <div class="flex items-center bg-neutral-800 border border-neutral-700 rounded-lg px-3 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <svg class="w-4 h-4 text-neutral-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <input type="search" aria-label="Search gear" placeholder="Search for pedals, guitars, amps..." class="w-full py-2 bg-transparent text-sm outline-none placeholder-neutral-500 focus:ring-0 border-0">
       </div>
     </div>
   </header>
-  <main id="gear-container" class="flex-1 px-5 py-4 pb-28 grid grid-cols-2 gap-4">
-    </main>
+  <main id="gear-container" class="flex-1 px-5 py-4 pb-28 grid grid-cols-2 gap-4 pt-32"> <div class="loading-spinner-container col-span-2"><div class="loading-spinner"></div></div>
+  </main>
 </div>
 
 <script type="module">
@@ -48,23 +50,30 @@
 
   const gearContainer = document.getElementById('gear-container');
 
-  // Show initial loading spinner
-  ui.loading.show(gearContainer);
+  // Show initial loading spinner (already added in HTML)
+  // ui.loading.show(gearContainer); // Not needed if spinner is in HTML
 
   function renderListings(listings) {
     // gracefulGet handles spinner removal / error display
-    if (!listings || listings.length === 0) {
+    if (!listings) {
+        // Error shown by gracefulGet
+        return;
+    }
+
+    // Clear container (including spinner/error message) before rendering
+    gearContainer.innerHTML = '';
+
+     if (listings.length === 0) {
       gearContainer.innerHTML = `<p class="col-span-2 text-center mt-8 text-neutral-500">No gear has been listed for sale yet.</p>`;
       return;
     }
 
-    // Clear container before rendering
-    gearContainer.innerHTML = '';
 
     listings.forEach(item => {
       const itemCard = document.createElement('a');
       itemCard.href = `setflow-gear-detail.html?id=${item.id}`;
-      itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden hover:border-neutral-600'; // Added hover state
+      // Added focus styles
+      itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden hover:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
       // Provide a placeholder image if item.imageUrl is missing
       const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop';
       itemCard.innerHTML = `

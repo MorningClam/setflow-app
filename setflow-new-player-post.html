@@ -27,62 +27,63 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Post will sync when back online.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-find-a-player.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-find-a-player.html" aria-label="Go back to find a player" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <h1 class="text-lg font-bold tracking-tight">Create a New Post</h1>
-    <div class="w-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28">
-    <form id="player-post-form" class="space-y-6">
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Create a New Post</h1>
+    <div class="w-9 h-9"></div> </header>
+  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <form id="player-post-form" class="space-y-6">
         <div>
             <label class="block text-sm font-medium text-neutral-300 mb-2">Post Type</label>
             <div class="grid grid-cols-2 gap-2 bg-neutral-800 p-1 rounded-lg">
-                <button type="button" data-type="looking" class="post-type-btn px-3 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md">I'm Looking For a Player</button>
-                <button type="button" data-type="available" class="post-type-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md">I'm Available for Gigs</button>
+                <button type="button" data-type="looking" class="post-type-btn px-3 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500">I'm Looking For a Player</button>
+                <button type="button" data-type="available" class="post-type-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">I'm Available for Gigs</button>
             </div>
         </div>
 
         <div id="looking-for-fields" class="space-y-4">
             <div>
                 <label for="instrument-needed" class="block text-sm font-medium text-neutral-300 mb-2">Instrument Needed</label>
-                <input id="instrument-needed" type="text" placeholder="e.g., Bassist, Drummer" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <input id="instrument-needed" type="text" placeholder="e.g., Bassist, Drummer" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
             </div>
             <div>
                 <label for="event-details" class="block text-sm font-medium text-neutral-300 mb-2">Event Details</label>
-                <input id="event-details" type="text" placeholder="e.g., The Pour House - Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <input id="event-details" type="text" placeholder="e.g., The Pour House - Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
             </div>
              <div>
                 <label for="date-details" class="block text-sm font-medium text-neutral-300 mb-2">Date & Time</label>
-                <input id="date-details" type="datetime-local" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <input id="date-details" type="datetime-local" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
             </div>
             <div>
                 <label for="description-looking" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-                <textarea id="description-looking" rows="3" placeholder="e.g., Need a bassist for a 2-hour funk gig. Paid." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+                <textarea id="description-looking" rows="3" placeholder="e.g., Need a bassist for a 2-hour funk gig. Paid." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
             </div>
         </div>
 
         <div id="available-for-fields" class="hidden space-y-4">
             <div>
                 <label for="instrument-available" class="block text-sm font-medium text-neutral-300 mb-2">What I Play</label>
-                <input id="instrument-available" type="text" placeholder="e.g., Drummer, Vocalist" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <input id="instrument-available" type="text" placeholder="e.g., Drummer, Vocalist" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
             </div>
             <div>
                 <label for="location" class="block text-sm font-medium text-neutral-300 mb-2">My Location</label>
-                <input id="location" type="text" placeholder="e.g., Apex, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <input id="location" type="text" placeholder="e.g., Apex, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
             </div>
             <div>
                 <label for="availability" class="block text-sm font-medium text-neutral-300 mb-2">Availability</label>
-                <input id="availability" type="text" placeholder="e.g., Weekends, Most evenings" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <input id="availability" type="text" placeholder="e.g., Weekends, Most evenings" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
             </div>
             <div>
                 <label for="description-available" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-                <textarea id="description-available" rows="3" placeholder="e.g., Experienced in Rock, Blues, and Country. Pro gear and reliable transportation." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+                <textarea id="description-available" rows="3" placeholder="e.g., Experienced in Rock, Blues, and Country. Pro gear and reliable transportation." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
             </div>
         </div>
     </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="player-post-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Submit Post</button>
+    <button type="submit" form="player-post-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Submit Post</button>
   </footer>
 </div>
 
@@ -112,10 +113,10 @@
     button.addEventListener('click', () => {
       postTypeButtons.forEach(btn => {
         btn.classList.remove('bg-emerald-600', 'text-white');
-        btn.classList.add('text-neutral-300');
+        btn.classList.add('text-neutral-300', 'hover:bg-neutral-700'); // Add hover back to inactive
       });
       button.classList.add('bg-emerald-600', 'text-white');
-      button.classList.remove('text-neutral-300');
+      button.classList.remove('text-neutral-300', 'hover:bg-neutral-700'); // Remove hover from active
       postType = button.dataset.type;
 
       // Toggle form visibility
@@ -143,26 +144,33 @@
     let postData = {
       userId: currentUserId,
       type: postType,
+      // Add server timestamp in API function
     };
 
     let isValid = true; // Flag for validation
+    let requiredFieldsMissing = [];
 
     if (postType === 'looking') {
       postData.instrument = document.getElementById('instrument-needed').value.trim();
       postData.eventDetails = document.getElementById('event-details').value.trim();
       postData.date = document.getElementById('date-details').value;
       postData.description = document.getElementById('description-looking').value.trim();
-      if (!postData.instrument || !postData.date) isValid = false; // Basic required fields
-    } else {
+      // Basic required fields for 'looking'
+      if (!postData.instrument) requiredFieldsMissing.push('Instrument Needed');
+      if (!postData.date) requiredFieldsMissing.push('Date & Time');
+      isValid = requiredFieldsMissing.length === 0;
+    } else { // 'available'
       postData.instrument = document.getElementById('instrument-available').value.trim();
       postData.location = document.getElementById('location').value.trim();
       postData.availability = document.getElementById('availability').value.trim();
       postData.description = document.getElementById('description-available').value.trim();
-      if (!postData.instrument) isValid = false; // Basic required field
+      // Basic required field for 'available'
+      if (!postData.instrument) requiredFieldsMissing.push('What I Play');
+      isValid = requiredFieldsMissing.length === 0;
     }
 
      if (!isValid) {
-         toast.show("Please fill out the required fields for your post type.", 'error');
+         toast.show(`Please fill out the required fields: ${requiredFieldsMissing.join(', ')}.`, 'error');
          submitButton.disabled = false;
          submitButton.innerText = 'Submit Post';
          return;

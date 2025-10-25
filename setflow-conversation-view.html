@@ -29,22 +29,26 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Messages will send when connection returns.</div>
-  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-inbox.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <div class="text-center mx-auto pr-10">
-          <h1 id="recipient-name" class="text-lg font-bold tracking-tight">Loading...</h1>
+  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <a href="setflow-inbox.html" aria-label="Go back to inbox" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <div class="text-center flex-grow"> <h1 id="recipient-name" class="text-lg font-bold tracking-tight">Loading...</h1>
           </div>
-       <div class="w-8"></div>
-    </header>
-    <main id="messages-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4" style="padding-bottom: 8rem;"> </main>
+       <div class="w-9 h-9"></div> </header>
+    <main id="messages-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 pt-16" style="padding-bottom: 8rem;"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+    </main>
+
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
       <div class="flex items-center space-x-2 mb-2">
-        <button onclick="quickReply('On my way!')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600">On my way!</button>
-        <button onclick="quickReply('Thanks!')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600">Thanks!</button>
-        <button onclick="quickReply('Sounds good 👍')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600">Sounds good 👍</button>
+        <button onclick="quickReply('On my way!')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">On my way!</button>
+        <button onclick="quickReply('Thanks!')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">Thanks!</button>
+        <button onclick="quickReply('Sounds good 👍')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sounds good 👍</button>
       </div>
-      <form id="message-form" class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2">
-        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500"/>
-        <button id="send-btn" type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Send</button>
+      <form id="message-form" class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500 focus:ring-0 border-0"/>
+        <button id="send-btn" type="submit" aria-label="Send message" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Send</button>
       </form>
     </footer>
   </div>
@@ -147,12 +151,14 @@
       currentUserId = user.uid;
       if (!recipientId) {
         messagesContainer.innerHTML = `<p class="text-red-400 text-center">Error: No recipient specified.</p>`;
+        recipientNameHeader.innerText = "Error"; // Update header on error
         return;
       }
 
       try {
           // Fetch recipient data for the header (use gracefulGet for potential offline state)
-          const recipientData = await gracefulGet(getUserData(recipientId));
+          // Don't pass container here, handle header update separately
+          const recipientData = await gracefulGet(getUserData(recipientId), null, "Could not load user details.");
           if (recipientData) {
             recipientNameHeader.innerText = recipientData.name;
           } else {
@@ -167,11 +173,17 @@
           if (unsubscribeMessages) unsubscribeMessages(); // Unsubscribe previous listener if any
           unsubscribeMessages = getMessages(conversationId, renderMessages, (error) => {
               console.error("Message listener error:", error);
+              // Show error in message container, removing spinner if present
+              const spinner = messagesContainer.querySelector('.loading-spinner-container');
+              if (spinner) spinner.remove();
               messagesContainer.innerHTML = `<p class="text-red-400 text-center">Error loading messages: ${error.message}</p>`;
           });
 
       } catch (error) {
           console.error("Error setting up conversation:", error);
+           // Show error in message container, removing spinner if present
+           const spinner = messagesContainer.querySelector('.loading-spinner-container');
+           if (spinner) spinner.remove();
            messagesContainer.innerHTML = `<p class="text-red-400 text-center">Could not load conversation: ${error.message}</p>`;
            recipientNameHeader.innerText = "Error";
       }

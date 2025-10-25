@@ -27,7 +27,7 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Gig details may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-browse-gigs.html" class="p-2 rounded-full hover:bg-neutral-700 transition-colors">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50"> <a href="setflow-browse-gigs.html" aria-label="Go back" class="p-2 rounded-full hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="text-lg font-bold tracking-tight mx-auto pr-10">Gig Details</h1>
@@ -70,13 +70,13 @@
         gigDetailContainer.innerHTML = `
           <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
             <div class="flex justify-between items-center">
-              <a href="setflow-venue-profile.html?venueId=${gigData.ownerId}" class="text-2xl font-bold text-white hover:text-emerald-400">${gigData.venueName}</a>
+              <a href="setflow-venue-profile.html?venueId=${gigData.ownerId}" class="text-2xl font-bold text-white hover:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 rounded">${gigData.venueName}</a>
               <span class="text-2xl font-bold text-emerald-400">$${gigData.payout}</span>
             </div>
             <p class="text-md text-neutral-400 mt-1">${gigData.location}</p>
-            <button id="view-map-btn" data-location="${gigData.location}" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium">View on Map</button>
+            <button id="view-map-btn" data-location="${gigData.location}" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 rounded">View on Map</button>
             <div class="mt-2 text-right">
-                 <button id="report-gig-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Gig</button>
+                 <button id="report-gig-btn" class="text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900 rounded">Report Gig</button>
             </div>
           </div>
           <div class="px-5 py-4 border-b border-neutral-800">
@@ -114,7 +114,7 @@
                  const location = viewMapBtn.dataset.location || "USA"; // Fallback location
                  const encodedLocation = encodeURIComponent(location);
                  // Correct Google Maps URL structure and open in new tab
-                 window.open(`https://maps.google.com/?q=${encodedLocation}`, '_blank');
+                 window.open(`https://www.google.com/maps/search/?api=1&query={encodedLocation}`, '_blank');
             });
         }
      }
@@ -169,7 +169,7 @@
 
     // --- Render Footer Buttons ---
     function renderApplyButton(needsAuthCheck = false) {
-        footerContainer.innerHTML = `<button id="apply-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Apply for Gig</button>`;
+        footerContainer.innerHTML = `<button id="apply-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Apply for Gig</button>`;
         const applyBtn = document.getElementById('apply-btn');
         if (applyBtn) {
             applyBtn.addEventListener('click', needsAuthCheck ? handleApplyClickAuthCheck : handleApplyClick);
@@ -184,7 +184,7 @@
         footerContainer.innerHTML = `
             <div class="text-center">
                 <p class="text-sm text-amber-400 mb-2">You've used all your free applications this month.</p>
-                <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Upgrade to Apply</a>
+                <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Apply</a>
             </div>
         `;
     }

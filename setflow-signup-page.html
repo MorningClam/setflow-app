@@ -23,43 +23,43 @@
       font-weight: 500;
       z-index: 9999;
     }
-    .form-input:focus { border-color:#10B981; box-shadow:0 0 0 2px rgba(16,185,129,.2); }
+    /* .form-input:focus { border-color:#10B981; box-shadow:0 0 0 2px rgba(16,185,129,.2); } */
     .role-btn-active { background-color: #10B981; color: white; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">Sign up requires an internet connection.</div>
-  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-8 text-center">
+  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+    <header class="px-5 py-8 text-center">
       <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
         <img src="logo.png" alt="Setflow Logo" class="w-8 h-8">
       </div>
       <h1 class="text-3xl font-bold">Create your account</h1>
       <p class="text-neutral-400 mt-2">Join the Command Center.</p>
     </header>
-
     <main class="flex-grow px-5">
       <form id="signup-form" class="space-y-6">
         <div>
             <label class="block text-sm font-medium text-neutral-300 mb-2">I am a...</label>
-            <div class="grid grid-cols-3 gap-2 bg-neutral-800 p-1 rounded-lg">
-                <button type="button" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md role-btn-active">Musician</button>
-                <button type="button" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md">Venue</button>
-                <button type="button" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md">Promoter</button>
+            <div role="radiogroup" aria-label="Select your role" class="grid grid-cols-3 gap-2 bg-neutral-800 p-1 rounded-lg">
+                <button type="button" role="radio" aria-checked="true" class="role-btn px-3 py-2 text-sm font-semibold rounded-md role-btn-active focus:outline-none focus:ring-2 focus:ring-emerald-500">Musician</button>
+                <button type="button" role="radio" aria-checked="false" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">Venue</button>
+                <button type="button" role="radio" aria-checked="false" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">Promoter</button>
             </div>
         </div>
         <div>
           <label for="name" class="block text-sm font-medium text-neutral-300 mb-2">Name</label>
-          <input id="name" type="text" placeholder="Your Name or Band Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
+          <input id="name" type="text" placeholder="Your Name or Band Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
           <label for="email" class="block text-sm font-medium text-neutral-300 mb-2">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required>
+          <input id="email" type="email" placeholder="you@example.com" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
           <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">Password</label>
-          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:ring-0" required minlength="6">
+          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required minlength="6">
         </div>
-        <button type="submit" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">
+        <button type="submit" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
             Create Account
         </button>
       </form>
@@ -68,7 +68,7 @@
     <footer class="px-5 py-6 text-center">
       <p class="text-neutral-400 text-sm">
         Already have an account?
-        <a href="setflow-login-page.html" class="text-emerald-400 hover:text-emerald-300 font-medium">Sign in</a>
+        <a href="setflow-login-page.html" class="text-emerald-400 hover:text-emerald-300 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Sign in</a>
       </p>
     </footer>
   </div>
@@ -83,8 +83,12 @@
     // --- Role Selection Logic ---
     roleButtons.forEach(button => {
         button.addEventListener('click', () => {
-            roleButtons.forEach(btn => btn.classList.remove('role-btn-active'));
+            roleButtons.forEach(btn => {
+                 btn.classList.remove('role-btn-active');
+                 btn.setAttribute('aria-checked', 'false'); // Update ARIA state
+            });
             button.classList.add('role-btn-active');
+            button.setAttribute('aria-checked', 'true'); // Update ARIA state
             selectedRole = button.innerText;
         });
     });

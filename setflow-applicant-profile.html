@@ -27,12 +27,14 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-review-applicants.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1>
-      <a href="#" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <a href="setflow-review-applicants.html" aria-label="Go back to applicants" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Applicant Profile</h1>
+      <button aria-label="Bookmark applicant" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
     </header>
-    <main id="profile-container" class="flex-grow pb-36">
-      </main>
+    <main id="profile-container" class="flex-grow pb-36 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+    </main>
     <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 flex items-center space-x-3">
         </footer>
   </div>
@@ -66,13 +68,13 @@
           <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Bio</h3>
           <p class="text-neutral-300 text-sm leading-relaxed">${userData.bio || 'No bio provided.'}</p>
         </div>
-        `;
+        `; // Add more sections as needed (e.g., links, past gigs)
 
       // Populate footer actions
-      const bookingLink = `setflow-booking-confirmation.html?userId=${userId}&gigId=${gigId}`;
+      const bookingLink = `setflow-booking-confirmation.html?userId=${userId}&gigId=${gigId}&artistName=${encodeURIComponent(userData.name)}`; // Pass artist name
       footerActions.innerHTML = `
-        <a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center">Send Message</a>
-        <a href="${bookingLink}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Book Gig</a>
+        <a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Send Message</a>
+        <a href="${bookingLink}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Book Gig</a>
       `;
     }
 

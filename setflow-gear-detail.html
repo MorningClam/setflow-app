@@ -27,13 +27,16 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Item details may be cached.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-gear-swap.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-    <h1 class="text-lg font-bold tracking-tight">Gear Details</h1>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-gear-swap.html" aria-label="Go back to gear swap" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Gear Details</h1>
     <div class="w-8 h-8"></div> </header>
-  <main id="gear-detail-container" class="flex-grow pb-28">
-    </main>
+  <main id="gear-detail-container" class="flex-grow pb-28 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+  </main>
   <footer id="footer-container" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    </footer>
+     <div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div>
+  </footer>
 </div>
 
 <script type="module">
@@ -45,17 +48,21 @@
   const listingId = urlParams.get('id');
   let currentUserId = null;
 
-  // Show initial loading spinner
+  // Show initial loading spinner in main container
   ui.loading.show(container);
+  // Keep footer loading initially as well
+  footer.innerHTML = '<div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div>';
+
 
   function renderListing(item) {
-    // gracefulGet handles spinner removal / error display
+    // gracefulGet handles spinner removal / error display in main container
     if (!item) {
-        // Error or offline message already shown
+        // Error or offline message already shown in main container
+        footer.innerHTML = ''; // Clear footer loading on error
         return;
     }
 
-    // Clear container before rendering
+    // Clear main container before rendering
     container.innerHTML = '';
 
     // Provide a placeholder image if item.imageUrl is missing
@@ -78,13 +85,14 @@
         <div class="mt-4 pt-4 border-t border-neutral-800">
             <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Seller</h3>
             <div class="flex items-center justify-between">
-                <a href="setflow-public-profile.html?userId=${item.sellerId}" class="flex items-center space-x-3 group"> <img class="w-12 h-12 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
+                <a href="setflow-public-profile.html?userId=${item.sellerId}" class="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 rounded-lg p-1 -m-1">
+                    <img class="w-12 h-12 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
                     <div>
                         <p class="font-semibold text-white group-hover:text-emerald-400 transition-colors">${item.sellerName}</p>
                     </div>
                 </a>
                 ${currentUserId !== item.sellerId ? // Only show report if not own item
-                `<button id="report-item-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Item</button>`
+                `<button id="report-item-btn" class="text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900 rounded">Report Item</button>`
                  : '<span class="text-xs text-neutral-500">(Your Listing)</span>'}
             </div>
         </div>
@@ -94,18 +102,18 @@
     // Update footer - only show message button if not viewing own listing
     if (currentUserId !== item.sellerId) {
         footer.innerHTML = `
-            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">
+            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
                 Message Seller
             </a>
         `;
     } else {
-        footer.innerHTML = ``;
+        footer.innerHTML = ``; // Empty footer if viewing own listing
     }
 
     // Add event listener for the report button if it exists
     const reportBtn = document.getElementById('report-item-btn');
     if (reportBtn) {
-        reportBtn.addEventListener('click', () => handleReport('gear_listing', item.id));
+        reportBtn.addEventListener('click', () => handleReport('gear_listing', listingId)); // Use listingId here
     }
   }
 
@@ -134,18 +142,23 @@
 
     if (!listingId) {
         container.innerHTML = `<p class="p-5 text-center text-red-400">No item ID provided.</p>`;
+        footer.innerHTML = ''; // Clear footer loading on error
         return;
     }
     try {
-        // Use gracefulGet to fetch item details, managing loading/error state
+        // Use gracefulGet to fetch item details, managing loading/error state in main container
         const itemData = await gracefulGet(getGearListing(listingId), container, "Could not load item details while offline.");
         // Render only if fetch succeeded
         if(itemData) {
             renderListing(itemData);
+        } else {
+            // Error handled by gracefulGet, clear footer loading
+             footer.innerHTML = '';
         }
     } catch (error) {
         // Error already displayed by gracefulGet
         console.error("Error fetching gear details (already handled by gracefulGet):", error);
+        footer.innerHTML = ''; // Ensure footer loading cleared on unexpected error
     }
     // Note: If !user, page loads but footer/report adapt or fail gracefully.
   });

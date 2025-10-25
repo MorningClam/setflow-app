@@ -27,28 +27,31 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Showing cached event data.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <div class="pl-2">
       <h1 id="promoter-name-header" class="text-lg font-bold tracking-tight">Loading...</h1>
       <p class="text-xs text-neutral-400">Promoter Dashboard</p>
     </div>
     <div class="flex items-center space-x-2">
-      <a href="setflow-talent-pool.html" class="p-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg" title="Talent Pool">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg>
+      <a href="setflow-talent-pool.html" aria-label="View talent pool" class="p-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800" title="Talent Pool">
+        <svg aria-hidden="true" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg>
       </a>
-      <a href="setflow-post-event-page.html" class="p-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg" title="Post New Event">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a href="setflow-post-event-page.html" aria-label="Post new event" class="p-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800" title="Post New Event">
+        <svg aria-hidden="true" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
   </header>
-  <main id="events-container" class="flex-1 px-5 py-4 pb-28 space-y-4">
-    </main>
+  <main id="events-container" class="flex-1 px-5 py-4 pb-28 space-y-4 pt-24"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+  </main>
+
    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
-       <a href="setflow-promoter-dashboard.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
-       <a href="setflow-post-event-page.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Post</span></button></a>
-       <a href="setflow-inbox.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
-        <a href="setflow-account-settings.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Account</span></button></a>
+       <a href="setflow-promoter-dashboard.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg aria-hidden="true" class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
+       <a href="setflow-post-event-page.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Post</span></button></a>
+       <a href="setflow-inbox.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
+        <a href="setflow-account-settings.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Account</span></button></a>
    </nav>
-</div>
+   </div>
 
 <script type="module">
   import { onAuthState, fetchGigsForOwner, getUserData, gracefulGet, ui } from './api.js'; // Import helpers
@@ -61,18 +64,30 @@
 
   function renderEvents(gigs) {
     // gracefulGet handles spinner removal / error display
+    if (!gigs) {
+        // Error handled by gracefulGet
+         if (!eventsContainer.innerHTML.includes('Error') && !eventsContainer.innerHTML.includes('offline')) {
+             eventsContainer.innerHTML = `
+                <div class="py-4 px-5">
+                  <h2 class="text-2xl font-bold text-neutral-100">Your Events</h2>
+                  <p class="text-red-400 text-center mt-8">Could not load events.</p>
+                </div>`;
+         }
+        return;
+    }
+
     eventsContainer.innerHTML = `
       <div class="py-4">
         <h2 class="text-2xl font-bold text-neutral-100">Your Events</h2>
       </div>
     `; // Keep header, clear spinner/error
 
-    if (!gigs || gigs.length === 0) {
+    if (gigs.length === 0) {
       eventsContainer.innerHTML += `<p class="text-neutral-500 text-center mt-8">You haven't posted any events yet.</p>`;
       return;
     }
 
-    // Sort gigs by date, descending
+    // Sort gigs by date, descending (newest first)
     gigs.sort((a, b) => (b.date?.toDate ? b.date.toDate() : 0) - (a.date?.toDate ? a.date.toDate() : 0));
 
     gigs.forEach(gig => {
@@ -100,9 +115,10 @@
       const reviewLink = `setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}`;
       const showSheetLink = `setflow-show-sheet.html?gigId=${gig.id}`;
 
+      // Added focus styles to the link within the card
       cardContent += `
         <div class="bg-neutral-900/50 rounded-b-xl px-4 py-2 border-t border-neutral-700">
-          <a href="${isBooked ? showSheetLink : reviewLink}" class="text-sm font-semibold ${isBooked ? 'text-neutral-300 hover:text-white' : 'text-emerald-400 hover:text-emerald-300'}">
+          <a href="${isBooked ? showSheetLink : reviewLink}" class="text-sm font-semibold rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 ${isBooked ? 'text-neutral-300 hover:text-white' : 'text-emerald-400 hover:text-emerald-300'}">
             ${isBooked ? 'View Show Sheet →' : 'Review Applicants →'}
           </a>
         </div>
@@ -117,6 +133,7 @@
     if (user) {
       try {
         // Fetch user data first for header
+        // No container for header, handle separately
         const userData = await gracefulGet(getUserData(user.uid), null);
         if (userData && userData.name) {
             promoterNameHeader.innerText = userData.name;
@@ -127,14 +144,17 @@
         // Fetch gigs using gracefulGet, managing container state
         const gigs = await gracefulGet(fetchGigsForOwner(user.uid), eventsContainer, "Could not load events while offline.");
         // Render only if fetch succeeded
-        if (gigs) {
-           renderEvents(gigs);
-        }
+        renderEvents(gigs); // Handles null response
+
       } catch (error) {
         // Errors likely handled by gracefulGet
         console.error("Failed to load promoter dashboard (error likely shown):", error);
          if (!promoterNameHeader.innerText || promoterNameHeader.innerText === 'Loading...') {
              promoterNameHeader.innerText = "Dashboard"; // Fallback header on error
+         }
+         // Ensure error is shown in container if not already handled
+         if (!eventsContainer.innerHTML.includes('Error') && !eventsContainer.innerHTML.includes('offline')) {
+              eventsContainer.innerHTML = `<p class="text-red-400 text-center mt-8">Could not load events.</p>`;
          }
       }
     } else {

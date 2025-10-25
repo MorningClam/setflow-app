@@ -27,39 +27,40 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Session will post when back online.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-jam-sessions.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-jam-sessions.html" aria-label="Go back to jam sessions" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <h1 class="text-lg font-bold tracking-tight">Host a Jam Session</h1>
-    <div class="w-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28">
-    <form id="jam-session-form" class="space-y-6">
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Host a Jam Session</h1>
+    <div class="w-9 h-9"></div> </header>
+  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <form id="jam-session-form" class="space-y-6">
         <div>
             <label for="jam-title" class="block text-sm font-medium text-neutral-300 mb-2">Session Title</label>
-            <input id="jam-title" type="text" placeholder="e.g., Blues Jam, Acoustic Songwriting" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            <input id="jam-title" type="text" placeholder="e.g., Blues Jam, Acoustic Songwriting" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
         </div>
          <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="jam-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-                <input id="jam-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+                <input id="jam-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
             </div>
             <div>
                 <label for="jam-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
-                <input id="jam-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+                <input id="jam-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
             </div>
         </div>
         <div>
             <label for="jam-location" class="block text-sm font-medium text-neutral-300 mb-2">Location</label>
-            <input id="jam-location" type="text" placeholder="e.g., My garage, Motorco Music Hall" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            <input id="jam-location" type="text" placeholder="e.g., My garage, Motorco Music Hall" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
             <label for="jam-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-            <textarea id="jam-description" rows="4" placeholder="e.g., Looking for a drummer and bassist to jam on some blues standards." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+            <textarea id="jam-description" rows="4" placeholder="e.g., Looking for a drummer and bassist to jam on some blues standards." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
     </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="jam-session-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">Post Jam Session</button>
+    <button type="submit" form="jam-session-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Post Jam Session</button>
   </footer>
 </div>
 

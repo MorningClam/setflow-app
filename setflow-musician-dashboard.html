@@ -27,19 +27,21 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Showing cached dashboard data.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <h1 class="text-lg font-bold tracking-tight">Dashboard</h1>
-      <div class="flex items-center space-x-4">
-        <a href="setflow-notifications.html" class="relative w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600">
-          <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <h1 class="text-lg font-bold tracking-tight pl-2">Dashboard</h1>
+      <div class="flex items-center space-x-2">
+        <a href="setflow-notifications.html" aria-label="View notifications" class="relative w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">
+          <svg aria-hidden="true" class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span class="absolute -top-1 -right-1 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
+           <span class="sr-only">You have new notifications</span>
         </a>
-        <a href="setflow-account-settings.html" class="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600">
-          <svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a href="setflow-account-settings.html" aria-label="View account settings" class="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">
+          <svg aria-hidden="true" class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
     </header>
-    <main class="flex-grow pb-28">
-      <section class="px-5 py-6 bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border-b border-neutral-800/50">
+    <main class="flex-grow pb-28 pt-16"> <section class="px-5 py-6 bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border-b border-neutral-800/50">
         <h2 class="text-sm font-semibold uppercase tracking-wider text-emerald-400 mb-2">TONIGHT'S GIG</h2>
         <h3 class="text-2xl font-bold mb-3">The Underground</h3>
         <div class="space-y-2 text-neutral-200 mb-4">
@@ -47,88 +49,89 @@
             <p><strong>Set Time:</strong> 9:00 PM - 11:00 PM</p>
         </div>
         <div class="grid grid-cols-2 gap-3 mb-3">
-            <a href="setflow-show-sheet.html" class="w-full text-center py-2 bg-emerald-500/80 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-colors">View Show Sheet</a>
-            <button id="get-directions-btn" data-address="The Underground, Raleigh, NC" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Get Directions</button>
+            <a href="setflow-show-sheet.html" class="w-full text-center py-2 bg-emerald-500/80 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">View Show Sheet</a>
+            <button id="get-directions-btn" data-address="The Underground, Raleigh, NC" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Get Directions</button>
         </div>
-        <a href="setflow-find-a-player.html" class="text-xs text-center block text-emerald-400 hover:text-emerald-300">Need a last-minute sub? Find a player.</a>
+        <a href="setflow-find-a-player.html" class="text-xs text-center block text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Need a last-minute sub? Find a player.</a>
       </section>
 
       <section class="px-5 py-5 space-y-4">
          <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50">
             <div class="flex items-center space-x-4">
-                <div class="relative"><svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36"><circle class="text-neutral-700" stroke-width="3" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/><circle class="text-emerald-500" stroke-width="3" stroke-dasharray="85, 100" stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/></svg><span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-emerald-400">85%</span></div>
+                <div class="relative"><svg aria-hidden="true" class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36"><circle class="text-neutral-700" stroke-width="3" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/><circle class="text-emerald-500" stroke-width="3" stroke-dasharray="85, 100" stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/></svg><span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-emerald-400">85%</span></div>
                 <div class="flex-1">
                     <p class="font-semibold text-white">Profile Strength: Strong</p>
                     <p class="text-sm text-neutral-300">Next step: Add a video link to stand out.</p>
-                    <a href="setflow-musician-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 mt-1 inline-block">Update Profile →</a>
+                    <a href="setflow-musician-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 mt-1 inline-block focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Update Profile →</a>
                 </div>
             </div>
          </div>
 
-         <a href="setflow-pricing-page.html" class="block bg-neutral-800 rounded-xl p-4 border border-emerald-500/50 hover:border-emerald-500 transition-colors">
+         <a href="setflow-pricing-page.html" class="block bg-neutral-800 rounded-xl p-4 border border-emerald-500/50 hover:border-emerald-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
              <div class="flex items-center space-x-4">
                  <div class="flex-1">
                      <p class="font-bold text-lg text-emerald-400">🚀 Go Pro</p>
                      <p class="text-sm text-neutral-300">Get unlimited gig applications, profile boosts, and advanced analytics.</p>
                  </div>
+                  <span aria-hidden="true" class="text-xl">&rarr;</span>
              </div>
          </a>
 
          <div class="grid grid-cols-2 gap-4">
-            <a href="setflow-earnings-report.html" class="block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center hover:bg-neutral-700/50 transition-colors">
+            <a href="setflow-earnings-report.html" class="block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center hover:bg-neutral-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
                 <p class="text-xs text-neutral-400 uppercase tracking-wider">This Month's Earnings</p>
                 <p class="text-2xl font-bold text-emerald-400 mt-1">$1,250</p>
             </a>
             <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 flex flex-col items-center justify-center text-center">
                 <p class="font-semibold text-white">Need to block a date?</p>
-                <button id="open-modal-btn" class="mt-2 w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg transition-colors">+ Quick-Add Unavailability</button>
+                <button id="open-modal-btn" class="mt-2 w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">+ Quick-Add Unavailability</button>
             </div>
          </div>
       </section>
 
       <section class="py-4">
-        <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">Open Gigs Near You</h4><a href="setflow-browse-gigs.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300">See All</a></div>
+        <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">Open Gigs Near You</h4><a href="setflow-browse-gigs.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">See All</a></div>
         <div id="nearby-gigs-container" class="space-y-3 px-5">
              <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
         </div>
       </section>
 
       <section class="py-4">
-        <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">My Network</h4><a href="setflow-network.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300">View All</a></div>
+        <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">My Network</h4><a href="setflow-network.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">View All</a></div>
         <div class="grid grid-cols-3 gap-4 px-5">
-            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700"><div class="w-12 h-12 bg-amber-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">The Pour House</p></a>
-            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700"><div class="w-12 h-12 bg-sky-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">Blue Note Brewpub</p></a>
-            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700"><div class="w-12 h-12 bg-rose-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">Apex Fall Fest</p></a>
+            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><div class="w-12 h-12 bg-amber-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">The Pour House</p></a>
+            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><div class="w-12 h-12 bg-sky-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">Blue Note Brewpub</p></a>
+            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><div class="w-12 h-12 bg-rose-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">Apex Fall Fest</p></a>
         </div>
       </section>
     </main>
 
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
-      <a href="setflow-musician-dashboard.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
-      <a href="setflow-browse-gigs.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
-      <a href="setflow-calendar.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Calendar</span></button></a>
-      <a href="setflow-inbox.html" class="w-24 h-12"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
+      <a href="setflow-musician-dashboard.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg aria-hidden="true" class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
+      <a href="setflow-browse-gigs.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
+      <a href="setflow-calendar.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Calendar</span></button></a>
+      <a href="setflow-inbox.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
     </nav>
-  </div>
+    </div>
 
-  <div id="block-date-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5 z-50">
+  <div id="block-date-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5 z-50" role="dialog" aria-modal="true" aria-labelledby="block-date-modal-title">
       <div class="bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm">
           <div class="p-6 text-center">
-              <h3 class="text-xl font-bold text-white mt-4">Block Off a Date</h3>
+              <h3 id="block-date-modal-title" class="text-xl font-bold text-white mt-4">Block Off a Date</h3>
               <p class="text-sm text-neutral-400 mt-1">Select a date you are unavailable to play.</p>
           </div>
           <div class="p-4">
             <div class="bg-neutral-900/50 p-4 rounded-lg">
-              <input id="block-date-input" type="date" class="w-full bg-neutral-700 border-neutral-600 rounded-lg p-2 text-white">
+              <label for="block-date-input" class="sr-only">Date to block</label>
+              <input id="block-date-input" type="date" class="w-full bg-neutral-700 border-neutral-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
             </div>
           </div>
           <div class="p-4 flex flex-col space-y-3">
-              <button id="confirm-block-date-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Confirm & Block Date</button>
-              <button id="close-modal-btn" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl">Cancel</button>
+              <button id="confirm-block-date-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Confirm & Block Date</button>
+              <button id="close-modal-btn" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Cancel</button>
           </div>
       </div>
   </div>
-
   <script>
     // --- Modal Functionality ---
     const openModalBtn = document.getElementById('open-modal-btn');
@@ -137,6 +140,20 @@
     if (openModalBtn && closeModalBtn && modal) {
         openModalBtn.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
         closeModalBtn.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
+        // Close modal on escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modal.classList.contains('flex')) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        });
+        // Close modal on outside click
+        modal.addEventListener('click', (event) => {
+             if (event.target === modal) {
+                 modal.classList.add('hidden');
+                 modal.classList.remove('flex');
+             }
+        });
     }
 
     // --- Get Directions Functionality ---
@@ -146,7 +163,7 @@
           const venueAddress = getDirectionsBtn.dataset.address || "The Underground, Raleigh, NC"; // Get address from data attribute or use placeholder
           const encodedAddress = encodeURIComponent(venueAddress);
           // Use standard Google Maps URL and open in new tab
-          window.open(`https://maps.google.com/?q=${encodedAddress}`, '_blank');
+          window.open(`https://www.google.com/maps/search/?api=1&query={encodedAddress}`, '_blank');
         });
     }
   </script>
@@ -161,18 +178,26 @@
 
     // Function to render nearby gigs (placeholder implementation)
     function renderNearbyGigs(gigs) {
-        if (!gigs || gigs.length === 0) {
+        if (!gigs) {
+             // Error handled by gracefulGet
+             nearbyGigsContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading nearby gigs.</p>';
+             return;
+        }
+
+        // Clear container (spinner/error) before rendering
+        nearbyGigsContainer.innerHTML = '';
+
+         if (gigs.length === 0) {
             nearbyGigsContainer.innerHTML = '<p class="text-neutral-500 text-sm">No open gigs found near you currently.</p>';
             return;
         }
-        // Clear container (spinner/error) before rendering
-        nearbyGigsContainer.innerHTML = '';
 
         // Show only the first few gigs, e.g., 3
         gigs.slice(0, 3).forEach(gig => {
             const gigElement = document.createElement('a');
             gigElement.href = `setflow-gig-detail-view.html?id=${gig.id}`;
-            gigElement.className = 'block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 hover:bg-neutral-700/50 transition-colors';
+            // Added focus styles
+            gigElement.className = 'block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 hover:bg-neutral-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
             gigElement.innerHTML = `
                 <p class="font-medium text-white">${gig.venueName}</p>
                 <p class="text-xs text-neutral-400">${gig.formattedDate} • ${gig.genre || 'Music'} • $${gig.payout}</p>
@@ -237,12 +262,11 @@
 
             // Fetch nearby gigs using gracefulGet, manage container state
             const nearbyGigs = await gracefulGet(fetchGigs(), nearbyGigsContainer, "Could not load nearby gigs offline.");
-            if (nearbyGigs) {
-                renderNearbyGigs(nearbyGigs); // Render only if fetch succeeded
-            }
+            renderNearbyGigs(nearbyGigs); // Render (handles null response)
+
         } catch(error) {
              console.error("Error loading dashboard data (error likely handled):", error);
-             // Ensure nearby gigs container shows an error if not already handled
+             // Ensure nearby gigs container shows an error if not already handled by gracefulGet
               if (!nearbyGigsContainer.innerHTML.includes('Error') && !nearbyGigsContainer.innerHTML.includes('offline')) {
                    nearbyGigsContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading nearby gigs.</p>';
               }

@@ -27,9 +27,11 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Show details may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="javascript:history.back()" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Show Sheet</h1>
-    </header>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <a href="javascript:history.back()" aria-label="Go back" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Show Sheet</h1>
+      <div class="w-9 h-9"></div> </header>
     <main class="flex-grow pb-28 pt-16"> <div id="show-sheet-content">
          <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
      </div>
@@ -41,8 +43,8 @@
           </div>
 
           <div class="px-5 py-4 grid grid-cols-2 gap-3 border-b border-neutral-800">
-            <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors">Add to Calendar</button>
-            <a href="setflow-promo-kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center">View Promo Kit</a>
+            <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Add to Calendar</button>
+            <a href="setflow-promo-kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">View Promo Kit</a>
           </div>
 
           <div class="px-5 py-4 border-b border-neutral-800">
@@ -51,37 +53,39 @@
                 <div class="flex"><span class="text-neutral-400 w-24">6:00 PM</span><span class="text-neutral-100 font-medium">Load-in & Setup</span></div>
                 <div class="flex"><span class="text-neutral-400 w-24">8:00 PM</span><span class="text-neutral-100 font-medium">Soundcheck</span></div>
                 <div class="flex"><span class="text-neutral-400 w-24">9:00 PM</span><span class="text-emerald-400 font-bold">Set 1 Begins</span></div>
-            </div>
+                </div>
           </div>
           <div class="px-5 py-4 border-b border-neutral-800">
             <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Details</h3>
             <div class="space-y-3 text-sm">
                 <div class="flex"><span class="text-neutral-400 w-24">Payout</span><span class="text-emerald-400 font-bold text-base">$400</span></div>
                 <div class="flex"><span class="text-neutral-400 w-24">Notes</span><span class="text-neutral-100 font-medium">Green room is backstage left. 2 drink tickets per member.</span></div>
-            </div>
+                </div>
           </div>
 
           <div class="px-5 py-4">
             <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Guest List & Team (3/5 spots used)</h3>
             <div id="guest-list" class="space-y-2 text-sm">
-                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Sarah (Merch)</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button></div>
-                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>John Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button></div>
-                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Maria Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button></div>
+                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Sarah (Merch)</span><button class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button></div>
+                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>John Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button></div>
+                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Maria Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button></div>
             </div>
             <div class="mt-3 flex space-x-2">
-                <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg p-2 text-sm text-white">
-                <button id="add-guest-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg">Add</button>
+                <label for="guest-name-input" class="sr-only">Add guest name</label>
+                <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                <button id="add-guest-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Add</button>
             </div>
           </div>
-        </div> </main>
+        </div>
+    </main>
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-        <a href="setflow-conversation-view.html?recipientId=VENUE_USER_ID_HERE" id="contact-venue-link" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Contact Venue</a>
+        <a href="setflow-conversation-view.html?recipientId=VENUE_USER_ID_HERE" id="contact-venue-link" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Contact Venue</a>
     </footer>
   </div>
 
   <script type="module">
     import { db, gracefulGet, ui, onAuthState } from './api.js'; // Import helpers
-    import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const showSheetContainer = document.getElementById('show-sheet-content');
     const staticContentDiv = document.getElementById('static-content'); // Get static div
@@ -89,21 +93,54 @@
     const gigId = urlParams.get('gigId');
     let currentUser = null;
     let gigData = null; // Store fetched gig data
-    const maxGuests = 5; // Example limit
+    let maxGuests = 5; // Example limit, should ideally come from gigData or config
 
     // --- Add to Calendar Functionality ---
     function setupCalendarButton() {
         const calendarBtn = document.getElementById('add-to-calendar-btn');
-        if (calendarBtn) {
+        if (calendarBtn && gigData && gigData.dateObject) { // Check if gigData and dateObject exist
             calendarBtn.addEventListener('click', () => {
-                // In a real app, generate and download an .ics file based on gigData
+                // Generate .ics content (basic example)
+                 const startDate = gigData.dateObject;
+                 // Assume a 2-hour duration for simplicity, adjust as needed
+                 const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+
+                 // Format dates for ICS (YYYYMMDDTHHmmssZ)
+                 const formatDateICS = (date) => {
+                     return date.toISOString().replace(/-|:|\.\d+/g, "");
+                 };
+
+                 const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Setflow//Gig Calendar//EN
+BEGIN:VEVENT
+UID:${gigData.id}@setflow.app
+DTSTAMP:${formatDateICS(new Date())}
+DTSTART:${formatDateICS(startDate)}
+DTEND:${formatDateICS(endDate)}
+SUMMARY:${gigData.venueName} - ${gigData.bookedArtistName || 'Gig'}
+DESCRIPTION:Load-in: [Add Load-in Time]\\nSet Time: ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\\nPayout: $${gigData.payout}\\nNotes: ${gigData.description || ''}
+LOCATION:${gigData.location || ''}
+END:VEVENT
+END:VCALENDAR`;
+
+                 const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                 const link = document.createElement('a');
+                 link.href = URL.createObjectURL(blob);
+                 link.download = `${gigData.venueName}_${gigData.dateObject.toISOString().split('T')[0]}.ics`;
+                 document.body.appendChild(link);
+                 link.click();
+                 document.body.removeChild(link);
+
                 if (window.toast) {
-                    toast.show("Calendar file download would start here.", 'success');
-                } else {
-                    console.warn("Toast UI not ready for calendar message.");
-                    alert("This would download an .ics file for your calendar."); // Fallback
+                    toast.show("Calendar file download started.", 'success');
                 }
             });
+        } else if (calendarBtn) {
+             // Disable or hide button if data is missing
+             calendarBtn.disabled = true;
+             calendarBtn.title = "Gig data unavailable for calendar export";
+             calendarBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
     }
 
@@ -112,10 +149,12 @@
         const guestListEl = document.getElementById('guest-list');
         const guestNameInput = document.getElementById('guest-name-input');
         const addGuestBtn = document.getElementById('add-guest-btn');
-        const guestCountDisplay = document.querySelector('h3[class*="Guest List"]');
+        const guestCountDisplay = document.querySelector('h3[class*="Guest List"]'); // More specific selector
 
         function updateGuestCount() {
              const currentCount = guestListEl ? guestListEl.children.length : 0;
+             // Update maxGuests if available from gigData
+             maxGuests = gigData?.guestListLimit || 5; // Use limit from gig or default
              if (guestCountDisplay) {
                  guestCountDisplay.textContent = `Guest List & Team (${currentCount}/${maxGuests} spots used)`;
              }
@@ -136,21 +175,24 @@
                      addGuestBtn.disabled = true; // Disable while saving
                     try {
                         const gigRef = doc(db, "gigs", gigId);
-                        // Use arrayUnion to add guest atomically (works offline)
+                        // Use a unique ID for each guest if possible, or store name + adder
+                        const guestObject = { name: name, addedBy: currentUser.uid, addedAt: Timestamp.now() }; // Store who added & when
                         await updateDoc(gigRef, {
-                            guestList: arrayUnion({ name: name, addedBy: currentUser.uid }) // Store who added
+                            guestList: arrayUnion(guestObject) // Store object (works offline)
                         });
-                        // Optimistically add to UI, then reload/refresh might be better
-                        renderSingleGuest(guestListEl, name); // Add visually
+                        // Optimistically add to UI
+                        renderSingleGuest(guestListEl, guestObject); // Pass full object
                         guestNameInput.value = '';
                         updateGuestCount();
                          toast.show('Guest added.', 'success');
                     } catch (error) {
                          console.error("Error adding guest:", error);
                          toast.show('Failed to add guest.', 'error');
-                    } finally {
-                         addGuestBtn.disabled = currentCount + 1 >= maxGuests; // Re-enable based on new count
+                         // Re-enable button only if limit not reached
+                         addGuestBtn.disabled = guestListEl.children.length >= maxGuests;
                     }
+                } else if (!name) {
+                     toast.show('Please enter a guest name.', 'error');
                 } else if (currentCount >= maxGuests) {
                      toast.show("Guest list is full.", 'error');
                 }
@@ -159,19 +201,32 @@
 
         if (guestListEl) {
             guestListEl.addEventListener('click', async (e) => {
-                if (e.target.classList.contains('remove-guest-btn')) {
-                    const guestDiv = e.target.parentElement;
+                const removeButton = e.target.closest('.remove-guest-btn'); // Handle clicks inside button
+                if (removeButton) {
+                    const guestDiv = removeButton.closest('div'); // Get parent div
                     const guestName = guestDiv.querySelector('span')?.innerText;
+                    // Retrieve the full guest object from data attribute for accurate removal
+                    const guestDataString = removeButton.dataset.guestData;
+                    if (!guestDataString) {
+                         console.error("Could not find guest data for removal.");
+                         toast.show('Error removing guest. Data missing.', 'error');
+                         return;
+                    }
+
                     if (guestName && confirm(`Remove ${guestName} from the guest list?`)) {
-                         e.target.disabled = true;
+                         removeButton.disabled = true;
                          try {
+                             const guestObjectToRemove = JSON.parse(guestDataString);
+                             // Need to reconstruct Firestore Timestamp if stored
+                             // Simpler: Fetch doc, find exact object by unique ID if available, or by name/adder/timestamp
+                             // For this example, assuming name+adder is sufficient IF timestamps aren't perfectly synced offline/online
+                             const objectToRemoveForFirebase = { name: guestObjectToRemove.name, addedBy: guestObjectToRemove.addedBy };
+                             // If addedAt was stored and needed for uniqueness:
+                             // objectToRemoveForFirebase.addedAt = Timestamp.fromMillis(guestObjectToRemove.addedAtMillis);
+
                              const gigRef = doc(db, "gigs", gigId);
-                             // Find the exact object to remove (might need more info than just name)
-                             // For simplicity, assuming name is unique enough for now
-                             // In production, might need an ID or remove based on {name, addedBy}
                              await updateDoc(gigRef, {
-                                 guestList: arrayRemove({ name: guestName, addedBy: currentUser.uid }) // Try removing based on adder
-                                 // Fallback if adder isn't stored/matched: fetch doc, find obj, use that in arrayRemove
+                                 guestList: arrayRemove(objectToRemoveForFirebase) // Use reconstructed object
                              });
                              guestDiv.remove();
                              updateGuestCount();
@@ -179,62 +234,85 @@
                          } catch (error) {
                               console.error("Error removing guest:", error);
                               toast.show('Failed to remove guest.', 'error');
-                              e.target.disabled = false; // Re-enable on error
+                              removeButton.disabled = false; // Re-enable on error
                          }
                     }
                 }
             });
         }
 
-        // Initial count update
-        updateGuestCount();
+        // Initial count update based on potentially dynamically loaded data
+        // updateGuestCount(); // Call this after initial rendering in renderShowSheet
     }
 
-    function renderSingleGuest(listElement, name) {
+    // Function to render a single guest item
+    function renderSingleGuest(listElement, guestObject) {
         const newGuest = document.createElement('div');
         newGuest.className = 'flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg';
-        newGuest.innerHTML = `<span>${name}</span><button class="remove-guest-btn text-red-400 text-xs font-semibold">Remove</button>`;
+        // Store the guest object (stringified) in a data attribute for removal
+        // Note: Storing Timestamps requires conversion (e.g., to milliseconds) if needed for removal lookup
+        const guestDataForAttr = { ...guestObject };
+        // If guestObject.addedAt is a Timestamp, convert it:
+        // if (guestObject.addedAt?.toMillis) {
+        //     guestDataForAttr.addedAtMillis = guestObject.addedAt.toMillis();
+        //     delete guestDataForAttr.addedAt; // Remove original Timestamp object
+        // }
+        newGuest.innerHTML = `
+          <span>${guestObject.name}</span>
+          <button data-guest-data='${JSON.stringify(guestDataForAttr)}' class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button>
+        `;
         listElement.appendChild(newGuest);
     }
 
+
     function renderShowSheet(gigSnap) {
         if (!gigSnap || !gigSnap.exists()) {
+            // Error handled by gracefulGet if container was passed, otherwise handle here
             if (!showSheetContainer.innerHTML.includes('Error') && !showSheetContainer.innerHTML.includes('offline')) {
                 showSheetContainer.innerHTML = `<p class="p-5 text-center text-red-400">Show Sheet not found.</p>`;
             }
             return;
         }
-        gigData = { id: gigSnap.id, ...gigSnap.data() };
-        const dateFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
-        const timeFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'Time N/A';
+        // Store full data including parsed date object
+        const rawData = gigSnap.data();
+        gigData = {
+            id: gigSnap.id,
+            ...rawData,
+            dateObject: rawData.date?.toDate ? rawData.date.toDate() : null // Add parsed Date object
+         };
 
         // Use the static content as a template
         showSheetContainer.innerHTML = staticContentDiv.innerHTML; // Copy structure
         staticContentDiv.remove(); // Remove the original static div
 
         // Populate dynamic data
+        const dateFormatted = gigData.dateObject ? gigData.dateObject.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
+        const artistName = gigData.bookedArtistName || 'Artist N/A';
+
         showSheetContainer.querySelector('h2').innerText = gigData.venueName || 'Venue Name N/A';
         showSheetContainer.querySelector('.text-amber-400').innerText = dateFormatted;
-        showSheetContainer.querySelector('.mt-2').innerText = `Artist: ${gigData.bookedArtistName || 'Artist N/A'}`;
-        // TODO: Populate Schedule dynamically if available in gigData
+        showSheetContainer.querySelector('.mt-2').innerText = `Artist: ${artistName}`;
+        // TODO: Populate Schedule dynamically if available in gigData (e.g., gigData.scheduleItems array)
         showSheetContainer.querySelector('.text-emerald-400.font-bold.text-base').innerText = `$${gigData.payout || 'N/A'}`;
-        // TODO: Populate Notes dynamically
+        // TODO: Populate Notes dynamically (e.g., gigData.venueNotes)
          const contactLink = document.getElementById('contact-venue-link');
          if(contactLink && gigData.ownerId) {
              contactLink.href = `setflow-conversation-view.html?recipientId=${gigData.ownerId}`;
+         } else if (contactLink) {
+              contactLink.classList.add('hidden'); // Hide if no ownerId
          }
 
          // Populate Guest List
          const guestListEl = document.getElementById('guest-list');
          guestListEl.innerHTML = ''; // Clear static guests
          if(gigData.guestList && Array.isArray(gigData.guestList)) {
-             gigData.guestList.forEach(guest => renderSingleGuest(guestListEl, guest.name));
+             gigData.guestList.forEach(guest => renderSingleGuest(guestListEl, guest));
          }
 
 
-        // Setup event listeners for the dynamic content
+        // Setup event listeners for the dynamic content AFTER innerHTML is set
         setupCalendarButton();
-        setupGuestList();
+        setupGuestList(); // This also calls updateGuestCount() internally
     }
 
 
@@ -247,18 +325,23 @@
                 return;
             }
             try {
-                // Fetch gig data using gracefulGet
+                // Fetch gig data using gracefulGet, manage container state
                 const gigSnapshot = await gracefulGet(getDoc(doc(db, "gigs", gigId)), showSheetContainer, "Could not load show details offline.");
-                if (gigSnapshot) {
-                    renderShowSheet(gigSnapshot);
-                }
+                // renderShowSheet handles null/non-existent snapshot
+                renderShowSheet(gigSnapshot);
+
             } catch(error) {
                  console.error("Error loading show sheet:", error);
-                 // Error handled by gracefulGet
+                 // Error potentially handled by gracefulGet, ensure container shows error
+                  if (!showSheetContainer.innerHTML.includes('Error') && !showSheetContainer.innerHTML.includes('offline')) {
+                     showSheetContainer.innerHTML = `<p class="p-5 text-center text-red-400">Error loading show details.</p>`;
+                  }
             }
 
         } else {
-             window.location.href = 'setflow-login-page.html';
+             // Redirect or show limited view if not logged in?
+             // For now, assume login is required to see show sheets fully.
+             window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
         }
     });
 

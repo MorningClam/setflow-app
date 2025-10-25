@@ -27,20 +27,23 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Showing cached posts.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-moremenu.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <h1 class="text-lg font-bold tracking-tight">Find a Player</h1>
-    <a href="setflow-new-player-post.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Post</a>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-moremenu.html" aria-label="Go back to more options" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Find a Player</h1>
+    <a href="setflow-new-player-post.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Post</a>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
-    <div>
+  <main class="flex-1 px-5 py-4 pb-28 space-y-6 pt-16"> <div>
         <h2 class="text-base font-semibold text-emerald-400 mb-2">✓ Available Now</h2>
         <div id="available-players-posts" class="space-y-3">
-            </div>
+             <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+        </div>
     </div>
     <div>
         <h2 class="text-base font-semibold text-white mb-2">Looking For Players</h2>
         <div id="looking-for-players-posts" class="space-y-3">
-            </div>
+             <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+        </div>
     </div>
   </main>
 </div>
@@ -63,7 +66,10 @@
     lookingContainer.innerHTML = '';
 
     if (!posts) { // Check if gracefulGet returned null (error occurred)
-        availableContainer.innerHTML = '<p class="text-red-400">Could not load posts.</p>'; // Ensure error is shown if gracefulGet didn't
+        // Ensure error is shown if gracefulGet didn't put it in availableContainer
+        if (!availableContainer.innerHTML.includes('Error') && !availableContainer.innerHTML.includes('offline')) {
+             availableContainer.innerHTML = '<p class="text-red-400">Could not load posts.</p>';
+        }
         lookingContainer.innerHTML = ''; // Clear second container on error
         return;
     }
@@ -107,7 +113,13 @@
            if (post.date) {
                try {
                   // Assuming post.date is a string like 'YYYY-MM-DDTHH:mm'
-                  formattedDate = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                  const dateObj = new Date(post.date);
+                   // Check if the date is valid before formatting
+                   if (!isNaN(dateObj)) {
+                       formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                   } else {
+                        formattedDate = post.date; // Show raw string if invalid
+                   }
                } catch (e) {
                    console.warn("Could not parse date:", post.date);
                    formattedDate = post.date; // Show raw string if parsing fails
@@ -122,7 +134,7 @@
 
       postCard.innerHTML = `
         <div class="flex items-start justify-between">
-            <a href="${profileLink}" class="flex items-center space-x-3 flex-1 min-w-0 group">
+            <a href="${profileLink}" class="flex items-center space-x-3 flex-1 min-w-0 group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg p-1 -m-1">
                 <img class="w-10 h-10 rounded-full object-cover flex-shrink-0 group-hover:opacity-80 transition-opacity" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
                 <div class="min-w-0">
                     <p class="font-bold text-white truncate group-hover:text-emerald-400 transition-colors">${post.userName}</p>
@@ -130,14 +142,14 @@
                 </div>
             </a>
             ${currentUserId !== post.userId ? // Only show message button if not own post
-            `<a href="setflow-conversation-view.html?recipientId=${post.userId}" class="ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0">Message</a>`
+            `<a href="setflow-conversation-view.html?recipientId=${post.userId}" class="ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Message</a>`
             : '<span class="ml-2 text-xs text-neutral-500 flex-shrink-0">(Your Post)</span>'}
         </div>
         ${detailsHtml}
         <p class="text-sm text-neutral-300 mt-2 border-t border-neutral-700 pt-2">${post.description || 'No description provided.'}</p>
         <div class="mt-2 text-right">
              ${currentUserId !== post.userId ? // Only show report button if not own post
-             `<button data-post-id="${post.id}" class="report-post-btn text-xs text-neutral-500 hover:text-red-400">Report Post</button>`
+             `<button data-post-id="${post.id}" class="report-post-btn text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-800 rounded">Report Post</button>`
              : ''}
         </div>
       `;
@@ -183,8 +195,10 @@
       } catch (error) {
         // Error already displayed by gracefulGet
         console.error("Failed to fetch player posts (already handled by gracefulGet):", error);
-        // Ensure second container is also cleared on error
-        lookingContainer.innerHTML = '';
+        // Ensure second container is also cleared or shows error on failure
+        if (!lookingContainer.innerHTML.includes('Error') && !lookingContainer.innerHTML.includes('offline')) {
+             lookingContainer.innerHTML = '<p class="text-red-400">Could not load posts.</p>';
+        }
       }
     } else {
       window.location.href = 'setflow-login-page.html';

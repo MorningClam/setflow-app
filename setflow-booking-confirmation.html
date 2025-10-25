@@ -27,13 +27,24 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Booking confirmation requires connection.</div>
-  <div id="booking-confirmation-container" class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col relative pt-10"> <div class="flex-grow blur-sm pointer-events-none"> <header class="px-3 py-4 flex items-center justify-between"><a href="javascript:history.back()" class="p-2"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a><h1 class="text-lg font-bold tracking-tight">Applicant Profile</h1><a href="#" class="p-2 opacity-0"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a></header>
-        <main><div class="p-5 flex flex-col items-center text-center border-b border-neutral-800"><img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto.format&fit=crop" alt="Band photo"><h2 id="blurred-artist-name" class="text-2xl font-bold text-white mt-4">Loading...</h2></div></main>
+  <div id="booking-confirmation-container" class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col relative pt-10">
+    <div class="flex-grow blur-sm pointer-events-none">
+        <header class="px-3 py-4 flex items-center justify-between">
+            <a href="javascript:history.back()" aria-label="Go back" class="p-2 opacity-50"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+            <h1 class="text-lg font-bold tracking-tight opacity-50">Applicant Profile</h1>
+            <a href="#" class="p-2 opacity-0"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></a>
+        </header>
+        <main>
+            <div class="p-5 flex flex-col items-center text-center border-b border-neutral-800 opacity-50">
+                <img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop" alt="Blurred background photo">
+                <h2 id="blurred-artist-name" class="text-2xl font-bold text-white mt-4">Loading...</h2>
+            </div>
+        </main>
     </div>
-
     <div id="modal-container" class="absolute inset-0 bg-black/60 flex items-center justify-center p-5 z-30">
-        </div>
-  </div>
+        <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+    </div>
+    </div>
 
   <script type="module">
     import { onAuthState, getUserData, db, confirmBooking, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
@@ -44,21 +55,27 @@
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId'); // Artist ID
     const gigId = urlParams.get('gigId');
+    const artistNameParam = urlParams.get('artistName'); // Get artist name from param
     let currentUser = null; // Venue/Promoter user
 
     // Show initial loading spinner inside modal
     ui.loading.show(modalContainer);
 
+    // Set blurred name immediately if available
+    if (artistNameParam) {
+        blurredArtistName.innerText = decodeURIComponent(artistNameParam);
+    }
+
     // Simple function to fetch a single gig's data (used internally)
     async function getGigDataInternal(gigId) {
         if (!gigId) return null;
         const gigRef = doc(db, "gigs", gigId);
-        const gigSnap = await getDoc(gigRef); // Let gracefulGet handle the promise later
-        return gigSnap; // Return the snapshot
+        // Let gracefulGet handle the promise later, just return the promise from getDoc
+        return getDoc(gigRef); // Use Firestore's getDoc which works with cache
     }
 
     function renderConfirmationModal(artist, gigSnap) {
-      // gracefulGet handled loading/error display
+      // gracefulGet handled loading/error display for artist data
       if (!artist || !gigSnap || !gigSnap.exists()) {
           // Error already displayed by gracefulGet or caught later
           modalContainer.innerHTML = modalContainer.innerHTML || '<p class="text-red-400 text-center p-5">Error: Could not load booking details.</p>'; // Ensure error shown if gracefulGet didn't
@@ -67,7 +84,7 @@
       }
 
       const gig = { id: gigSnap.id, ...gigSnap.data() };
-      blurredArtistName.innerText = artist.name; // Update background name
+      blurredArtistName.innerText = artist.name; // Update background name (might already be set)
 
       const gigDate = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
 
@@ -84,9 +101,9 @@
                 <div class="flex justify-between"><span class="text-neutral-400">Payout</span><span class="font-bold text-emerald-400">$${gig.payout}</span></div>
             </div>
             <div class="px-4 pb-4 flex flex-col space-y-3">
-                <p class="text-xs text-center text-neutral-500">By confirming, you agree to the <a href="setflow-booking-terms.html" class="underline text-neutral-400 hover:text-white">Setflow Booking Agreement</a>.</p>
-                <button id="confirm-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Confirm & Send Show Sheet</button>
-                <a href="javascript:history.back()" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl text-center">Cancel</a>
+                <p class="text-xs text-center text-neutral-500">By confirming, you agree to the <a href="setflow-booking-terms.html" class="underline text-neutral-400 hover:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded">Setflow Booking Agreement</a>.</p>
+                <button id="confirm-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Confirm & Send Show Sheet</button>
+                <a href="javascript:history.back()" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Cancel</a>
             </div>
         </div>
       `;
@@ -100,14 +117,21 @@
           // Note: confirmBooking works offline, but sending the show sheet implicitly requires connection.
           // For simplicity, we show success optimistically. If offline, Firestore syncs the booking status,
           // but the "sheet sent" part might fail silently or need a backend trigger on sync.
+           if (!isOnline()) { // Check connection specifically for confirmation step
+               toast.show("Booking confirmation requires an internet connection.", 'error');
+               confirmBtn.disabled = false;
+               confirmBtn.innerText = 'Confirm & Send Show Sheet';
+               return;
+           }
+
           try {
-            await confirmBooking(gig.id, artist.id, artist.name); // Works offline
+            await confirmBooking(gig.id, artist.id, artist.name); // Should be online now
             confirmBtn.innerText = '✓ Booked!';
-            const successMessage = isOnline() ? 'Booking confirmed! Show sheet sent.' : 'Booking saved locally. Will sync & send sheet when online.';
+            const successMessage = 'Booking confirmed! Show sheet sent.'; // Assume online success
             toast.show(successMessage, 'success');
             setTimeout(() => {
-              // TODO: Redirect to appropriate dashboard (venue/promoter)
-              window.location.href = 'setflow-venue-dashboard.html?booked=true';
+              // Redirect to appropriate dashboard (venue/promoter)
+              window.location.href = 'setflow-venue-dashboard.html?booked=true'; // Assuming venue dashboard
             }, 1500);
           } catch(error) {
             console.error("Booking failed: ", error);
@@ -128,18 +152,24 @@
         }
         try {
           // Fetch artist and gig data concurrently using gracefulGet
+          // Pass modalContainer to manage loading/error state for the primary (artist) fetch
           const [artistData, gigSnap] = await Promise.all([
-               gracefulGet(getUserData(userId), modalContainer, "Could not load artist details offline."), // Manage modal state
-               gracefulGet(getGigDataInternal(gigId), null, "Could not load gig details offline.") // Don't manage modal state here
+               gracefulGet(getUserData(userId), modalContainer, "Could not load artist details offline."),
+               gracefulGet(getGigDataInternal(gigId), null, "Could not load gig details offline.") // Don't manage UI here
           ]);
 
           // Render only if both fetches were successful (gracefulGet returns data)
           renderConfirmationModal(artistData, gigSnap);
 
         } catch (error) {
-          // Error already displayed by gracefulGet in modalContainer
+          // Error already displayed by gracefulGet in modalContainer if artist fetch failed
           console.error("Error loading booking data (already handled by gracefulGet):", error);
-          blurredArtistName.innerText = "Error";
+          if (blurredArtistName.innerText !== "Error") { // Avoid overwriting specific error
+              blurredArtistName.innerText = "Error";
+          }
+          if (!modalContainer.innerHTML.includes('Error')) { // Ensure modal shows error if not already set
+              modalContainer.innerHTML = '<p class="text-red-400 text-center p-5">Error loading booking details.</p>';
+          }
         }
       } else {
         window.location.href = 'setflow-login-page.html';

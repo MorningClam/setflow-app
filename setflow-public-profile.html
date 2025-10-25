@@ -27,12 +27,15 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="#" onclick="goBackOr('setflow-musician-dashboard.html')" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 id="profile-header-name" class="text-lg font-bold tracking-tight">Profile</h1>
-      <div class="w-8 h-8"></div> </header>
-    <main id="profile-container" class="flex-grow pb-36">
-      </main>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <a href="#" onclick="goBackOr('setflow-musician-dashboard.html')" aria-label="Go back" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 id="profile-header-name" class="text-lg font-bold tracking-tight text-center flex-grow">Profile</h1>
+      <div class="w-9 h-9"></div> </header>
+    <main id="profile-container" class="flex-grow pb-36 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
+    </main>
     <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 flex items-center space-x-3">
+       <div class="loading-spinner-container w-full"><div class="loading-spinner-inline"></div></div>
     </footer>
   </div>
 
@@ -47,13 +50,14 @@
     const userId = urlParams.get('userId'); // ID of the profile being viewed
     let currentUserId = null; // To store the logged-in user's ID
 
-    // Show initial loading spinner
-    ui.loading.show(profileContainer);
+    // Show initial loading spinner (already in HTML)
+    // ui.loading.show(profileContainer);
 
     function renderProfile(userData, bands) {
       // gracefulGet handles spinner/error state
       if (!userData) {
         profileHeaderName.innerText = "Error"; // Update header on error too
+         footerActions.innerHTML = ''; // Clear footer loading on error
         return;
       }
 
@@ -69,9 +73,10 @@
                <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Bands</h3>
                <div class="space-y-3">
                  ${bands.map(band => `
-                   <div class="flex items-center bg-neutral-800 p-3 rounded-lg"> <img class="w-12 h-12 bg-neutral-700 rounded-lg mr-4 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${band.name} photo">
-                     <div>
-                       <p class="font-semibold text-white">${band.name}</p>
+                   <div class="flex items-center bg-neutral-800 p-3 rounded-lg">
+                     <img class="w-12 h-12 bg-neutral-700 rounded-lg mr-4 object-cover flex-shrink-0" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${band.name} photo">
+                     <div class="min-w-0">
+                       <p class="font-semibold text-white truncate">${band.name}</p>
                        <p class="text-xs text-neutral-400">${band.genre || 'Music'}</p>
                      </div>
                    </div>
@@ -92,18 +97,19 @@
           <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Bio</h3>
           <p class="text-neutral-300 text-sm leading-relaxed">${userData.bio || 'No bio provided.'}</p>
         </div>
-        ${bandsSection} <div class="p-5 text-center">
+        ${bandsSection}
+        <div class="p-5 text-center">
             ${currentUserId !== userId ? // Only show report button if not viewing own profile
-            `<button id="report-user-btn" data-user-id="${userData.id}" class="text-sm text-neutral-500 hover:text-red-400">Report this user</button>`
+            `<button id="report-user-btn" data-user-id="${userData.id}" class="text-sm text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900 rounded">Report this user</button>`
             : '<p class="text-sm text-neutral-500">(This is your public profile)</p>'}
         </div>
       `;
 
       // Update footer actions - only show if not viewing own profile
       if (currentUserId !== userId) {
-        footerActions.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center">Send Message</a>`;
+        footerActions.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Send Message</a>`;
       } else {
-         footerActions.innerHTML = `<a href="setflow-edit-profile.html" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center">Edit My Profile</a>`;
+         footerActions.innerHTML = `<a href="setflow-edit-profile.html" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Edit My Profile</a>`;
       }
 
 
@@ -117,6 +123,8 @@
     async function handleReport(type, id) {
         if (!currentUserId) {
             toast.show('You must be logged in to report content.', 'error');
+            // Redirect to login, including the current page URL as a redirect parameter
+            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
             return;
         }
         if (confirm('Are you sure you want to report this user?')) {
@@ -140,6 +148,7 @@
       if (!userId) {
         profileContainer.innerHTML = '<p class="p-5 text-center text-red-400">No user ID specified.</p>';
         profileHeaderName.innerText = "Error";
+        footerActions.innerHTML = ''; // Clear footer loading on error
         return;
       }
 
@@ -153,10 +162,14 @@
         // Render profile if user data fetched successfully
         if (userData) {
           renderProfile(userData, bands);
+        } else {
+            // Error handled by gracefulGet, clear footer
+            footerActions.innerHTML = '';
         }
       } catch (error) {
         // Errors handled by gracefulGet, log if needed
         console.error("Error fetching public profile data (already handled by gracefulGet):", error);
+        footerActions.innerHTML = ''; // Clear footer on unexpected error
       }
       // Note: If !user, the page still loads but footer/report actions adapt or fail gracefully.
     });

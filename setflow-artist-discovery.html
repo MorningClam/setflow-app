@@ -27,11 +27,12 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Showing cached artist data.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-venue-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <h1 class="text-lg font-bold tracking-tight">Artist Discovery</h1>
-    <div class="w-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6">
-    <div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Artist Discovery</h1>
+    <div class="w-9 h-9"></div> </header>
+  <main class="flex-1 px-5 py-4 pb-28 space-y-6 pt-16"> <div>
         <h2 class="text-base font-semibold text-white">Raleigh Local Charts</h2>
         <p class="text-sm text-neutral-400">Trending artists in your area.</p>
         </div>
@@ -64,14 +65,14 @@
          const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop';
 
          card.innerHTML = `
-            <a href="${profileLink}" class="flex items-center space-x-3 group flex-1 min-w-0">
+            <a href="${profileLink}" class="flex items-center space-x-3 group flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg">
                 <img class="w-12 h-12 rounded-lg object-cover bg-neutral-700 group-hover:opacity-80 transition-opacity" src="${artist.profileImageUrl || placeholderImg}" alt="${artist.name} photo">
                 <div class="min-w-0">
                     <p class="font-semibold text-white truncate group-hover:text-emerald-400 transition-colors">${artist.name}</p>
                     <p class="text-xs text-neutral-400">${artist.genres ? artist.genres.join(', ') : 'Music'} • ★ ${artist.rating || 'N/A'}</p>
                 </div>
             </a>
-            <button data-artist-id="${artist.id}" class="scout-btn ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0">Scout</button>
+            <button data-artist-id="${artist.id}" class="scout-btn ml-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Scout</button>
             `;
             // TODO: Add 'Scouted' state persistence
          container.appendChild(card);
@@ -89,8 +90,9 @@
 
          // Placeholder logic: Just splitting the list for demo
          const midPoint = Math.ceil(artists.length / 2);
-         const ratedArtists = artists.slice(0, midPoint); // Replace with actual rating sort
-         const bookedArtists = artists.slice(midPoint); // Replace with actual booking sort
+         // TODO: Replace with actual sorting based on rating and booking data when available
+         const ratedArtists = artists.slice(0, midPoint).sort((a, b) => (b.rating || 0) - (a.rating || 0));
+         const bookedArtists = artists.slice(midPoint); //.sort((a,b) => (b.bookingCount || 0) - (a.bookingCount || 0)); // Requires bookingCount field
 
          if (ratedArtists.length > 0) {
              ratedArtists.forEach(artist => renderArtistCard(highestRatedContainer, artist));
@@ -112,7 +114,9 @@
                  e.target.disabled = true;
                  e.target.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
                  e.target.classList.add('bg-neutral-700', 'cursor-not-allowed');
-                 toast.show(`${e.target.previousElementSibling.querySelector('.font-semibold').innerText} added to your scout list.`, 'success');
+                 // Find the artist name from the associated link
+                 const artistName = e.target.closest('div').querySelector('a .font-semibold')?.innerText || 'Artist';
+                 toast.show(`${artistName} added to your scout list.`, 'success');
              });
          });
      }

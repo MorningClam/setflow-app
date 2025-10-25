@@ -27,27 +27,57 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Changes will save locally and sync later.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-calendar.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-calendar.html" aria-label="Go back to calendar" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <div class="text-center">
-        <h1 class="text-lg font-bold tracking-tight">Setlist Editor</h1>
+    <div class="text-center flex-grow"> <h1 class="text-lg font-bold tracking-tight">Setlist Editor</h1>
         <p class="text-sm text-neutral-400">The Underground • Oct 2</p> </div>
-    <button class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Save</button>
+    <button class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Save</button>
   </header>
-  <main class="flex-1 divide-y divide-neutral-800 pt-16"> <div class="p-4 flex justify-between items-center hover:bg-neutral-800/50">
+  <main class="flex-1 divide-y divide-neutral-800 pt-20"> <div class="p-4 flex justify-between items-center hover:bg-neutral-800/50 focus-within:bg-neutral-800/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded">
         <div><p class="font-semibold">Uptown Funk</p><p class="text-xs text-neutral-400">Mark Ronson ft. Bruno Mars</p></div>
-        <svg class="w-6 h-6 text-neutral-500 cursor-grab" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg> </div>
-    <div class="p-4 flex justify-between items-center hover:bg-neutral-800/50">
+        <button aria-label="Drag to reorder Uptown Funk" class="p-1 text-neutral-500 cursor-grab focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">
+            <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </div>
+    <div class="p-4 flex justify-between items-center hover:bg-neutral-800/50 focus-within:bg-neutral-800/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded">
         <div><p class="font-semibold">Superstition</p><p class="text-xs text-neutral-400">Stevie Wonder</p></div>
-        <svg class="w-6 h-6 text-neutral-500 cursor-grab" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg> </div>
-     </main>
-   <footer class="p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30"> <div class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2">
-        <input type="text" placeholder="Add a song..." class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500"/>
-        <button class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium">Add</button>
-      </div>
+        <button aria-label="Drag to reorder Superstition" class="p-1 text-neutral-500 cursor-grab focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">
+            <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+    </div>
+     <div class="loading-spinner-container"><div class="loading-spinner"></div></div> </main>
+
+   <footer class="p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30">
+     <form class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <label for="add-song-input" class="sr-only">Add a song</label>
+        <input id="add-song-input" type="text" placeholder="Add a song..." class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500 focus:ring-0 border-0"/>
+        <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Add</button>
+      </form>
     </footer>
 </div>
+ <script type="module">
+     // Placeholder: Needs dynamic loading, saving, and drag/drop implementation
+     import { ui } from './api.js';
+     // TODO: Need functions like fetchSetlist(eventId), saveSetlist(eventId, songs)
+
+     document.addEventListener('DOMContentLoaded', () => {
+         const listContainer = document.querySelector('main');
+         const spinner = listContainer.querySelector('.loading-spinner-container');
+         // Simulate loading
+         setTimeout(() => {
+             if (spinner) spinner.remove();
+             // TODO: Fetch and render actual setlist data
+              toast.show('Setlist loaded (Static Example)', 'success');
+         }, 1000);
+
+         // TODO: Add save functionality to Save button
+         // TODO: Add song addition functionality to Add button/form
+         // TODO: Implement drag/drop reordering (e.g., using SortableJS library)
+     });
+ </script>
  <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
  </div>
  <script src="toast.js"></script> </body>

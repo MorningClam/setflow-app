@@ -44,38 +44,40 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Changes will save locally and sync later.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center justify-between shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-musician-profile.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight">Edit Profile</h1>
-      <button id="save-btn" form="profile-form" type="submit" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2">Save</button>
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <a href="setflow-musician-profile.html" aria-label="Go back to profile" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Edit Profile</h1>
+      <button id="save-btn" form="profile-form" type="submit" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Save</button>
     </header>
-    <main class="flex-grow p-5">
-      <form id="profile-form" class="space-y-6">
+    <main class="flex-grow p-5 pt-16"> <form id="profile-form" class="space-y-6">
         <div class="text-center">
             <div class="relative inline-block w-24 h-24">
               <img id="profile-image" class="w-full h-full bg-neutral-800 rounded-full flex items-center justify-center border-4 border-neutral-700 overflow-hidden object-cover" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop" alt="Profile picture">
-              <div class="image-loading-spinner"></div> <input type="file" id="image-upload" accept="image/*" class="hidden"> <button type="button" id="upload-btn" class="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center hover:bg-emerald-600">
+              <div class="image-loading-spinner"></div> <input type="file" id="image-upload" accept="image/*" class="hidden">
+              <button type="button" id="upload-btn" aria-label="Upload profile picture" class="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
               </button>
             </div>
         </div>
         <div>
             <label for="name" class="block text-sm font-medium text-neutral-300 mb-2">Name</label>
-            <input id="name" type="text" placeholder="Your Name or Band Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <input id="name" type="text" placeholder="Your Name or Band Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
         </div>
         <div>
             <label for="location" class="block text-sm font-medium text-neutral-300 mb-2">Location</label>
-            <input id="location" type="text" placeholder="e.g., Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <input id="location" type="text" placeholder="e.g., Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
         </div>
         <div>
             <label for="bio" class="block text-sm font-medium text-neutral-300 mb-2">Your Bio</label>
-            <textarea id="bio" rows="4" placeholder="Describe your style, experience, and what makes you unique..." class="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white resize-none"></textarea>
+            <textarea id="bio" rows="4" placeholder="Describe your style, experience, and what makes you unique..." class="w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
         <div>
             <label for="looking-for-bands" class="block text-sm font-medium text-neutral-300 mb-2">Availability</label>
             <div class="flex items-center justify-between bg-neutral-800 p-3 rounded-lg border border-neutral-700">
                 <span class="font-medium">Looking for Bands</span>
                 <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" name="looking-for-bands" id="looking-for-bands" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                    <input type="checkbox" name="looking-for-bands" id="looking-for-bands" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500"/>
                     <label for="looking-for-bands" class="toggle-label block overflow-hidden h-6 rounded-full bg-neutral-700 cursor-pointer"></label>
                 </div>
             </div>

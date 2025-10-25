@@ -26,31 +26,38 @@
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Listings will sync when back online.</div> <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-gear-swap.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div id="offline-banner">You are currently offline. Listings will sync when back online.</div>
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-gear-swap.html" aria-label="Go back to gear swap" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <h1 class="text-lg font-bold tracking-tight">List Your Item</h1>
-    <div class="w-9"></div>
-  </header>
-  <main class="flex-1 px-5 py-4 pb-28">
-    <form id="sell-item-form" class="space-y-6">
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">List Your Item</h1>
+    <div class="w-9 h-9"></div> </header>
+  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <form id="sell-item-form" class="space-y-6">
         <div>
-            <label class="block text-sm font-medium text-neutral-300 mb-2">Upload Photos</label>
-            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-700 border-dashed rounded-md">
+            <label for="photo-upload-label" class="block text-sm font-medium text-neutral-300 mb-2">Upload Photos</label>
+            <div id="photo-upload-label" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-700 border-dashed rounded-md">
                 <div class="space-y-1 text-center">
-                    <svg class="mx-auto h-12 w-12 text-neutral-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                    <div class="flex text-sm text-neutral-500"><p class="pl-1">Click to upload files</p></div>
-                     </div>
+                    <svg aria-hidden="true" class="mx-auto h-12 w-12 text-neutral-500" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <div class="flex text-sm text-neutral-500">
+                        <label for="file-upload" class="relative cursor-pointer bg-neutral-900 rounded-md font-medium text-emerald-400 hover:text-emerald-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-neutral-900 focus-within:ring-emerald-500">
+                            <span>Click to upload files</span>
+                            <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*">
+                        </label>
+                    </div>
+                     <p class="text-xs text-neutral-600">PNG, JPG, GIF up to 10MB</p>
+                 </div>
             </div>
-        </div>
+            </div>
         <div>
             <label for="item-name" class="block text-sm font-medium text-neutral-300 mb-2">Item Name</label>
-            <input id="item-name" type="text" placeholder="e.g., Strymon BlueSky Reverb" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+            <input id="item-name" type="text" placeholder="e.g., Strymon BlueSky Reverb" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="item-category" class="block text-sm font-medium text-neutral-300 mb-2">Category</label>
-                <select id="item-category" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+                <select id="item-category" class="form-select w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
                     <option>Guitar Pedals</option>
                     <option>Guitars</option>
                     <option>Amps</option>
@@ -62,21 +69,21 @@
             </div>
             <div>
                 <label for="item-price" class="block text-sm font-medium text-neutral-300 mb-2">Price ($)</label>
-                <input id="item-price" type="number" placeholder="250" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white" required>
+                <input id="item-price" type="number" placeholder="250" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
             </div>
         </div>
         <div>
             <label for="item-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-            <textarea id="item-description" rows="4" placeholder="Describe the item's condition, features, etc." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+            <textarea id="item-description" rows="4" placeholder="Describe the item's condition, features, etc." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
          <div>
             <label for="item-location" class="block text-sm font-medium text-neutral-300 mb-2">Location (Optional)</label>
-            <input id="item-location" type="text" placeholder="e.g., Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white">
+            <input id="item-location" type="text" placeholder="e.g., Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
         </div>
     </form>
   </main>
   <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="sell-item-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg">List Item for Sale</button>
+    <button type="submit" form="sell-item-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">List Item for Sale</button>
   </footer>
 </div>
 
@@ -110,7 +117,8 @@
          toast.show("Please provide at least an item name and price.", 'error');
          return;
      }
-      if (isNaN(itemPrice) || Number(itemPrice) <= 0) {
+     const priceValue = Number(itemPrice);
+      if (isNaN(priceValue) || priceValue <= 0) {
           toast.show("Please enter a valid price.", 'error');
           return;
       }
@@ -123,7 +131,7 @@
       sellerId: currentUserId,
       name: itemName,
       category: document.getElementById('item-category').value,
-      price: Number(itemPrice),
+      price: priceValue, // Use validated number
       description: document.getElementById('item-description').value.trim(),
       location: document.getElementById('item-location').value.trim(),
       // In a real app, you would handle image uploads and get a URL here.

@@ -27,11 +27,13 @@
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Earnings data may be cached.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10"> <header class="px-5 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-musician-dashboard.html" class="p-2 rounded-lg hover:bg-neutral-700">
+<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+    <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
-    <h1 class="text-lg font-bold tracking-tight">Earnings Report</h1>
-    <div class="w-9"></div> </header>
+    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Earnings Report</h1>
+    <div class="w-9 h-9"></div> </header>
   <main class="flex-1 px-5 py-4 pb-28 pt-16"> <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center mb-6">
         <p class="text-sm text-neutral-400 uppercase tracking-wider">Total Earnings (YTD)</p>
         <p class="text-4xl font-bold text-emerald-400 mt-1">$8,450</p> </div>
@@ -65,15 +67,18 @@
 
         gigs.forEach(gig => {
             const gigElement = document.createElement('div');
-            gigElement.className = 'bg-neutral-800/60 rounded-lg p-3 flex justify-between items-center';
+            // Added focus wrapper around the div content for accessibility, though making the div itself focusable might be better depending on interaction needs.
+            gigElement.className = 'bg-neutral-800/60 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
             const dateFormatted = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'}) : 'Date N/A';
 
             gigElement.innerHTML = `
+             <div class="flex justify-between items-center">
               <div>
                 <p class="font-semibold">${gig.venueName}</p>
                 <p class="text-xs text-neutral-400">${dateFormatted}</p>
               </div>
               <p class="font-bold text-emerald-400">$${gig.payout}</p>
+             </div>
             `;
             gigsListContainer.appendChild(gigElement);
         });
@@ -89,6 +94,7 @@
                 // Replace with actual API call when available
                 const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
                      // Example data structure (replace with real data)
+                     // Ensure date is a valid Date object or Firestore Timestamp for sorting
                      { id: 'gig1', venueName: 'The Underground', date: new Date('2025-10-10'), payout: 450 },
                      { id: 'gig2', venueName: 'The Pour House', date: new Date('2025-09-26'), payout: 400 },
                  ]), 1000)); // Simulate fetch delay
@@ -97,7 +103,7 @@
 
                 if (completedGigs) {
                    renderCompletedGigs(completedGigs);
-                   // TODO: Calculate and update the YTD total dynamically
+                   // TODO: Calculate and update the YTD total dynamically based on fetched gigs
                 }
             } catch (error) {
                 console.error("Error fetching earnings:", error);

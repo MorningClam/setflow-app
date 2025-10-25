@@ -23,35 +23,40 @@
       font-weight: 500;
       z-index: 9999;
     }
+    /* Apply focus style directly to star buttons */
+    .star-rating button { transition: color 0.15s ease-in-out; }
+    .star-rating button:focus { outline: none; /* Optional: remove default outline */ }
+    .star-rating button:focus-visible { color: #FBBF24; /* amber-400, show color on focus-visible */ }
     .star-rating button.selected { color: #FBBF24; /* amber-400 */ }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Review will sync when back online.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50" style="margin-top: 2.5rem;"> <a href="setflow-venue-dashboard.html" class="p-2 rounded-full hover:bg-neutral-700"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight mx-auto pr-8">Leave a Review</h1>
-    </header>
-    <main class="flex-grow p-5">
-      <div class="text-center">
+  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
+    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
+      <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
+      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Leave a Review</h1>
+      <div class="w-9 h-9"></div> </header>
+    <main class="flex-grow p-5 pt-16"> <div class="text-center">
         <h2 class="text-xl font-bold text-white">How was the performance by</h2>
         <h3 id="artist-name" class="text-2xl font-bold text-emerald-400 mt-1">Loading...?</h3> </div>
        <div class="mt-8">
-        <p class="text-center text-sm font-medium text-neutral-300 mb-2">Overall Rating</p>
-        <div id="star-rating-container" class="star-rating flex justify-center text-4xl text-neutral-600 space-x-2">
-            <button data-value="1" class="hover:text-amber-400">★</button>
-            <button data-value="2" class="hover:text-amber-400">★</button>
-            <button data-value="3" class="hover:text-amber-400">★</button>
-            <button data-value="4" class="hover:text-amber-400">★</button>
-            <button data-value="5" class="hover:text-amber-400">★</button>
+        <p class="text-center text-sm font-medium text-neutral-300 mb-2" id="rating-label">Overall Rating</p>
+        <div id="star-rating-container" class="star-rating flex justify-center text-4xl text-neutral-600 space-x-2" role="radiogroup" aria-labelledby="rating-label">
+            <button data-value="1" role="radio" aria-checked="false" aria-label="1 star" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
+            <button data-value="2" role="radio" aria-checked="false" aria-label="2 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
+            <button data-value="3" role="radio" aria-checked="false" aria-label="3 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
+            <button data-value="4" role="radio" aria-checked="false" aria-label="4 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
+            <button data-value="5" role="radio" aria-checked="false" aria-label="5 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
         </div>
       </div>
       <div class="mt-8">
         <label for="review-text" class="block text-sm font-medium text-neutral-300 mb-2">Public Review (Optional)</label>
-        <textarea id="review-text" rows="5" placeholder="e.g., True professionals. They sounded amazing and were a pleasure to work with..." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none"></textarea>
+        <textarea id="review-text" rows="5" placeholder="e.g., True professionals. They sounded amazing and were a pleasure to work with..." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
       </div>
     </main>
      <footer class="p-4">
-        <button id="submit-review-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg">Submit Review</button>
+        <button id="submit-review-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Submit Review</button>
     </footer>
   </div>
 
@@ -76,13 +81,47 @@
 
     // --- Star Rating Logic ---
     starContainer.addEventListener('click', (e) => {
-      if (e.target.tagName === 'BUTTON') {
-        rating = parseInt(e.target.dataset.value);
+      let targetButton = e.target.closest('button'); // Handle click on star icon inside button
+      if (targetButton) {
+        rating = parseInt(targetButton.dataset.value);
         stars.forEach((star, index) => {
-          star.classList.toggle('selected', index < rating);
+          const isSelected = index < rating;
+          star.classList.toggle('selected', isSelected);
+          star.setAttribute('aria-checked', isSelected ? 'true' : 'false'); // Update ARIA state
         });
       }
     });
+
+    // Add keyboard navigation for stars (basic arrow key support)
+    starContainer.addEventListener('keydown', (e) => {
+         if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+             e.preventDefault();
+             let currentFocusedIndex = Array.from(stars).findIndex(star => star === document.activeElement);
+             let nextIndex;
+             if (e.key === 'ArrowRight') {
+                 nextIndex = Math.min(currentFocusedIndex + 1, stars.length - 1);
+             } else { // ArrowLeft
+                 nextIndex = Math.max(currentFocusedIndex - 1, 0);
+             }
+             if (nextIndex >= 0 && nextIndex < stars.length) {
+                  stars[nextIndex].focus();
+                  // Optionally update rating on arrow keys, or require click/enter
+             }
+         } else if (e.key === 'Enter' || e.key === ' ') {
+              // Confirm rating if Enter/Space pressed on a star button
+              let targetButton = document.activeElement.closest('button');
+              if (targetButton && stars.includes(targetButton)) {
+                   e.preventDefault();
+                   rating = parseInt(targetButton.dataset.value);
+                   stars.forEach((star, index) => {
+                        const isSelected = index < rating;
+                        star.classList.toggle('selected', isSelected);
+                        star.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+                   });
+              }
+         }
+     });
+
 
     // --- User Authentication ---
     onAuthState((user) => {
@@ -116,7 +155,7 @@
         subjectId: subjectId, // The artist's ID
         gigId: gigId,
         rating: rating,
-        comment: reviewText.value,
+        comment: reviewText.value.trim(), // Trim comment
         type: 'venue_review_of_musician' // To distinguish review types
       };
 
