@@ -35,42 +35,12 @@
     <h1 class="text-lg font-bold tracking-tight text-center flex-grow">My Network</h1>
     <div class="w-9 h-9"></div> </header>
   <main id="network-list" class="flex-1 px-5 py-4 pb-28 space-y-3 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between">
-      <a href="#" class="flex items-center space-x-3 group flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg p-1 -m-1">
-          <div class="w-12 h-12 bg-amber-500 rounded-full flex-shrink-0"></div>
-          <div class="min-w-0">
-              <p class="font-semibold text-white truncate group-hover:text-emerald-400">The Pour House</p>
-              <p class="text-xs text-neutral-400">Venue • Raleigh, NC</p>
-          </div>
-      </a>
-      <a href="#" class="message-btn ml-2 px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-xs font-semibold flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Message</a>
-    </div>
-    <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between">
-      <a href="#" class="flex items-center space-x-3 group flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg p-1 -m-1">
-          <div class="w-12 h-12 bg-sky-500 rounded-full flex-shrink-0"></div>
-          <div class="min-w-0">
-              <p class="font-semibold text-white truncate group-hover:text-emerald-400">Blue Note Brewpub</p>
-              <p class="text-xs text-neutral-400">Venue • Durham, NC</p>
-          </div>
-      </a>
-      <a href="#" class="message-btn ml-2 px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-xs font-semibold flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Message</a>
-    </div>
-    <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between">
-       <a href="#" class="flex items-center space-x-3 group flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg p-1 -m-1">
-          <div class="w-12 h-12 bg-rose-500 rounded-full flex-shrink-0"></div>
-          <div class="min-w-0">
-              <p class="font-semibold text-white truncate group-hover:text-emerald-400">Maria (Apex Fall Fest)</p>
-              <p class="text-xs text-neutral-400">Promoter • Apex, NC</p>
-          </div>
-      </a>
-      <a href="#" class="message-btn ml-2 px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 rounded-lg text-xs font-semibold flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Message</a>
-    </div>
-  </main>
+    </main>
 </div>
  <script type="module">
      // Placeholder script for loading network contacts
-     import { onAuthState, gracefulGet, ui } from './api.js';
-     // TODO: Need an API function like fetchUserNetwork(userId)
+     import { onAuthState, gracefulGet, ui, getUserData } from './api.js'; // Assuming getUserData can fetch basic info
+     // TODO: Need an API function like fetchUserNetwork(userId) which returns an array of user IDs or basic user objects.
 
      const networkContainer = document.getElementById('network-list');
 
@@ -83,7 +53,7 @@
              return;
          }
 
-         // Clear container (including spinner/static examples)
+         // Clear container (including spinner)
          networkContainer.innerHTML = '';
 
           if (contacts.length === 0) {
@@ -95,8 +65,19 @@
          contacts.forEach(contact => {
              const contactCard = document.createElement('div');
              contactCard.className = 'bg-neutral-800 rounded-xl p-4 flex items-center justify-between';
-             const profileLink = `setflow-public-profile.html?userId=${contact.id}`; // Assuming contact has an id
-             const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop';
+
+             // --- VENUE LINK FIX ---
+             let profileLink = '';
+             // Check the role (assuming role is stored like 'Venue', 'Musician', 'Promoter')
+             // Make the check case-insensitive just in case
+             if (contact.role && contact.role.toLowerCase() === 'venue') {
+                 profileLink = `setflow-venue-profile.html?venueId=${contact.id}`; // Link to venue profile
+             } else {
+                 profileLink = `setflow-public-profile.html?userId=${contact.id}`; // Link to public profile for others
+             }
+             // --- END FIX ---
+
+             const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
 
              // Assign a default profile image (e.g., based on role) if profileImageUrl is missing
              const profileImage = contact.profileImageUrl || placeholderImg;
@@ -105,7 +86,7 @@
 
              contactCard.innerHTML = `
                  <a href="${profileLink}" class="flex items-center space-x-3 group flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg p-1 -m-1">
-                     <img class="w-12 h-12 rounded-full object-cover ${bgColorClass} group-hover:opacity-80 transition-opacity" src="${profileImage}" alt="${contact.name} photo">
+                     <img class="w-12 h-12 rounded-full object-cover ${bgColorClass} group-hover:opacity-80 transition-opacity flex-shrink-0" src="${profileImage}" alt="${contact.name} photo">
                      <div class="min-w-0">
                          <p class="font-semibold text-white truncate group-hover:text-emerald-400 transition-colors">${contact.name}</p>
                          <p class="text-xs text-neutral-400">${contact.role || 'User'} • ${contact.location || 'Location N/A'}</p>
@@ -120,19 +101,21 @@
      onAuthState(async (user) => {
          if (user) {
              try {
-                  // Placeholder fetch logic
+                  // Placeholder fetch logic - Replace with actual fetchUserNetwork
+                 // This example assumes fetchUserNetwork gets basic details directly
                  const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
                       // Example data - ensure unique IDs if using real data
-                      { id: 'venueUser1', name: 'The Pour House', role: 'Venue', location: 'Raleigh, NC', profileImageUrl: null }, // Example: use default image
-                      { id: 'venueUser2', name: 'Blue Note Brewpub', role: 'Venue', location: 'Durham, NC', profileImageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop' }, // Example with image
+                      { id: 'venueUser1', name: 'The Pour House', role: 'Venue', location: 'Raleigh, NC', profileImageUrl: null },
+                      { id: 'venueUser2', name: 'Blue Note Brewpub', role: 'Venue', location: 'Durham, NC', profileImageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop' },
                       { id: 'promoterUser1', name: 'Maria (Apex Fall Fest)', role: 'Promoter', location: 'Apex, NC', profileImageUrl: null },
+                      { id: 'musicianUser1', name: 'Alice Keys', role: 'Musician', location: 'Cary, NC', profileImageUrl: null }, // Example musician
                   ]), 1000));
 
                  const networkContacts = await gracefulGet(fetchPromise, networkContainer, "Could not load network contacts offline.");
                  renderNetwork(networkContacts); // Handles null response correctly
              } catch (error) {
                  console.error("Error loading network:", error);
-                 // Error handled by gracefulGet, no need to set innerHTML here
+                 // Error handled by gracefulGet
              }
          } else {
              window.location.href = 'setflow-login-page.html';
