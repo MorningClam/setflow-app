@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lh3.googleusercontent.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://lh3.googleusercontent.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Routing & Availability</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -52,9 +52,9 @@
         <p class="text-sm text-neutral-400 mb-4">Set the max distance you'll travel for a gig.</p>
         <div class="flex items-center justify-between mb-2">
            <label id="location-label" class="text-neutral-400 flex items-center h-5">From&nbsp;
-                <span class="loading-spinner-inline" id="location-spinner"></span>
-                <span class="font-bold text-white data-text" id="location-text">your location</span>
-            </label>
+               <span class="loading-spinner-inline" id="location-spinner"></span>
+               <span class="font-bold text-white data-text" id="location-text">your location</span>
+           </label>
           <span id="radius-display" class="text-xl font-bold text-emerald-400">75 miles</span>
         </div>
         <label for="radius-slider" class="sr-only">Travel radius in miles</label>
@@ -74,7 +74,8 @@
   </div>
 
   <script type="module">
-    import { onAuthState, getUserData, updateUserPreferences, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
+    import { onAuthState, getUserData, updateUserPreferences, isOnline } from './api.js'; // Removed gracefulGet, ui
+    import { toast } from './toast.js'; // FIX: Import toast as a module
 
     const radiusSlider = document.getElementById('radius-slider');
     const radiusDisplay = document.getElementById('radius-display');
@@ -113,8 +114,8 @@
         currentUserId = user.uid;
         saveButton.disabled = true; // Disable save until loaded
         try {
-            // Fetch user data gracefully (no main container, just manage inputs/spinners)
-            const userData = await gracefulGet(getUserData(user.uid), null, "Could not load settings offline.");
+            // FIX: Call getUserData directly. It already uses gracefulGet.
+            const userData = await getUserData(user.uid, null); 
 
             if (userData) {
               // Set location text
@@ -127,9 +128,10 @@
                 // radiusSlider.setAttribute('aria-valuenow', userData.travelRadius); // Set initial ARIA value
               }
             } else {
-                 // Error or offline without cache - gracefulGet handles toast/log
-                 showText('location', '(Unavailable)');
-                 radiusSlider.disabled = true; // Disable slider if data load failed
+                // Error or offline without cache - getUserData returns null
+                toast.show('Could not load your current settings.', 'error');
+                showText('location', '(Unavailable)');
+                radiusSlider.disabled = true; // Disable slider if data load failed
             }
         } catch (error) {
              console.error("Error loading user data:", error);
@@ -159,7 +161,7 @@
         await updateUserPreferences(currentUserId, { travelRadius: newRadius }); // Works offline
 
         saveButton.innerText = '✓ Saved!';
-         const successMessage = isOnline() ? 'Preferences saved successfully!' : 'Preferences saved locally. Will sync when online.';
+        const successMessage = isOnline() ? 'Preferences saved successfully!' : 'Preferences saved locally. Will sync when online.';
         toast.show(successMessage, 'success');
         setTimeout(() => {
           saveButton.disabled = false;
@@ -177,5 +179,5 @@
 
   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
+  </body>
 </html>

@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Musician Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <link rel="stylesheet" href="toast.css">
+  <link rel="stylesheet" href="style.css"> <style>
+    /* Specific styles for dashboard if any */
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
+      position: sticky; /* Make it sticky */
       top: 0;
       left: 0;
       right: 0;
@@ -21,262 +24,572 @@
       text-align: center;
       font-size: 0.875rem;
       font-weight: 500;
-      z-index: 9999;
+      z-index: 9998; /* Below modals, above header */
     }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Showing cached dashboard data.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <h1 class="text-lg font-bold tracking-tight pl-2">Dashboard</h1>
-      <div class="flex items-center space-x-2">
-        <a href="setflow-notifications.html" aria-label="View notifications" class="relative w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">
-          <svg aria-hidden="true" class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-          <span class="absolute -top-1 -right-1 flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>
-           <span class="sr-only">You have new notifications</span>
+<div id="offline-banner">You are currently offline. Data may be out of sync.</div>
+
+<div class="max-w-md mx-auto bg-neutral-900 min-h-screen pb-20"> <header class="sticky top-0 left-0 right-0 max-w-md mx-auto z-20 bg-neutral-900/80 backdrop-blur-sm border-b border-neutral-800 px-5 py-4">
+    <div class="flex items-center justify-between">
+      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home">
+        <img src="logo.png" alt="Setflow" class="h-7 w-auto"> </a>
+      <div class="flex items-center space-x-4">
+        <a href="setflow-inbox.html" class="relative text-neutral-400 hover:text-white" aria-label="Notifications">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <span id="notification-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center text-[10px]"></span>
         </a>
-        <a href="setflow-account-settings.html" aria-label="View account settings" class="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">
-          <svg aria-hidden="true" class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a href="setflow-account-settings.html" class="text-neutral-400 hover:text-white" aria-label="Account Settings">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         </a>
       </div>
-    </header>
-    <main class="flex-grow pb-28 pt-16"> <section class="px-5 py-6 bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border-b border-neutral-800/50">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-emerald-400 mb-2">TONIGHT'S GIG</h2>
-        <h3 class="text-2xl font-bold mb-3">The Underground</h3>
-        <div class="space-y-2 text-neutral-200 mb-4">
-            <p><strong>Load-in:</strong> 6:00 PM</p>
-            <p><strong>Set Time:</strong> 9:00 PM - 11:00 PM</p>
-        </div>
-        <div class="grid grid-cols-2 gap-3 mb-3">
-            <a href="setflow-show-sheet.html" class="w-full text-center py-2 bg-emerald-500/80 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">View Show Sheet</a>
-            <button id="get-directions-btn" data-address="The Underground, Raleigh, NC" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Get Directions</button>
-        </div>
-        <a href="setflow-find-a-player.html" class="text-xs text-center block text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Need a last-minute sub? Find a player.</a>
-      </section>
+    </div>
+  </header>
 
-      <section class="px-5 py-5 space-y-4">
-         <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50">
-            <div class="flex items-center space-x-4">
-                <div class="relative"><svg aria-hidden="true" class="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36"><circle class="text-neutral-700" stroke-width="3" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/><circle class="text-emerald-500" stroke-width="3" stroke-dasharray="85, 100" stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/></svg><span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-emerald-400">85%</span></div>
-                <div class="flex-1">
-                    <p class="font-semibold text-white">Profile Strength: Strong</p>
-                    <p class="text-sm text-neutral-300">Next step: Add a video link to stand out.</p>
-                    <a href="setflow-musician-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 mt-1 inline-block focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Update Profile →</a>
-                </div>
-            </div>
-         </div>
+  <main class="px-5 py-6">
 
-         <a href="setflow-pricing-page.html" class="block bg-neutral-800 rounded-xl p-4 border border-emerald-500/50 hover:border-emerald-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-             <div class="flex items-center space-x-4">
-                 <div class="flex-1">
-                     <p class="font-bold text-lg text-emerald-400">🚀 Go Pro</p>
-                     <p class="text-sm text-neutral-300">Get unlimited gig applications, profile boosts, and advanced analytics.</p>
-                 </div>
-                  <span aria-hidden="true" class="text-xl">&rarr;</span>
-             </div>
-         </a>
-
-         <div class="grid grid-cols-2 gap-4">
-            <a href="setflow-earnings-report.html" class="block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center hover:bg-neutral-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-                <p class="text-xs text-neutral-400 uppercase tracking-wider">This Month's Earnings</p>
-                <p class="text-2xl font-bold text-emerald-400 mt-1">$1,250</p>
-            </a>
-            <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 flex flex-col items-center justify-center text-center">
-                <p class="font-semibold text-white">Need to block a date?</p>
-                <button id="open-modal-btn" class="mt-2 w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">+ Quick-Add Unavailability</button>
-            </div>
-         </div>
-      </section>
-
-      <section class="py-4">
-        <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">Open Gigs Near You</h4><a href="setflow-browse-gigs.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">See All</a></div>
-        <div id="nearby-gigs-container" class="space-y-3 px-5">
-             <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-        </div>
-      </section>
-
-      <section class="py-4">
-        <div class="px-5 flex justify-between items-center mb-3"><h4 class="text-sm font-medium uppercase tracking-wider text-neutral-500">My Network</h4><a href="setflow-network.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">View All</a></div>
-        <div class="grid grid-cols-3 gap-4 px-5">
-            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><div class="w-12 h-12 bg-amber-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">The Pour House</p></a>
-            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><div class="w-12 h-12 bg-sky-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">Blue Note Brewpub</p></a>
-            <a href="#" class="block bg-neutral-800 rounded-xl p-3 text-center hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><div class="w-12 h-12 bg-rose-500 rounded-full mx-auto"></div><p class="text-xs font-medium text-white mt-2 truncate">Apex Fall Fest</p></a>
-        </div>
-      </section>
-    </main>
-
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
-      <a href="setflow-musician-dashboard.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg aria-hidden="true" class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
-      <a href="setflow-browse-gigs.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
-      <a href="setflow-calendar.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Calendar</span></button></a>
-      <a href="setflow-inbox.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg aria-hidden="true" class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
-    </nav>
+    <div class="mb-8">
+      <h1 id="welcome-header" class="text-3xl font-bold text-white">Welcome, Musician!</h1>
+      <p class="text-neutral-400">Here's your command center.</p>
     </div>
 
-  <div id="block-date-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-5 z-50" role="dialog" aria-modal="true" aria-labelledby="block-date-modal-title">
-      <div class="bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm">
-          <div class="p-6 text-center">
-              <h3 id="block-date-modal-title" class="text-xl font-bold text-white mt-4">Block Off a Date</h3>
-              <p class="text-sm text-neutral-400 mt-1">Select a date you are unavailable to play.</p>
+    <div id="profile-strength-widget" class="bg-neutral-800 rounded-lg p-4 mb-6 border border-neutral-700/60 relative">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-semibold text-white">Profile Strength: <span id="profile-strength-percent" class="text-emerald-400">Loading...</span></h3>
+        <a href="setflow-profile-setup.html" class="text-sm text-emerald-400 hover:text-emerald-300">Edit Profile</a>
+      </div>
+      <div class="w-full bg-neutral-700 rounded-full h-2.5 mb-2">
+        <div id="profile-strength-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 10%"></div>
+      </div>
+      <p class="text-sm text-neutral-400" id="profile-strength-prompt">Complete your profile to get noticed!</p>
+    </div>
+
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-xl font-semibold text-white">My Schedule</h2>
+        <a href="setflow-calendar.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300">View Calendar</a>
+      </div>
+      <div id="schedule-loading" class="text-center p-4 text-neutral-400">
+        <div class="loading-spinner h-6 w-6 mx-auto"></div>
+      </div>
+      <div id="schedule-list" class="space-y-3">
+        </div>
+      <div id="schedule-empty" class="hidden text-center py-6 px-4 bg-neutral-800 rounded-lg border border-neutral-700/60">
+        <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-white">No Upcoming Gigs</h3>
+        <p class="mt-1 text-sm text-neutral-400">Apply for a gig or block off dates to see them here.</p>
+        <div class="mt-6 flex justify-center space-x-4">
+          <button id="open-modal-btn" data-modal-target="#block-date-modal" class="px-4 py-2 text-sm font-medium text-white bg-neutral-700 rounded-lg hover:bg-neutral-600">Block Date</button>
+          <a href="setflow-browse-gigs.html" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-500">Find Gigs</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-xl font-semibold text-white">Open Gigs Near You</h2>
+        <a href="setflow-browse-gigs.html" class="text-sm font-medium text-emerald-400 hover:text-emerald-300">See All</a>
+      </div>
+      <div id="gigs-loading" class="text-center p-4 text-neutral-400">
+        <div class="loading-spinner h-6 w-6 mx-auto"></div>
+      </div>
+      <div id="gigs-list" class="grid grid-cols-1 gap-4">
+        </div>
+      <div id="gigs-empty" class="hidden text-center py-6 px-4 bg-neutral-800 rounded-lg border border-neutral-700/60">
+        <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-white">No Gigs Found</h3>
+        <p class="mt-1 text-sm text-neutral-400">Try adjusting your availability or location radius.</p>
+        <div class="mt-6">
+          <a href="setflow-routing-availability.html" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-500">Edit Availability</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold text-white mb-3">Payouts (Last 6 Months)</h2>
+      <div class="bg-neutral-800 rounded-lg p-4 border border-neutral-700/60">
+        <canvas id="payoutChart" height="150"></canvas>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="block-date-modal" class="modal-container hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-overlay"></div>
+    <div class="modal-content transform transition-all sm:max-w-lg sm:w-full">
+      <div class="bg-neutral-800 rounded-lg shadow-xl p-6 relative"> <div class="absolute top-0 right-0 pt-4 pr-4">
+          <button type="button" class="modal-close-x p-1 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-emerald-500" aria-label="Close">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-emerald-900 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-          <div class="p-4">
-            <div class="bg-neutral-900/50 p-4 rounded-lg">
-              <label for="block-date-input" class="sr-only">Date to block</label>
-              <input id="block-date-input" type="date" class="w-full bg-neutral-700 border-neutral-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-white" id="modal-title">Block Off Date</h3>
+            <div class="mt-2">
+              <p class="text-sm text-neutral-400">Add a date to your calendar when you are unavailable for gigs.</p>
             </div>
           </div>
-          <div class="p-4 flex flex-col space-y-3">
-              <button id="confirm-block-date-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Confirm & Block Date</button>
-              <button id="close-modal-btn" class="w-full py-2 bg-transparent hover:bg-neutral-700 text-neutral-300 text-sm font-bold rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Cancel</button>
+        </div>
+        <form id="block-date-form" class="mt-5 space-y-4">
+          <div>
+            <label for="block-date" class="block text-sm font-medium text-neutral-300">Date</label>
+            <input type="date" name="block-date" id="block-date" class="form-input mt-1 block w-full bg-neutral-700 border-neutral-600 text-white" required>
           </div>
+          <div>
+            <label for="block-reason" class="block text-sm font-medium text-neutral-300">Reason (Optional)</label>
+            <input type="text" name="block-reason" id="block-reason" class="form-input mt-1 block w-full bg-neutral-700 border-neutral-600 text-white" placeholder="e.g., Vacation, Personal">
+          </div>
+          <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-fow-row-dense">
+            <button type="submit" id="confirm-block-date" class="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-500 sm:col-start-2">Confirm</button>
+            <button type="button" id="close-modal-btn" class="modal-close w-full px-4 py-2 bg-neutral-700 text-white rounded-lg font-medium hover:bg-neutral-600 mt-3 sm:mt-0 sm:col-start-1">Cancel</button>
+          </div>
+        </form>
       </div>
+    </div>
   </div>
-  <script>
-    // --- Modal Functionality ---
-    const openModalBtn = document.getElementById('open-modal-btn');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const modal = document.getElementById('block-date-modal');
-    if (openModalBtn && closeModalBtn && modal) {
-        openModalBtn.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
-        closeModalBtn.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
-        // Close modal on escape key
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && modal.classList.contains('flex')) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        });
-        // Close modal on outside click
-        modal.addEventListener('click', (event) => {
-             if (event.target === modal) {
-                 modal.classList.add('hidden');
-                 modal.classList.remove('flex');
-             }
-        });
+
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30 bg-neutral-800 border-t border-neutral-700">
+    <div class="flex justify-around items-center h-16">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active" aria-current="page">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" />
+        </svg>
+        <span class="text-xs font-medium">Home</span>
+      </a>
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span class="text-xs font-medium">Gigs</span>
+      </a>
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span class="text-xs font-medium">Applied</span>
+      </a>
+      <a href="setflow-inbox.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" />
+        </svg>
+        <span class="text-xs font-medium">Inbox</span>
+      </a>
+      <a href="setflow-account-settings.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <span class="text-xs font-medium">Menu</span>
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
+
+<script type="module">
+  import { onAuthState, fetchCalendarEvents, gracefulGet, getDoc, doc, db, getUserData, createCalendarEvent } from './api.js'; // Added getUserData
+  import { toast } from './toast.js';
+  import { initModals } from './app.js'; // Import modal initializer
+
+  // --- START FIX (Critical Issue #1) ---
+  // Check for a toast message from a previous page (e.g., after profile setup)
+  // This needs to run on page load, outside of onAuthState
+  document.addEventListener('DOMContentLoaded', () => {
+    const toastMessage = sessionStorage.getItem('showToast');
+    if (toastMessage) {
+      const [message, type] = toastMessage.split('|');
+      toast.show(message, type || 'success');
+      sessionStorage.removeItem('showToast'); // Clear it so it doesn't show again
     }
+    
+    // Initialize modals
+    initModals();
+  });
+  // --- END FIX ---
 
-    // --- Get Directions Functionality ---
-    const getDirectionsBtn = document.getElementById('get-directions-btn');
-    if(getDirectionsBtn) {
-        getDirectionsBtn.addEventListener('click', () => {
-          const venueAddress = getDirectionsBtn.dataset.address || "The Underground, Raleigh, NC"; // Get address from data attribute or use placeholder
-          const encodedAddress = encodeURIComponent(venueAddress);
-          // Use standard Google Maps URL and open in new tab
-          window.open(`https://www.google.com/maps/search/?api=1&query={encodedAddress}`, '_blank');
-        });
-    }
-  </script>
+  const welcomeHeader = document.getElementById('welcome-header');
+  const scheduleList = document.getElementById('schedule-list');
+  const scheduleLoading = document.getElementById('schedule-loading');
+  const scheduleEmpty = document.getElementById('schedule-empty');
+  const gigsList = document.getElementById('gigs-list');
+  const gigsLoading = document.getElementById('gigs-loading');
+  const gigsEmpty = document.getElementById('gigs-empty');
+  const notificationBadge = document.getElementById('notification-badge');
+  
+  // Profile Strength Widget
+  const profileStrengthWidget = document.getElementById('profile-strength-widget');
+  const profileStrengthBar = document.getElementById('profile-strength-bar');
+  const profileStrengthPercent = document.getElementById('profile-strength-percent');
+  const profileStrengthPrompt = document.getElementById('profile-strength-prompt');
 
-  <script type="module">
-    import { onAuthState, getUserData, fetchGigs, gracefulGet, ui, createCalendarEvent, isOnline } from './api.js'; // Added createCalendarEvent, isOnline
+  let currentUserId = null;
 
-    const nearbyGigsContainer = document.getElementById('nearby-gigs-container');
-    const confirmBlockDateBtn = document.getElementById('confirm-block-date-btn'); // Button inside modal
-    const blockDateInput = document.getElementById('block-date-input'); // Date input inside modal
-    let currentUserId = null; // Store current user ID
-
-    // Function to render nearby gigs (placeholder implementation)
-    function renderNearbyGigs(gigs) {
-        if (!gigs) {
-             // Error handled by gracefulGet
-             nearbyGigsContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading nearby gigs.</p>';
-             return;
+  onAuthState(async (user) => {
+    if (user) {
+      currentUserId = user.uid;
+      
+      // Load user data, then load gigs and schedule
+      try {
+        const userData = await getUserData(user.uid, null); // Pass null for container
+        
+        if (userData && userData.name) {
+          welcomeHeader.textContent = `Welcome, ${userData.name.split(' ')[0]}!`;
+        } else {
+          welcomeHeader.textContent = 'Welcome, Musician!';
         }
+        
+        // Update profile strength
+        updateProfileStrengthUI(userData);
+        
+        // Load data
+        loadSchedule(user.uid);
+        loadOpenGigs(user.uid);
+        
+        // Setup notification listener
+        setupNotificationListener(user.uid);
+        
+        // Setup block date form
+        setupBlockDateForm(user.uid);
 
-        // Clear container (spinner/error) before rendering
-        nearbyGigsContainer.innerHTML = '';
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        toast.show("Could not load your data.", "error");
+        // Hide loaders even on error
+        scheduleLoading.style.display = 'none';
+        gigsLoading.style.display = 'none';
+        scheduleEmpty.style.display = 'block';
+        gigsEmpty.style.display = 'block';
+      }
+      
+      loadPayoutChart(); // Load chart (static data for now)
+      
+    } else {
+      window.location.href = 'setflow-login-page.html';
+    }
+  });
 
-         if (gigs.length === 0) {
-            nearbyGigsContainer.innerHTML = '<p class="text-neutral-500 text-sm">No open gigs found near you currently.</p>';
-            return;
-        }
-
-        // Show only the first few gigs, e.g., 3
-        gigs.slice(0, 3).forEach(gig => {
-            const gigElement = document.createElement('a');
-            gigElement.href = `setflow-gig-detail-view.html?id=${gig.id}`;
-            // Added focus styles
-            gigElement.className = 'block bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 hover:bg-neutral-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
-            gigElement.innerHTML = `
-                <p class="font-medium text-white">${gig.venueName}</p>
-                <p class="text-xs text-neutral-400">${gig.formattedDate} • ${gig.genre || 'Music'} • $${gig.payout}</p>
-            `;
-            nearbyGigsContainer.appendChild(gigElement);
-        });
+  function updateProfileStrengthUI(userData) {
+    if (!userData) {
+        profileStrengthPercent.textContent = 'Error';
+        profileStrengthPrompt.textContent = 'Could not load profile data.';
+        profileStrengthBar.style.width = '0%';
+        return;
     }
 
-    // --- Block Date Modal Logic ---
-     if (confirmBlockDateBtn && blockDateInput && modal && closeModalBtn) {
-         confirmBlockDateBtn.addEventListener('click', async () => {
-             const dateValue = blockDateInput.value;
-             if (!dateValue) {
-                 toast.show('Please select a date.', 'error');
-                 return;
-             }
-             if (!currentUserId) {
-                 toast.show('Error: User not identified.', 'error');
-                 return;
-             }
+    let score = 10; // Base score for having an account
+    let prompts = [];
 
-             confirmBlockDateBtn.disabled = true;
-             confirmBlockDateBtn.innerText = 'Blocking...';
+    if (userData.bio && userData.bio.length > 20) {
+        score += 30;
+    } else {
+        prompts.push('Add a detailed bio');
+    }
 
-             try {
-                 // Create a calendar event for the blocked date
-                 await createCalendarEvent({
-                     userId: currentUserId,
-                     title: 'Unavailable',
-                     type: 'Personal (Blocked Off)',
-                     date: dateValue,
-                     time: '00:00', // Default time, maybe make this optional or allow time range
-                     notes: 'Blocked off via dashboard quick-add.'
-                 }); // Works offline
+    if (userData.location) {
+        score += 20;
+    } else {
+        prompts.push('Add your location');
+    }
+    
+    // Placeholder for links/media
+    if (userData.website || userData.spotify || userData.instagram) {
+         score += 20;
+    } else {
+         prompts.push('Add links (website, Spotify, etc.)');
+    }
+    
+    // Placeholder for profile picture (assuming a field 'profileImageUrl')
+    if (userData.profileImageUrl) {
+        score += 20;
+    } else {
+        prompts.push('Add a profile picture');
+    }
 
-                 const successMessage = isOnline() ? 'Date blocked successfully!' : 'Date blocked locally. Will sync when online.';
-                 toast.show(successMessage, 'success');
-                 modal.classList.add('hidden'); modal.classList.remove('flex'); // Close modal
-                 blockDateInput.value = ''; // Reset date input
+    // Cap at 100
+    score = Math.min(score, 100);
 
-             } catch (error) {
-                 console.error("Error blocking date:", error);
-                 toast.show('Could not block date. Please try again.', 'error');
-             } finally {
-                 confirmBlockDateBtn.disabled = false;
-                 confirmBlockDateBtn.innerText = 'Confirm & Block Date';
-             }
-         });
-     }
+    profileStrengthBar.style.width = `${score}%`;
+    profileStrengthPercent.textContent = `${score}%`;
 
+    if (score === 100) {
+        profileStrengthPrompt.textContent = 'Your profile is looking great!';
+        profileStrengthWidget.classList.add('border-emerald-500/50'); // Add green border
+    } else {
+        profileStrengthPrompt.textContent = `Next step: ${prompts[0]}`;
+    }
+  }
 
-    onAuthState(async (user) => {
-      if (user) {
-        currentUserId = user.uid; // Store user ID
-        try {
-            // Fetch user data (no container, just get data or null)
-            const userData = await gracefulGet(getUserData(user.uid), null); // Pass null container
-            if (userData && userData.name) {
-              const dashboardTitle = document.querySelector('header h1');
-              dashboardTitle.innerText = `${userData.name}'s Dashboard`;
-            }
+  async function loadSchedule(userId) {
+    const events = await fetchCalendarEvents(userId, scheduleLoading);
+    
+    if (!events) {
+      scheduleLoading.style.display = 'none';
+      scheduleEmpty.style.display = 'block';
+      scheduleEmpty.querySelector('p').textContent = 'Could not load schedule data.';
+      return;
+    }
 
-            // Fetch nearby gigs using gracefulGet, manage container state
-            const nearbyGigs = await gracefulGet(fetchGigs(), nearbyGigsContainer, "Could not load nearby gigs offline.");
-            renderNearbyGigs(nearbyGigs); // Render (handles null response)
+    if (events.length === 0) {
+      scheduleLoading.style.display = 'none';
+      scheduleEmpty.style.display = 'block';
+      return;
+    }
 
-        } catch(error) {
-             console.error("Error loading dashboard data (error likely handled):", error);
-             // Ensure nearby gigs container shows an error if not already handled by gracefulGet
-              if (!nearbyGigsContainer.innerHTML.includes('Error') && !nearbyGigsContainer.innerHTML.includes('offline')) {
-                   nearbyGigsContainer.innerHTML = '<p class="text-red-400 text-sm">Error loading nearby gigs.</p>';
+    scheduleList.innerHTML = ''; // Clear
+    
+    // Get today at midnight for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Filter for upcoming events (today or later)
+    const upcomingEvents = events
+        .filter(event => event.dateObject >= today)
+        .sort((a, b) => a.dateObject - b.dateObject); // Sort ascending
+        
+    if (upcomingEvents.length === 0) {
+      scheduleLoading.style.display = 'none';
+      scheduleEmpty.style.display = 'block';
+      scheduleEmpty.querySelector('p').textContent = 'You have no upcoming events.';
+      return;
+    }
+
+    upcomingEvents.slice(0, 3).forEach(event => { // Show max 3
+      const eventTypeClass = event.type === 'gig' ? 'border-emerald-500' : 'border-amber-500';
+      const eventIcon = event.type === 'gig'
+        ? `<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z"></path></svg>`
+        : `<svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+      
+      const card = `
+        <div class="bg-neutral-800 rounded-lg p-4 flex items-center space-x-4 border-l-4 ${eventTypeClass}">
+          <div class="flex-shrink-0">
+            ${eventIcon}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-white truncate">${event.title}</p>
+            <p class="text-sm text-neutral-400">${event.formattedDate} at ${event.formattedTime}</p>
+          </div>
+          <a href="setflow-show-sheet.html?id=${event.gigId || event.id}" class="text-sm text-emerald-400 hover:text-emerald-300 ${event.type === 'gig' ? '' : 'hidden'}">Details</a>
+        </div>
+      `;
+      scheduleList.innerHTML += card;
+    });
+    
+    scheduleLoading.style.display = 'none';
+  }
+
+  async function loadOpenGigs(userId) {
+    // This is a placeholder. We need a function to query gigs *near* the user
+    // or matching their preferences. For now, we'll just get *all* gigs
+    // and filter out any they *own*.
+    const allGigs = await gracefulGet(getDoc(doc(db, "gigs_metadata", "all")), gigsLoading);
+    
+    if (!allGigs || !allGigs.exists()) {
+      gigsLoading.style.display = 'none';
+      gigsEmpty.style.display = 'block';
+      if (!allGigs) gigsEmpty.querySelector('p').textContent = 'Could not load gigs.';
+      return;
+    }
+    
+    const gigData = allGigs.data().listings || [];
+    
+    // Filter out gigs owned by the current user
+    const openGigs = gigData
+        .filter(gig => gig.ownerId !== userId && gig.status === 'open')
+        .sort((a, b) => (a.date?.toDate() || 0) - (b.date?.toDate() || 0)); // Sort by date
+    
+    if (openGigs.length === 0) {
+      gigsLoading.style.display = 'none';
+      gigsEmpty.style.display = 'block';
+      return;
+    }
+
+    gigsList.innerHTML = ''; // Clear
+    
+    openGigs.slice(0, 3).forEach(gig => { // Show max 3
+      const date = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric'
+          }) : 'Date TBD';
+      
+      const card = `
+        <a href="setflow-gig-detail-view.html?id=${gig.id}" class="block bg-neutral-800 rounded-lg p-4 hover:bg-neutral-700 transition-colors">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-lg font-semibold text-white truncate">${gig.venueName}</p>
+              <p class="text-sm text-neutral-400">${gig.location || 'Location TBD'}</p>
+            </div>
+            <span class="text-lg font-bold text-emerald-400">$${gig.payout || 'N/A'}</span>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-sm">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-900 text-emerald-300">
+              ${gig.genre || 'Open Genre'}
+            </span>
+            <span class="text-neutral-400">${date}</span>
+          </div>
+        </a>
+      `;
+      gigsList.innerHTML += card;
+    });
+    
+    gigsLoading.style.display = 'none';
+  }
+
+  function setupNotificationListener(userId) {
+    // Placeholder: Real implementation would use onSnapshot on a 
+    // 'notifications' collection or listen for message collection changes.
+    // For now, we'll just check for unread messages.
+    // This is not real-time, but shows the concept.
+    
+    /*
+    const q = query(collection(db, "conversations"), 
+      where("participants", "array-contains", userId),
+      where("lastMessage.readBy", "not-in", [userId]) // This query won't work exactly
+    );
+    
+    onSnapshot(q, (snapshot) => {
+       if (snapshot.size > 0) {
+           notificationBadge.textContent = snapshot.size;
+           notificationBadge.classList.remove('hidden');
+       } else {
+           notificationBadge.classList.add('hidden');
+       }
+    });
+    */
+    
+    // Simulated badge
+    // setTimeout(() => {
+    //   notificationBadge.textContent = '1';
+    //   notificationBadge.classList.remove('hidden');
+    // }, 5000);
+  }
+
+  function loadPayoutChart() {
+    const ctx = document.getElementById('payoutChart');
+    if (!ctx) return;
+    
+    // Static data
+    const labels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+    const data = [150, 400, 250, 600, 800, 550];
+
+    new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Payout',
+          data: data,
+          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(16, 185, 129, 1)',
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#171717', // neutral-900
+            titleFont: { size: 14, weight: 'bold' },
+            bodyFont: { size: 12 },
+            padding: 10,
+            cornerRadius: 4,
+            callbacks: {
+              label: function(context) {
+                return `Payout: $${context.parsed.y}`;
               }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+            ticks: {
+              color: '#a3a3a3', // neutral-400
+              callback: function(value) { return '$' + value; }
+            }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#a3a3a3' } // neutral-400
+          }
         }
-      } else {
-        window.location.href = 'setflow-login-page.html';
       }
     });
-  </script>
-   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script> </body>
+  }
+
+  function setupBlockDateForm(userId) {
+    const form = document.getElementById('block-date-form');
+    const confirmBtn = document.getElementById('confirm-block-date');
+    if (!form || !confirmBtn) return;
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const date = document.getElementById('block-date').value;
+      const reason = document.getElementById('block-reason').value;
+      
+      if (!date) {
+        toast.show("Please select a date.", "error");
+        return;
+      }
+      
+      const [year, month, day] = date.split('-');
+      // Use a default time (e.g., noon UTC) for date-only events
+      const eventDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+
+      const eventData = {
+        userId: userId,
+        title: reason || 'Blocked Date',
+        type: 'blocked',
+        date: eventDate, // Will be converted to Timestamp by API
+        notes: 'Blocked via dashboard quick action'
+      };
+      
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Saving...';
+      
+      try {
+        await createCalendarEvent(eventData);
+        toast.show("Date blocked successfully!", "success");
+        
+        // Close modal (assumes modal-close class is on cancel button)
+        document.getElementById('close-modal-btn').click(); 
+        
+        // Refresh schedule
+        loadSchedule(userId);
+        
+      } catch (error) {
+        console.error("Error blocking date:", error);
+        toast.show(`Error: ${error.message}`, "error");
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirm';
+        form.reset();
+      }
+    });
+  }
+
+</script>
+
+</body>
 </html>
