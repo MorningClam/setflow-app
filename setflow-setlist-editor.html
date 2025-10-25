@@ -3,82 +3,309 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Setflow - Setlist Editor</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';"> <title>Setflow - Setlist Editor</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif;}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Style for dragged item */
+    .sortable-ghost {
+        opacity: 0.4; background-color: theme('colors.neutral.700');
+    }
+    .sortable-drag { /* Optional: Style item being dragged */
+        opacity: 0.9;
+    }
+    .drag-handle { cursor: grab; }
+    .drag-handle:active { cursor: grabbing; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Changes will save locally and sync later.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-calendar.html" aria-label="Go back to calendar" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <div class="text-center flex-grow"> <h1 class="text-lg font-bold tracking-tight">Setlist Editor</h1>
-        <p class="text-sm text-neutral-400">The Underground • Oct 2</p> </div>
-    <button class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Save</button>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm"> <div class="flex h-10 items-center justify-between"> <a href="setflow-calendar.html" aria-label="Go back to calendar" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <div class="flex-grow text-center">
+        <h1 class="text-lg font-semibold tracking-tight">Setlist Editor</h1>
+        <p id="event-context" class="text-sm text-neutral-400">Loading Event...</p>
+      </div>
+       <button id="save-setlist-btn" class="w-auto flex-shrink-0 rounded-xl px-4 py-1 text-base font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50">Save</button>
+    </div>
   </header>
-  <main class="flex-1 divide-y divide-neutral-800 pt-20"> <div class="p-4 flex justify-between items-center hover:bg-neutral-800/50 focus-within:bg-neutral-800/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded">
-        <div><p class="font-semibold">Uptown Funk</p><p class="text-xs text-neutral-400">Mark Ronson ft. Bruno Mars</p></div>
-        <button aria-label="Drag to reorder Uptown Funk" class="p-1 text-neutral-500 cursor-grab focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">
-            <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-    </div>
-    <div class="p-4 flex justify-between items-center hover:bg-neutral-800/50 focus-within:bg-neutral-800/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded">
-        <div><p class="font-semibold">Superstition</p><p class="text-xs text-neutral-400">Stevie Wonder</p></div>
-        <button aria-label="Drag to reorder Superstition" class="p-1 text-neutral-500 cursor-grab focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">
-            <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-    </div>
-     <div class="loading-spinner-container"><div class="loading-spinner"></div></div> </main>
 
-   <footer class="p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30">
-     <form class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+   <main id="setlist-container" class="flex-1 divide-y divide-neutral-700 pt-24 pb-24"> <div class="flex justify-center items-center py-10" id="loading-state">
+      <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+    </div>
+     <div class="hidden py-10 text-center" id="empty-state">
+      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-white">Empty Setlist</h3>
+      <p class="mt-1 text-sm text-neutral-400">Add songs using the input below.</p>
+    </div>
+    <div class="hidden py-10 text-center text-red-400" id="error-state">
+        <p>Could not load setlist.</p>
+    </div>
+    <div id="sortable-list">
+        <div class="setlist-item flex items-center justify-between p-4 group hover:bg-neutral-800 focus-within:bg-neutral-800">
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-white truncate">Uptown Funk</p>
+                <p class="text-xs text-neutral-400 truncate">Mark Ronson ft. Bruno Mars</p>
+            </div>
+            <button aria-label="Drag to reorder Uptown Funk" class="drag-handle p-2 text-neutral-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full">
+                <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <button aria-label="Remove Uptown Funk" class="delete-song-btn ml-1 p-2 text-red-500/50 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+        </div>
+  </main>
+
+   <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+     <form id="add-song-form" class="flex items-center space-x-2 rounded-xl border border-neutral-700 bg-neutral-800 p-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
         <label for="add-song-input" class="sr-only">Add a song</label>
-        <input id="add-song-input" type="text" placeholder="Add a song..." class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500 focus:ring-0 border-0"/>
-        <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Add</button>
+        <input id="add-song-input" type="text" placeholder="Add song title (e.g., Song Name - Artist)" class="flex-1 border-0 bg-transparent px-2 py-1 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
+        <button type="submit" class="flex-shrink-0 rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:opacity-50">Add</button>
       </form>
     </footer>
+</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
+
  <script type="module">
-     // Placeholder: Needs dynamic loading, saving, and drag/drop implementation
-     import { ui } from './api.js';
-     // TODO: Need functions like fetchSetlist(eventId), saveSetlist(eventId, songs)
+     import { onAuthState, gracefulGet, isOnline } from './api.js';
+     // TODO: Need functions like fetchSetlist(eventId), saveSetlist(eventId, songs), getEventDetails(eventId)
 
-     document.addEventListener('DOMContentLoaded', () => {
-         const listContainer = document.querySelector('main');
-         const spinner = listContainer.querySelector('.loading-spinner-container');
-         // Simulate loading
-         setTimeout(() => {
-             if (spinner) spinner.remove();
-             // TODO: Fetch and render actual setlist data
-              toast.show('Setlist loaded (Static Example)', 'success');
-         }, 1000);
+     const setlistContainer = document.getElementById('setlist-container');
+     const sortableList = document.getElementById('sortable-list');
+     const loadingState = document.getElementById('loading-state');
+     const emptyState = document.getElementById('empty-state');
+     const errorState = document.getElementById('error-state');
+     const addSongForm = document.getElementById('add-song-form');
+     const addSongInput = document.getElementById('add-song-input');
+     const saveButton = document.getElementById('save-setlist-btn');
+     const eventContext = document.getElementById('event-context');
+     const offlineBanner = document.getElementById('offline-banner');
 
-         // TODO: Add save functionality to Save button
-         // TODO: Add song addition functionality to Add button/form
-         // TODO: Implement drag/drop reordering (e.g., using SortableJS library)
+     const urlParams = new URLSearchParams(window.location.search);
+     const eventId = urlParams.get('eventId') || urlParams.get('gigId'); // Allow gigId or eventId
+     let currentUserId = null;
+     let currentSongs = []; // Store the current song list
+     let sortableInstance = null;
+
+      // Update offline banner based on initial status
+     offlineBanner.style.display = isOnline() ? 'none' : 'block';
+     // Listen for network changes
+     document.body.addEventListener('app:network-change', (event) => {
+         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+     });
+
+
+     // --- Render Functions ---
+     function renderSetlist(songs) {
+         // Clear previous items
+         sortableList.innerHTML = '';
+
+         if (!songs) { // Error case
+             loadingState.style.display = 'none';
+             emptyState.style.display = 'none';
+             errorState.style.display = 'block';
+             return;
+         }
+
+         currentSongs = songs; // Update local state
+
+         if (songs.length === 0) {
+             loadingState.style.display = 'none';
+             errorState.style.display = 'none';
+             emptyState.style.display = 'block';
+         } else {
+             loadingState.style.display = 'none'; // Hide states
+             emptyState.style.display = 'none';
+             errorState.style.display = 'none';
+
+             songs.forEach((song, index) => {
+                 // Song object structure might be { title: "...", artist: "..." } or just a string
+                 const title = typeof song === 'string' ? song.split(' - ')[0] : song.title;
+                 const artist = typeof song === 'string' ? song.split(' - ')[1] : song.artist;
+
+                 const item = document.createElement('div');
+                 // Use canonical list item structure (modified)
+                 item.className = 'setlist-item flex items-center justify-between p-4 group hover:bg-neutral-800 focus-within:bg-neutral-800';
+                 item.dataset.id = index; // Simple index as ID for now
+
+                 item.innerHTML = `
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-white truncate">${title || 'Untitled Song'}</p>
+                        ${artist ? `<p class="text-xs text-neutral-400 truncate">${artist}</p>` : ''}
+                    </div>
+                    <button aria-label="Remove ${title}" class="delete-song-btn ml-1 p-2 text-red-500/50 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <button aria-label="Drag to reorder ${title}" class="drag-handle p-2 text-neutral-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full ml-1">
+                        <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                 `;
+                 sortableList.appendChild(item);
+             });
+         }
+          // Initialize or update SortableJS after rendering
+         initSortable();
+     }
+
+     // --- SortableJS ---
+     function initSortable() {
+         if (sortableInstance) {
+             sortableInstance.destroy(); // Destroy previous instance if exists
+         }
+          if (sortableList.children.length > 0) { // Only init if there are items
+                sortableInstance = new Sortable(sortableList, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost', // Class for placeholder
+                    dragClass: 'sortable-drag', // Class for dragged item
+                    handle: '.drag-handle', // Specify drag handle element
+                    onEnd: function (evt) {
+                        // Update currentSongs array order after drag
+                        const movedItem = currentSongs.splice(evt.oldIndex, 1)[0];
+                        currentSongs.splice(evt.newIndex, 0, movedItem);
+                        console.log("New song order:", currentSongs);
+                        // Optionally re-render or just update data for saving
+                        // For simplicity, we assume the DOM order is now correct
+                        saveButton.disabled = false; // Enable save button after reorder
+                    },
+                });
+          }
+     }
+
+     // --- Event Listeners ---
+     addSongForm.addEventListener('submit', (e) => {
+         e.preventDefault();
+         const songInput = addSongInput.value.trim();
+         if (songInput) {
+             // Basic parsing: "Title - Artist"
+             const parts = songInput.split('-');
+             const newSong = {
+                 title: parts[0].trim(),
+                 artist: parts[1] ? parts[1].trim() : null
+             };
+             // Add to local array and re-render
+             currentSongs.push(newSong);
+             renderSetlist(currentSongs); // Re-renders the list
+             addSongInput.value = '';
+             saveButton.disabled = false; // Enable save after adding
+         }
+     });
+
+     sortableList.addEventListener('click', (e) => {
+         const deleteButton = e.target.closest('.delete-song-btn');
+         if (deleteButton) {
+             const itemElement = deleteButton.closest('.setlist-item');
+             const itemIndex = Array.from(sortableList.children).indexOf(itemElement);
+             if (itemIndex > -1) {
+                 currentSongs.splice(itemIndex, 1); // Remove from array
+                 itemElement.remove(); // Remove from DOM
+                 saveButton.disabled = false; // Enable save after deleting
+             }
+         }
+     });
+
+     saveButton.addEventListener('click', async () => {
+         if (!currentUserId || !eventId) {
+             toast.show("Error: Cannot save setlist.", "error");
+             return;
+         }
+         saveButton.disabled = true;
+         saveButton.textContent = "Saving...";
+
+         try {
+             // TODO: Implement saveSetlist(eventId, currentSongs) in api.js
+             // This function should update the event/gig document with the new songs array.
+             // await saveSetlist(eventId, currentSongs); // Works offline potentially
+
+             // Simulate save
+             await new Promise(res => setTimeout(res, 500));
+
+             const successMessage = isOnline() ? "Setlist saved!" : "Setlist saved locally.";
+             toast.show(successMessage, "success");
+             // Optionally disable save button again until next change, or keep enabled
+             saveButton.textContent = "Save";
+
+         } catch (error) {
+             console.error("Error saving setlist:", error);
+             toast.show("Could not save setlist. Please try again.", "error");
+             saveButton.disabled = false; // Re-enable on error
+             saveButton.textContent = "Save";
+         }
+     });
+
+     // --- Initial Load ---
+     onAuthState(async (user) => {
+         if (!user) {
+             window.location.href = 'setflow-login-page.html';
+             return;
+         }
+         currentUserId = user.uid;
+
+         loadingState.style.display = 'flex'; // Show loading
+         emptyState.style.display = 'none';
+         errorState.style.display = 'none';
+         saveButton.disabled = true; // Disable save initially
+
+         if (!eventId) {
+             renderSetlist(null); // Show error state
+             eventContext.textContent = "Error: No Event ID";
+             return;
+         }
+
+         try {
+             // Placeholder: Fetch event details and setlist concurrently
+             // TODO: Replace with actual API calls: gracefulGet(getEventDetails(eventId)), gracefulGet(fetchSetlist(eventId))
+             const fetchEventPromise = new Promise(res => setTimeout(() => res({ name: 'The Underground Gig', date: 'Oct 2' }), 500));
+             const fetchSetlistPromise = new Promise(res => setTimeout(() => res([
+                 { title: 'Uptown Funk', artist: 'Mark Ronson ft. Bruno Mars' },
+                 { title: 'Superstition', artist: 'Stevie Wonder' },
+                 { title: 'Valerie', artist: 'Amy Winehouse' }
+             ]), 1000));
+
+             const [eventDetails, initialSongs] = await Promise.all([
+                 gracefulGet(fetchEventPromise, null),
+                 gracefulGet(fetchSetlistPromise, null, "Could not load setlist offline.")
+             ]);
+
+             // Update header context
+             if (eventDetails) {
+                 eventContext.textContent = `${eventDetails.name} • ${eventDetails.date}`;
+             } else {
+                 eventContext.textContent = "Event Details Unavailable";
+             }
+
+             renderSetlist(initialSongs); // Render list (handles null)
+
+         } catch (error) {
+             console.error("Error loading setlist page:", error);
+             renderSetlist(null); // Show error state
+             eventContext.textContent = "Error Loading Event";
+         }
      });
  </script>
- <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>

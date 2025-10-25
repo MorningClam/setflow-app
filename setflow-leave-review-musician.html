@@ -7,119 +7,133 @@
   <title>Setflow - Leave a Review</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
-    /* Apply focus style directly to star buttons */
+    /* Canonical Star Rating Styles */
     .star-rating button { transition: color 0.15s ease-in-out; }
-    .star-rating button:focus { outline: none; /* Optional: remove default outline */ }
-    .star-rating button:focus-visible { color: #FBBF24; /* amber-400, show color on focus-visible */ }
-    .star-rating button.selected { color: #FBBF24; /* amber-400 */ }
+    .star-rating button:focus { outline: none; }
+    /* Use ring for focus visibility on stars */
+    .star-rating button:focus-visible { outline: none; position: relative; }
+    .star-rating button:focus-visible::after {
+        content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+        border: 2px solid theme('colors.emerald.500'); border-radius: 9999px;
+    }
+    .star-rating button.selected { color: theme('colors.amber.400'); } /* amber-400 */
+    .star-rating button:not(.selected) { color: theme('colors.neutral.600'); } /* neutral-600 for unselected */
+    .star-rating button:hover:not(.selected) { color: theme('colors.amber.300'); } /* Lighter amber on hover */
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Review will sync when back online.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Leave a Review</h1>
-      <div class="w-9 h-9"></div> </header>
-    <main class="flex-grow p-5 pt-16"> <div class="text-center">
-        <h2 class="text-xl font-bold text-white">How was your gig at</h2>
-        <h3 id="venue-name" class="text-2xl font-bold text-amber-400 mt-1">Loading...</h3> </div>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Leave a Review</h1>
+        <div class="w-10 h-10"></div> </div>
+    </header>
+
+    <main class="flex-grow p-5 pt-20 pb-24"> <div class="text-center">
+        <h2 class="text-xl font-semibold text-white">How was your gig at</h2>
+        <h3 id="venue-name" class="mt-1 text-2xl font-bold text-amber-400">Loading...</h3> </div>
+
       <div class="mt-8">
-        <p class="text-center text-sm font-medium text-neutral-300 mb-2">Your Rating</p>
-        <div id="star-rating-container" class="star-rating flex justify-center text-4xl text-neutral-600 space-x-2" role="radiogroup" aria-labelledby="rating-label">
-            <span id="rating-label" class="sr-only">Rate the venue</span> <button data-value="1" role="radio" aria-checked="false" aria-label="1 star" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
-            <button data-value="2" role="radio" aria-checked="false" aria-label="2 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
-            <button data-value="3" role="radio" aria-checked="false" aria-label="3 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
-            <button data-value="4" role="radio" aria-checked="false" aria-label="4 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
-            <button data-value="5" role="radio" aria-checked="false" aria-label="5 stars" class="hover:text-amber-400 focus:outline-none"><span aria-hidden="true">★</span></button>
+        <p class="mb-2 text-center text-sm font-semibold text-neutral-300" id="rating-label">Your Rating</p>
+        <div id="star-rating-container" class="star-rating flex justify-center space-x-2 text-4xl" role="radiogroup" aria-labelledby="rating-label">
+            <button data-value="1" role="radio" aria-checked="false" aria-label="1 star" class="rounded-full p-1"><span aria-hidden="true">★</span></button>
+            <button data-value="2" role="radio" aria-checked="false" aria-label="2 stars" class="rounded-full p-1"><span aria-hidden="true">★</span></button>
+            <button data-value="3" role="radio" aria-checked="false" aria-label="3 stars" class="rounded-full p-1"><span aria-hidden="true">★</span></button>
+            <button data-value="4" role="radio" aria-checked="false" aria-label="4 stars" class="rounded-full p-1"><span aria-hidden="true">★</span></button>
+            <button data-value="5" role="radio" aria-checked="false" aria-label="5 stars" class="rounded-full p-1"><span aria-hidden="true">★</span></button>
         </div>
       </div>
-      <div class="mt-8">
-        <label for="review-text" class="block text-sm font-medium text-neutral-300 mb-2">Your Review (Optional)</label>
-        <textarea id="review-text" rows="5" placeholder="e.g., Great communication, professional sound engineer, and a fun crowd..." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+
+       <div class="mt-8">
+         <label for="review-text" class="mb-2 block text-sm font-semibold text-neutral-300">Your Review (Optional)</label>
+        <textarea id="review-text" rows="5" placeholder="e.g., Great communication, professional sound engineer, and a fun crowd..." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
       </div>
     </main>
-    <footer class="p-4">
-        <button id="submit-review-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Submit Review</button>
+
+     <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+        <button id="submit-review-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Submit Review</button>
     </footer>
-  </div>
+  </div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, createReview, isOnline } from './api.js'; // Import isOnline
+    import { onAuthState, createReview, isOnline } from './api.js';
 
     const starContainer = document.getElementById('star-rating-container');
     const stars = starContainer.querySelectorAll('button');
     const reviewText = document.getElementById('review-text');
     const submitButton = document.getElementById('submit-review-btn');
     const venueNameDisplay = document.getElementById('venue-name');
+    const offlineBanner = document.getElementById('offline-banner');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const subjectId = urlParams.get('venueId'); // The ID of the venue being reviewed
+    const subjectId = urlParams.get('venueId'); // Venue being reviewed
     const gigId = urlParams.get('gigId');
     const venueName = urlParams.get('venueName') || 'the Venue';
 
-    venueNameDisplay.innerText = decodeURIComponent(venueName); // Set name immediately
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
+    venueNameDisplay.textContent = decodeURIComponent(venueName); // Use textContent
 
     let currentUserId = null;
     let rating = 0;
 
     // --- Star Rating Logic ---
+    function updateStarsUI(selectedRating) {
+        stars.forEach((star, index) => {
+          const isSelected = index < selectedRating;
+          star.classList.toggle('selected', isSelected);
+          star.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+        });
+    }
+
     starContainer.addEventListener('click', (e) => {
-      let targetButton = e.target.closest('button'); // Handle click on star icon inside button
+      let targetButton = e.target.closest('button');
       if (targetButton) {
         rating = parseInt(targetButton.dataset.value);
-        stars.forEach((star, index) => {
-          const isSelected = index < rating;
-          star.classList.toggle('selected', isSelected);
-          star.setAttribute('aria-checked', isSelected ? 'true' : 'false'); // Update ARIA state
-        });
+        updateStarsUI(rating);
       }
     });
 
-     // Add keyboard navigation for stars (basic arrow key support)
      starContainer.addEventListener('keydown', (e) => {
+         let currentFocusedIndex = Array.from(stars).findIndex(star => star === document.activeElement);
          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
              e.preventDefault();
-             let currentFocusedIndex = Array.from(stars).findIndex(star => star === document.activeElement);
              let nextIndex;
              if (e.key === 'ArrowRight') {
                  nextIndex = Math.min(currentFocusedIndex + 1, stars.length - 1);
-             } else { // ArrowLeft
+             } else {
                  nextIndex = Math.max(currentFocusedIndex - 1, 0);
              }
-             if (nextIndex >= 0 && nextIndex < stars.length) {
-                  stars[nextIndex].focus();
-                  // Optionally update rating on arrow keys, or require click/enter
-                  // rating = parseInt(stars[nextIndex].dataset.value);
-                  // stars.forEach((star, index) => star.classList.toggle('selected', index < rating));
-             }
+             if (nextIndex >= 0 && nextIndex < stars.length) stars[nextIndex].focus();
          } else if (e.key === 'Enter' || e.key === ' ') {
-              // Confirm rating if Enter/Space pressed on a star button
               let targetButton = document.activeElement.closest('button');
               if (targetButton && stars.includes(targetButton)) {
                    e.preventDefault();
                    rating = parseInt(targetButton.dataset.value);
-                   stars.forEach((star, index) => {
-                        const isSelected = index < rating;
-                        star.classList.toggle('selected', isSelected);
-                        star.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-                   });
+                   updateStarsUI(rating);
               }
          }
      });
@@ -136,48 +150,39 @@
 
     // --- Form Submission Logic ---
     submitButton.addEventListener('click', async () => {
-      if (!currentUserId) {
-        toast.show("You must be logged in to leave a review.", 'error');
-        return;
-      }
-      if (rating === 0) {
-        toast.show("Please select a star rating.", 'error');
-        return;
-      }
-      if (!subjectId || !gigId) {
-        toast.show("Error: Could not identify the venue or gig for this review. Please go back and try again.", 'error');
-        return;
-      }
+      if (!currentUserId) { toast.show("You must be logged in.", 'error'); return; }
+      if (rating === 0) { toast.show("Please select a star rating.", 'error'); return; }
+      if (!subjectId || !gigId) { toast.show("Error: Missing venue or gig ID.", 'error'); return; }
 
       submitButton.disabled = true;
-      submitButton.innerText = 'Submitting...';
+      submitButton.textContent = 'Submitting...';
 
       const reviewData = {
         reviewerId: currentUserId,
-        subjectId: subjectId, // The venue's ID
+        subjectId: subjectId, // Venue's ID
         gigId: gigId,
         rating: rating,
-        comment: reviewText.value.trim(), // Trim comment
-        type: 'musician_review_of_venue' // To distinguish review types
+        comment: reviewText.value.trim(),
+        type: 'musician_review_of_venue'
       };
 
       try {
         await createReview(reviewData); // Works offline
         const successMessage = isOnline() ? 'Thank you for your review!' : 'Review saved locally. Will sync when online.';
-        toast.show(successMessage, 'success');
-        setTimeout(() => { // Redirect after showing success
-           window.location.href = 'setflow-musician-dashboard.html';
-        }, 1500);
+        // Set toast for the next page
+        sessionStorage.setItem('showToast', `${successMessage}|success`);
+        // Redirect immediately
+        window.location.href = 'setflow-musician-dashboard.html';
+
       } catch (error) {
         console.error("Failed to submit review:", error);
-        toast.show("There was an error submitting your review. Please try again.", 'error');
+        toast.show("Error submitting review. Please try again.", 'error');
         submitButton.disabled = false;
-        submitButton.innerText = 'Submit Review';
+        submitButton.textContent = 'Submit Review';
       }
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-  </div>
-  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
+  <script type="module" src="./api.js"></script>
+ </body>
 </html>

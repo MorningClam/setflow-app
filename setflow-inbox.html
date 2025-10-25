@@ -7,138 +7,197 @@
   <title>Setflow - Inbox</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Bottom Nav Styles */
+    .bottom-nav-link { /* Duplicated from musician-dashboard, centralize if possible */
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Messages may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-        <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-            <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Inbox</h1>
-        <div class="w-9 h-9"></div> </header>
-    <main id="inbox-container" class="flex-grow divide-y divide-neutral-800 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    </main>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Inbox</h1>
+        <div class="w-10 h-10"></div> </div>
+    </header>
 
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
-       <a href="setflow-musician-dashboard.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
-       <a href="setflow-browse-gigs.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
-       <a href="setflow-calendar.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Calendar</span></button></a>
-       <a href="setflow-inbox.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-xs font-medium">Inbox</span></button></a>
+    <main id="inbox-container" class="flex-grow divide-y divide-neutral-700 pt-16 pb-20"> <div class="flex justify-center items-center py-10" id="loading-state">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+      </div>
+       <div class="hidden py-10 text-center" id="empty-state">
+        <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+           <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+        </svg>
+        <h3 class="mt-2 text-lg font-semibold text-white">No Messages Yet</h3>
+        <p class="mt-1 text-sm text-neutral-400">Start a conversation with venues or artists.</p>
+      </div>
+       <div class="hidden py-10 text-center text-red-400" id="error-state">
+          <p>Could not load messages.</p>
+      </div>
+      </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+       <div class="flex h-16 items-center justify-around">
+           <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Home">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
+               <span class="text-xs font-medium">Home</span>
+           </a>
+           <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
+               <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+               <span class="text-xs font-medium">Gigs</span>
+           </a>
+           <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Applied">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               <span class="text-xs font-medium">Applied</span>
+           </a>
+           <a href="setflow-inbox.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Inbox">
+               <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
+               <span class="text-xs font-medium">Inbox</span>
+           </a>
+           <a href="setflow-account-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Menu">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+               <span class="text-xs font-medium">Menu</span>
+           </a>
+       </div>
      </nav>
-     </div>
+  </div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, getConversations, gracefulGet, ui } from './api.js'; // Import helpers
+    import { onAuthState, getConversations, gracefulGet, isOnline } from './api.js'; // Removed ui import
 
     const inboxContainer = document.getElementById('inbox-container');
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
+    const offlineBanner = document.getElementById('offline-banner');
     const placeholderImage = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop';
 
-    // Show initial loading spinner
-    ui.loading.show(inboxContainer);
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
 
     function formatTimestamp(timestamp) {
         if (!timestamp) return '';
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); // Handle potential non-timestamp formats if necessary
-        if (isNaN(date)) return ''; // Handle invalid date
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        if (isNaN(date)) return '';
         const now = new Date();
         const diffSeconds = Math.floor((now - date) / 1000);
         const diffDays = Math.floor(diffSeconds / 86400);
 
         if (diffDays > 1) {
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        } else if (diffDays === 1 || date.getDate() !== now.getDate()) { // Check if it's yesterday or older than today
+        } else if (diffDays === 1 || date.getDate() !== now.getDate()) {
             return 'Yesterday';
         } else {
-            // It's today, show time
             return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
         }
     }
 
 
     function renderConversations(conversations, currentUserId) {
-        // gracefulGet handles spinner/error display
-        if (!conversations) {
-            // Error handled by gracefulGet
-             if (!inboxContainer.innerHTML.includes('Error') && !inboxContainer.innerHTML.includes('offline')) {
-                inboxContainer.innerHTML = `<p class="p-5 text-center text-red-400">Could not load messages.</p>`;
-             }
+        // Clear previous items, keep state divs
+        const existingItems = inboxContainer.querySelectorAll('a.conversation-item');
+        existingItems.forEach(item => item.remove());
+
+        if (!conversations) { // Error case from gracefulGet
+            loadingState.style.display = 'none';
+            emptyState.style.display = 'none';
+            errorState.style.display = 'block'; // Show error
             return;
         }
 
-        // Clear container before rendering
-        inboxContainer.innerHTML = '';
-
-         if (conversations.length === 0) {
-            inboxContainer.innerHTML = `<p class="p-5 text-center text-neutral-500">You have no messages yet.</p>`;
+        if (conversations.length === 0) {
+            loadingState.style.display = 'none';
+            errorState.style.display = 'none';
+            emptyState.style.display = 'block'; // Show empty
             return;
         }
 
+        loadingState.style.display = 'none'; // Hide states
+        emptyState.style.display = 'none';
+        errorState.style.display = 'none';
 
         conversations.forEach(convo => {
             const convoLink = document.createElement('a');
             convoLink.href = `setflow-conversation-view.html?recipientId=${convo.otherUserId}`;
-            // Added focus styles to link
-            convoLink.className = 'w-full text-left p-5 flex items-center space-x-4 hover:bg-neutral-800/50 focus:outline-none focus:bg-neutral-800/50 focus:ring-2 focus:ring-inset focus:ring-emerald-500';
+            // Apply Canonical List Item style
+            convoLink.className = 'conversation-item flex items-center justify-between p-4 rounded-lg hover:bg-neutral-800 focus:outline-none focus:bg-neutral-800 focus:ring-2 focus:ring-inset focus:ring-emerald-500';
 
             const lastMessageText = convo.lastMessage?.text ? (convo.lastMessage.senderId === currentUserId
                 ? `You: ${convo.lastMessage.text}`
                 : convo.lastMessage.text) : 'No messages yet...';
 
+            // Unread indicator (placeholder logic)
+            const isUnread = false; // Replace with actual unread logic
+            const unreadDot = isUnread ? '<span class="ml-2 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500"></span>' : '';
+
             convoLink.innerHTML = `
-                <div class="relative flex-shrink-0">
-                    <img class="w-12 h-12 rounded-lg object-cover" src="${convo.otherUserImage || placeholderImage}" alt="${convo.otherUserName}">
+                <div class="flex flex-1 items-center space-x-4 min-w-0">
+                    <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${convo.otherUserImage || placeholderImage}" alt="${convo.otherUserName}">
+                    <div class="flex-grow overflow-hidden">
+                        <p class="truncate font-semibold text-white">${convo.otherUserName}</p>
+                        <p class="mt-1 truncate text-sm text-neutral-400">${lastMessageText}</p>
                     </div>
-                <div class="flex-grow overflow-hidden">
-                    <div class="flex justify-between items-baseline">
-                        <p class="font-bold text-white truncate">${convo.otherUserName}</p>
-                        <p class="text-xs text-neutral-400 flex-shrink-0 ml-2">${formatTimestamp(convo.lastMessage?.timestamp)}</p>
-                    </div>
-                    <div class="flex justify-between items-baseline mt-1">
-                        <p class="text-sm text-neutral-400 truncate">${lastMessageText}</p>
-                        </div>
+                </div>
+                <div class="ml-2 flex flex-shrink-0 flex-col items-end text-right">
+                    <p class="text-xs text-neutral-400">${formatTimestamp(convo.lastMessage?.timestamp)}</p>
+                    ${unreadDot}
                 </div>
             `;
-            inboxContainer.appendChild(convoLink);
+            // Insert before the state divs
+            inboxContainer.insertBefore(convoLink, loadingState);
         });
     }
 
     onAuthState(async (user) => {
         if (user) {
+            loadingState.style.display = 'flex'; // Show loading
+            emptyState.style.display = 'none';
+            errorState.style.display = 'none';
             try {
-                // Use gracefulGet to fetch conversations, managing loading/error state
-                const conversations = await gracefulGet(getConversations(user.uid), inboxContainer, "Could not load messages while offline.");
-                // Render only if fetch succeeded
-                if (conversations) {
-                  renderConversations(conversations, user.uid);
-                }
+                // Use gracefulGet, manage states manually
+                const conversations = await gracefulGet(getConversations(user.uid), null, "Could not load messages while offline.");
+                renderConversations(conversations, user.uid); // Handles null/empty response
             } catch (error) {
-                // Error already displayed by gracefulGet
-                console.error("Failed to load conversations (already handled by gracefulGet):", error);
+                console.error("Failed to load conversations:", error);
+                renderConversations(null, user.uid); // Show error state
             }
         } else {
             window.location.href = 'setflow-login-page.html';
         }
     });
   </script>
-   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script> </body>
+
+   <script type="module" src="./api.js"></script>
+ </body>
 </html>

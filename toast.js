@@ -1,5 +1,5 @@
 /* =========================================================================
- * Setflow Toast Notification Utility
+ * Setflow Toast Notification Utility (Canonical Version)
  * ========================================================================= */
 
 const toast = {
@@ -7,60 +7,71 @@ const toast = {
   messageElement: null,
   timeoutId: null,
 
-  /**
-   * Initializes the toast utility by finding the necessary elements.
-   * Should be called once the DOM is ready.
-   */
   init: function() {
     this.element = document.getElementById('toast-notification');
     this.messageElement = document.getElementById('toast-message');
     if (!this.element || !this.messageElement) {
-      console.error("Toast notification elements not found in the DOM.");
+      console.error("Toast elements (#toast-notification, #toast-message) not found.");
     }
   },
 
   /**
-   * Shows a toast notification.
+   * Shows a toast notification using canonical styles.
    * @param {string} message - The message to display.
-   * @param {string} type - 'success' (default) or 'error'.
-   * @param {number} duration - How long to show the toast in milliseconds (default: 3000).
+   * @param {'success'|'error'} [type='success'] - Type of toast.
+   * @param {number} [duration=3000] - Duration in milliseconds.
    */
   show: function(message, type = 'success', duration = 3000) {
     if (!this.element || !this.messageElement) {
-      // Fallback to alert if toast elements aren't found
-      console.warn("Toast UI not found, falling back to alert for message:", message);
+      // Fallback alert if elements missing
+      console.warn("Toast UI not found, using alert:", message);
       alert(message);
       return;
     }
 
-    // Clear any existing timeout
     clearTimeout(this.timeoutId);
 
-    // Set message and type class
     this.messageElement.textContent = message;
-    this.element.classList.remove('toast-success', 'toast-error');
+
+    // Remove previous type classes, apply new one based on canonical names
+    this.element.classList.remove('bg-emerald-500', 'bg-red-600'); // Remove specific colors
     if (type === 'error') {
-      this.element.classList.add('toast-error');
+      this.element.classList.add('bg-red-600'); // Canonical error color
     } else {
-      this.element.classList.add('toast-success');
+      this.element.classList.add('bg-emerald-500'); // Canonical success color
     }
 
-    // Show toast
+    // Show toast using opacity transition
     this.element.classList.remove('opacity-0');
+    // Force reflow might be needed for transition if hiding immediately before showing
+    // void this.element.offsetWidth;
     this.element.classList.add('opacity-100');
 
-    // Set timeout to hide
+
     this.timeoutId = setTimeout(() => {
-      this.element.classList.remove('opacity-100');
-      this.element.classList.add('opacity-0');
+      this.hide(); // Call hide method
     }, duration);
+  },
+
+  /**
+   * Hides the currently displayed toast.
+   */
+  hide: function() {
+     if (this.element) {
+        this.element.classList.remove('opacity-100');
+        this.element.classList.add('opacity-0');
+     }
+     clearTimeout(this.timeoutId); // Clear timeout if hidden manually
   }
 };
 
-// Initialize toast when the DOM is ready
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   toast.init();
 });
 
-// Make toast globally accessible
+// Expose globally (optional, but used by inline handlers)
 window.toast = toast;
+
+// Export if using as a module elsewhere (though currently used globally)
+// export { toast };

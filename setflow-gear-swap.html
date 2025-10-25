@@ -7,106 +7,145 @@
   <title>Setflow - Gear Swap</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Showing cached gear listings.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 shadow-md border-b border-neutral-700/50">
-    <div class="flex items-center justify-between">
-      <a href="setflow-moremenu.html" aria-label="Go back to more options" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Gear Swap</h1>
-      <a href="setflow-sell-item.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sell</a>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm">
+    <div class="flex h-10 items-center justify-between">
+      <a href="setflow-moremenu.html" aria-label="Go back to more options" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gear Swap</h1>
+      <a href="setflow-sell-item.html" class="w-auto flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sell</a>
     </div>
     <div class="mt-3">
-      <div class="flex items-center bg-neutral-800 border border-neutral-700 rounded-lg px-3 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-        <svg class="w-4 h-4 text-neutral-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        <input type="search" aria-label="Search gear" placeholder="Search for pedals, guitars, amps..." class="w-full py-2 bg-transparent text-sm outline-none placeholder-neutral-500 focus:ring-0 border-0">
+      <div class="flex items-center rounded-xl border border-neutral-700 bg-neutral-800 px-3 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <svg class="mr-2 h-4 w-4 flex-shrink-0 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <input type="search" aria-label="Search gear" placeholder="Search for pedals, guitars, amps..." class="w-full border-0 bg-transparent py-2 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0">
       </div>
     </div>
   </header>
-  <main id="gear-container" class="flex-1 px-5 py-4 pb-28 grid grid-cols-2 gap-4 pt-32"> <div class="loading-spinner-container col-span-2"><div class="loading-spinner"></div></div>
-  </main>
+
+  <main id="gear-container" class="grid flex-1 grid-cols-2 gap-4 p-5 pt-36"> <div class="col-span-2 flex justify-center items-center py-10" id="loading-state">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+    </div>
+    <div class="hidden col-span-2 py-10 text-center" id="empty-state">
+      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.388m1.622 3.388l2.87-2.87a3 3 0 00-4.242-4.242l-2.87 2.87c-.18.18-.335.378-.464.592m2.87-2.87l-1.622-3.388a15.994 15.994 0 00-3.388 1.622m-1.622 3.388l-2.87 2.87a3 3 0 004.242 4.242l2.87-2.87c.18-.18.335-.378.464-.592m-2.87 2.87l1.622 3.388a15.994 15.994 0 003.388-1.622m3.388 1.622l2.87 2.87a3 3 0 004.242-4.242l-2.87-2.87c-.18-.18-.335-.378-.464-.592m-2.87-2.87l1.622-3.388a15.994 15.994 0 00-3.388-1.622m-3.388-1.622l-2.87-2.87a3 3 0 00-4.242 4.242l2.87 2.87c.18.18.335.378.464.592z" />
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-white">No Gear Listed</h3>
+      <p class="mt-1 text-sm text-neutral-400">Be the first to list an item for sale!</p>
+       <div class="mt-6">
+            <a href="setflow-sell-item.html" class="w-auto rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white ...">Sell Your Gear</a>
+       </div>
+    </div>
+     <div class="hidden col-span-2 py-10 text-center text-red-400" id="error-state">
+        <p>Could not load gear listings.</p>
+    </div>
+    </main>
+  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, fetchGearListings, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
+  import { onAuthState, fetchGearListings, gracefulGet, isOnline } from './api.js';
 
   const gearContainer = document.getElementById('gear-container');
+  const loadingState = document.getElementById('loading-state');
+  const emptyState = document.getElementById('empty-state');
+  const errorState = document.getElementById('error-state');
+  const offlineBanner = document.getElementById('offline-banner');
 
-  // Show initial loading spinner (already added in HTML)
-  // ui.loading.show(gearContainer); // Not needed if spinner is in HTML
+  // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
+
 
   function renderListings(listings) {
-    // gracefulGet handles spinner removal / error display
-    if (!listings) {
-        // Error shown by gracefulGet
+    // Clear previous items
+    const existingItems = gearContainer.querySelectorAll('a.gear-card');
+    existingItems.forEach(item => item.remove());
+
+    if (!listings) { // Error case
+        loadingState.style.display = 'none';
+        emptyState.style.display = 'none';
+        errorState.style.display = 'block';
         return;
     }
 
-    // Clear container (including spinner/error message) before rendering
-    gearContainer.innerHTML = '';
-
-     if (listings.length === 0) {
-      gearContainer.innerHTML = `<p class="col-span-2 text-center mt-8 text-neutral-500">No gear has been listed for sale yet.</p>`;
+    if (listings.length === 0) {
+      loadingState.style.display = 'none';
+      errorState.style.display = 'none';
+      emptyState.style.display = 'block';
       return;
     }
+
+    loadingState.style.display = 'none'; // Hide states
+    emptyState.style.display = 'none';
+    errorState.style.display = 'none';
 
 
     listings.forEach(item => {
       const itemCard = document.createElement('a');
       itemCard.href = `setflow-gear-detail.html?id=${item.id}`;
-      // Added focus styles
-      itemCard.className = 'block bg-neutral-800 rounded-xl border border-neutral-700/60 overflow-hidden hover:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
-      // Provide a placeholder image if item.imageUrl is missing
+      // Apply Canonical Card Style (Grid item variant)
+      itemCard.className = 'gear-card group block overflow-hidden rounded-xl border border-neutral-700 bg-neutral-800 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
       const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop';
       itemCard.innerHTML = `
-        <img class="h-32 w-full object-cover" src="${imageUrl}" alt="${item.name}">
+        <img class="h-32 w-full object-cover transition-opacity group-hover:opacity-80" src="${imageUrl}" alt="${item.name}">
         <div class="p-3">
-            <h3 class="font-semibold text-white truncate">${item.name}</h3>
+            <h3 class="truncate font-semibold text-white">${item.name}</h3>
             <p class="text-sm text-neutral-400">${item.location || 'USA'}</p>
-            <p class="text-lg font-bold text-emerald-400 mt-1">$${item.price}</p>
+            <p class="mt-1 text-lg font-bold text-emerald-400">$${item.price}</p>
         </div>
       `;
-      gearContainer.appendChild(itemCard);
+       // Insert before the state divs
+       gearContainer.insertBefore(itemCard, loadingState);
     });
   }
 
   onAuthState(async (user) => {
     if (user) {
+      loadingState.style.display = 'flex'; // Show loading
+      emptyState.style.display = 'none';
+      errorState.style.display = 'none';
       try {
-        // Use gracefulGet to fetch listings, managing loading/error state
-        const listings = await gracefulGet(fetchGearListings(), gearContainer, "Could not load gear listings while offline.");
-        // Render only if fetch succeeded
-        if (listings) {
-            renderListings(listings);
-        }
+        // Use gracefulGet, manage states manually
+        const listings = await gracefulGet(fetchGearListings(), null, "Could not load gear listings while offline.");
+        renderListings(listings); // Handles null/empty response
       } catch (error) {
-        // Error already displayed by gracefulGet
-        console.error("Failed to fetch gear listings (already handled by gracefulGet):", error);
+        console.error("Failed to fetch gear listings:", error);
+        renderListings(null); // Show error state
       }
     } else {
       window.location.href = 'setflow-login-page.html';
     }
   });
 </script>
- <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>

@@ -7,105 +7,134 @@
   <title>Setflow - Conversation</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
-    /* Ensure message container scrolls */
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Ensure message container scrolls smoothly */
     #messages-container { scroll-behavior: smooth; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Messages will send when connection returns.</div>
-  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-inbox.html" aria-label="Go back to inbox" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <div class="text-center flex-grow"> <h1 id="recipient-name" class="text-lg font-bold tracking-tight">Loading...</h1>
-          </div>
-       <div class="w-9 h-9"></div> </header>
-    <main id="messages-container" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 pt-16" style="padding-bottom: 8rem;"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    </main>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-inbox.html" aria-label="Go back to inbox" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <div class="flex-grow text-center">
+            <h1 id="recipient-name" class="text-lg font-semibold tracking-tight">Loading...</h1>
+            </div>
+        <div class="w-10 h-10"></div> </div>
+    </header>
 
-    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-      <div class="flex items-center space-x-2 mb-2">
-        <button onclick="quickReply('On my way!')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">On my way!</button>
-        <button onclick="quickReply('Thanks!')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">Thanks!</button>
-        <button onclick="quickReply('Sounds good 👍')" class="px-3 py-1 bg-neutral-700 text-xs text-neutral-200 rounded-full hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sounds good 👍</button>
+    <main id="messages-container" class="flex-1 space-y-4 overflow-y-auto px-4 pt-20 pb-40"> <div class="flex justify-center items-center py-10" id="loading-state">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
       </div>
-      <form id="message-form" class="bg-neutral-800 border border-neutral-700 rounded-xl p-2 flex items-center space-x-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 bg-transparent text-sm outline-none placeholder-neutral-500 focus:ring-0 border-0"/>
-        <button id="send-btn" type="submit" aria-label="Send message" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Send</button>
+      <div class="hidden py-10 text-center" id="empty-state">
+          <p class="text-sm text-neutral-500">No messages yet. Say hello!</p>
+      </div>
+       <div class="hidden p-5 text-center text-red-400" id="error-state">
+          <p>Could not load messages.</p>
+      </div>
+      </main>
+
+    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+      <div class="mb-2 flex flex-wrap items-center gap-2">
+        <button onclick="quickReply('On my way!')" class="rounded-full bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-200 transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">On my way!</button>
+        <button onclick="quickReply('Thanks!')" class="rounded-full bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-200 transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">Thanks!</button>
+        <button onclick="quickReply('Sounds good 👍')" class="rounded-full bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-200 transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sounds good 👍</button>
+      </div>
+      <form id="message-form" class="flex items-center space-x-2 rounded-xl border border-neutral-700 bg-neutral-800 p-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border-0 bg-transparent px-2 py-1 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
+        <button id="send-btn" type="submit" aria-label="Send message" class="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Send</button>
       </form>
     </footer>
   </div>
 
+<div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
+
 <script type="module">
-  import { onAuthState, getUserData, createOrGetConversation, sendMessage, getMessages, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
+  import { onAuthState, getUserData, createOrGetConversation, sendMessage, getMessages, gracefulGet, isOnline } from './api.js';
 
   const recipientNameHeader = document.getElementById('recipient-name');
   const messagesContainer = document.getElementById('messages-container');
   const messageInput = document.getElementById('message-input');
   const sendButton = document.getElementById('send-btn');
-  const messageForm = document.getElementById('message-form'); // Get form for submit event
+  const messageForm = document.getElementById('message-form');
+  const loadingState = document.getElementById('loading-state');
+  const emptyState = document.getElementById('empty-state');
+  const errorState = document.getElementById('error-state');
+  const offlineBanner = document.getElementById('offline-banner');
 
   const urlParams = new URLSearchParams(window.location.search);
   const recipientId = urlParams.get('recipientId');
   let currentUserId = null;
   let conversationId = null;
-  let unsubscribeMessages = null; // To store the listener unsubscribe function
+  let unsubscribeMessages = null;
 
-  // Show initial loading spinner
-  ui.loading.show(messagesContainer);
+  // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
 
   function renderMessages(messages) {
-    // Check if spinner is still present and remove it
-    const spinner = messagesContainer.querySelector('.loading-spinner-container');
-    if (spinner) spinner.remove();
+    // Hide loading/empty/error states
+    loadingState.style.display = 'none';
+    emptyState.style.display = 'none';
+    errorState.style.display = 'none';
 
-    if (messages.length === 0 && messagesContainer.innerHTML === '') { // Avoid clearing if already showing "no messages"
-      messagesContainer.innerHTML = `<p class="text-neutral-500 text-center text-sm">No messages yet. Say hello!</p>`;
+    // Clear only existing message items
+    const existingMessages = messagesContainer.querySelectorAll('.message-item');
+    existingMessages.forEach(el => el.remove());
+
+    if (messages.length === 0) {
+      emptyState.style.display = 'block'; // Show empty state
       return;
     }
-
-    // More efficient rendering: only add new messages or re-render selectively if needed
-    // For simplicity now, we'll clear and re-render, but could be optimized.
-    messagesContainer.innerHTML = ''; // Clear previous messages
 
     messages.forEach(msg => {
       const isSender = msg.senderId === currentUserId;
       const messageElement = document.createElement('div');
-      messageElement.className = `message-item mb-2 ${isSender ? 'text-right' : 'text-left'}`; // Add class for potential future styling/optimization
+      messageElement.className = `message-item mb-2 flex ${isSender ? 'justify-end' : 'justify-start'}`; // Use flex for alignment
 
       let timestampText = '';
-      if (msg.timestamp && msg.timestamp.toDate) { // Check if it's a Firestore Timestamp
+      if (msg.timestamp?.toDate) {
           timestampText = msg.timestamp.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
       }
 
+      // Consistent message bubble style
       messageElement.innerHTML = `
-        <div class="inline-block max-w-[80%] text-sm px-3 py-2 rounded-2xl border ${isSender ? 'bg-emerald-700/30 border-emerald-600/40 text-emerald-100' : 'bg-neutral-800/60 border-neutral-700/70 text-neutral-100'}">
-            ${msg.text} </div>
-        ${timestampText ? `<p class="text-xs text-neutral-500 mt-1 ${isSender ? 'pr-1' : 'pl-1'}">${timestampText}</p>` : ''}
+        <div class="max-w-[80%]">
+          <div class="inline-block rounded-2xl border px-3 py-2 text-sm ${isSender ? 'bg-emerald-700/30 border-emerald-600/40 text-emerald-100' : 'bg-neutral-800/60 border-neutral-700/70 text-neutral-100'}">
+              ${msg.text}
+          </div>
+          ${timestampText ? `<p class="mt-1 px-1 text-xs text-neutral-500 ${isSender ? 'text-right' : 'text-left'}">${timestampText}</p>` : ''}
+        </div>
       `;
       messagesContainer.appendChild(messageElement);
     });
 
-    // Auto-scroll to the latest message only if the user isn't scrolled up
-    // Simple version: always scroll down
-    setTimeout(() => { // Timeout ensures DOM is updated before scrolling
+    // Scroll to bottom
+    setTimeout(() => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }, 0);
   }
@@ -113,32 +142,28 @@
   async function sendMessageHandler() {
     const text = messageInput.value.trim();
     if (text && currentUserId && conversationId) {
-      const messageData = {
-        text: text,
-        senderId: currentUserId
-      };
-      messageInput.value = ''; // Clear input immediately for better UX
+      const messageData = { text: text, senderId: currentUserId };
+      messageInput.value = ''; // Clear input immediately
+      sendButton.disabled = true; // Disable send button temporarily
+
       try {
         await sendMessage(conversationId, messageData); // Works offline
-        // Don't manually add to UI, let the listener handle it for consistency
+        // Listener will render the message
       } catch (error) {
          console.error("Error sending message:", error);
          toast.show("Could not send message.", 'error');
-         messageInput.value = text; // Restore text if sending failed
+         messageInput.value = text; // Restore text
+      } finally {
+          sendButton.disabled = false; // Re-enable send button
       }
     }
   }
 
-  // Handle form submission (includes Enter key)
   messageForm.addEventListener('submit', (e) => {
-      e.preventDefault(); // Prevent default form submission
+      e.preventDefault();
       sendMessageHandler();
   });
 
-  // Also handle button click explicitly if needed (though submit should cover it)
-  // sendButton.addEventListener('click', sendMessageHandler);
-
-  // Quick Reply Function (now global)
   window.quickReply = (text) => {
       messageInput.value = text;
       sendMessageHandler();
@@ -150,42 +175,43 @@
     if (user) {
       currentUserId = user.uid;
       if (!recipientId) {
-        messagesContainer.innerHTML = `<p class="text-red-400 text-center">Error: No recipient specified.</p>`;
-        recipientNameHeader.innerText = "Error"; // Update header on error
+        loadingState.style.display = 'none';
+        errorState.textContent = 'Error: No recipient specified.';
+        errorState.style.display = 'block';
+        recipientNameHeader.innerText = "Error";
         return;
       }
 
-      try {
-          // Fetch recipient data for the header (use gracefulGet for potential offline state)
-          // Don't pass container here, handle header update separately
-          const recipientData = await gracefulGet(getUserData(recipientId), null, "Could not load user details.");
-          if (recipientData) {
-            recipientNameHeader.innerText = recipientData.name;
-          } else {
-             recipientNameHeader.innerText = "User"; // Fallback name
-          }
+      loadingState.style.display = 'flex'; // Ensure loading is visible
+      emptyState.style.display = 'none';
+      errorState.style.display = 'none';
 
-          // Establish or get the conversation ID (works offline if cached)
+      try {
+          // Fetch recipient data using gracefulGet (no container)
+          const recipientDataPromise = getUserData(recipientId);
+          const recipientData = await gracefulGet(recipientDataPromise, null, "Could not load user details.");
+          recipientNameHeader.innerText = recipientData?.name || "User"; // Update header
+
+          // Establish conversation (works offline if cached)
           conversationId = await createOrGetConversation(currentUserId, recipientId);
 
-          // Start listening for messages in real-time
-          // onSnapshot handles providing cached data first when offline.
-          if (unsubscribeMessages) unsubscribeMessages(); // Unsubscribe previous listener if any
+          // Start listening for messages
+          if (unsubscribeMessages) unsubscribeMessages();
           unsubscribeMessages = getMessages(conversationId, renderMessages, (error) => {
               console.error("Message listener error:", error);
-              // Show error in message container, removing spinner if present
-              const spinner = messagesContainer.querySelector('.loading-spinner-container');
-              if (spinner) spinner.remove();
-              messagesContainer.innerHTML = `<p class="text-red-400 text-center">Error loading messages: ${error.message}</p>`;
+              loadingState.style.display = 'none';
+              emptyState.style.display = 'none';
+              errorState.textContent = `Error loading messages: ${error.message}`;
+              errorState.style.display = 'block';
           });
 
       } catch (error) {
           console.error("Error setting up conversation:", error);
-           // Show error in message container, removing spinner if present
-           const spinner = messagesContainer.querySelector('.loading-spinner-container');
-           if (spinner) spinner.remove();
-           messagesContainer.innerHTML = `<p class="text-red-400 text-center">Could not load conversation: ${error.message}</p>`;
-           recipientNameHeader.innerText = "Error";
+          loadingState.style.display = 'none';
+          emptyState.style.display = 'none';
+          errorState.textContent = `Could not load conversation: ${error.message}`;
+          errorState.style.display = 'block';
+          recipientNameHeader.innerText = "Error";
       }
 
     } else {
@@ -193,15 +219,13 @@
     }
   });
 
-  // Cleanup listener when the user navigates away (optional but good practice)
+  // Cleanup listener
   window.addEventListener('beforeunload', () => {
-      if (unsubscribeMessages) {
-          unsubscribeMessages();
-      }
+      if (unsubscribeMessages) unsubscribeMessages();
   });
 
 </script>
- <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+<script type="module" src="./api.js"></script>
+</body>
 </html>

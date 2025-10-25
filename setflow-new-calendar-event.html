@@ -7,80 +7,92 @@
   <title>Setflow - New Calendar Event</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif;}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+     /* Style date/time inputs for dark mode */
+     input[type="date"], input[type="time"] { color-scheme: dark; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Event will save locally and sync later.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-calendar.html" aria-label="Close and go back to calendar" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Add to Calendar</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6 pt-16"> <form id="event-form">
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top: 0; left: 0; right: 0; z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-calendar.html" aria-label="Close and go back to calendar" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Add to Calendar</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main class="flex-1 p-5 pt-20 pb-24"> <form id="event-form" class="space-y-6">
         <div>
-            <label for="event-title" class="block text-sm font-medium text-neutral-300 mb-2">Event Title</label>
-            <input id="event-title" type="text" placeholder="e.g., Rehearsal, Songwriting Session" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+            <label for="event-title" class="mb-2 block text-sm font-semibold text-neutral-300">Event Title <span class="text-red-400">*</span></label>
+            <input id="event-title" type="text" placeholder="e.g., Rehearsal, Songwriting Session" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
-        <div class="mt-6">
-            <label for="event-type" class="block text-sm font-medium text-neutral-300 mb-2">Event Type</label>
-            <select id="event-type" class="form-select w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+        <div>
+            <label for="event-type" class="mb-2 block text-sm font-semibold text-neutral-300">Event Type <span class="text-red-400">*</span></label>
+            <select id="event-type" class="w-full appearance-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
                 <option>Rehearsal</option>
                 <option>Personal (Blocked Off)</option>
                 <option>Tentative Gig</option>
                 <option>Other</option>
             </select>
         </div>
-        <div class="grid grid-cols-2 gap-4 mt-6">
+        <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-                <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                <label for="event-date" class="mb-2 block text-sm font-semibold text-neutral-300">Date <span class="text-red-400">*</span></label>
+                <input id="event-date" type="date" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
             </div>
             <div>
-                <label for="event-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
-                <input id="event-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                <label for="event-time" class="mb-2 block text-sm font-semibold text-neutral-300">Time <span class="text-red-400">*</span></label>
+                <input id="event-time" type="time" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
             </div>
         </div>
-        <div class="mt-6">
-            <label for="event-notes" class="block text-sm font-medium text-neutral-300 mb-2">Notes</label>
-            <textarea id="event-notes" rows="4" placeholder="e.g., Work on new song bridges." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+        <div>
+            <label for="event-notes" class="mb-2 block text-sm font-semibold text-neutral-300">Notes</label>
+            <textarea id="event-notes" rows="4" placeholder="e.g., Work on new song bridges." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
     </form>
   </main>
-  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="event-form" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Save Event</button>
+
+  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+    <button type="submit" form="event-form" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Save Event</button>
   </footer>
+</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, createCalendarEvent, isOnline } from './api.js'; // Import isOnline
+    import { onAuthState, createCalendarEvent, isOnline } from './api.js';
 
     const eventForm = document.getElementById('event-form');
+    const offlineBanner = document.getElementById('offline-banner');
     let currentUserId = null;
 
-    // Protect the page: only allow logged-in users
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
+
+    // Protect the page
     onAuthState(user => {
         if (user) {
             currentUserId = user.uid;
         } else {
-            // If no user, redirect to login
             window.location.href = 'setflow-login-page.html';
         }
     });
@@ -92,48 +104,45 @@
             return;
         }
 
-         // Basic validation
         const title = document.getElementById('event-title').value.trim();
         const date = document.getElementById('event-date').value;
         const time = document.getElementById('event-time').value;
 
          if (!title || !date || !time) {
-             toast.show("Please fill out all required fields (Title, Date, Time).", 'error');
+             toast.show("Please fill out Title, Date, and Time.", 'error');
              return;
          }
 
-
         const submitButton = document.querySelector('footer button');
         submitButton.disabled = true;
-        submitButton.innerText = 'Saving...';
+        submitButton.textContent = 'Saving...'; // Use textContent
 
         const eventData = {
             userId: currentUserId,
             title: title,
             type: document.getElementById('event-type').value,
-            date: date,
-            time: time,
-            notes: document.getElementById('event-notes').value.trim() // Trim notes
+            date: date, // Keep as string, API converts
+            time: time, // Keep as string, API converts
+            notes: document.getElementById('event-notes').value.trim()
         };
 
         try {
             await createCalendarEvent(eventData); // Works offline
-            // On success, redirect back to the calendar
             const successMessage = isOnline() ? 'Event saved!' : 'Event saved locally. Will sync when online.';
-            toast.show(successMessage, 'success'); // Show toast before redirect
-             setTimeout(() => {
-                 window.location.href = 'setflow-calendar.html';
-             }, 1000); // Short delay for toast visibility
+            // Set toast for the next page
+            sessionStorage.setItem('showToast', `${successMessage}|success`);
+            // Redirect immediately
+            window.location.href = 'setflow-calendar.html';
+
         } catch (error) {
             console.error("Error creating event:", error);
-            toast.show("Failed to save event. Please try again.", 'error');
+            toast.show(`Failed to save event: ${error.message}. Please try again.`, 'error'); // More specific error
             submitButton.disabled = false;
-            submitButton.innerText = 'Save Event';
+            submitButton.textContent = 'Save Event'; // Use textContent
         }
     });
 </script>
 
-<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script> </body>
+<script type="module" src="./api.js"></script>
+</body>
 </html>

@@ -7,83 +7,187 @@
   <title>Setflow - Gig Templates</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Templates may be cached.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Gig Templates</h1>
-    <button class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">New</button>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gig Templates</h1>
+       <a href="#" class="w-auto flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">New</a> </div>
   </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-3 pt-16"> <div id="templates-list">
-         <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    </div>
-    <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="text-white font-semibold">Saturday Night Headliner</h3>
-          <p class="text-sm text-neutral-400 mt-1">9:00 PM - 11:00 PM • $500 Payout</p>
-          <p class="text-xs text-neutral-500 mt-1">Genres: Rock, Indie, Pop</p>
+
+  <main class="flex-1 space-y-4 p-5 pt-20"> <div id="templates-list" class="space-y-4">
+        <div class="flex justify-center items-center py-10" id="loading-state">
+            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
         </div>
-        <button class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Use Template</button>
-      </div>
-    </div>
-    <div class="bg-neutral-800 rounded-xl border border-neutral-700/60 p-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="text-white font-semibold">Acoustic Tuesday</h3>
-          <p class="text-sm text-neutral-400 mt-1">7:00 PM - 9:00 PM • $250 Payout</p>
-          <p class="text-xs text-neutral-500 mt-1">Genres: Singer-Songwriter, Folk, Acoustic</p>
+        <div class="hidden py-10 text-center" id="empty-state">
+             <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12.75h4.875a2.625 2.625 0 002.625-2.625V11.25c0-1.44-.93-2.671-2.198-3.037m-5.196 6.364A2.25 2.25 0 0013.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375H8.25m-1.5 6.75h.75c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H6.75m0 3.75h.75m-1.5 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+             </svg>
+            <h3 class="mt-2 text-lg font-semibold text-white">No Templates Created</h3>
+            <p class="mt-1 text-sm text-neutral-400">Create reusable templates for your common gig types.</p>
+             <div class="mt-6">
+                 <a href="#" class="w-auto rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white ...">Create Template</a> </div>
         </div>
-        <button class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Use Template</button>
-      </div>
-    </div>
+        <div class="hidden py-10 text-center text-red-400" id="error-state">
+            <p>Could not load templates.</p>
+        </div>
+
+        <div class="template-item rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h3 class="font-semibold text-white">Saturday Night Headliner</h3>
+                    <p class="mt-1 text-sm text-neutral-400">9:00 PM - 11:00 PM • $500 Payout</p>
+                    <p class="mt-1 text-xs text-neutral-500">Genres: Rock, Indie, Pop</p>
+                </div>
+                <button class="ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Use</button>
+            </div>
+        </div>
+        <div class="template-item rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h3 class="font-semibold text-white">Acoustic Tuesday</h3>
+                    <p class="mt-1 text-sm text-neutral-400">7:00 PM - 9:00 PM • $250 Payout</p>
+                    <p class="mt-1 text-xs text-neutral-500">Genres: Singer-Songwriter, Folk</p>
+                </div>
+                <button class="ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Use</button>
+            </div>
+        </div>
+        </div>
   </main>
-  </div>
-   <script type="module">
-     // Placeholder script to demonstrate loading state removal
-     import { ui } from './api.js';
+  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script>
+
+ <script type="module">
+     import { onAuthState, gracefulGet, isOnline } from './api.js';
      // TODO: Need function like fetchGigTemplates()
 
-     document.addEventListener('DOMContentLoaded', () => {
-         const listContainer = document.getElementById('templates-list');
-         // Replace spinner with placeholder content after a delay (replace with actual data fetch)
-         setTimeout(() => {
-             // If fetch succeeds, render real templates
-             // If fetch fails or offline, show appropriate message
-             // For now, just remove spinner and keep static examples
-              const spinner = listContainer.querySelector('.loading-spinner-container');
-              if (spinner) spinner.remove();
+     const listContainer = document.getElementById('templates-list');
+     const loadingState = document.getElementById('loading-state');
+     const emptyState = document.getElementById('empty-state');
+     const errorState = document.getElementById('error-state');
+     const offlineBanner = document.getElementById('offline-banner');
 
-              // Add logic here to fetch templates using gracefulGet if this page becomes dynamic
-              // Example:
-              // try {
-              //    const templates = await gracefulGet(fetchGigTemplates(), listContainer);
-              //    renderTemplates(templates); // Need renderTemplates function
-              // } catch (e) { console.error("Could not load templates"); }
+      // Update offline banner based on initial status
+     offlineBanner.style.display = isOnline() ? 'none' : 'block';
+     // Listen for network changes
+     document.body.addEventListener('app:network-change', (event) => {
+         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+     });
 
-         }, 1000); // Simulate network request
+
+     function renderTemplates(templates) {
+         // Clear previous items
+         const existingItems = listContainer.querySelectorAll('.template-item');
+         existingItems.forEach(item => item.remove());
+
+         if (!templates) { // Error case
+             loadingState.style.display = 'none';
+             emptyState.style.display = 'none';
+             errorState.style.display = 'block';
+             return;
+         }
+
+         if (templates.length === 0) {
+             loadingState.style.display = 'none';
+             errorState.style.display = 'none';
+             emptyState.style.display = 'block';
+             return;
+         }
+
+         loadingState.style.display = 'none'; // Hide states
+         emptyState.style.display = 'none';
+         errorState.style.display = 'none';
+
+         templates.forEach(template => {
+             const card = document.createElement('div');
+             // Use Canonical Card style
+             card.className = 'template-item rounded-xl border border-neutral-700 bg-neutral-800 p-4';
+             // Format details nicely
+             const timeRange = template.startTime && template.endTime ? `${template.startTime} - ${template.endTime}` : 'Time TBD';
+             const payout = template.payout ? `$${template.payout}` : 'Payout TBD';
+             const genres = template.genres ? template.genres.join(', ') : 'Any Genre';
+
+             card.innerHTML = `
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h3 class="font-semibold text-white">${template.name}</h3>
+                        <p class="mt-1 text-sm text-neutral-400">${timeRange} • ${payout}</p>
+                        <p class="mt-1 text-xs text-neutral-500">Genres: ${genres}</p>
+                    </div>
+                    <button data-template-id="${template.id}" class="use-template-btn ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Use</button>
+                </div>
+                ${template.description ? `<p class="mt-2 border-t border-neutral-700 pt-2 text-xs text-neutral-400">${template.description}</p>` : ''}
+            `;
+             // Insert before the state divs
+             listContainer.insertBefore(card, loadingState);
+         });
+
+         // Add 'Use' button logic
+         document.querySelectorAll('.use-template-btn').forEach(button => {
+             button.addEventListener('click', () => {
+                 const templateId = button.dataset.templateId;
+                 // Redirect to post-event page with template ID or pre-filled data
+                 window.location.href = `setflow-post-event-page.html?templateId=${templateId}`; // Example redirect
+             });
+         });
+     }
+
+
+     onAuthState(async (user) => {
+         if (!user) {
+             window.location.href = 'setflow-login-page.html';
+             return;
+         }
+
+         loadingState.style.display = 'flex'; // Show loading
+         emptyState.style.display = 'none';
+         errorState.style.display = 'none';
+
+         // Placeholder: Fetch actual templates
+         try {
+             // Replace with actual API call: e.g., gracefulGet(fetchGigTemplates(user.uid), null, ...)
+             const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
+                 { id: 'tpl1', name: 'Saturday Night Headliner', startTime: '9:00 PM', endTime: '11:00 PM', payout: 500, genres: ['Rock', 'Indie', 'Pop'], description: 'Standard headliner slot, 2x60min sets.' },
+                 { id: 'tpl2', name: 'Acoustic Tuesday', startTime: '7:00 PM', endTime: '9:00 PM', payout: 250, genres: ['Singer-Songwriter', 'Folk'], description: null },
+                 { id: 'tpl3', name: 'Sunday Brunch Background', startTime: '11:00 AM', endTime: '1:00 PM', payout: 150, genres: ['Jazz', 'Instrumental'], description: 'Low volume background music.' },
+             ]), 1000));
+
+             // Use gracefulGet, manage states manually
+             const templates = await gracefulGet(fetchPromise, null, "Could not load templates while offline.");
+             renderTemplates(templates); // Handles null/empty response
+
+         } catch (e) {
+             console.error("Could not load templates:", e);
+             renderTemplates(null); // Show error state
+         }
      });
  </script>
- <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>

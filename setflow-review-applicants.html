@@ -7,124 +7,164 @@
   <title>Setflow - Review Applicants</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <div id="header-title" class="text-center flex-grow"> <h1 class="text-lg font-bold tracking-tight">Review Applicants</h1>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top: 0; left: 0; right: 0; z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm"> <div class="flex h-10 items-center justify-between"> <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div id="header-title" class="flex-grow text-center">
+             <h1 class="text-lg font-semibold tracking-tight">Review Applicants</h1>
+             </div>
+        <div class="w-10 h-10"></div> </div>
+      <div class="mt-3 px-1 py-1"> <label for="sort" class="mr-2 text-xs text-neutral-400">Sort by:</label>
+         <select id="sort" class="rounded-lg border-0 bg-neutral-700 p-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+             <option>Best Match</option>
+             <option>Newest</option>
+         </select>
+      </div>
+    </header>
+
+    <main id="applicants-container" class="flex-grow divide-y divide-neutral-700 pt-32 pb-5"> <div class="flex justify-center items-center py-10" id="loading-state">
+            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
         </div>
-      <div class="w-9 h-9"></div> </header>
-    <div class="px-5 py-3 border-b border-neutral-800 pt-20"> <label for="sort" class="text-xs text-neutral-400 mr-2">Sort by:</label>
-        <select id="sort" class="bg-neutral-700 text-white text-sm rounded-md p-1 border-0 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-            <option>Best Match</option>
-            <option>Newest</option>
-            </select>
-    </div>
-
-    <main id="applicants-container" class="flex-grow pb-28 divide-y divide-neutral-800">
-       <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    </main>
-
+        <div class="hidden py-10 text-center" id="empty-state">
+            <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-semibold text-white">No Applicants Yet</h3>
+            <p class="mt-1 text-sm text-neutral-400">Share your gig post to attract talent!</p>
+        </div>
+        <div class="hidden py-10 text-center text-red-400" id="error-state">
+            <p>Could not load applicants.</p>
+        </div>
+        </main>
+    </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <span id="toast-message">Placeholder message</span>
   </div>
+  <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, fetchApplicantsForGig, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
+    import { onAuthState, fetchApplicantsForGig, gracefulGet, isOnline } from './api.js';
 
     const applicantsContainer = document.getElementById('applicants-container');
-    const headerTitle = document.getElementById('header-title');
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
+    const headerTitleDiv = document.getElementById('header-title');
+    const offlineBanner = document.getElementById('offline-banner');
+
     const urlParams = new URLSearchParams(window.location.search);
     const gigId = urlParams.get('gigId');
     const gigName = urlParams.get('gigName') || 'a Gig';
 
-    // Update header to be more descriptive
-    headerTitle.innerHTML = `<h1 class="text-lg font-bold tracking-tight">Applicants for</h1><p class="text-sm text-neutral-400">${decodeURIComponent(gigName)}</p>`;
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
 
-    // Show initial loading spinner (already in HTML)
-    // ui.loading.show(applicantsContainer);
+
+    // Update header to be more descriptive (using canonical styles)
+    headerTitleDiv.innerHTML = `<h1 class="text-lg font-semibold tracking-tight">Applicants for</h1><p class="text-sm text-neutral-400">${decodeURIComponent(gigName)}</p>`;
 
     function renderApplicants(applicants) {
-      // gracefulGet handles the loading spinner removal on success or error display
-      if (!applicants) {
-          // Error handled by gracefulGet
-           if (!applicantsContainer.innerHTML.includes('Error') && !applicantsContainer.innerHTML.includes('offline')) {
-                applicantsContainer.innerHTML = `<p class="p-4 text-center text-red-400 mt-8">Could not load applicants.</p>`;
-           }
-          return;
-      }
+       // Clear previous items
+       const existingItems = applicantsContainer.querySelectorAll('.applicant-item');
+       existingItems.forEach(item => item.remove());
 
-      // Clear container before rendering (gracefulGet might have put spinner/error)
-      applicantsContainer.innerHTML = '';
 
-      if (applicants.length === 0) {
-        applicantsContainer.innerHTML = `<p class="p-4 text-center text-neutral-500 mt-8">No one has applied to this gig yet.</p>`;
+      if (!applicants) { // Error case
+        loadingState.style.display = 'none';
+        emptyState.style.display = 'none';
+        errorState.style.display = 'block';
         return;
       }
 
+      if (applicants.length === 0) {
+        loadingState.style.display = 'none';
+        errorState.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      loadingState.style.display = 'none'; // Hide states
+      emptyState.style.display = 'none';
+      errorState.style.display = 'none';
 
       applicants.forEach(applicant => {
         const applicantCard = document.createElement('div');
-        // Added focus styles to the main link wrapper
-        applicantCard.className = 'p-4 hover:bg-neutral-800/50 focus-within:bg-neutral-800/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded'; // Use focus-within
-        // Pass gigId and applicant name to profile link for booking context
+        // Use Canonical List Item structure, modified
+        applicantCard.className = 'applicant-item p-4 hover:bg-neutral-800 focus-within:bg-neutral-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded-lg'; // Added rounded-lg
         const profileLink = `setflow-applicant-profile.html?userId=${applicant.id}&gigId=${gigId}&artistName=${encodeURIComponent(applicant.name)}`;
+        const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
+
         applicantCard.innerHTML = `
-          <a href="${profileLink}" class="flex items-center space-x-4 group rounded focus:outline-none"> <img class="w-16 h-16 rounded-lg object-cover flex-shrink-0" src="${applicant.profileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${applicant.name}">
+          <a href="${profileLink}" class="flex items-center space-x-4 group rounded focus:outline-none">
+            <img class="h-16 w-16 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${applicant.profileImageUrl || placeholderImg}" alt="${applicant.name}">
             <div class="flex-1 min-w-0">
-              <p class="font-bold text-lg text-white truncate group-hover:text-emerald-400">${applicant.name}</p>
-              <p class="text-sm text-neutral-300 truncate">${applicant.genres ? applicant.genres.join(', ') : 'Music'}</p>
-              </div>
-             <span aria-hidden="true" class="text-neutral-500 group-hover:text-emerald-400">→</span>
+              <p class="truncate text-lg font-semibold text-white group-hover:text-emerald-400">${applicant.name}</p>
+              <p class="truncate text-sm text-neutral-300">${applicant.genres ? applicant.genres.join(', ') : 'Music'}</p>
+            </div>
+             <svg class="h-5 w-5 text-neutral-500 group-hover:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
-          <div class="flex items-center space-x-2 mt-3">
-              <a href="setflow-conversation-view.html?recipientId=${applicant.id}" class="w-full text-center py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Message</a>
-              <button class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Bookmark</button>
+          <div class="mt-3 flex items-center space-x-2">
+              <a href="setflow-conversation-view.html?recipientId=${applicant.id}" class="flex-1 rounded-xl bg-neutral-700 px-4 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Message</a>
+              <button class="flex-1 rounded-xl bg-neutral-700 px-4 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Bookmark</button>
           </div>
         `;
-        applicantsContainer.appendChild(applicantCard);
+         // Insert before the state divs
+         applicantsContainer.insertBefore(applicantCard, loadingState);
       });
     }
 
     onAuthState(async (user) => {
       if (user) {
+        loadingState.style.display = 'flex'; // Show loading
+        emptyState.style.display = 'none';
+        errorState.style.display = 'none';
+
         if (!gigId) {
-          applicantsContainer.innerHTML = '<p class="p-4 text-red-400">Error: No Gig ID provided in the URL.</p>';
+          loadingState.style.display = 'none';
+          errorState.textContent = 'Error: No Gig ID provided in URL.';
+          errorState.style.display = 'block';
           return;
         }
         try {
-          // Use gracefulGet to fetch applicants, passing the container for loading/error state
-          const applicants = await gracefulGet(fetchApplicantsForGig(gigId), applicantsContainer, "Could not load applicants while offline.");
-          // Render only if fetch succeeded (gracefulGet returns data)
-          renderApplicants(applicants); // Handles null response
+          // Use gracefulGet, manage states manually
+          const applicants = await gracefulGet(fetchApplicantsForGig(gigId), null, "Could not load applicants while offline.");
+          renderApplicants(applicants); // Handles null/empty response
 
         } catch (error) {
-          // Error already displayed by gracefulGet
-          console.error("Failed to fetch applicants (already handled by gracefulGet):", error);
+          console.error("Failed to fetch applicants:", error);
+          renderApplicants(null); // Show error state
         }
       } else {
         window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
-   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script> </body>
+
+   <script type="module" src="./api.js"></script>
+ </body>
 </html>

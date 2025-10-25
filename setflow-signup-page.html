@@ -3,92 +3,115 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Signup</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
-    /* .form-input:focus { border-color:#10B981; box-shadow:0 0 0 2px rgba(16,185,129,.2); } */
-    .role-btn-active { background-color: #10B981; color: white; }
+    /* Canonical style for segmented control buttons */
+    .role-btn {
+        transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    }
+    .role-btn.active { /* Use 'active' class instead of role-btn-active */
+        background-color: theme('colors.emerald.600');
+        color: white;
+    }
+    .role-btn:not(.active) {
+        background-color: transparent; /* Ensure default is transparent within container */
+        color: theme('colors.neutral.300');
+    }
+     .role-btn:not(.active):hover {
+         background-color: theme('colors.neutral.700'); /* Add hover for inactive */
+     }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">Sign up requires an internet connection.</div>
-  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
     <header class="px-5 py-8 text-center">
-      <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <img src="logo.png" alt="Setflow Logo" class="w-8 h-8">
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500">
+        <img src="logo.png" alt="Setflow Logo" class="h-8 w-8">
       </div>
       <h1 class="text-3xl font-bold">Create your account</h1>
-      <p class="text-neutral-400 mt-2">Join the Command Center.</p>
+      <p class="mt-2 text-neutral-400">Join the Command Center.</p>
     </header>
-    <main class="flex-grow px-5">
+    <main class="flex-grow p-5">
       <form id="signup-form" class="space-y-6">
         <div>
-            <label class="block text-sm font-medium text-neutral-300 mb-2">I am a...</label>
-            <div role="radiogroup" aria-label="Select your role" class="grid grid-cols-3 gap-2 bg-neutral-800 p-1 rounded-lg">
-                <button type="button" role="radio" aria-checked="true" class="role-btn px-3 py-2 text-sm font-semibold rounded-md role-btn-active focus:outline-none focus:ring-2 focus:ring-emerald-500">Musician</button>
-                <button type="button" role="radio" aria-checked="false" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">Venue</button>
-                <button type="button" role="radio" aria-checked="false" class="role-btn px-3 py-2 text-neutral-300 text-sm font-semibold rounded-md hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">Promoter</button>
+            <label class="mb-2 block text-sm font-semibold text-neutral-300">I am a...</label>
+            <div role="radiogroup" aria-label="Select your role" class="grid grid-cols-3 gap-1 rounded-xl bg-neutral-800 p-1">
+                <button type="button" role="radio" aria-checked="true" class="role-btn active rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">Musician</button>
+                <button type="button" role="radio" aria-checked="false" class="role-btn rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">Venue</button>
+                <button type="button" role="radio" aria-checked="false" class="role-btn rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">Promoter</button>
             </div>
         </div>
         <div>
-          <label for="name" class="block text-sm font-medium text-neutral-300 mb-2">Name</label>
-          <input id="name" type="text" placeholder="Your Name or Band Name" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+          <label for="name" class="mb-2 block text-sm font-semibold text-neutral-300">Name</label>
+          <input id="name" type="text" placeholder="Your Name or Band Name" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
-          <label for="email" class="block text-sm font-medium text-neutral-300 mb-2">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+          <label for="email" class="mb-2 block text-sm font-semibold text-neutral-300">Email</label>
+          <input id="email" type="email" placeholder="you@example.com" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">Password</label>
-          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-white transition focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required minlength="6">
+          <label for="password" class="mb-2 block text-sm font-semibold text-neutral-300">Password</label>
+          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required minlength="6">
         </div>
-        <button type="submit" id="create-account-btn" class="block w-full text-center py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <button type="submit" id="create-account-btn" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">
             Create Account
         </button>
       </form>
     </main>
 
     <footer class="px-5 py-6 text-center">
-      <p class="text-neutral-400 text-sm">
+      <p class="text-sm text-neutral-400">
         Already have an account?
-        <a href="setflow-login-page.html" class="text-emerald-400 hover:text-emerald-300 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Sign in</a>
+        <a href="setflow-login-page.html" class="rounded font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Sign in</a>
       </p>
     </footer>
   </div>
 
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+    <span id="toast-message">Placeholder message</span>
+  </div>
+  <script src="toast.js"></script>
+
   <script type="module">
-    import { signUpUser, isOnline } from './api.js'; // Import isOnline
+    import { signUpUser, isOnline } from './api.js';
 
     const roleButtons = document.querySelectorAll('.role-btn');
     const signupForm = document.getElementById('signup-form');
+    const offlineBanner = document.getElementById('offline-banner');
     let selectedRole = 'Musician'; // Default role
+
+     // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
 
     // --- Role Selection Logic ---
     roleButtons.forEach(button => {
         button.addEventListener('click', () => {
             roleButtons.forEach(btn => {
-                 btn.classList.remove('role-btn-active');
-                 btn.setAttribute('aria-checked', 'false'); // Update ARIA state
+                 btn.classList.remove('active'); // Use 'active' class
+                 btn.setAttribute('aria-checked', 'false');
             });
-            button.classList.add('role-btn-active');
-            button.setAttribute('aria-checked', 'true'); // Update ARIA state
+            button.classList.add('active'); // Use 'active' class
+            button.setAttribute('aria-checked', 'true');
             selectedRole = button.innerText;
         });
     });
@@ -121,6 +144,7 @@
         try {
             await signUpUser(name, email, password, selectedRole); // Requires network
             // Redirect to profile setup on successful signup
+            // Pass role for context, profile setup will re-fetch if needed
             window.location.href = `setflow-profile-setup.html?role=${selectedRole.toLowerCase()}`;
         } catch (error) {
             console.error('Signup Error:', error);
@@ -139,7 +163,6 @@
     });
   </script>
 
-  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-  </div>
-  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
+  <script type="module" src="./api.js"></script>
+</body>
 </html>

@@ -7,57 +7,56 @@
   <title>Setflow - Sell Your Gear</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif;}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Listings will sync when back online.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-gear-swap.html" aria-label="Go back to gear swap" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">List Your Item</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <form id="sell-item-form" class="space-y-6">
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-gear-swap.html" aria-label="Go back to gear swap" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">List Your Item</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main class="flex-1 p-5 pt-20 pb-24"> <form id="sell-item-form" class="space-y-6">
         <div>
-            <label for="photo-upload-label" class="block text-sm font-medium text-neutral-300 mb-2">Upload Photos</label>
-            <div id="photo-upload-label" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-700 border-dashed rounded-md">
+            <label for="photo-upload-label" class="mb-2 block text-sm font-semibold text-neutral-300">Upload Photos</label>
+            <div id="photo-upload-label" class="mt-1 flex justify-center rounded-xl border-2 border-dashed border-neutral-700 px-6 pb-6 pt-5 hover:border-neutral-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
                 <div class="space-y-1 text-center">
                     <svg aria-hidden="true" class="mx-auto h-12 w-12 text-neutral-500" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     <div class="flex text-sm text-neutral-500">
-                        <label for="file-upload" class="relative cursor-pointer bg-neutral-900 rounded-md font-medium text-emerald-400 hover:text-emerald-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-neutral-900 focus-within:ring-emerald-500">
+                        <label for="file-upload" class="relative cursor-pointer rounded-md bg-neutral-900 font-semibold text-emerald-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 focus-within:ring-offset-neutral-900 hover:text-emerald-300">
                             <span>Click to upload files</span>
                             <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*">
                         </label>
-                    </div>
+                        </div>
                      <p class="text-xs text-neutral-600">PNG, JPG, GIF up to 10MB</p>
                  </div>
             </div>
             </div>
         <div>
-            <label for="item-name" class="block text-sm font-medium text-neutral-300 mb-2">Item Name</label>
-            <input id="item-name" type="text" placeholder="e.g., Strymon BlueSky Reverb" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+            <label for="item-name" class="mb-2 block text-sm font-semibold text-neutral-300">Item Name <span class="text-red-400">*</span></label>
+            <input id="item-name" type="text" placeholder="e.g., Strymon BlueSky Reverb" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="item-category" class="block text-sm font-medium text-neutral-300 mb-2">Category</label>
-                <select id="item-category" class="form-select w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                <label for="item-category" class="mb-2 block text-sm font-semibold text-neutral-300">Category</label>
+                <select id="item-category" class="w-full appearance-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                     <option>Guitar Pedals</option>
                     <option>Guitars</option>
                     <option>Amps</option>
@@ -68,31 +67,43 @@
                 </select>
             </div>
             <div>
-                <label for="item-price" class="block text-sm font-medium text-neutral-300 mb-2">Price ($)</label>
-                <input id="item-price" type="number" placeholder="250" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                <label for="item-price" class="mb-2 block text-sm font-semibold text-neutral-300">Price ($) <span class="text-red-400">*</span></label>
+                <input id="item-price" type="number" placeholder="250" min="0" step="1" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required>
             </div>
         </div>
         <div>
-            <label for="item-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-            <textarea id="item-description" rows="4" placeholder="Describe the item's condition, features, etc." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+            <label for="item-description" class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
+            <textarea id="item-description" rows="4" placeholder="Describe the item's condition, features, etc." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
          <div>
-            <label for="item-location" class="block text-sm font-medium text-neutral-300 mb-2">Location (Optional)</label>
-            <input id="item-location" type="text" placeholder="e.g., Raleigh, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+            <label for="item-location" class="mb-2 block text-sm font-semibold text-neutral-300">Location (Optional)</label>
+            <input id="item-location" type="text" placeholder="e.g., Raleigh, NC" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
         </div>
     </form>
   </main>
-  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="sell-item-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">List Item for Sale</button>
+
+  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+    <button type="submit" form="sell-item-form" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">List Item for Sale</button>
   </footer>
+</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, createGearListing, isOnline } from './api.js'; // Import isOnline
+  import { onAuthState, createGearListing, isOnline } from './api.js';
 
   const sellItemForm = document.getElementById('sell-item-form');
   const submitButton = document.getElementById('submit-btn');
+  const offlineBanner = document.getElementById('offline-banner');
   let currentUserId = null;
+
+   // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
+
 
   onAuthState(user => {
     if (user) {
@@ -114,7 +125,7 @@
 
      // Basic validation
      if (!itemName || !itemPrice) {
-         toast.show("Please provide at least an item name and price.", 'error');
+         toast.show("Please provide Item Name and Price.", 'error');
          return;
      }
      const priceValue = Number(itemPrice);
@@ -125,38 +136,37 @@
 
 
     submitButton.disabled = true;
-    submitButton.innerText = 'Listing Item...';
+    submitButton.textContent = 'Listing Item...'; // Use textContent
 
     const itemData = {
       sellerId: currentUserId,
       name: itemName,
       category: document.getElementById('item-category').value,
-      price: priceValue, // Use validated number
+      price: priceValue,
       description: document.getElementById('item-description').value.trim(),
       location: document.getElementById('item-location').value.trim(),
-      // In a real app, you would handle image uploads and get a URL here.
-      // For now, we'll use a placeholder.
+      // TODO: Handle image uploads and get actual URL(s)
       imageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop' // Placeholder
     };
 
     try {
-      await createGearListing(itemData); // This works offline due to persistence
-       // Adjust success message based on network status
+      await createGearListing(itemData); // Works offline
+
        const successMessage = isOnline() ? 'Your item has been listed!' : 'Item saved locally. Will sync when online.';
-      toast.show(successMessage, 'success');
-      setTimeout(() => { // Redirect after showing success
-           window.location.href = 'setflow-gear-swap.html';
-      }, 1500);
+       // Set toast for the next page
+       sessionStorage.setItem('showToast', `${successMessage}|success`);
+       // Redirect immediately
+       window.location.href = 'setflow-gear-swap.html';
+
     } catch (error) {
       console.error("Error listing item:", error);
       toast.show("Could not list your item. Please try again.", 'error');
       submitButton.disabled = false;
-      submitButton.innerText = 'List Item for Sale';
+      submitButton.textContent = 'List Item for Sale'; // Use textContent
     }
   });
 </script>
 
-<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script> </body>
+<script type="module" src="./api.js"></script>
+</body>
 </html>

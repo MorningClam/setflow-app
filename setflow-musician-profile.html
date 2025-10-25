@@ -7,139 +7,175 @@
   <title>Setflow - Musician Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">My Profile</h1>
-      <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300 pr-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Edit</a>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">My Profile</h1>
+        <a href="setflow-edit-profile.html" class="w-auto rounded-xl px-4 py-1 text-base font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit</a>
+      </div>
     </header>
-    <main id="profile-container" class="flex-grow pb-20 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    </main>
-  </div>
+
+    <main id="profile-container" class="flex-grow pt-16 pb-5"> <div class="flex justify-center items-center py-10" id="loading-state">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+      </div>
+      <div class="hidden p-5 text-center text-red-400" id="error-state">
+          <p>Could not load profile data.</p>
+      </div>
+      </main>
+    </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+     <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, getUserData, getBandsForUser, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
+    import { onAuthState, getUserData, getBandsForUser, gracefulGet, isOnline } from './api.js';
 
     const profileContainer = document.getElementById('profile-container');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const offlineBanner = document.getElementById('offline-banner');
 
-    // Show initial loading spinner (already in HTML)
-    // ui.loading.show(profileContainer);
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
 
     function renderProfile(userData, bands) {
-      // gracefulGet handles spinner removal / error display
+      loadingState.style.display = 'none'; // Hide loading
+
       if (!userData) {
-        // Error or offline message is already displayed by gracefulGet
+        errorState.style.display = 'block'; // Show error
         return;
       }
+      errorState.style.display = 'none'; // Hide error
 
-      // Clear container before rendering profile
-      profileContainer.innerHTML = '';
+      // Clear previous content if any (besides state divs)
+      const existingContent = profileContainer.querySelectorAll('section, div:not(#loading-state):not(#error-state)');
+      existingContent.forEach(el => el.remove());
+
 
       let lookingForBandsBanner = '';
       if (userData.isLookingForBands) {
+        // Use a subtle banner style
         lookingForBandsBanner = `
-          <div class="p-4 bg-emerald-900/50 border-b border-emerald-500/30 text-center">
+          <div class="border-b border-emerald-700 bg-emerald-900/50 p-4 text-center">
             <p class="text-sm font-medium text-emerald-300">✓ Open to joining new bands and projects.</p>
           </div>
         `;
       }
 
-      let bandsSection = '';
+      let bandsSectionHtml = '';
       if (bands && bands.length > 0) {
-        bandsSection = `
-          <div class="p-5 border-b border-neutral-800">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Bands</h3>
+        bandsSectionHtml = `
+          <section class="border-b border-neutral-700 p-5">
+            <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Bands</h3>
             <div class="space-y-3">
               ${bands.map(band => `
-                <a href="setflow-band-management.html?bandId=${band.id}" class="flex items-center bg-neutral-800 p-3 rounded-lg hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <img class="w-12 h-12 bg-neutral-700 rounded-lg mr-4 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${band.name} photo">
-                  <div>
-                    <p class="font-semibold text-white">${band.name}</p>
-                    <p class="text-xs text-neutral-400">${band.genre || 'Music'}</p>
+                <a href="setflow-band-management.html?bandId=${band.id}" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                  <img class="mr-4 h-12 w-12 flex-shrink-0 rounded-lg bg-neutral-700 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}" alt="${band.name} photo">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate font-semibold text-white">${band.name}</p>
+                    <p class="truncate text-xs text-neutral-400">${band.genre || 'Music'}</p>
                   </div>
+                   <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </a>
               `).join('')}
             </div>
-          </div>
+          </section>
         `;
+      } else if (bands) { // If bands array exists but is empty
+          bandsSectionHtml = `
+            <section class="border-b border-neutral-700 p-5">
+                <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Bands</h3>
+                <p class="text-sm text-neutral-500">You're not part of any bands yet.</p>
+                </section>
+          `;
       }
+      // If bands is null (error fetching), don't show the section or show an error inline
 
-      profileContainer.innerHTML = `
+      // Use canonical sections
+      profileContainer.insertAdjacentHTML('beforeend', `
         ${lookingForBandsBanner}
-        <div class="p-5 flex flex-col items-center text-center border-b border-neutral-800">
-          <img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop'}" alt="Profile photo">
-          <h2 class="text-2xl font-bold text-white mt-4">${userData.name || 'Your Name'}</h2>
-          <p class="text-md text-neutral-400">${userData.location || 'Your Location'}</p>
-        </div>
-        <div class="p-5 border-b border-neutral-800">
-          <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Bio</h3>
-          <p class="text-neutral-300 text-sm leading-relaxed">${userData.bio || 'No bio provided. Click Edit to add one!'}</p>
-        </div>
-        ${bandsSection}
-        <div class="p-5">
-          <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Links</h3>
+        <section class="border-b border-neutral-700 p-5 text-center">
+          <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop'}" alt="Profile photo">
+          <h2 class="mt-4 text-2xl font-bold text-white">${userData.name || 'Your Name'}</h2>
+          <p class="text-base text-neutral-400">${userData.location || 'Your Location'}</p>
+        </section>
+        <section class="border-b border-neutral-700 p-5">
+          <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Bio</h3>
+          <p class="text-sm leading-relaxed text-neutral-300">${userData.bio || 'No bio provided. Click Edit to add one!'}</p>
+        </section>
+        ${bandsSectionHtml}
+        <section class="p-5">
+          <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Links</h3>
           <div class="space-y-3">
-            <a href="#" class="flex items-center bg-neutral-800 p-3 rounded-lg hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-              <svg aria-hidden="true" class="w-6 h-6 text-emerald-400 mr-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.19 14.32c-.24.36-.76.47-1.12.23-2.9-1.78-6.48-2.19-10.88-1.2a.75.75 0 01-.81-.73c-.04-2.1.9-4.13 2.62-5.48.2-.16.48-.13.64.07.16.2.13.48-.07.64-1.55 1.23-2.38 3.01-2.35 4.86 4.08-.92 7.33-.55 9.95 1.04.36.24.47.76.23 1.12z"/></svg>
-              <span class="font-medium text-white">Listen on Spotify</span>
-              <span class="sr-only">(Link opens external site - Placeholder)</span>
-            </a>
-            <a href="#" class="flex items-center bg-neutral-800 p-3 rounded-lg hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-               <svg aria-hidden="true" class="w-6 h-6 text-red-500 mr-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.267,4,12,4,12,4S5.733,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.733,2,12,2,12s0,4.267,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.733,20,12,20,12,20s6.267,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.267,22,12,22,12S22,7.733,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"></path></svg>
-              <span class="font-medium text-white">Watch on YouTube</span>
-              <span class="sr-only">(Link opens external site - Placeholder)</span>
-            </a>
+            ${userData.spotify ? `<a href="${userData.spotify}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+              <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.19 14.32c-.24.36-.76.47-1.12.23-2.9-1.78-6.48-2.19-10.88-1.2a.75.75 0 01-.81-.73c-.04-2.1.9-4.13 2.62-5.48.2-.16.48-.13.64.07.16.2.13.48-.07.64-1.55 1.23-2.38 3.01-2.35 4.86 4.08-.92 7.33-.55 9.95 1.04.36.24.47.76.23 1.12z"/></svg>
+              <span class="flex-1 font-medium text-white truncate">Listen on Spotify</span>
+              <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>` : ''}
+             ${userData.youtube ? `<a href="${userData.youtube}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+               <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.267,4,12,4,12,4S5.733,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.733,2,12,2,12s0,4.267,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.733,20,12,20,12,20s6.267,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.267,22,12,22,12S22,7.733,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"></path></svg>
+              <span class="flex-1 font-medium text-white truncate">Watch on YouTube</span>
+              <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>` : ''}
+             ${!userData.spotify && !userData.youtube ? '<p class="text-sm text-neutral-500">No links added yet. Click Edit to add some!</p>' : ''}
           </div>
-        </div>
-      `;
+        </section>
+      `);
     }
 
     onAuthState(async (user) => {
       if (user) {
+        loadingState.style.display = 'flex'; // Show loading
+        errorState.style.display = 'none';
         try {
           // Fetch user data and bands concurrently using gracefulGet
+          // Manage states manually based on results
           const [userData, bands] = await Promise.all([
-             gracefulGet(getUserData(user.uid), profileContainer, "Could not load profile data while offline."),
-             // Pass null for band loading container, rely on profile container state
-             gracefulGet(getBandsForUser(user.uid), null, "Could not load bands while offline.")
+             gracefulGet(getUserData(user.uid), null, "Could not load profile data while offline."),
+             gracefulGet(getBandsForUser(user.uid), null, "Could not load bands while offline.") // Don't show bands loading error in main container
           ]);
 
-          // Render profile only if user data was successfully fetched
-          if (userData) {
-            renderProfile(userData, bands); // Pass potentially null 'bands' if that fetch failed
-          }
-          // If userData is null, gracefulGet handled the error in profileContainer
+          renderProfile(userData, bands); // Render profile (handles null userData)
 
         } catch (error) {
-          // Error already displayed by gracefulGet in profileContainer if userData fetch failed
-          console.error("Error fetching musician profile data (already handled by gracefulGet):", error);
-          // If bands fetch failed separately, it might not show an error, log if needed.
+          // Catch errors from Promise.all or if gracefulGet re-throws
+          console.error("Error fetching musician profile data:", error);
+          renderProfile(null, null); // Show error state
         }
       } else {
         window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
-   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script> </body>
+
+   <script type="module" src="./api.js"></script>
+ </body>
 </html>

@@ -7,104 +7,194 @@
   <title>Setflow - Calendar</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+     /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+     /* Bottom Nav Styles */
+    .bottom-nav-link { /* Duplicated from musician-dashboard, centralize if possible */
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Showing cached calendar data.</div>
-  <div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-      </a>
-      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Calendar</h1>
-      <a href="setflow-new-calendar-event.html" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">New Event</a>
-    </header>
-    <main class="flex-grow pb-28 p-5 pt-16"> <div class="mt-5">
-        <h3 class="text-sm font-medium text-neutral-400 mb-2">Upcoming</h3>
-        <div id="upcoming-events-container" class="space-y-2">
-            <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-        </div>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Calendar</h1>
+        <a href="setflow-new-calendar-event.html" class="w-auto rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">New Event</a>
       </div>
+    </header>
+
+    <main class="flex-grow p-5 pt-20 pb-20"> <section>
+        <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Upcoming Events</h2>
+        <div id="upcoming-events-container" class="space-y-3">
+            <div class="flex justify-center items-center py-10" id="loading-state">
+                <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+            </div>
+             <div class="hidden py-10 text-center" id="empty-state">
+                <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                <h3 class="mt-2 text-lg font-semibold text-white">No Upcoming Events</h3>
+                <p class="mt-1 text-sm text-neutral-400">Add gigs or personal events to your calendar.</p>
+                 <div class="mt-6">
+                    <a href="setflow-new-calendar-event.html" class="w-auto rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white ...">Add Event</a>
+                 </div>
+            </div>
+            <div class="hidden py-10 text-center text-red-400" id="error-state">
+                <p>Could not load calendar events.</p>
+            </div>
+            </div>
+      </section>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-neutral-800/90 backdrop-blur-sm border-t border-neutral-700 flex justify-around py-2 z-20">
-      <a href="setflow-musician-dashboard.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg><span class="text-xs font-medium">Dashboard</span></button></a>
-      <a href="setflow-browse-gigs.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a1 1 0 000 2c2.21 0 4 1.79 4 4v1a1 1 0 002 0V9c0-3.313-2.687-6-6-6z"></path><path d="M10 18a5 5 0 005-5V9a1 1 0 10-2 0v4a3 3 0 01-3 3c-1.657 0-3-1.343-3-3V9a1 1 0 00-2 0v4a5 5 0 005 5z"></path></svg><span class="text-xs font-medium">Gigs</span></button></a>
-      <a href="setflow-calendar.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-emerald-400"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="text-xs font-medium">Calendar</span></button></a>
-      <a href="setflow-inbox.html" class="w-24 h-12 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800"><button class="w-full h-full flex flex-col items-center justify-center text-neutral-400 hover:text-white"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="text-xs font-medium">Inbox</span></button></a>
+     <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+        <div class="flex h-16 items-center justify-around">
+            <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Home">
+                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
+                <span class="text-xs font-medium">Home</span>
+            </a>
+            <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <span class="text-xs font-medium">Gigs</span>
+            </a>
+            <a href="setflow-calendar.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Calendar">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m3 8H5m14 0v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m14 0H5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="text-xs font-medium">Calendar</span>
+            </a>
+            <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
+                <span class="text-xs font-medium">Inbox</span>
+            </a>
+            <a href="setflow-account-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Menu">
+                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <span class="text-xs font-medium">Menu</span>
+            </a>
+        </div>
     </nav>
-    </div>
+  </div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, fetchCalendarEvents, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
+    import { onAuthState, fetchCalendarEvents, gracefulGet, isOnline } from './api.js';
 
     const eventsContainer = document.getElementById('upcoming-events-container');
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
+    const offlineBanner = document.getElementById('offline-banner');
 
-    // Show initial loading spinner
-    ui.loading.show(eventsContainer);
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
 
     function renderEvents(events) {
-        // gracefulGet handles spinner removal / error display
-        if (!events || events.length === 0) {
-            eventsContainer.innerHTML = '<p class="text-neutral-500 text-sm">You have no upcoming events.</p>';
+        // Clear previous event items
+        const existingItems = eventsContainer.querySelectorAll('.event-item');
+        existingItems.forEach(item => item.remove());
+
+        if (!events) { // Error case from gracefulGet
+            loadingState.style.display = 'none';
+            emptyState.style.display = 'none';
+            errorState.style.display = 'block';
             return;
         }
 
-        // Clear container before rendering
-        eventsContainer.innerHTML = '';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcomingEvents = events
+            .filter(event => event.dateObject >= today) // Filter for today or later
+            .sort((a, b) => a.dateObject - b.dateObject); // Sort ascending
 
-        events.forEach(event => {
+        if (upcomingEvents.length === 0) {
+            loadingState.style.display = 'none';
+            errorState.style.display = 'none';
+            emptyState.style.display = 'block'; // Show empty state
+            return;
+        }
+
+        loadingState.style.display = 'none'; // Hide states
+        emptyState.style.display = 'none';
+        errorState.style.display = 'none';
+
+        upcomingEvents.forEach(event => {
             const eventElement = document.createElement('div');
-            eventElement.className = 'bg-neutral-800/50 border border-neutral-700/30 rounded-lg p-3';
+            // Use canonical list item structure
+            eventElement.className = 'event-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
+
+            // Determine link based on type
+            let detailLink = '#'; // Default/placeholder
+            if (event.type === 'gig') {
+                detailLink = `setflow-show-sheet.html?gigId=${event.id}`; // Assuming event ID is gig ID for booked gigs
+            } else {
+                // Link to a generic event detail view or edit view if needed
+                // detailLink = `setflow-event-detail.html?id=${event.id}`;
+            }
+
+            // Determine color/icon based on type
+            let typeColorClass = 'text-neutral-400';
+            if (event.type === 'gig') typeColorClass = 'text-emerald-400';
+            else if (event.type === 'Personal (Blocked Off)') typeColorClass = 'text-amber-400';
+            else if (event.type === 'Rehearsal') typeColorClass = 'text-sky-400';
+
 
             eventElement.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-white">${event.title} • ${event.formattedDate}</p>
-                        <p class="text-xs text-neutral-400">${event.formattedTime} • ${event.type}</p>
-                    </div>
-                    <a href="#" class="text-sm font-semibold text-neutral-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Details</a>
+                <div class="flex-1 min-w-0">
+                    <p class="truncate text-sm font-semibold text-white">${event.title}</p>
+                    <p class="mt-1 truncate text-xs ${typeColorClass}">${event.formattedDate} • ${event.formattedTime} • ${event.type}</p>
                 </div>
+                <a href="${detailLink}" class="ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-neutral-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">Details</a>
             `;
-            eventsContainer.appendChild(eventElement);
+            // Insert before the state divs
+            eventsContainer.insertBefore(eventElement, loadingState);
         });
     }
 
     onAuthState(async (user) => {
         if (user) {
+            loadingState.style.display = 'flex'; // Show loading
+            emptyState.style.display = 'none';
+            errorState.style.display = 'none';
             try {
-                // Use gracefulGet to fetch events, managing loading/error state
-                const events = await gracefulGet(fetchCalendarEvents(user.uid), eventsContainer, "Could not load calendar while offline.");
-                // Render only if fetch succeeded
-                if (events) {
-                  renderEvents(events);
-                }
+                // Use gracefulGet, manage states manually
+                const events = await gracefulGet(fetchCalendarEvents(user.uid), null, "Could not load calendar while offline.");
+                renderEvents(events); // Handles null/empty response
             } catch (error) {
-                // Error already displayed by gracefulGet
-                console.error("Failed to fetch calendar events (already handled by gracefulGet):", error);
+                console.error("Failed to fetch calendar events:", error);
+                renderEvents(null); // Show error state
             }
         } else {
             window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
- <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>

@@ -7,69 +7,82 @@
   <title>Setflow - Host a Jam Session</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif;}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+     /* Style date/time inputs for dark mode */
+     input[type="date"], input[type="time"] { color-scheme: dark; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Session will post when back online.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-jam-sessions.html" aria-label="Go back to jam sessions" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Host a Jam Session</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <form id="jam-session-form" class="space-y-6">
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-jam-sessions.html" aria-label="Go back to jam sessions" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Host a Jam Session</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main class="flex-1 p-5 pt-20 pb-24"> <form id="jam-session-form" class="space-y-6">
         <div>
-            <label for="jam-title" class="block text-sm font-medium text-neutral-300 mb-2">Session Title</label>
-            <input id="jam-title" type="text" placeholder="e.g., Blues Jam, Acoustic Songwriting" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+            <label for="jam-title" class="mb-2 block text-sm font-semibold text-neutral-300">Session Title <span class="text-red-400">*</span></label>
+            <input id="jam-title" type="text" placeholder="e.g., Blues Jam, Acoustic Songwriting" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
          <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="jam-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-                <input id="jam-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                <label for="jam-date" class="mb-2 block text-sm font-semibold text-neutral-300">Date <span class="text-red-400">*</span></label>
+                <input id="jam-date" type="date" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
             </div>
             <div>
-                <label for="jam-time" class="block text-sm font-medium text-neutral-300 mb-2">Time</label>
-                <input id="jam-time" type="time" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                <label for="jam-time" class="mb-2 block text-sm font-semibold text-neutral-300">Time <span class="text-red-400">*</span></label>
+                <input id="jam-time" type="time" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
             </div>
         </div>
         <div>
-            <label for="jam-location" class="block text-sm font-medium text-neutral-300 mb-2">Location</label>
-            <input id="jam-location" type="text" placeholder="e.g., My garage, Motorco Music Hall" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+            <label for="jam-location" class="mb-2 block text-sm font-semibold text-neutral-300">Location <span class="text-red-400">*</span></label>
+            <input id="jam-location" type="text" placeholder="e.g., My garage, Motorco Music Hall" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
-            <label for="jam-description" class="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-            <textarea id="jam-description" rows="4" placeholder="e.g., Looking for a drummer and bassist to jam on some blues standards." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+            <label for="jam-description" class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
+            <textarea id="jam-description" rows="4" placeholder="e.g., Looking for a drummer and bassist to jam on some blues standards." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
     </form>
   </main>
-  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="jam-session-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Post Jam Session</button>
+
+  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+    <button type="submit" form="jam-session-form" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Post Jam Session</button>
   </footer>
+</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, createJamSession, isOnline } from './api.js'; // Import isOnline
+  import { onAuthState, createJamSession, isOnline } from './api.js';
 
   const jamForm = document.getElementById('jam-session-form');
   const submitButton = document.getElementById('submit-btn');
+  const offlineBanner = document.getElementById('offline-banner');
   let currentUserId = null;
+
+   // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
+
 
   onAuthState(user => {
     if (user) {
@@ -93,39 +106,39 @@
     const location = document.getElementById('jam-location').value.trim();
 
     if (!title || !date || !time || !location) {
-         toast.show("Please fill out all required fields (Title, Date, Time, Location).", 'error');
+         toast.show("Please fill out Title, Date, Time, and Location.", 'error');
          return;
     }
 
     submitButton.disabled = true;
-    submitButton.innerText = 'Posting...';
+    submitButton.textContent = 'Posting...'; // Use textContent
 
     const sessionData = {
       hostId: currentUserId,
       title: title,
-      date: date,
-      time: time,
+      date: date, // Keep as string, API handles conversion
+      time: time, // Keep as string, API handles conversion
       location: location,
-      description: document.getElementById('jam-description').value,
+      description: document.getElementById('jam-description').value.trim(), // Trim description
     };
 
     try {
       await createJamSession(sessionData); // Works offline
       const successMessage = isOnline() ? 'Your jam session has been posted!' : 'Session saved locally. Will post when online.';
-      toast.show(successMessage, 'success');
-       setTimeout(() => { // Redirect after showing success
-           window.location.href = 'setflow-jam-sessions.html';
-       }, 1500);
+      // Set toast for the next page
+      sessionStorage.setItem('showToast', `${successMessage}|success`);
+      // Redirect immediately
+      window.location.href = 'setflow-jam-sessions.html';
+
     } catch (error) {
       console.error("Error posting jam session:", error);
-      toast.show("Could not post your session. Please try again.", 'error');
+      toast.show("Could not post session. Please try again.", 'error');
       submitButton.disabled = false;
-      submitButton.innerText = 'Post Jam Session';
+      submitButton.textContent = 'Post Jam Session'; // Use textContent
     }
   });
 </script>
 
-<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script> </body>
+<script type="module" src="./api.js"></script>
+</body>
 </html>

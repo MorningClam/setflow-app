@@ -3,102 +3,153 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Gig Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    .loading-spinner-inline { /* For inline text loading */
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Gig details may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10"> <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex items-center shadow-md border-b border-neutral-700/50"> <a href="setflow-browse-gigs.html" aria-label="Go back" class="p-2 rounded-full hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </a>
-      <h1 class="text-lg font-bold tracking-tight mx-auto pr-10">Gig Details</h1>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-browse-gigs.html" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gig Details</h1>
+        <div class="w-10 h-10"></div> </div>
     </header>
-    <main id="gig-detail-content" class="flex-grow pb-28">
+
+    <main id="gig-detail-content" class="flex-grow pt-16 pb-24"> <div class="flex justify-center items-center py-10" id="loading-state">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+      </div>
+       <div class="hidden p-5 text-center text-red-400" id="error-state">
+          <p>Gig not found or could not be loaded.</p>
+      </div>
       </main>
-    <footer id="footer-container" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-      <div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div> </footer>
+
+    <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+      <div class="flex justify-center items-center h-[48px]" id="footer-loading-state"> <div class="loading-spinner-inline"></div>
+       </div>
+       </footer>
   </div>
 
+   <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+     <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script>
+
   <script type="module">
-    import { onAuthState, getUserData, applyForGig, reportContent, gracefulGet, ui, isOnline, getGigDetails } from './api.js'; // Added getGigDetails
+    import { onAuthState, getUserData, applyForGig, reportContent, gracefulGet, isOnline, getGigDetails } from './api.js';
 
     const footerContainer = document.getElementById('footer-container');
     const gigDetailContainer = document.getElementById('gig-detail-content');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const footerLoadingState = document.getElementById('footer-loading-state');
+    const offlineBanner = document.getElementById('offline-banner');
+
     let currentUserId = null;
     let gigData = null; // Store fetched gig data
 
     const urlParams = new URLSearchParams(window.location.search);
     const gigId = urlParams.get('id');
 
-    // Show initial loading spinner
-    ui.loading.show(gigDetailContainer);
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
 
     function renderGigDetails(gigSnap) {
-        // gracefulGet handles spinner removal / error display if gigSnap is falsy
+        loadingState.style.display = 'none'; // Hide loading state
+
         if (!gigSnap || !gigSnap.exists()) {
-             if (!gigDetailContainer.innerHTML.includes('Error') && !gigDetailContainer.innerHTML.includes('offline')) {
-                gigDetailContainer.innerHTML = `<p class="p-5 text-center text-red-400">Gig not found.</p>`;
-             }
-             footerContainer.innerHTML = ''; // Clear footer loading state on error
+             errorState.style.display = 'block'; // Show error state
+             footerLoadingState.style.display = 'none'; // Hide footer loading
+             footerContainer.innerHTML = ''; // Clear footer
              return;
         }
+        errorState.style.display = 'none'; // Hide error state if successful
 
-        gigData = { id: gigSnap.id, ...gigSnap.data() }; // Store data
+        gigData = { id: gigSnap.id, ...gigSnap.data() };
         const dateFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
-        // Basic time formatting (improve if needed)
         const timeFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'Time N/A';
 
+        // Use canonical section spacing and typography
         gigDetailContainer.innerHTML = `
-          <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
-            <div class="flex justify-between items-center">
-              <a href="setflow-venue-profile.html?venueId=${gigData.ownerId}" class="text-2xl font-bold text-white hover:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 rounded">${gigData.venueName}</a>
+          <section class="border-b border-neutral-700 p-5">
+            <div class="flex items-center justify-between">
+              <a href="setflow-venue-profile.html?venueId=${gigData.ownerId}" class="rounded text-2xl font-bold text-white hover:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">${gigData.venueName}</a>
               <span class="text-2xl font-bold text-emerald-400">$${gigData.payout}</span>
             </div>
-            <p class="text-md text-neutral-400 mt-1">${gigData.location}</p>
-            <button id="view-map-btn" data-location="${gigData.location}" class="mt-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 rounded">View on Map</button>
+            <p class="mt-1 text-base text-neutral-400">${gigData.location}</p>
+            <button id="view-map-btn" data-location="${gigData.location}" class="mt-2 rounded-lg py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">View on Map</button>
             <div class="mt-2 text-right">
-                 <button id="report-gig-btn" class="text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900 rounded">Report Gig</button>
+                 <button id="report-gig-btn" class="rounded px-1 text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900">Report Gig</button>
             </div>
-          </div>
-          <div class="px-5 py-4 border-b border-neutral-800">
+          </section>
+
+          <section class="border-b border-neutral-700 p-5">
             <div class="grid grid-cols-2 gap-4 text-sm">
-              <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Date and Time</p><p class="text-neutral-100 font-medium mt-1">${dateFormatted}</p><p class="text-neutral-300">${timeFormatted}</p></div>
-              <div><p class="text-neutral-500 font-semibold uppercase tracking-wider text-xs">Genre</p><p class="text-neutral-100 font-medium mt-1">${gigData.genre || 'N/A'}</p><p class="text-neutral-300">${gigData.details || ''}</p></div>
-            </div>
-          </div>
-           <div class="px-5 py-4 border-b border-neutral-800">
-                <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Description / Requirements</h3>
-                <p class="text-neutral-300 text-sm leading-relaxed">${gigData.description || 'No specific requirements listed.'}</p>
-            </div>
-          <div class="px-5 py-4">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">House Specs</h3>
-            <div class="text-sm space-y-2">
-              <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Full PA system provided</span></div>
-              <div class="flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="text-neutral-200">Sound engineer on site</span></div>
+              <div>
+                <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">Date and Time</p>
+                <p class="font-semibold text-white">${dateFormatted}</p>
+                <p class="text-neutral-300">${timeFormatted}</p>
               </div>
-          </div>
+              <div>
+                <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">Genre</p>
+                <p class="mt-1">
+                    <span class="inline-flex items-center rounded-full bg-emerald-900 px-2.5 py-0.5 text-xs font-medium text-emerald-300">${gigData.genre || 'N/A'}</span>
+                </p>
+                </div>
+            </div>
+          </section>
+
+          <section class="border-b border-neutral-700 p-5">
+                <h3 class="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-400">Description / Requirements</h3>
+                <p class="text-sm leading-relaxed text-neutral-300">${gigData.description || 'No specific requirements listed.'}</p>
+          </section>
+
+          <section class="p-5">
+            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-400">House Specs</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex items-center">
+                  <svg class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-neutral-200">Full PA system provided</span>
+              </div>
+              <div class="flex items-center">
+                  <svg class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span class="text-neutral-200">Sound engineer on site</span>
+              </div>
+              </div>
+          </section>
         `;
 
-        // Add event listeners after rendering
+        // Add event listeners after rendering content
         addDynamicEventListeners();
     }
 
@@ -111,10 +162,10 @@
         }
         if (viewMapBtn) {
             viewMapBtn.addEventListener('click', () => {
-                 const location = viewMapBtn.dataset.location || "USA"; // Fallback location
+                 const location = viewMapBtn.dataset.location || "USA";
                  const encodedLocation = encodeURIComponent(location);
-                 // Correct Google Maps URL structure and open in new tab
-                 window.open(`https://www.google.com/maps/search/?api=1&query={encodedLocation}`, '_blank');
+                 // Open Google Maps in a new tab
+                 window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
             });
         }
      }
@@ -123,53 +174,64 @@
     onAuthState(user => {
       if (user) {
         currentUserId = user.uid;
-        checkUserStatus(user.uid); // Check application status/limits after login
+        // Check status only *after* gig details are loaded
+        // checkUserStatus(user.uid); // Moved to initial load logic
       } else {
-        // User not logged in, show Apply button but handle click
-        renderApplyButton(true); // Render the button, check auth on click
-        // ** Important: Also check if the gig details themselves loaded **
-        // If gig details haven't loaded yet (still showing spinner), don't assume apply button is needed.
-        // The initial load function below handles loading gig details first.
-        if (gigDetailContainer.querySelector('.loading-spinner-container')) {
-             footerContainer.innerHTML = '<div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div>'; // Keep footer loading
+        // User not logged in, render basic Apply button, check auth on click
+        // But wait for gig details to load first
+        if (!gigData && loadingState.style.display !== 'none') {
+             // Still loading, keep footer loading
+             footerLoadingState.style.display = 'flex';
+        } else if (gigData) {
+            // Gig loaded, show apply button
+            renderApplyButton(true);
+        } else {
+             // Gig failed to load (error state), clear footer
+             footerLoadingState.style.display = 'none';
+             footerContainer.innerHTML = '';
         }
       }
     });
 
     // --- Check Gig Application Status ---
     async function checkUserStatus(userId) {
-        // Clear initial footer loading
-        footerContainer.innerHTML = '';
+        footerLoadingState.style.display = 'flex'; // Show loading while checking
+        footerContainer.innerHTML = ''; // Clear previous buttons
+        footerContainer.appendChild(footerLoadingState);
+
         try {
-            // Use gracefulGet for user data, don't show loading in footer
+            // Use gracefulGet for user data, don't show loading in footer itself
             const userData = await gracefulGet(getUserData(userId), null, "Could not verify user status offline.");
 
+            footerLoadingState.style.display = 'none'; // Hide loading
+
             if (!userData) {
-                 renderApplyButton(true); // Let apply handler manage errors
+                 renderApplyButton(true); // Let apply handler manage errors/login prompt
                  return;
             }
 
-            // Check subscription tier and application status
-            const applicationsLeft = userData?.applicationsLeft ?? 5; // Default assumption
+            const applicationsLeft = userData?.applicationsLeft ?? 5; // Example default
             const subscriptionTier = userData?.subscriptionTier ?? 'free';
-            const hasApplied = userData?.appliedGigs?.[gigId]; // Check if gigId is in appliedGigs map
+            const hasApplied = userData?.appliedGigs?.[gigId];
 
             if (hasApplied) {
                 renderAppliedState();
             } else if (subscriptionTier === 'free' && applicationsLeft <= 0) {
                 renderUpgradeState();
             } else {
-                renderApplyButton();
+                renderApplyButton(); // Render normal apply button
             }
         } catch (error) {
              console.error("Error checking user status:", error);
+             footerLoadingState.style.display = 'none'; // Hide loading
              renderApplyButton(true); // Show apply button on error, click handler will manage
         }
     }
 
-    // --- Render Footer Buttons ---
+    // --- Render Footer Buttons (Using Canonical Styles) ---
     function renderApplyButton(needsAuthCheck = false) {
-        footerContainer.innerHTML = `<button id="apply-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Apply for Gig</button>`;
+        footerLoadingState.style.display = 'none';
+        footerContainer.innerHTML = `<button id="apply-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Apply for Gig</button>`;
         const applyBtn = document.getElementById('apply-btn');
         if (applyBtn) {
             applyBtn.addEventListener('click', needsAuthCheck ? handleApplyClickAuthCheck : handleApplyClick);
@@ -177,14 +239,16 @@
     }
 
     function renderAppliedState() {
-        footerContainer.innerHTML = `<button disabled class="w-full py-3 bg-neutral-600 text-white text-base font-bold rounded-xl cursor-not-allowed">✓ Applied</button>`;
+        footerLoadingState.style.display = 'none';
+        footerContainer.innerHTML = `<button disabled class="w-full cursor-not-allowed rounded-xl bg-neutral-600 px-6 py-3 text-base font-semibold text-white opacity-50">✓ Applied</button>`;
     }
 
     function renderUpgradeState() {
+        footerLoadingState.style.display = 'none';
         footerContainer.innerHTML = `
             <div class="text-center">
-                <p class="text-sm text-amber-400 mb-2">You've used all your free applications this month.</p>
-                <a href="setflow-pricing-page.html" class="w-full block py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Apply</a>
+                <p class="mb-2 text-sm text-amber-400">You've used all your free applications this month.</p>
+                <a href="setflow-pricing-page.html" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Apply</a>
             </div>
         `;
     }
@@ -193,23 +257,16 @@
     function handleApplyClickAuthCheck() {
          if (!currentUserId) {
             toast.show("Please log in to apply for a gig.", 'error');
-            // Redirect to login, including the current page URL as a redirect parameter
             setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
             return;
          }
-         // If logged in, proceed with the normal apply logic
          handleApplyClick();
     }
 
-     // Apply handler when user is definitely logged in
     async function handleApplyClick() {
           const btn = document.getElementById('apply-btn');
-          if (!gigId || !currentUserId) {
+          if (!gigId || !currentUserId || !gigData) {
             toast.show("Could not apply. Missing required information.", 'error');
-            return;
-          }
-          if (!gigData) { // Ensure gigData has been loaded
-            toast.show("Gig details not loaded yet. Please wait.", 'error');
             return;
           }
 
@@ -219,15 +276,14 @@
           try {
             await applyForGig(gigId, currentUserId); // Works offline
 
-            // Update UI immediately (optimistic update)
-            renderAppliedState();
+            renderAppliedState(); // Optimistic update
             const successMessage = isOnline() ? 'Application submitted successfully!' : 'Application saved locally. Will sync when online.';
             toast.show(successMessage, 'success');
 
           } catch (error) {
             console.error("Failed to apply for gig:", error);
-            toast.show("There was an error submitting your application. Please try again.", 'error');
-            btn.disabled = false; // Re-enable button on error
+            toast.show("Error submitting application. Please try again.", 'error');
+            btn.disabled = false;
             btn.innerText = 'Apply for Gig';
           }
     }
@@ -236,7 +292,6 @@
     async function handleReportGig() {
         if (!currentUserId) {
             toast.show('You must be logged in to report content.', 'error');
-             // Redirect to login, including the current page URL
             setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
             return;
         }
@@ -257,32 +312,50 @@
 
     // --- Initial Load ---
     document.addEventListener('DOMContentLoaded', async () => {
+        loadingState.style.display = 'flex'; // Show loading
+        errorState.style.display = 'none';
+        footerLoadingState.style.display = 'flex'; // Show footer loading initially
+
+        if (!gigId) {
+             loadingState.style.display = 'none';
+             errorState.textContent = 'Error: No Gig ID provided in URL.';
+             errorState.style.display = 'block';
+             footerLoadingState.style.display = 'none';
+             footerContainer.innerHTML = '';
+             return;
+        }
+
         try {
-            // Use gracefulGet for initial gig fetch, managing main container state
-            const gigSnapshot = await gracefulGet(getGigDetails(gigId), gigDetailContainer, "Could not load gig details while offline.");
+            // Use gracefulGet, manage states manually
+            const gigSnapshotPromise = getGigDetails(gigId); // Get the promise
+            const gigSnapshot = await gracefulGet(gigSnapshotPromise, null, "Could not load gig details while offline.");
+
+            renderGigDetails(gigSnapshot); // Render content or error state
+
+            // Now that gig details are potentially loaded, check user status
             if (gigSnapshot && gigSnapshot.exists()) {
-              renderGigDetails(gigSnapshot);
-              // Now that gig details are loaded, trigger the status check (which depends on auth state)
-              if (currentUserId) {
-                 checkUserStatus(currentUserId);
-              } else {
-                 // If user isn't logged in yet (onAuthState hasn't run), render the basic apply button
-                 renderApplyButton(true);
-              }
+                 if (currentUserId) {
+                     await checkUserStatus(currentUserId); // Fetch user status and render footer
+                 } else {
+                     renderApplyButton(true); // Render basic apply button if not logged in yet
+                 }
             } else {
-               // Error or not found, gracefulGet handled the message in gigDetailContainer
-               footerContainer.innerHTML = ''; // Clear footer loading state
+                 // Error handled by renderGigDetails, clear footer loading
+                 footerLoadingState.style.display = 'none';
+                 footerContainer.innerHTML = '';
             }
         } catch (error) {
-            // Error handled by gracefulGet
-            console.error("Error loading gig details (already handled):", error);
-            footerContainer.innerHTML = ''; // Clear footer loading state on error
+            // Catch unexpected errors during the process
+            console.error("Error loading gig details page:", error);
+            loadingState.style.display = 'none';
+            errorState.textContent = 'An unexpected error occurred.';
+            errorState.style.display = 'block';
+            footerLoadingState.style.display = 'none';
+            footerContainer.innerHTML = '';
         }
     });
 
   </script>
 
-  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-  </div>
-  <script src="toast.js"></script> </body>
+</body>
 </html>

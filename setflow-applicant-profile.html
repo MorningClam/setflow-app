@@ -7,97 +7,166 @@
   <title>Setflow - Applicant Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default, shown by JS */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      display: none; /* Hidden by default */
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+     /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+     .loading-spinner-inline { /* For inline text loading */
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="setflow-review-applicants.html" aria-label="Go back to applicants" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Applicant Profile</h1>
-      <button aria-label="Bookmark applicant" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="#" id="back-link" aria-label="Go back to applicants" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Applicant Profile</h1>
+        <button aria-label="Bookmark applicant" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+        </button>
+      </div>
     </header>
-    <main id="profile-container" class="flex-grow pb-36 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-    </main>
-    <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700 flex items-center space-x-3">
-        </footer>
+
+    <main id="profile-container" class="flex-grow pt-16 pb-32"> <div class="flex justify-center items-center py-10" id="loading-state">
+          <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+        </div>
+        <div class="hidden p-5 text-center text-red-400" id="error-state">
+            <p>Could not load applicant profile.</p>
+        </div>
+        </main>
+
+    <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+      <div class="flex justify-center items-center h-[48px]" id="footer-loading-state"> <div class="loading-spinner-inline"></div> Loading Actions...
+       </div>
+       <div class="hidden space-x-3" id="footer-buttons">
+          </div>
+    </footer>
   </div>
 
+   <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script>
+
   <script type="module">
-    import { onAuthState, getUserData, gracefulGet, ui } from './api.js'; // Import gracefulGet and ui
+    import { onAuthState, getUserData, gracefulGet, isOnline } from './api.js';
 
     const profileContainer = document.getElementById('profile-container');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
     const footerActions = document.getElementById('footer-actions');
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
-    const gigId = urlParams.get('gigId'); // Pass gigId for booking confirmation
+    const footerLoadingState = document.getElementById('footer-loading-state');
+    const footerButtons = document.getElementById('footer-buttons');
+    const backLink = document.getElementById('back-link');
+    const offlineBanner = document.getElementById('offline-banner');
 
-    // Show initial loading spinner
-    ui.loading.show(profileContainer);
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId'); // Applicant ID
+    const gigId = urlParams.get('gigId'); // Gig ID for context
+    const artistNameParam = urlParams.get('artistName'); // For booking link
+
+     // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
+
+    // Set back link dynamically
+    if (gigId) {
+        backLink.href = `setflow-review-applicants.html?gigId=${gigId}`; // Go back to the specific gig's applicant list
+    } else {
+        backLink.href = 'javascript:history.back()'; // Fallback if no gigId
+    }
 
     function renderProfile(userData) {
+      loadingState.style.display = 'none'; // Hide loading
+
       if (!userData) {
-        // gracefulGet already handles showing the error/offline message in the container
+        errorState.style.display = 'block'; // Show error
+        footerLoadingState.style.display = 'none'; // Hide footer loading
+        footerButtons.classList.add('hidden'); // Hide buttons container
         return;
       }
+      errorState.style.display = 'none'; // Hide error
 
-      // Populate main profile content
+      // Populate main profile content using canonical sections
       profileContainer.innerHTML = `
-        <div class="p-5 flex flex-col items-center text-center border-b border-neutral-800">
-          <img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-700" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Band photo">
-          <h2 class="text-2xl font-bold text-white mt-4">${userData.name}</h2>
-          <p class="text-md text-neutral-400">${userData.location || 'Location not set'}</p>
-        </div>
-        <div class="p-5 border-b border-neutral-800">
-          <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Bio</h3>
-          <p class="text-neutral-300 text-sm leading-relaxed">${userData.bio || 'No bio provided.'}</p>
-        </div>
-        `; // Add more sections as needed (e.g., links, past gigs)
+        <section class="border-b border-neutral-700 p-5 text-center">
+          <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}" alt="Profile photo">
+          <h2 class="mt-4 text-2xl font-bold text-white">${userData.name}</h2>
+          <p class="text-base text-neutral-400">${userData.location || 'Location not set'}</p>
+        </section>
+        <section class="border-b border-neutral-700 p-5">
+          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-400">Bio</h3>
+          <p class="text-sm leading-relaxed text-neutral-300">${userData.bio || 'No bio provided.'}</p>
+        </section>
+        <section class="p-5">
+           <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-400">Links</h3>
+           <div class="space-y-3">
+              ${userData.website ? `<a href="${userData.website}" target="_blank" class="flex items-center rounded-lg bg-neutral-800 p-3 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg class="mr-4 h-6 w-6 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span class="font-medium text-white truncate">${userData.website}</span></a>` : ''}
+              ${userData.spotify ? `<a href="${userData.spotify}" target="_blank" class="flex items-center rounded-lg bg-neutral-800 p-3 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg class="mr-4 h-6 w-6 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">...</svg><span class="font-medium text-white">Spotify</span></a>` : ''}
+              ${userData.instagram ? `<a href="${userData.instagram}" target="_blank" class="flex items-center rounded-lg bg-neutral-800 p-3 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg class="mr-4 h-6 w-6 text-pink-500" fill="currentColor" viewBox="0 0 24 24">...</svg><span class="font-medium text-white">Instagram</span></a>` : ''}
+              ${!userData.website && !userData.spotify && !userData.instagram ? '<p class="text-sm text-neutral-500">No links provided.</p>' : ''}
+           </div>
+        </section>
+        `;
 
       // Populate footer actions
-      const bookingLink = `setflow-booking-confirmation.html?userId=${userId}&gigId=${gigId}&artistName=${encodeURIComponent(userData.name)}`; // Pass artist name
-      footerActions.innerHTML = `
-        <a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full py-3 bg-neutral-700 hover:bg-neutral-600 text-white text-base font-bold rounded-xl text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Send Message</a>
-        <a href="${bookingLink}" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Book Gig</a>
+      footerLoadingState.style.display = 'none'; // Hide loading
+      footerButtons.classList.remove('hidden'); // Show buttons container
+      const bookingLink = `setflow-booking-confirmation.html?userId=${userId}&gigId=${gigId}&artistName=${encodeURIComponent(artistNameParam || userData.name)}`; // Use param name if available
+      footerButtons.innerHTML = `
+        <a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Send Message</a>
+        <a href="${bookingLink}" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Book Gig</a>
       `;
     }
 
     onAuthState(async (user) => {
-      if (user) {
+      if (user) { // Assuming only venue/promoter can view this page
+        loadingState.style.display = 'flex'; // Show loading
+        errorState.style.display = 'none';
+        footerLoadingState.style.display = 'flex'; // Show footer loading
+        footerButtons.classList.add('hidden');
+
         if (!userId) {
-          profileContainer.innerHTML = '<p class="p-5 text-center text-red-400">No user ID provided.</p>';
+          loadingState.style.display = 'none';
+          errorState.textContent = 'Error: No Applicant ID provided.';
+          errorState.style.display = 'block';
+          footerLoadingState.style.display = 'none';
           return;
         }
         try {
-          // Use gracefulGet to fetch data and handle loading/offline state
-          const applicantData = await gracefulGet(getUserData(userId), profileContainer);
-          renderProfile(applicantData); // Render only if data is successfully fetched
+          // Use gracefulGet, manage states manually
+          const applicantData = await gracefulGet(getUserData(userId), null, "Could not load applicant profile offline.");
+          renderProfile(applicantData); // Handles null response
         } catch (error) {
-          // Error handling is now done within gracefulGet, just log if needed
-          console.error("Error fetching applicant data (already handled by gracefulGet):", error);
+          console.error("Error fetching applicant data:", error);
+          renderProfile(null); // Show error state
         }
       } else {
         window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
-   <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script> </body>
+
+   <script type="module" src="./api.js"></script>
+</body>
 </html>

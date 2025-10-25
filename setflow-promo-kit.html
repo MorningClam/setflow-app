@@ -7,88 +7,139 @@
   <title>Setflow - Promo Kit</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-show-sheet.html" aria-label="Go back to show sheet" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Promo Kit</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 space-y-6 pt-16"> <div class="text-center">
-      <h2 class="text-xl font-bold">George & The Vibe</h2> <p class="text-neutral-300">at The Pour House - Nov 6</p> </div>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="#" onclick="goBackOr('setflow-show-sheet.html')" aria-label="Go back to show sheet" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Promo Kit</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
 
-    <div>
-        <h3 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-2">Social Media Graphic</h3>
-        <div class="bg-neutral-800 rounded-xl aspect-square flex flex-col items-center justify-center p-4 border border-neutral-700 relative">
-            <img class="w-24 h-24 rounded-full object-cover border-4 border-neutral-600" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop" alt="Band photo">
-            <p class="text-2xl font-bold mt-4">George & The Vibe</p>
+  <main class="flex-1 space-y-8 p-5 pt-20"> <section class="text-center">
+        <h2 id="artist-name-header" class="text-2xl font-bold text-white">George & The Vibe</h2>
+      <p id="event-details-header" class="mt-1 text-base text-neutral-300">at The Pour House - Nov 6</p>
+      </section>
+
+    <section>
+        <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Social Media Graphic</h3>
+        <div class="relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+             <img class="h-24 w-24 rounded-full border-4 border-neutral-600 object-cover" src="https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop" alt="Band photo">
+            <p class="mt-4 text-2xl font-bold">George & The Vibe</p>
             <p class="text-lg text-amber-400">LIVE AT THE POUR HOUSE</p>
             <p class="mt-2 text-base">SATURDAY, NOV 6 @ 9PM</p>
         </div>
-        <button onclick="downloadGraphic()" class="mt-3 w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Download Graphic</button>
-    </div>
+        <button onclick="downloadGraphic()" class="mt-4 w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Download Graphic</button>
+    </section>
 
-    <div>
-        <h3 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-2">Post Caption</h3>
-        <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700">
-            <p id="caption-text" class="text-sm text-neutral-300 leading-relaxed">
-                JUST ANNOUNCED: We're excited to have George & The Vibe on our stage on Saturday, Nov 6! Get ready for a night of funk and soul.
+    <section>
+        <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Post Caption</h3>
+        <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+            <p id="caption-text" class="text-sm leading-relaxed text-neutral-300">
+                JUST ANNOUNCED: We're excited to have George & The Vibe on our stage on Saturday, Nov 6! Get ready for a night of funk and soul. 🎸✨
                 <br><br>
-                #LiveMusic #Raleigh #Funk #Setflow
+                Doors at 8 PM, Show at 9 PM. Tickets available now [Link in Bio/Event Page].
+                <br><br>
+                #LiveMusic #[CityName] #[VenueName] #Funk #Soul #Setflow #[ArtistHashtag]
             </p>
-        </div>
-        <button onclick="copyCaption()" class="mt-3 w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Copy Text</button>
-    </div>
+            </div>
+         <button onclick="copyCaption()" class="mt-4 w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Copy Text</button>
+    </section>
   </main>
-</div>
- <script>
-     // Simple placeholder functions for buttons
-     function downloadGraphic() {
-         // In a real app, this would trigger a download or generate the image
-         if(window.toast) {
-             toast.show('Graphic download started... (Not Implemented)', 'success');
-         } else {
-             alert('Download Graphic (Not Implemented)');
-         }
+  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script>
+ <script src="nav.js"></script> <script type="module">
+     // Basic script for offline banner and button actions
+     import { isOnline, gracefulGet } from './api.js';
+     // TODO: Need API functions like getGigDetails(gigId), getArtistDetails(artistId)
+
+     const offlineBanner = document.getElementById('offline-banner');
+     const artistNameHeader = document.getElementById('artist-name-header');
+     const eventDetailsHeader = document.getElementById('event-details-header');
+
+     const urlParams = new URLSearchParams(window.location.search);
+     const gigId = urlParams.get('gigId'); // Assuming gigId is passed
+
+      // Update offline banner based on initial status
+     offlineBanner.style.display = isOnline() ? 'none' : 'block';
+     // Listen for network changes
+     document.body.addEventListener('app:network-change', (event) => {
+         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+     });
+
+
+     // --- Button Actions ---
+     window.downloadGraphic = function() {
+         // TODO: Implement actual graphic generation/download
+         toast.show('Graphic download started... (Not Implemented)', 'success');
      }
 
-     function copyCaption() {
-         const captionText = document.getElementById('caption-text').innerText;
+     window.copyCaption = function() {
+         const captionText = document.getElementById('caption-text')?.innerText;
+         if (!captionText || !navigator.clipboard) {
+              toast.show('Could not copy text.', 'error');
+              return;
+         }
          navigator.clipboard.writeText(captionText).then(() => {
-             if(window.toast) {
-                 toast.show('Caption copied to clipboard!', 'success');
-             } else {
-                 alert('Caption Copied!');
-             }
+             toast.show('Caption copied to clipboard!', 'success');
          }).catch(err => {
              console.error('Failed to copy text: ', err);
-             if(window.toast) {
-                 toast.show('Failed to copy caption.', 'error');
-             } else {
-                 alert('Failed to copy caption.');
-             }
+             toast.show('Failed to copy caption.', 'error');
          });
      }
+
+     // --- Initial Load ---
+     document.addEventListener('DOMContentLoaded', async () => {
+         if (!gigId) {
+             artistNameHeader.textContent = "Error";
+             eventDetailsHeader.textContent = "No Gig ID provided";
+             toast.show("Could not load promo kit details.", "error");
+             // Hide or show error state in main content sections if desired
+             return;
+         }
+
+         try {
+             // Placeholder: Fetch gig details to populate headers and content
+             // const gigDetails = await gracefulGet(getGigDetails(gigId), null); // Using gracefulGet without UI management
+             const gigDetails = { venueName: "The Pour House", date: new Date("2025-11-06T21:00:00Z"), bookedArtistName: "George & The Vibe" }; // Mock data
+
+             if (gigDetails) {
+                 artistNameHeader.textContent = gigDetails.bookedArtistName || 'Artist TBD';
+                 const dateFormatted = gigDetails.date ? gigDetails.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Date TBD';
+                 eventDetailsHeader.textContent = `at ${gigDetails.venueName} - ${dateFormatted}`;
+                 // TODO: Use fetched details to customize the graphic preview and caption text
+             } else {
+                 throw new Error("Gig details not found or failed to load.");
+             }
+         } catch (error) {
+              console.error("Error loading promo kit data:", error);
+              artistNameHeader.textContent = "Error";
+              eventDetailsHeader.textContent = "Could not load details";
+              toast.show("Could not load promo kit details.", "error");
+         }
+     });
+
  </script>
- <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>

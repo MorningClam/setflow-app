@@ -7,237 +7,272 @@
   <title>Setflow - Band Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif;}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Data may be cached. Changes will sync later.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-account-settings.html" aria-label="Go back to account settings" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Manage Band</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <div id="join-requests-section" class="mb-6 hidden"> <h2 class="text-sm font-medium uppercase tracking-wider text-amber-400 mb-3">Join Requests</h2>
-      <div id="join-requests-list" class="space-y-3">
-         <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-    <div class="mb-6">
-      <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Current Members</h2>
-      <div id="member-list" class="space-y-3">
-         <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-    <div id="invite-section" class="hidden"> <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Invite New Member</h2>
-        <div class="bg-neutral-800 rounded-xl p-4">
-            <label for="invite-email" class="block text-sm font-medium text-neutral-300 mb-2">Member's Email</label>
-            <div class="flex space-x-2">
-                <input id="invite-email" type="email" placeholder="email@example.com" class="flex-1 form-input w-full bg-neutral-700 border border-neutral-600 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
-                <button id="send-invite-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800">Send Invite</button>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-account-settings.html" aria-label="Go back to account settings" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Manage Band</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main class="flex-1 space-y-8 p-5 pt-20"> <section id="join-requests-section" class="hidden"> <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-amber-400">Join Requests</h2>
+        <div id="join-requests-list" class="space-y-3">
+            <div class="flex justify-center items-center py-5" id="requests-loading-state">
+                <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
             </div>
-             <p class="text-xs text-neutral-500 mt-2">Invites require an internet connection.</p>
+            </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Current Members</h2>
+      <div id="member-list" class="space-y-3">
+         <div class="flex justify-center items-center py-5" id="members-loading-state">
+            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+         </div>
+         </div>
+    </section>
+
+    <section id="invite-section" class="hidden"> <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Invite New Member</h2>
+        <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+            <label for="invite-email" class="mb-2 block text-sm font-semibold text-neutral-300">Member's Email</label>
+            <div class="flex space-x-2">
+                <input id="invite-email" type="email" placeholder="email@example.com" class="flex-1 rounded-xl border border-neutral-700 bg-neutral-700 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <button id="send-invite-btn" class="flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Send Invite</button>
+            </div>
+             <p class="mt-2 text-xs text-neutral-500">Invites require an internet connection.</p>
         </div>
-    </div>
+    </section>
   </main>
+  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, getBandData, inviteToBand, removeMemberFromBand, getJoinRequests, approveJoinRequest, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
+    import { onAuthState, getBandData, inviteToBand, removeMemberFromBand, getJoinRequests, approveJoinRequest, gracefulGet, isOnline } from './api.js';
+    // Import toast.js assuming it exports a toast object/function
+    // import { toast } from './toast.js';
 
     const memberListContainer = document.getElementById('member-list');
+    const membersLoadingState = document.getElementById('members-loading-state');
     const inviteEmailInput = document.getElementById('invite-email');
     const sendInviteBtn = document.getElementById('send-invite-btn');
     const joinRequestsSection = document.getElementById('join-requests-section');
     const joinRequestsList = document.getElementById('join-requests-list');
+    const requestsLoadingState = document.getElementById('requests-loading-state');
     const inviteSection = document.getElementById('invite-section');
+    const offlineBanner = document.getElementById('offline-banner');
 
     const urlParams = new URLSearchParams(window.location.search);
     const bandId = urlParams.get('bandId');
     let currentUser = null;
-    let isAdmin = false; // Flag to track admin status
+    let isAdmin = false;
 
-    // Show initial loading spinner for members
-    ui.loading.show(memberListContainer);
-    // Spinner for join requests isn't strictly needed as the section is hidden initially
+     // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
 
     function renderMembers(bandData) {
-        // gracefulGet handles spinner removal / error display
+        membersLoadingState.style.display = 'none'; // Hide loading
+         // Clear previous items
+        const existingItems = memberListContainer.querySelectorAll('.member-item');
+        existingItems.forEach(item => item.remove());
+
         if (!bandData || !bandData.members) {
-             // Error already shown by gracefulGet
+             memberListContainer.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-red-400">Could not load members.</p>');
              return;
         }
 
         const membersArray = Object.values(bandData.members);
-        // Clear container before rendering
-        memberListContainer.innerHTML = '';
-
         if(membersArray.length === 0) {
-             memberListContainer.innerHTML = '<p class="text-neutral-500">No members yet.</p>';
+             memberListContainer.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-neutral-500">No members yet.</p>');
              return;
         }
 
         membersArray.forEach(member => {
             const memberCard = document.createElement('div');
-            memberCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between';
-            const profileLink = `setflow-public-profile.html?userId=${member.id}`; // Link to public profile
+            // Use Canonical List Item Structure
+            memberCard.className = 'member-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
+            const profileLink = `setflow-public-profile.html?userId=${member.id}`;
+
             memberCard.innerHTML = `
-                <a href="${profileLink}" class="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-800 rounded-lg p-1 -m-1">
-                    <img class="w-10 h-10 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${member.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${member.name} photo">
-                    <div>
-                        <p class="font-semibold text-white group-hover:text-emerald-400 transition-colors">${member.name} ${member.id === currentUser.uid ? '(You)' : ''}</p>
-                        <p class="text-xs text-neutral-400 capitalize">${member.role}</p>
+                <a href="${profileLink}" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
+                    <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${member.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}" alt="${member.name} photo">
+                    <div class="min-w-0">
+                        <p class="truncate font-semibold text-white group-hover:text-emerald-400">${member.name} ${member.id === currentUser.uid ? '<span class="text-xs text-neutral-400">(You)</span>' : ''}</p>
+                        <p class="truncate text-sm capitalize text-neutral-400">${member.role}</p>
                     </div>
                 </a>
-                ${member.id !== currentUser.uid && isAdmin ? // Only admins can remove others
-                `<button data-member-id="${member.id}" class="remove-member-btn px-2 py-1 bg-red-800 hover:bg-red-700 rounded-lg text-xs font-semibold text-red-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-800">Remove</button>`
+                ${member.id !== currentUser.uid && isAdmin ?
+                // Canonical Destructive Button (Small, Tertiary Style)
+                `<button data-member-id="${member.id}" class="remove-member-btn ml-2 flex-shrink-0 rounded-xl px-3 py-1 text-xs font-semibold text-red-400 transition-colors hover:bg-red-900/50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-800 disabled:cursor-not-allowed disabled:opacity-50">Remove</button>`
                 : ''}
             `;
-            memberListContainer.appendChild(memberCard);
+            // Insert before loading state if it exists
+            memberListContainer.insertBefore(memberCard, membersLoadingState);
         });
     }
 
 
     function renderJoinRequests(requests) {
-        // gracefulGet handles potential errors/offline state for fetching requests
-        if (!requests || requests.length === 0) {
-            joinRequestsSection.classList.add('hidden'); // Hide if no requests or fetch failed
+        requestsLoadingState.style.display = 'none'; // Hide loading
+         // Clear previous items
+        const existingItems = joinRequestsList.querySelectorAll('.request-item');
+        existingItems.forEach(item => item.remove());
+
+
+        if (!requests) { // Error case
+             joinRequestsSection.classList.remove('hidden'); // Ensure section is visible to show error
+             joinRequestsList.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-red-400">Could not load join requests.</p>');
+             return;
+        }
+
+        if (requests.length === 0) {
+            joinRequestsSection.classList.add('hidden'); // Hide section if no requests
             return;
         }
 
-        joinRequestsSection.classList.remove('hidden');
-        joinRequestsList.innerHTML = ''; // Clear previous
+        joinRequestsSection.classList.remove('hidden'); // Show section
         requests.forEach(req => {
             const reqCard = document.createElement('div');
-            reqCard.className = 'bg-neutral-800 rounded-xl p-3 flex items-center justify-between border border-amber-500/30'; // Highlight requests
-            const profileLink = `setflow-public-profile.html?userId=${req.userId}`; // Link to requester profile
+            // Highlight requests with amber border (Canonical List Item style base)
+            reqCard.className = 'request-item flex items-center justify-between rounded-lg border border-amber-500/30 bg-neutral-800 p-4';
+            const profileLink = `setflow-public-profile.html?userId=${req.userId}`;
             reqCard.innerHTML = `
-                <a href="${profileLink}" class="focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">
-                    <p class="font-semibold text-white hover:text-emerald-400 transition-colors">${req.userName} wants to join</p>
+                <a href="${profileLink}" class="flex-1 min-w-0 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <p class="truncate font-semibold text-white hover:text-emerald-400">${req.userName} wants to join</p>
                 </a>
-                <button data-request-id="${req.id}" class="approve-btn px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 focus:ring-offset-neutral-800">Approve</button>
+                <button data-request-id="${req.id}" class="approve-btn ml-2 flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Approve</button>
             `;
-            joinRequestsList.appendChild(reqCard);
+             // Insert before loading state if it exists
+            joinRequestsList.insertBefore(reqCard, requestsLoadingState);
         });
     }
 
     // --- Event Listeners ---
-
     sendInviteBtn.addEventListener('click', async () => {
         const email = inviteEmailInput.value.trim();
-        if (!email) {
-            toast.show("Please enter an email address.", 'error');
-            return;
-        }
-        if (!isOnline()) { // Check network status
-             toast.show("Cannot send invites while offline.", 'error');
-             return;
-        }
+        if (!email) { toast.show("Please enter an email address.", 'error'); return; }
+        if (!isOnline()) { toast.show("Cannot send invites while offline.", 'error'); return; }
 
-        sendInviteBtn.disabled = true;
-        sendInviteBtn.innerText = 'Sending...';
+        sendInviteBtn.disabled = true; sendInviteBtn.textContent = 'Sending...'; // Use textContent
         try {
-            await inviteToBand(bandId, email); // Requires network
-            toast.show("Invite sent successfully!", 'success');
-            inviteEmailInput.value = '';
-        } catch (error) {
-            console.error("Invite Error:", error);
-            toast.show(`Error: ${error.message}`, 'error');
-        } finally {
-            sendInviteBtn.disabled = false;
-            sendInviteBtn.innerText = 'Send Invite';
-        }
+            await inviteToBand(bandId, email);
+            toast.show("Invite sent successfully!", 'success'); inviteEmailInput.value = '';
+        } catch (error) { console.error("Invite Error:", error); toast.show(`Error: ${error.message}`, 'error');
+        } finally { sendInviteBtn.disabled = false; sendInviteBtn.textContent = 'Send Invite'; } // Use textContent
     });
 
-     memberListContainer.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('remove-member-btn')) {
-            const memberIdToRemove = event.target.dataset.memberId;
-            if (confirm(`Are you sure you want to remove this member?`)) {
-                 event.target.disabled = true;
-                 event.target.innerText = 'Removing...';
+    memberListContainer.addEventListener('click', async (event) => {
+        const removeButton = event.target.closest('.remove-member-btn');
+        if (removeButton) {
+            const memberIdToRemove = removeButton.dataset.memberId;
+            const memberName = removeButton.closest('.member-item').querySelector('a .font-semibold')?.textContent.replace('(You)','').trim() || 'this member';
+            if (confirm(`Are you sure you want to remove ${memberName}?`)) {
+                 removeButton.disabled = true; removeButton.textContent = 'Removing...';
                  try {
-                     await removeMemberFromBand(bandId, memberIdToRemove); // Works offline
+                     await removeMemberFromBand(bandId, memberIdToRemove);
                      toast.show('Member removed. Changes will sync.', 'success');
-                     // Re-fetch and render members list immediately (will use cache if offline)
-                     const updatedBandData = await gracefulGet(getBandData(bandId));
-                     if (updatedBandData) renderMembers(updatedBandData);
-
+                     await loadBandDataAndRequests();
                  } catch (error) {
-                     console.error("Remove Member Error:", error);
-                     toast.show(`Error removing member: ${error.message}`, 'error');
-                     event.target.disabled = false;
-                     event.target.innerText = 'Remove';
+                     console.error("Remove Member Error:", error); toast.show(`Error removing member: ${error.message}`, 'error');
+                     removeButton.disabled = false; removeButton.textContent = 'Remove';
                  }
             }
         }
     });
 
-
     joinRequestsList.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('approve-btn')) {
-            const requestId = event.target.dataset.requestId;
-            event.target.disabled = true;
-            event.target.innerText = 'Approving...';
+        const approveButton = event.target.closest('.approve-btn');
+        if (approveButton) {
+            const requestId = approveButton.dataset.requestId;
+            approveButton.disabled = true; approveButton.textContent = 'Approving...';
             try {
-                await approveJoinRequest(requestId); // Works offline
+                await approveJoinRequest(requestId);
                 toast.show('Member approved! Changes will sync.', 'success');
-                // Re-fetch and render everything immediately (will use cache if offline)
-                await loadBandDataAndRequests(); // Call combined load function
+                await loadBandDataAndRequests();
             } catch (error) {
                 toast.show(`Error: ${error.message}`, 'error');
-                event.target.disabled = false;
-                event.target.innerText = 'Approve';
+                approveButton.disabled = false; approveButton.textContent = 'Approve';
             }
         }
     });
 
     // --- Load Data Function ---
     async function loadBandDataAndRequests() {
-         try {
-             // Fetch band data gracefully, managing memberListContainer state
-             const bandData = await gracefulGet(getBandData(bandId), memberListContainer, "Could not load band details while offline.");
+         membersLoadingState.style.display = 'flex';
+         requestsLoadingState.style.display = 'flex';
+         inviteSection.classList.add('hidden');
+         joinRequestsSection.classList.add('hidden');
 
-             if (bandData) {
+         // Clear previous error/empty states if any
+         memberListContainer.querySelectorAll('p').forEach(p => p.remove());
+         joinRequestsList.querySelectorAll('p').forEach(p => p.remove());
+
+
+         try {
+             // Fetch band data gracefully (no container, manage manually)
+             const bandDataPromise = getBandData(bandId);
+             const bandData = await gracefulGet(bandDataPromise, null, "Could not load band details while offline.");
+
+             renderMembers(bandData); // Render members or error
+
+             if (bandData && bandData.members[currentUser.uid]) {
                  isAdmin = bandData.members[currentUser.uid]?.role === 'admin';
-                 renderMembers(bandData);
 
                  if (isAdmin) {
-                     inviteSection.classList.remove('hidden'); // Show invite section for admins
-                     // Fetch join requests gracefully, don't pass container as section handles visibility
-                     const joinRequests = await gracefulGet(getJoinRequests(bandId), null, "Could not check join requests offline.");
-                     renderJoinRequests(joinRequests); // Handles null/empty response
+                     inviteSection.classList.remove('hidden');
+                     const joinRequestsPromise = getJoinRequests(bandId);
+                     const joinRequests = await gracefulGet(joinRequestsPromise, null, "Could not check join requests offline.");
+                     renderJoinRequests(joinRequests);
                  } else {
-                     inviteSection.classList.add('hidden'); // Hide for non-admins
-                     joinRequestsSection.classList.add('hidden'); // Also hide requests section
+                     inviteSection.classList.add('hidden');
+                     joinRequestsSection.classList.add('hidden');
+                     requestsLoadingState.style.display = 'none';
                  }
+             } else if (bandData) { // User not in band data
+                 isAdmin = false;
+                 inviteSection.classList.add('hidden');
+                 joinRequestsSection.classList.add('hidden');
+                 requestsLoadingState.style.display = 'none';
+                 console.warn("Current user not found in band members list.");
+             } else { // Band data failed to load
+                 inviteSection.classList.add('hidden');
+                 joinRequestsSection.classList.add('hidden');
+                 requestsLoadingState.style.display = 'none';
              }
-             // If bandData is null, gracefulGet handled the error display in memberListContainer
 
          } catch (error) {
-              // Catch errors from Promise.all or if gracefulGet re-throws
               console.error("Error loading band management data:", error);
-              // Ensure error is shown if gracefulGet didn't already
-              if (!memberListContainer.innerHTML.includes('Error') && !memberListContainer.innerHTML.includes('offline')) {
-                 memberListContainer.innerHTML = `<p class="text-red-400">Error loading band data: ${error.message}</p>`;
-              }
+              renderMembers(null); // Show error in members list
+              renderJoinRequests(null); // Show error in requests list
               inviteSection.classList.add('hidden');
-              joinRequestsSection.classList.add('hidden');
          }
     }
 
@@ -246,7 +281,9 @@
         if (user) {
             currentUser = user;
             if (!bandId) {
-                memberListContainer.innerHTML = '<p class="text-red-400">Error: Band ID not found in URL.</p>';
+                membersLoadingState.style.display = 'none';
+                memberListContainer.insertAdjacentHTML('beforeend','<p class="py-4 text-center text-sm text-red-400">Error: Band ID not found in URL.</p>');
+                requestsLoadingState.style.display = 'none'; // Hide other loader too
                 return;
             }
             await loadBandDataAndRequests();
@@ -256,7 +293,6 @@
     });
 </script>
 
-<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script> </body>
+<script type="module" src="./api.js"></script>
+</body>
 </html>

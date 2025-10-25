@@ -7,77 +7,101 @@
   <title>Setflow - Post New Event</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+   <style>
     body{font-family:'Inter',sans-serif;}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
-    /* .form-input:focus { border-color: #10B981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); } */
    </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Event will post when back online.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-promoter-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Post New Event</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <form id="post-gig-form" class="space-y-6">
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="#" id="back-link" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Post New Event</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main class="flex-1 p-5 pt-20 pb-24"> <form id="post-gig-form" class="space-y-6">
         <div>
-            <label for="event-name" class="block text-sm font-medium text-neutral-300 mb-2">Event Name / Venue</label> <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival / The Pour House" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+             <label for="event-name" class="mb-2 block text-sm font-semibold text-neutral-300">Event Name / Venue <span class="text-red-400">*</span></label>
+            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival / The Pour House" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div>
-            <label for="event-location" class="block text-sm font-medium text-neutral-300 mb-2">Location / Address</label>
-            <input id="event-location" type="text" placeholder="123 Main St, Apex, NC" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+            <label for="event-location" class="mb-2 block text-sm font-semibold text-neutral-300">Location / Address <span class="text-red-400">*</span></label>
+            <input id="event-location" type="text" placeholder="123 Main St, Apex, NC" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label for="event-date" class="block text-sm font-medium text-neutral-300 mb-2">Date</label>
-                <input id="event-date" type="date" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                <label for="event-date" class="mb-2 block text-sm font-semibold text-neutral-300">Date <span class="text-red-400">*</span></label>
+                <input id="event-date" type="date" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required style="color-scheme: dark;">
             </div>
             <div>
-                <label for="event-payout" class="block text-sm font-medium text-neutral-300 mb-2">Artist Payout ($)</label>
-                <input id="event-payout" type="number" placeholder="500" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
-            </div>
+                <label for="event-payout" class="mb-2 block text-sm font-semibold text-neutral-300">Artist Payout ($) <span class="text-red-400">*</span></label>
+                <input id="event-payout" type="number" placeholder="500" min="0" step="1" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" required> </div>
         </div>
          <div>
-             <label for="event-genre" class="block text-sm font-medium text-neutral-300 mb-2">Genre(s) Preferred (Optional)</label>
-             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul, Rock" class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+             <label for="event-genre" class="mb-2 block text-sm font-semibold text-neutral-300">Genre(s) Preferred</label>
+             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul, Rock" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
          </div>
         <div>
-            <label for="event-description" class="block text-sm font-medium text-neutral-300 mb-2">Artist Requirements / Description</label>
-            <textarea id="event-description" rows="4" placeholder="Looking for a 4-piece funk band. 2-hour set. PA provided, bring backline." class="form-input w-full bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+            <label for="event-description" class="mb-2 block text-sm font-semibold text-neutral-300">Artist Requirements / Description</label>
+            <textarea id="event-description" rows="4" placeholder="Looking for a 4-piece funk band. 2-hour set. PA provided, bring backline." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
     </form>
   </main>
-  <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-    <button type="submit" form="post-gig-form" id="submit-btn" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Post Event & Find Artists</button>
+
+  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+    <button type="submit" form="post-gig-form" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Post Event & Find Artists</button>
   </footer>
+</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, createGig, isOnline } from './api.js'; // Import isOnline
+  import { onAuthState, createGig, getUserData, gracefulGet, isOnline } from './api.js';
 
   const gigForm = document.getElementById('post-gig-form');
   const submitButton = document.getElementById('submit-btn');
+  const backLink = document.getElementById('back-link');
+  const offlineBanner = document.getElementById('offline-banner');
   let currentUserId = null;
+  let userRole = 'promoter'; // Default role
 
-  onAuthState(user => {
+   // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
+
+
+  onAuthState(async (user) => { // Make async
     if (user) {
       currentUserId = user.uid;
+      // Determine user role to set correct back link
+       try {
+           const userData = await gracefulGet(getUserData(user.uid), null); // No container needed
+           if (userData && userData.roles && userData.roles.includes('venue')) {
+               userRole = 'venue';
+           }
+           backLink.href = userRole === 'venue' ? 'setflow-venue-dashboard.html' : 'setflow-promoter-dashboard.html';
+       } catch (error) {
+           console.error("Could not determine user role for back link, defaulting:", error);
+           backLink.href = 'setflow-promoter-dashboard.html'; // Default back link
+       }
     } else {
-      // If user is not logged in, redirect them
       window.location.href = 'setflow-login-page.html';
     }
   });
@@ -90,15 +114,15 @@
     }
 
     submitButton.disabled = true;
-    submitButton.innerText = 'Posting Event...';
+    submitButton.textContent = 'Posting Event...'; // Use textContent
 
     const gigData = {
       ownerId: currentUserId,
       eventName: document.getElementById('event-name').value.trim(),
       location: document.getElementById('event-location').value.trim(),
       date: document.getElementById('event-date').value,
-      payout: document.getElementById('event-payout').value,
-      genre: document.getElementById('event-genre').value.trim(), // Added genre
+      payout: document.getElementById('event-payout').value, // Keep as string for now, API converts
+      genre: document.getElementById('event-genre').value.trim(),
       description: document.getElementById('event-description').value.trim()
     };
 
@@ -106,37 +130,36 @@
     if (!gigData.eventName || !gigData.location || !gigData.date || !gigData.payout) {
         toast.show("Please fill out all required fields.", 'error');
         submitButton.disabled = false;
-        submitButton.innerText = 'Post Event & Find Artists';
+        submitButton.textContent = 'Post Event & Find Artists';
         return;
     }
      const payoutValue = Number(gigData.payout);
      if (isNaN(payoutValue) || payoutValue <= 0) {
          toast.show("Please enter a valid payout amount.", 'error');
          submitButton.disabled = false;
-         submitButton.innerText = 'Post Event & Find Artists';
+         submitButton.textContent = 'Post Event & Find Artists';
          return;
      }
-     gigData.payout = payoutValue; // Ensure it's stored as a number
+     // API function handles converting date and ensuring payout is number
 
 
     try {
       await createGig(gigData); // Works offline
        const successMessage = isOnline() ? 'Event posted successfully!' : 'Event saved locally. Will post when online.';
-      toast.show(successMessage, 'success');
-       setTimeout(() => { // Redirect after showing success
-            // TODO: Detect if user is promoter or venue to redirect correctly
-           window.location.href = 'setflow-promoter-dashboard.html'; // Defaulting to promoter
-       }, 1500);
+       // Set toast for the next page
+       sessionStorage.setItem('showToast', `${successMessage}|success`);
+       // Redirect immediately
+       window.location.href = userRole === 'venue' ? 'setflow-venue-dashboard.html' : 'setflow-promoter-dashboard.html';
+
     } catch (error) {
       console.error("Error creating gig:", error);
-      toast.show("Failed to post event. Please try again.", 'error');
+      toast.show(`Failed to post event: ${error.message}. Please try again.`, 'error'); // More specific error
       submitButton.disabled = false;
-      submitButton.innerText = 'Post Event & Find Artists';
+      submitButton.textContent = 'Post Event & Find Artists';
     }
   });
 </script>
 
-<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
+ <script type="module" src="./api.js"></script>
+ </body>
 </html>

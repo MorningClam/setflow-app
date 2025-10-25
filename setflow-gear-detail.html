@@ -7,120 +7,171 @@
   <title>Setflow - Gear Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+     .loading-spinner-inline { /* For inline text loading */
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Item details may be cached.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-gear-swap.html" aria-label="Go back to gear swap" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Gear Details</h1>
-    <div class="w-8 h-8"></div> </header>
-  <main id="gear-detail-container" class="flex-grow pb-28 pt-16"> <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-  </main>
-  <footer id="footer-container" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-     <div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-gear-swap.html" aria-label="Go back to gear swap" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gear Details</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main id="gear-detail-container" class="flex-grow pt-16 pb-24"> <div class="flex justify-center items-center py-10" id="loading-state">
+      <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+    </div>
+    <div class="hidden p-5 text-center text-red-400" id="error-state">
+        <p>Could not load item details.</p>
+    </div>
+    </main>
+
+  <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+     <div class="flex justify-center items-center h-[48px]" id="footer-loading-state"> <div class="loading-spinner-inline"></div> Loading Actions...
+       </div>
+       <div class="hidden" id="footer-buttons">
+          </div>
   </footer>
+</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, getGearListing, getUserData, reportContent, gracefulGet, ui, isOnline } from './api.js'; // Import helpers
+  import { onAuthState, getGearListing, reportContent, gracefulGet, isOnline } from './api.js';
 
   const container = document.getElementById('gear-detail-container');
-  const footer = document.getElementById('footer-container');
+  const loadingState = document.getElementById('loading-state');
+  const errorState = document.getElementById('error-state');
+  const footerContainer = document.getElementById('footer-container');
+  const footerLoadingState = document.getElementById('footer-loading-state');
+  const footerButtons = document.getElementById('footer-buttons');
+  const offlineBanner = document.getElementById('offline-banner');
+
   const urlParams = new URLSearchParams(window.location.search);
   const listingId = urlParams.get('id');
   let currentUserId = null;
+  let itemData = null; // Store fetched item data
 
-  // Show initial loading spinner in main container
-  ui.loading.show(container);
-  // Keep footer loading initially as well
-  footer.innerHTML = '<div class="loading-spinner-container"><div class="loading-spinner-inline"></div></div>';
+   // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
 
 
   function renderListing(item) {
-    // gracefulGet handles spinner removal / error display in main container
+    loadingState.style.display = 'none'; // Hide loading
+
     if (!item) {
-        // Error or offline message already shown in main container
-        footer.innerHTML = ''; // Clear footer loading on error
+        errorState.style.display = 'block'; // Show error
+        footerLoadingState.style.display = 'none';
+        footerButtons.classList.add('hidden');
         return;
     }
+    errorState.style.display = 'none'; // Hide error
+    itemData = item; // Store data
 
-    // Clear main container before rendering
-    container.innerHTML = '';
-
-    // Provide a placeholder image if item.imageUrl is missing
     const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop';
+    const sellerImage = item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
 
-    container.innerHTML = `
-      <img class="w-full h-64 object-cover" src="${imageUrl}" alt="${item.name}">
-      <div class="p-5">
-        <div class="flex justify-between items-start">
+    // Clear previous content
+    const existingContent = container.querySelectorAll('img, section');
+    existingContent.forEach(el => el.remove());
+
+    container.insertAdjacentHTML('beforeend', `
+      <img class="h-64 w-full object-cover" src="${imageUrl}" alt="${item.name}">
+      <section class="border-b border-neutral-700 p-5">
+        <div class="flex items-start justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-white">${item.name}</h2>
-                <p class="text-md text-neutral-400">${item.location || 'USA'}</p>
+                <p class="mt-1 text-base text-neutral-400">${item.location || 'USA'}</p>
             </div>
-            <p class="text-3xl font-bold text-emerald-400">$${item.price}</p>
+            <p class="flex-shrink-0 pl-4 text-3xl font-bold text-emerald-400">$${item.price}</p>
         </div>
-        <div class="mt-4 pt-4 border-t border-neutral-800">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Description</h3>
-            <p class="text-neutral-300 text-sm leading-relaxed">${item.description || 'No description provided.'}</p>
+        <div class="mt-2 text-right">
+             ${currentUserId && currentUserId !== item.sellerId ?
+             `<button id="report-item-btn" class="rounded px-1 text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900">Report Item</button>`
+             : ''}
         </div>
-        <div class="mt-4 pt-4 border-t border-neutral-800">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-2">Seller</h3>
-            <div class="flex items-center justify-between">
-                <a href="setflow-public-profile.html?userId=${item.sellerId}" class="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 rounded-lg p-1 -m-1">
-                    <img class="w-12 h-12 rounded-full object-cover group-hover:opacity-80 transition-opacity" src="${item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="Seller photo">
-                    <div>
-                        <p class="font-semibold text-white group-hover:text-emerald-400 transition-colors">${item.sellerName}</p>
-                    </div>
+      </section>
+      <section class="border-b border-neutral-700 p-5">
+            <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Description</h3>
+            <p class="text-sm leading-relaxed text-neutral-300">${item.description || 'No description provided.'}</p>
+      </section>
+      <section class="p-5">
+            <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Seller</h3>
+            <div class="flex items-center justify-between rounded-lg bg-neutral-800 p-4">
+                <a href="setflow-public-profile.html?userId=${item.sellerId}" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
+                    <img class="h-12 w-12 flex-shrink-0 rounded-full object-cover bg-neutral-700" src="${sellerImage}" alt="Seller photo">
+                    <div class="min-w-0">
+                        <p class="truncate font-semibold text-white group-hover:text-emerald-400">${item.sellerName}</p>
+                        </div>
                 </a>
-                ${currentUserId !== item.sellerId ? // Only show report if not own item
-                `<button id="report-item-btn" class="text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900 rounded">Report Item</button>`
-                 : '<span class="text-xs text-neutral-500">(Your Listing)</span>'}
+                 ${currentUserId === item.sellerId ? '<span class="ml-2 flex-shrink-0 text-xs text-neutral-500">(Your Listing)</span>' : ''}
             </div>
-        </div>
-      </div>
-    `;
+      </section>
+    `);
 
-    // Update footer - only show message button if not viewing own listing
-    if (currentUserId !== item.sellerId) {
-        footer.innerHTML = `
-            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+    // Update footer
+    footerLoadingState.style.display = 'none';
+    footerButtons.classList.remove('hidden');
+    if (currentUserId && currentUserId !== item.sellerId) {
+        // Canonical Button-Primary
+        footerButtons.innerHTML = `
+            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
                 Message Seller
             </a>
         `;
+    } else if (currentUserId === item.sellerId) {
+         // Optionally show an "Edit Listing" button or similar for the owner
+         footerButtons.innerHTML = `<p class="text-center text-sm text-neutral-500">This is your listing.</p>`; // Or hide footer: footerContainer.classList.add('hidden');
     } else {
-        footer.innerHTML = ``; // Empty footer if viewing own listing
+        // Not logged in - maybe hide message button or show login prompt
+         footerButtons.innerHTML = `<button onclick="promptLogin()" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white ...">Message Seller</button>`;
     }
 
     // Add event listener for the report button if it exists
     const reportBtn = document.getElementById('report-item-btn');
     if (reportBtn) {
-        reportBtn.addEventListener('click', () => handleReport('gear_listing', listingId)); // Use listingId here
+        reportBtn.addEventListener('click', () => handleReport('gear_listing', listingId));
     }
   }
+
+   // Function to prompt login (if needed for non-logged-in users)
+   window.promptLogin = () => {
+       toast.show("Please log in to message the seller.", 'error');
+       setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
+   }
 
   // Handle reporting (works offline)
   async function handleReport(type, id) {
     if (!currentUserId) {
         toast.show('You must be logged in to report content.', 'error');
+        setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
         return;
     }
     if (confirm('Are you sure you want to report this item?')) {
@@ -136,35 +187,34 @@
 
   onAuthState(async (user) => {
     if (user) {
-        currentUserId = user.uid; // Store the user ID
+        currentUserId = user.uid;
     }
-    // Proceed even if not logged in, but messaging/reporting might fail later
+    // Proceed even if not logged in
+
+    loadingState.style.display = 'flex'; // Show loading
+    errorState.style.display = 'none';
+    footerLoadingState.style.display = 'flex'; // Show footer loading
+    footerButtons.classList.add('hidden');
+
 
     if (!listingId) {
-        container.innerHTML = `<p class="p-5 text-center text-red-400">No item ID provided.</p>`;
-        footer.innerHTML = ''; // Clear footer loading on error
+        loadingState.style.display = 'none';
+        errorState.textContent = 'Error: No item ID provided.';
+        errorState.style.display = 'block';
+        footerLoadingState.style.display = 'none';
         return;
     }
     try {
-        // Use gracefulGet to fetch item details, managing loading/error state in main container
-        const itemData = await gracefulGet(getGearListing(listingId), container, "Could not load item details while offline.");
-        // Render only if fetch succeeded
-        if(itemData) {
-            renderListing(itemData);
-        } else {
-            // Error handled by gracefulGet, clear footer loading
-             footer.innerHTML = '';
-        }
+        // Use gracefulGet, manage states manually
+        const itemDataResult = await gracefulGet(getGearListing(listingId), null, "Could not load item details while offline.");
+        renderListing(itemDataResult); // Render content or error state
     } catch (error) {
-        // Error already displayed by gracefulGet
-        console.error("Error fetching gear details (already handled by gracefulGet):", error);
-        footer.innerHTML = ''; // Ensure footer loading cleared on unexpected error
+        console.error("Error fetching gear details:", error);
+        renderListing(null); // Show error state
     }
-    // Note: If !user, page loads but footer/report adapt or fail gracefully.
   });
 </script>
 
-<div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script> </body>
+<script type="module" src="./api.js"></script>
+</body>
 </html>

@@ -7,76 +7,173 @@
   <title>Setflow - Achievements</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
-    .badge-locked { filter: grayscale(100%) brightness(60%); }
+    /* Canonical Badge Style */
+    .badge-locked { filter: grayscale(90%) opacity(60%); } /* Adjusted filter */
+    .badge-icon-container {
+        /* Consistent size, border, background */
+        width: 6rem; /* w-24 */ height: 6rem; /* h-24 */
+        border-radius: 9999px; /* rounded-full */
+        display: flex; align-items: center; justify-content: center;
+        margin-left: auto; margin-right: auto;
+        border-width: 2px;
+        box-shadow: theme('boxShadow.lg');
+    }
+    .badge-icon-container.unlocked-emerald {
+        background-color: theme('colors.emerald.500 / 0.1');
+        border-color: theme('colors.emerald.500');
+        box-shadow: 0 0 15px theme('colors.emerald.500 / 0.2'); /* Subtle glow */
+    }
+    .badge-icon-container.unlocked-yellow {
+        background-color: theme('colors.yellow.900 / 0.4');
+        border-color: theme('colors.yellow.500');
+         box-shadow: 0 0 15px theme('colors.yellow.500 / 0.2');
+    }
+     .badge-icon-container.unlocked-stone {
+        background-color: theme('colors.stone.700 / 0.5');
+        border-color: theme('colors.stone.500');
+         box-shadow: 0 0 15px theme('colors.stone.500 / 0.2');
+    }
+    .badge-icon-container.locked {
+        background-color: theme('colors.neutral.800');
+        border-color: theme('colors.neutral.700');
+    }
+    .badge-icon { width: 3rem; height: 3rem; } /* w-12 h-12 */
+    .badge-icon.unlocked-emerald { color: theme('colors.emerald.400'); }
+    .badge-icon.unlocked-yellow { color: theme('colors.yellow.400'); }
+    .badge-icon.unlocked-stone { color: theme('colors.stone.400'); }
+    .badge-icon.locked { color: theme('colors.neutral.500'); }
+
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Achievement status may be cached.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-moremenu.html" aria-label="Go back" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Achievements</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <div class="text-center mb-6">
-        <h2 class="text-xl font-bold">Your Trophy Case</h2>
-        <p class="text-neutral-400 text-sm mt-1">Unlock badges for reaching new milestones.</p>
-    </div>
-    <div class="grid grid-cols-3 gap-4">
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-moremenu.html" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Achievements</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
 
-        <div class="text-center">
-            <div class="w-24 h-24 bg-emerald-500/10 border-2 border-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
-                <svg class="w-12 h-12 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.834 9.168-4.432l.256-.512a1.125 1.125 0 011.125 0l.256.512c1.543 2.598 5.068 4.432 9.168 4.432H20a4 4 0 013.564 7.683l-2.147 6.15a1.76 1.76 0 01-3.417-.592V13a3 3 0 10-6 0v6.24a1.76 1.76 0 01-3.417-.592l-2.147-6.15z"></path></svg>
+  <main class="flex-1 p-5 pt-20"> <div class="mb-8 text-center"> <h2 class="text-2xl font-bold text-white">Your Trophy Case</h2>
+        <p class="mt-1 text-base text-neutral-400">Unlock badges for reaching new milestones.</p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-y-8 gap-x-4"> <div class="text-center">
+            <div class="badge-icon-container unlocked-emerald">
+                <svg class="badge-icon unlocked-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.834 9.168-4.432l.256-.512a1.125 1.125 0 011.125 0l.256.512c1.543 2.598 5.068 4.432 9.168 4.432H20a4 4 0 013.564 7.683l-2.147 6.15a1.76 1.76 0 01-3.417-.592V13a3 3 0 10-6 0v6.24a1.76 1.76 0 01-3.417-.592l-2.147-6.15z"></path></svg>
             </div>
-            <h3 class="font-semibold text-sm mt-2">First Gig</h3>
-            <p class="text-xs text-neutral-400">Booked on Setflow</p>
+            <h3 class="mt-2 text-sm font-semibold">First Gig</h3>
+            <p class="text-xs text-neutral-400">Booked via Setflow</p>
         </div>
 
         <div class="text-center">
-             <div class="w-24 h-24 bg-yellow-900/40 border-2 border-yellow-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-yellow-500/10">
-                <svg class="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+             <div class="badge-icon-container unlocked-yellow">
+                <svg class="badge-icon unlocked-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             </div>
-            <h3 class="font-semibold text-sm mt-2">Local Legend <span class="text-yellow-400">(Silver)</span></h3>
+            <h3 class="mt-2 text-sm font-semibold">Local Legend <span class="text-yellow-400">(Silver)</span></h3>
             <p class="text-xs text-neutral-400">5/15 gigs in your city</p>
+            </div>
+
+        <div class="text-center badge-locked">
+            <div class="badge-icon-container locked">
+                <svg class="badge-icon locked" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="mt-2 text-sm font-semibold">Road Warrior</h3>
+            <p class="mb-1 text-xs text-neutral-500">Play a gig 50+ mi away</p>
+            <a href="setflow-browse-gigs.html" class="rounded px-1 text-xs font-semibold text-emerald-600 transition-colors hover:text-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">Find Gigs →</a>
+        </div>
+
+        <div class="text-center">
+            <div class="badge-icon-container unlocked-stone">
+                 <svg class="badge-icon unlocked-stone" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+            </div>
+            <h3 class="mt-2 text-sm font-semibold">Pro Booker <span class="text-stone-400">(Bronze)</span></h3>
+            <p class="text-xs text-neutral-400">10/25 gigs booked</p>
         </div>
 
         <div class="text-center badge-locked">
-            <div class="w-24 h-24 bg-neutral-800 border-2 border-neutral-700 rounded-full flex items-center justify-center mx-auto">
-                <svg class="w-12 h-12 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="badge-icon-container locked">
+                <svg class="badge-icon locked" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             </div>
-            <h3 class="font-semibold text-sm mt-2">Road Warrior</h3>
-            <p class="text-xs text-neutral-500 mb-1">Play a gig 50+ mi away</p>
-            <a href="setflow-browse-gigs.html" class="text-xs font-semibold text-emerald-600 hover:text-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded">Find Gigs →</a>
+            <h3 class="mt-2 text-sm font-semibold">Gear Seller</h3>
+            <p class="mb-1 text-xs text-neutral-500">Sell an item on Gear Swap</p>
+            <a href="setflow-gear-swap.html" class="rounded px-1 text-xs font-semibold text-emerald-600 transition-colors hover:text-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">Visit Gear Swap →</a>
         </div>
+         <div class="text-center badge-locked">
+            <div class="badge-icon-container locked">
+                <svg class="badge-icon locked" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg>
+            </div>
+            <h3 class="mt-2 text-sm font-semibold">Networker</h3>
+            <p class="mb-1 text-xs text-neutral-500">Connect with 5 users</p>
+            <a href="#" class="rounded px-1 text-xs font-semibold text-emerald-600 transition-colors hover:text-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">Find Users →</a> </div>
 
-        <div class="text-center">
-            <div class="w-24 h-24 bg-stone-700/50 border-2 border-stone-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-stone-500/10">
-                 <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
-            </div>
-            <h3 class="font-semibold text-sm mt-2">Pro Booker <span class="text-stone-400">(Bronze)</span></h3>
-            <p class="text-xs text-neutral-400">10/25 gigs booked</p>
-        </div>
-        </div>
+    </div>
   </main>
-  </div>
-   <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script> </body>
+  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <span id="toast-message">Placeholder message</span>
+ </div>
+ <script src="toast.js"></script>
+
+ <script type="module">
+     // Basic script for offline banner, etc.
+     // TODO: Add logic to fetch user's achievement status and dynamically apply 'badge-locked' class
+     import { onAuthState, getUserData, gracefulGet, isOnline } from './api.js';
+
+     const offlineBanner = document.getElementById('offline-banner');
+
+      // Update offline banner based on initial status
+     offlineBanner.style.display = isOnline() ? 'none' : 'block';
+     // Listen for network changes
+     document.body.addEventListener('app:network-change', (event) => {
+         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+     });
+
+
+     onAuthState(async (user) => {
+         if (!user) {
+             window.location.href = 'setflow-login-page.html';
+             return;
+         }
+         // Placeholder: Fetch user data which might contain achievement progress
+         try {
+             // const userData = await gracefulGet(getUserData(user.uid), null);
+             // if (userData && userData.achievements) {
+             //     updateAchievementUI(userData.achievements);
+             // }
+             console.log("Achievement data loading not implemented yet.");
+         } catch (error) {
+             console.error("Error loading achievement data:", error);
+             toast.show("Could not load achievement status.", "error");
+         }
+     });
+
+     function updateAchievementUI(achievementsData) {
+         // Example: Find the 'First Gig' badge element and remove 'badge-locked' if unlocked
+         // const firstGigBadge = document.querySelector('[data-achievement-id="first-gig"]'); // Add data-attributes to HTML
+         // if (firstGigBadge && achievementsData.firstGig?.unlocked) {
+         //     firstGigBadge.classList.remove('badge-locked');
+         //     // Update icon container classes, icon classes, progress text, etc.
+         // }
+         // Repeat for other badges...
+     }
+
+ </script>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>

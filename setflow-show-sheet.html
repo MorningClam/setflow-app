@@ -3,316 +3,279 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Show Sheet</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+     .loading-spinner-inline { /* For inline text loading */
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
    </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Show details may be cached.</div>
-  <div class="max-w-md mx-auto bg-neutral-900 min-h-screen flex flex-col pt-10">
-    <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-      <a href="javascript:history.back()" aria-label="Go back" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"><svg class="w-6 h-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></a>
-      <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Show Sheet</h1>
-      <div class="w-9 h-9"></div> </header>
-    <main class="flex-grow pb-28 pt-16"> <div id="show-sheet-content">
-         <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-     </div>
-      <div id="static-content" class="hidden">
-          <div class="px-5 pt-6 pb-4 border-b border-neutral-800">
-            <h2 class="text-2xl font-bold text-white">The Pour House</h2>
-            <p class="text-lg text-amber-400 font-medium mt-1">Saturday, Nov 6</p>
-            <p class="text-sm text-neutral-300 mt-2">Artist: George & The Vibe</p>
-          </div>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="#" onclick="goBackOr('setflow-venue-dashboard.html')" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Show Sheet</h1>
+        <div class="w-10 h-10"></div> </div>
+    </header>
 
-          <div class="px-5 py-4 grid grid-cols-2 gap-3 border-b border-neutral-800">
-            <button id="add-to-calendar-btn" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Add to Calendar</button>
-            <a href="setflow-promo-kit.html" class="w-full py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-bold rounded-xl transition-colors text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">View Promo Kit</a>
-          </div>
-
-          <div class="px-5 py-4 border-b border-neutral-800">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Schedule</h3>
-            <div class="space-y-3 text-sm">
-                <div class="flex"><span class="text-neutral-400 w-24">6:00 PM</span><span class="text-neutral-100 font-medium">Load-in & Setup</span></div>
-                <div class="flex"><span class="text-neutral-400 w-24">8:00 PM</span><span class="text-neutral-100 font-medium">Soundcheck</span></div>
-                <div class="flex"><span class="text-neutral-400 w-24">9:00 PM</span><span class="text-emerald-400 font-bold">Set 1 Begins</span></div>
-                </div>
-          </div>
-          <div class="px-5 py-4 border-b border-neutral-800">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Details</h3>
-            <div class="space-y-3 text-sm">
-                <div class="flex"><span class="text-neutral-400 w-24">Payout</span><span class="text-emerald-400 font-bold text-base">$400</span></div>
-                <div class="flex"><span class="text-neutral-400 w-24">Notes</span><span class="text-neutral-100 font-medium">Green room is backstage left. 2 drink tickets per member.</span></div>
-                </div>
-          </div>
-
-          <div class="px-5 py-4">
-            <h3 class="text-neutral-500 font-semibold uppercase tracking-wider text-xs mb-3">Guest List & Team (3/5 spots used)</h3>
-            <div id="guest-list" class="space-y-2 text-sm">
-                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Sarah (Merch)</span><button class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button></div>
-                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>John Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button></div>
-                <div class="flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg"><span>Maria Vibe</span><button class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button></div>
+    <main class="flex-grow pt-16 pb-24"> <div id="show-sheet-content">
+            <div class="flex justify-center items-center py-10" id="loading-state">
+              <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
             </div>
-            <div class="mt-3 flex space-x-2">
-                <label for="guest-name-input" class="sr-only">Add guest name</label>
-                <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
-                <button id="add-guest-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Add</button>
+            <div class="hidden p-5 text-center text-red-400" id="error-state">
+                <p>Could not load show sheet details.</p>
             </div>
-          </div>
-        </div>
+            </div>
     </main>
-    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-neutral-900/90 backdrop-blur-sm border-t border-neutral-700">
-        <a href="setflow-conversation-view.html?recipientId=VENUE_USER_ID_HERE" id="contact-venue-link" class="w-full block text-center py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Contact Venue</a>
-    </footer>
-  </div>
 
-  <script type="module">
-    import { db, gracefulGet, ui, onAuthState } from './api.js'; // Import helpers
+    <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+        <div class="flex justify-center items-center h-[48px]" id="footer-loading">
+             <div class="loading-spinner-inline"></div> Loading Contact...
+        </div>
+         <a href="#" id="contact-venue-link" class="hidden w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Contact Venue/Promoter</a>
+    </footer>
+  </div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+   </div>
+   <script src="toast.js"></script>
+   <script src="nav.js"></script> <script type="module">
+    import { db, gracefulGet, onAuthState, isOnline } from './api.js';
     import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const showSheetContainer = document.getElementById('show-sheet-content');
-    const staticContentDiv = document.getElementById('static-content'); // Get static div
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const footerContainer = document.getElementById('footer-container');
+    const footerLoading = document.getElementById('footer-loading');
+    const contactLink = document.getElementById('contact-venue-link');
+    const offlineBanner = document.getElementById('offline-banner');
+
     const urlParams = new URLSearchParams(window.location.search);
     const gigId = urlParams.get('gigId');
     let currentUser = null;
-    let gigData = null; // Store fetched gig data
-    let maxGuests = 5; // Example limit, should ideally come from gigData or config
+    let gigData = null;
+    let maxGuests = 5; // Default
 
-    // --- Add to Calendar Functionality ---
+     // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
+
+    // --- Add to Calendar ---
     function setupCalendarButton() {
         const calendarBtn = document.getElementById('add-to-calendar-btn');
-        if (calendarBtn && gigData && gigData.dateObject) { // Check if gigData and dateObject exist
+        if (calendarBtn && gigData?.dateObject) {
             calendarBtn.addEventListener('click', () => {
-                // Generate .ics content (basic example)
                  const startDate = gigData.dateObject;
-                 // Assume a 2-hour duration for simplicity, adjust as needed
-                 const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-
-                 // Format dates for ICS (YYYYMMDDTHHmmssZ)
-                 const formatDateICS = (date) => {
-                     return date.toISOString().replace(/-|:|\.\d+/g, "");
-                 };
-
-                 const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Setflow//Gig Calendar//EN
-BEGIN:VEVENT
-UID:${gigData.id}@setflow.app
-DTSTAMP:${formatDateICS(new Date())}
-DTSTART:${formatDateICS(startDate)}
-DTEND:${formatDateICS(endDate)}
-SUMMARY:${gigData.venueName} - ${gigData.bookedArtistName || 'Gig'}
-DESCRIPTION:Load-in: [Add Load-in Time]\\nSet Time: ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\\nPayout: $${gigData.payout}\\nNotes: ${gigData.description || ''}
-LOCATION:${gigData.location || ''}
-END:VEVENT
-END:VCALENDAR`;
-
+                 const endDate = new Date(startDate.getTime() + (gigData.durationHours || 2) * 60 * 60 * 1000); // Use duration or default
+                 const formatDateICS = (date) => date.toISOString().replace(/-|:|\.\d+/g, "");
+                 const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Setflow//Gig Calendar//EN\nBEGIN:VEVENT\nUID:${gigData.id}@setflow.app\nDTSTAMP:${formatDateICS(new Date())}\nDTSTART:${formatDateICS(startDate)}\nDTEND:${formatDateICS(endDate)}\nSUMMARY:${gigData.venueName} - ${gigData.bookedArtistName || 'Gig'}\nDESCRIPTION:Load-in: ${gigData.loadInTime || 'TBD'}\\nSet Time: ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\\nPayout: $${gigData.payout}\\nNotes: ${gigData.description || ''}\nLOCATION:${gigData.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
                  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
                  const link = document.createElement('a');
                  link.href = URL.createObjectURL(blob);
                  link.download = `${gigData.venueName}_${gigData.dateObject.toISOString().split('T')[0]}.ics`;
-                 document.body.appendChild(link);
                  link.click();
-                 document.body.removeChild(link);
-
-                if (window.toast) {
-                    toast.show("Calendar file download started.", 'success');
-                }
+                 URL.revokeObjectURL(link.href); // Clean up
+                 toast.show("Calendar file download started.", 'success');
             });
         } else if (calendarBtn) {
-             // Disable or hide button if data is missing
              calendarBtn.disabled = true;
-             calendarBtn.title = "Gig data unavailable for calendar export";
              calendarBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
     }
 
-    // --- Guest List Functionality ---
+    // --- Guest List ---
     function setupGuestList() {
         const guestListEl = document.getElementById('guest-list');
         const guestNameInput = document.getElementById('guest-name-input');
         const addGuestBtn = document.getElementById('add-guest-btn');
-        const guestCountDisplay = document.querySelector('h3[class*="Guest List"]'); // More specific selector
+        const guestCountDisplay = document.getElementById('guest-count-header'); // Target the header directly
 
         function updateGuestCount() {
-             const currentCount = guestListEl ? guestListEl.children.length : 0;
-             // Update maxGuests if available from gigData
-             maxGuests = gigData?.guestListLimit || 5; // Use limit from gig or default
+             const currentCount = guestListEl ? guestListEl.querySelectorAll('.guest-item').length : 0; // Select specific items
+             maxGuests = gigData?.guestListLimit || 5;
              if (guestCountDisplay) {
-                 guestCountDisplay.textContent = `Guest List & Team (${currentCount}/${maxGuests} spots used)`;
+                 guestCountDisplay.textContent = `Guest List & Team (${currentCount}/${maxGuests} used)`;
              }
              const limitReached = currentCount >= maxGuests;
-             if (addGuestBtn) addGuestBtn.disabled = limitReached;
-             if (guestNameInput) {
+             if(addGuestBtn) addGuestBtn.disabled = limitReached;
+             if(guestNameInput) {
                  guestNameInput.disabled = limitReached;
                  guestNameInput.placeholder = limitReached ? "Guest list full" : "Add guest name...";
              }
         }
 
+        // Add guest logic
         if (addGuestBtn && guestNameInput && guestListEl) {
             addGuestBtn.addEventListener('click', async () => {
                 const name = guestNameInput.value.trim();
-                const currentCount = guestListEl.children.length;
+                const currentCount = guestListEl.querySelectorAll('.guest-item').length;
+                if (!name) { toast.show('Please enter a guest name.', 'error'); return; }
+                if (currentCount >= maxGuests) { toast.show("Guest list is full.", 'error'); return; }
+                if (!gigId || !currentUser) { toast.show('Error: Cannot add guest.', 'error'); return; }
 
-                if (name && currentCount < maxGuests && gigId && currentUser) {
-                     addGuestBtn.disabled = true; // Disable while saving
-                    try {
-                        const gigRef = doc(db, "gigs", gigId);
-                        // Use a unique ID for each guest if possible, or store name + adder
-                        const guestObject = { name: name, addedBy: currentUser.uid, addedAt: Timestamp.now() }; // Store who added & when
-                        await updateDoc(gigRef, {
-                            guestList: arrayUnion(guestObject) // Store object (works offline)
-                        });
-                        // Optimistically add to UI
-                        renderSingleGuest(guestListEl, guestObject); // Pass full object
-                        guestNameInput.value = '';
-                        updateGuestCount();
-                         toast.show('Guest added.', 'success');
-                    } catch (error) {
-                         console.error("Error adding guest:", error);
-                         toast.show('Failed to add guest.', 'error');
-                         // Re-enable button only if limit not reached
-                         addGuestBtn.disabled = guestListEl.children.length >= maxGuests;
-                    }
-                } else if (!name) {
-                     toast.show('Please enter a guest name.', 'error');
-                } else if (currentCount >= maxGuests) {
-                     toast.show("Guest list is full.", 'error');
+                 addGuestBtn.disabled = true;
+                try {
+                    const gigRef = doc(db, "gigs", gigId);
+                    // Use a simple name string for now, could be object later
+                    await updateDoc(gigRef, { guestList: arrayUnion(name) });
+                    renderSingleGuest(guestListEl, name);
+                    guestNameInput.value = '';
+                    updateGuestCount();
+                    toast.show('Guest added.', 'success');
+                } catch (error) {
+                     console.error("Error adding guest:", error); toast.show('Failed to add guest.', 'error');
+                } finally {
+                     addGuestBtn.disabled = guestListEl.querySelectorAll('.guest-item').length >= maxGuests;
                 }
             });
         }
 
+        // Remove guest logic (using event delegation)
         if (guestListEl) {
             guestListEl.addEventListener('click', async (e) => {
-                const removeButton = e.target.closest('.remove-guest-btn'); // Handle clicks inside button
+                const removeButton = e.target.closest('.remove-guest-btn');
                 if (removeButton) {
-                    const guestDiv = removeButton.closest('div'); // Get parent div
-                    const guestName = guestDiv.querySelector('span')?.innerText;
-                    // Retrieve the full guest object from data attribute for accurate removal
-                    const guestDataString = removeButton.dataset.guestData;
-                    if (!guestDataString) {
-                         console.error("Could not find guest data for removal.");
-                         toast.show('Error removing guest. Data missing.', 'error');
-                         return;
-                    }
+                    const guestDiv = removeButton.closest('.guest-item');
+                    const guestName = removeButton.dataset.guestName; // Get name from data attribute
 
                     if (guestName && confirm(`Remove ${guestName} from the guest list?`)) {
                          removeButton.disabled = true;
                          try {
-                             const guestObjectToRemove = JSON.parse(guestDataString);
-                             // Need to reconstruct Firestore Timestamp if stored
-                             // Simpler: Fetch doc, find exact object by unique ID if available, or by name/adder/timestamp
-                             // For this example, assuming name+adder is sufficient IF timestamps aren't perfectly synced offline/online
-                             const objectToRemoveForFirebase = { name: guestObjectToRemove.name, addedBy: guestObjectToRemove.addedBy };
-                             // If addedAt was stored and needed for uniqueness:
-                             // objectToRemoveForFirebase.addedAt = Timestamp.fromMillis(guestObjectToRemove.addedAtMillis);
-
                              const gigRef = doc(db, "gigs", gigId);
-                             await updateDoc(gigRef, {
-                                 guestList: arrayRemove(objectToRemoveForFirebase) // Use reconstructed object
-                             });
+                             await updateDoc(gigRef, { guestList: arrayRemove(guestName) }); // Remove simple name
                              guestDiv.remove();
                              updateGuestCount();
                              toast.show('Guest removed.', 'success');
                          } catch (error) {
-                              console.error("Error removing guest:", error);
-                              toast.show('Failed to remove guest.', 'error');
-                              removeButton.disabled = false; // Re-enable on error
+                              console.error("Error removing guest:", error); toast.show('Failed to remove guest.', 'error');
+                              removeButton.disabled = false;
                          }
                     }
                 }
             });
         }
-
-        // Initial count update based on potentially dynamically loaded data
-        // updateGuestCount(); // Call this after initial rendering in renderShowSheet
+        // Initial count update happens in renderShowSheet after guests are rendered
     }
 
     // Function to render a single guest item
-    function renderSingleGuest(listElement, guestObject) {
+    function renderSingleGuest(listElement, guestName) {
         const newGuest = document.createElement('div');
-        newGuest.className = 'flex justify-between items-center bg-neutral-800/50 p-2 rounded-lg';
-        // Store the guest object (stringified) in a data attribute for removal
-        // Note: Storing Timestamps requires conversion (e.g., to milliseconds) if needed for removal lookup
-        const guestDataForAttr = { ...guestObject };
-        // If guestObject.addedAt is a Timestamp, convert it:
-        // if (guestObject.addedAt?.toMillis) {
-        //     guestDataForAttr.addedAtMillis = guestObject.addedAt.toMillis();
-        //     delete guestDataForAttr.addedAt; // Remove original Timestamp object
-        // }
+        // Use Canonical List Item Structure (modified)
+        newGuest.className = 'guest-item flex items-center justify-between rounded-lg bg-neutral-800/50 p-2';
         newGuest.innerHTML = `
-          <span>${guestObject.name}</span>
-          <button data-guest-data='${JSON.stringify(guestDataForAttr)}' class="remove-guest-btn text-red-400 text-xs font-semibold hover:text-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 rounded">Remove</button>
+          <span class="text-sm text-white">${guestName}</span>
+          <button data-guest-name="${guestName}" class="remove-guest-btn rounded-xl px-2 py-1 text-xs font-semibold text-red-400 transition-colors hover:bg-red-900/50 focus:outline-none focus:ring-1 focus:ring-red-500">Remove</button>
         `;
         listElement.appendChild(newGuest);
     }
 
-
     function renderShowSheet(gigSnap) {
+        loadingState.style.display = 'none'; // Hide loading
+
         if (!gigSnap || !gigSnap.exists()) {
-            // Error handled by gracefulGet if container was passed, otherwise handle here
-            if (!showSheetContainer.innerHTML.includes('Error') && !showSheetContainer.innerHTML.includes('offline')) {
-                showSheetContainer.innerHTML = `<p class="p-5 text-center text-red-400">Show Sheet not found.</p>`;
-            }
+            errorState.style.display = 'block'; // Show error
+            footerLoading.style.display = 'none'; // Hide footer loading
+            contactLink.classList.add('hidden');
             return;
         }
-        // Store full data including parsed date object
+        errorState.style.display = 'none'; // Hide error
+
         const rawData = gigSnap.data();
         gigData = {
-            id: gigSnap.id,
-            ...rawData,
-            dateObject: rawData.date?.toDate ? rawData.date.toDate() : null // Add parsed Date object
+            id: gigSnap.id, ...rawData,
+            dateObject: rawData.date?.toDate ? rawData.date.toDate() : null
          };
+        maxGuests = gigData?.guestListLimit || 5; // Update maxGuests
 
-        // Use the static content as a template
-        showSheetContainer.innerHTML = staticContentDiv.innerHTML; // Copy structure
-        staticContentDiv.remove(); // Remove the original static div
-
-        // Populate dynamic data
         const dateFormatted = gigData.dateObject ? gigData.dateObject.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
         const artistName = gigData.bookedArtistName || 'Artist N/A';
 
-        showSheetContainer.querySelector('h2').innerText = gigData.venueName || 'Venue Name N/A';
-        showSheetContainer.querySelector('.text-amber-400').innerText = dateFormatted;
-        showSheetContainer.querySelector('.mt-2').innerText = `Artist: ${artistName}`;
-        // TODO: Populate Schedule dynamically if available in gigData (e.g., gigData.scheduleItems array)
-        showSheetContainer.querySelector('.text-emerald-400.font-bold.text-base').innerText = `$${gigData.payout || 'N/A'}`;
-        // TODO: Populate Notes dynamically (e.g., gigData.venueNotes)
-         const contactLink = document.getElementById('contact-venue-link');
-         if(contactLink && gigData.ownerId) {
-             contactLink.href = `setflow-conversation-view.html?recipientId=${gigData.ownerId}`;
-         } else if (contactLink) {
-              contactLink.classList.add('hidden'); // Hide if no ownerId
-         }
+        // Use canonical sections and styles
+        showSheetContainer.innerHTML = `
+            <section class="border-b border-neutral-700 p-5">
+                <h2 class="text-2xl font-bold text-white">${gigData.venueName || 'Venue N/A'}</h2>
+                <p class="mt-1 text-lg font-medium text-amber-400">${dateFormatted}</p>
+                <p class="mt-2 text-sm text-neutral-300">Artist: ${artistName}</p>
+            </section>
 
-         // Populate Guest List
+            <section class="grid grid-cols-2 gap-3 border-b border-neutral-700 p-4">
+                <button id="add-to-calendar-btn" class="w-full rounded-xl bg-neutral-700 px-4 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed">Add to Calendar</button>
+                <a href="setflow-promo-kit.html?gigId=${gigId}" class="block w-full rounded-xl bg-neutral-700 px-4 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">View Promo Kit</a>
+            </section>
+
+            <section class="border-b border-neutral-700 p-5">
+                <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Schedule</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex"><span class="w-24 flex-shrink-0 text-neutral-400">6:00 PM</span><span class="font-medium text-white">Load-in & Setup</span></div>
+                    <div class="flex"><span class="w-24 flex-shrink-0 text-neutral-400">8:00 PM</span><span class="font-medium text-white">Soundcheck</span></div>
+                    <div class="flex"><span class="w-24 flex-shrink-0 text-neutral-400">9:00 PM</span><span class="font-bold text-emerald-400">Set 1 Begins</span></div>
+                    </div>
+            </section>
+
+            <section class="border-b border-neutral-700 p-5">
+                <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Details</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center"><span class="w-24 flex-shrink-0 text-neutral-400">Payout</span><span class="text-base font-bold text-emerald-400">$${gigData.payout || 'N/A'}</span></div>
+                    <div class="flex"><span class="w-24 flex-shrink-0 text-neutral-400">Notes</span><span class="font-medium text-white">${gigData.venueNotes || 'No specific notes provided.'}</span></div>
+                    </div>
+            </section>
+
+            <section class="p-5">
+                <h3 id="guest-count-header" class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Guest List & Team (.../... used)</h3>
+                <div id="guest-list" class="space-y-2">
+                    </div>
+                <div class="mt-4 flex space-x-2">
+                    <label for="guest-name-input" class="sr-only">Add guest name</label>
+                    <input id="guest-name-input" type="text" placeholder="Add guest name..." class="flex-1 rounded-xl border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50">
+                    <button id="add-guest-btn" class="flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed">Add</button>
+                </div>
+            </section>
+        `;
+
+         // Populate Guest List dynamically
          const guestListEl = document.getElementById('guest-list');
-         guestListEl.innerHTML = ''; // Clear static guests
-         if(gigData.guestList && Array.isArray(gigData.guestList)) {
-             gigData.guestList.forEach(guest => renderSingleGuest(guestListEl, guest));
+         if (guestListEl && gigData.guestList && Array.isArray(gigData.guestList)) {
+             gigData.guestList.forEach(guestName => renderSingleGuest(guestListEl, guestName));
          }
 
+         // Update Footer Contact Link
+         footerLoading.style.display = 'none';
+         if (gigData.ownerId) {
+             contactLink.href = `setflow-conversation-view.html?recipientId=${gigData.ownerId}`;
+             contactLink.classList.remove('hidden');
+         } else {
+             contactLink.classList.add('hidden');
+         }
 
         // Setup event listeners for the dynamic content AFTER innerHTML is set
         setupCalendarButton();
-        setupGuestList(); // This also calls updateGuestCount() internally
+        setupGuestList(); // This also calls updateGuestCount()
     }
 
 
@@ -320,34 +283,35 @@ END:VCALENDAR`;
     onAuthState(async (user) => {
         if (user) {
             currentUser = user;
+            loadingState.style.display = 'flex'; // Show loading
+            errorState.style.display = 'none';
+            footerLoading.style.display = 'flex'; // Show footer loading
+            contactLink.classList.add('hidden');
+
+
              if (!gigId) {
-                showSheetContainer.innerHTML = '<p class="p-5 text-center text-red-400">Error: Gig ID not found in URL.</p>';
+                loadingState.style.display = 'none';
+                errorState.textContent = 'Error: Gig ID not found in URL.';
+                errorState.style.display = 'block';
+                footerLoading.style.display = 'none';
                 return;
             }
             try {
-                // Fetch gig data using gracefulGet, manage container state
-                const gigSnapshot = await gracefulGet(getDoc(doc(db, "gigs", gigId)), showSheetContainer, "Could not load show details offline.");
-                // renderShowSheet handles null/non-existent snapshot
-                renderShowSheet(gigSnapshot);
+                // Fetch gig data using gracefulGet, manage states manually
+                const gigSnapshot = await gracefulGet(getDoc(doc(db, "gigs", gigId)), null, "Could not load show details offline.");
+                renderShowSheet(gigSnapshot); // Handles null/non-existent snapshot
 
             } catch(error) {
                  console.error("Error loading show sheet:", error);
-                 // Error potentially handled by gracefulGet, ensure container shows error
-                  if (!showSheetContainer.innerHTML.includes('Error') && !showSheetContainer.innerHTML.includes('offline')) {
-                     showSheetContainer.innerHTML = `<p class="p-5 text-center text-red-400">Error loading show details.</p>`;
-                  }
+                 renderShowSheet(null); // Show error state
             }
 
         } else {
-             // Redirect or show limited view if not logged in?
-             // For now, assume login is required to see show sheets fully.
              window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
         }
     });
 
   </script>
 
-  <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
-  </div>
-  <script src="toast.js"></script> <script type="module" src="./api.js"></script> </body>
+</body>
 </html>

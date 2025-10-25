@@ -7,80 +7,128 @@
   <title>Setflow - Earnings Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css"> <style>
+  <link rel="stylesheet" href="toast.css">
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem;
-      background-color: #dc2626; /* red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
       z-index: 9999;
     }
+     /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
 <div id="offline-banner">You are currently offline. Earnings data may be cached.</div>
-<div class="max-w-md mx-auto min-h-screen flex flex-col pt-10">
-  <header class="px-3 py-4 bg-neutral-800/80 backdrop-blur-sm fixed top-0 left-0 right-0 max-w-md mx-auto z-20 flex justify-between items-center shadow-md border-b border-neutral-700/50">
-    <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="w-5 h-5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <h1 class="text-lg font-bold tracking-tight text-center flex-grow">Earnings Report</h1>
-    <div class="w-9 h-9"></div> </header>
-  <main class="flex-1 px-5 py-4 pb-28 pt-16"> <div class="bg-neutral-800 rounded-xl p-4 border border-neutral-700/50 text-center mb-6">
-        <p class="text-sm text-neutral-400 uppercase tracking-wider">Total Earnings (YTD)</p>
-        <p class="text-4xl font-bold text-emerald-400 mt-1">$8,450</p> </div>
-    <div>
-      <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-500 mb-3">Completed Gigs</h2>
-      <div id="completed-gigs-list" class="space-y-2">
-        <div class="loading-spinner-container"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-     </main>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Earnings Report</h1>
+      <div class="w-10 h-10"></div> </div>
+  </header>
+
+  <main class="flex-1 p-5 pt-20"> <section class="mb-8">
+        <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4 text-center">
+            <p class="text-sm font-medium uppercase tracking-wider text-neutral-400">Total Earnings (YTD)</p>
+            <p class="mt-1 text-4xl font-bold text-emerald-400">$8,450</p>
+        </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Completed Gigs</h2>
+      <div id="completed-gigs-list" class="space-y-3">
+        <div class="flex justify-center items-center py-5" id="loading-state">
+            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+        </div>
+        <div class="hidden py-10 text-center" id="empty-state">
+            <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0l.879-.659M12 6v.845m0 9.273l-3 2.182m3-2.182l3 2.182M3 12.75l2.67.668c.94 1.237 2.43 2.082 4.148 2.082s3.207-.845 4.148-2.082L19.5 12.75M3 8.25l2.67-.668c.94-1.237 2.43-2.082 4.148-2.082s3.207.845 4.148 2.082L19.5 8.25m-16.5 0a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM19.5 8.25a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-semibold text-white">No Completed Gigs</h3>
+            <p class="mt-1 text-sm text-neutral-400">Your completed gigs and earnings will appear here.</p>
+        </div>
+        <div class="hidden py-10 text-center text-red-400" id="error-state">
+            <p>Could not load earnings data.</p>
+        </div>
+        </div>
+    </section>
+ </main>
+ </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder message</span>
 </div>
+<script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, gracefulGet, ui } from './api.js'; // Import helpers
+    import { onAuthState, gracefulGet, isOnline } from './api.js';
     // TODO: Need an API function like fetchCompletedGigsForUser(userId)
 
     const gigsListContainer = document.getElementById('completed-gigs-list');
+    const loadingState = document.getElementById('loading-state');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
+    const offlineBanner = document.getElementById('offline-banner');
+
+     // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
 
     function renderCompletedGigs(gigs) {
-        // gracefulGet handles spinner removal/error display
-        if (!gigs || gigs.length === 0) {
-            gigsListContainer.innerHTML = '<p class="text-neutral-500 text-sm">No completed gigs found for this period.</p>';
+        // Clear previous items
+        const existingItems = gigsListContainer.querySelectorAll('.gig-item');
+        existingItems.forEach(item => item.remove());
+
+        if (!gigs) { // Error case
+            loadingState.style.display = 'none';
+            emptyState.style.display = 'none';
+            errorState.style.display = 'block';
             return;
         }
 
-        // Clear container before rendering
-        gigsListContainer.innerHTML = '';
+        if (gigs.length === 0) {
+            loadingState.style.display = 'none';
+            errorState.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
 
-        // Sort by date descending
-        gigs.sort((a,b) => (b.date?.toDate ? b.date.toDate() : 0) - (a.date?.toDate ? a.date.toDate() : 0));
+        loadingState.style.display = 'none'; // Hide states
+        emptyState.style.display = 'none';
+        errorState.style.display = 'none';
+
+
+        // Sort by date descending (most recent first)
+        gigs.sort((a,b) => (b.dateObject || 0) - (a.dateObject || 0)); // Use parsed dateObject
 
         gigs.forEach(gig => {
             const gigElement = document.createElement('div');
-            // Added focus wrapper around the div content for accessibility, though making the div itself focusable might be better depending on interaction needs.
-            gigElement.className = 'bg-neutral-800/60 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
-            const dateFormatted = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'}) : 'Date N/A';
+            // Use Canonical List Item Structure (modified for earnings)
+            gigElement.className = 'gig-item flex items-center justify-between rounded-lg bg-neutral-800 p-4'; // Removed hover
+            const dateFormatted = gig.dateObject ? gig.dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'}) : 'Date N/A';
 
             gigElement.innerHTML = `
-             <div class="flex justify-between items-center">
-              <div>
-                <p class="font-semibold">${gig.venueName}</p>
-                <p class="text-xs text-neutral-400">${dateFormatted}</p>
+              <div class="flex-1 min-w-0">
+                <p class="truncate font-semibold text-white">${gig.venueName}</p>
+                <p class="truncate text-xs text-neutral-400">${dateFormatted}</p>
               </div>
-              <p class="font-bold text-emerald-400">$${gig.payout}</p>
-             </div>
+              <p class="ml-4 flex-shrink-0 font-bold text-emerald-400">$${gig.payout}</p>
             `;
-            gigsListContainer.appendChild(gigElement);
+             // Insert before the state divs
+             gigsListContainer.insertBefore(gigElement, loadingState);
         });
     }
 
@@ -89,30 +137,40 @@
         if (!user) {
             window.location.href = 'setflow-login-page.html';
         } else {
+            loadingState.style.display = 'flex'; // Show loading
+            emptyState.style.display = 'none';
+            errorState.style.display = 'none';
             // Placeholder: Fetch actual completed gigs data
             try {
-                // Replace with actual API call when available
+                // Replace with actual API call: e.g., gracefulGet(fetchCompletedGigsForUser(user.uid), null, ...)
                 const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
-                     // Example data structure (replace with real data)
-                     // Ensure date is a valid Date object or Firestore Timestamp for sorting
-                     { id: 'gig1', venueName: 'The Underground', date: new Date('2025-10-10'), payout: 450 },
-                     { id: 'gig2', venueName: 'The Pour House', date: new Date('2025-09-26'), payout: 400 },
-                 ]), 1000)); // Simulate fetch delay
+                     // Example data structure (ensure date is convertible to Date)
+                     { id: 'gig1', venueName: 'The Underground', date: new Date('2025-10-10T21:00:00Z'), payout: 450 }, // Use Date objects or Firestore Timestamps
+                     { id: 'gig2', venueName: 'The Pour House', date: new Date('2025-09-26T20:00:00Z'), payout: 400 },
+                     { id: 'gig3', venueName: 'Local Brews', date: new Date('2025-08-15T19:30:00Z'), payout: 350 },
+                 ].map(g => ({...g, dateObject: g.date})) // Add dateObject for sorting
+                 ), 1000));
 
-                const completedGigs = await gracefulGet(fetchPromise, gigsListContainer, "Could not load earnings data offline.");
+                // Use gracefulGet, manage states manually
+                const completedGigs = await gracefulGet(fetchPromise, null, "Could not load earnings data offline.");
 
+                renderCompletedGigs(completedGigs); // Handles null/empty response
+
+                // TODO: Calculate and update the YTD total dynamically
                 if (completedGigs) {
-                   renderCompletedGigs(completedGigs);
-                   // TODO: Calculate and update the YTD total dynamically based on fetched gigs
+                    const totalYtd = completedGigs.reduce((sum, gig) => sum + (gig.payout || 0), 0);
+                    const ytdElement = document.querySelector('.text-4xl.font-bold.text-emerald-400');
+                    if(ytdElement) ytdElement.textContent = `$${totalYtd.toLocaleString()}`; // Format number
                 }
+
             } catch (error) {
                 console.error("Error fetching earnings:", error);
-                // Error handled by gracefulGet
+                renderCompletedGigs(null); // Show error state
             }
         }
     });
 </script>
- <script type="module" src="./api.js"></script> <div id="toast-notification" class="opacity-0"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script> </body>
+
+ <script type="module" src="./api.js"></script>
+</body>
 </html>
