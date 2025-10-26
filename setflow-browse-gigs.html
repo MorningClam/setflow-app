@@ -68,19 +68,21 @@
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Browse Gigs</h1>
-      <div class="w-10 h-10"></div> </div>
+      <div class="w-10 h-10"></div>
+    </div>
     <div class="mt-3 flex items-center space-x-2">
       <div class="flex-grow flex items-center rounded-xl border border-neutral-700 bg-neutral-800 px-3 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
         <svg class="mr-2 h-4 w-4 flex-shrink-0 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <input type="search" placeholder="Search by venue, city, or genre" class="w-full border-0 bg-transparent py-2 text-sm placeholder-neutral-500 outline-none focus:ring-0"/>
       </div>
-      <button id="open-filter-btn" aria-label="Open filters" class="p-2 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+      <button id="open-filter-btn" data-modal-target="#filter-modal" aria-label="Open filters" class="p-2 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 16v-2m8-8h2M4 12H2m15.364 6.364l1.414 1.414M4.222 4.222l1.414 1.414m12.728 0l-1.414 1.414M5.636 18.364l-1.414 1.414M12 16a4 4 0 110-8 4 4 0 010 8zm0 0v1m0-10V5"></path></svg>
       </button>
     </div>
   </header>
 
-  <main id="gigs-container" class="flex-1 space-y-4 p-5 pt-36 pb-20"> <div class="flex justify-center items-center py-10" id="loading-state">
+  <main id="gigs-container" class="flex-1 space-y-4 p-5 pt-36 pb-20">
+    <div class="flex justify-center items-center py-10" id="loading-state">
       <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
     </div>
     <div class="hidden py-10 text-center" id="empty-state">
@@ -150,74 +152,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    // --- Basic Modal Logic (Consider moving to shared JS like api.js or nav.js) ---
-    function initModals() {
-        const modalTriggers = document.querySelectorAll('[id="open-filter-btn"]'); // Specific for this page now
-        const modalContainers = document.querySelectorAll('.modal-container');
-
-        modalTriggers.forEach(trigger => {
-            const modalId = '#filter-modal'; // Hardcoded for this page
-            const modal = document.querySelector(modalId);
-            if (modal) {
-                trigger.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-                    // Trigger animation in
-                    requestAnimationFrame(() => {
-                        modal.querySelector('.modal-content').style.transform = 'translateY(0)';
-                        modal.querySelector('.modal-overlay').style.opacity = '1';
-                    });
-                });
-            }
-        });
-
-        modalContainers.forEach(modal => {
-            const overlay = modal.querySelector('.modal-overlay');
-            const closeButtons = modal.querySelectorAll('.modal-close, .modal-close-x');
-
-            const closeModal = () => {
-                modal.querySelector('.modal-content').style.transform = 'translateY(100%)';
-                modal.querySelector('.modal-overlay').style.opacity = '0';
-                // Wait for animation before hiding
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    document.body.style.overflow = ''; // Restore scrolling
-                }, 300); // Match animation duration
-            };
-
-            if (overlay) {
-                overlay.addEventListener('click', closeModal);
-            }
-            closeButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    closeModal();
-                });
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                    closeModal();
-                }
-            });
-        });
-
-        // Payout range value update
-        const payoutRange = document.getElementById('payout-range');
-        const payoutValue = document.getElementById('payout-value');
-        if (payoutRange && payoutValue) {
-            payoutRange.addEventListener('input', () => {
-                payoutValue.textContent = payoutRange.value;
-            });
-        }
-    }
-    // Initialize modals on load
-    document.addEventListener('DOMContentLoaded', initModals);
-</script>
 
 <script type="module">
   import { fetchGigs, gracefulGet, isOnline } from './api.js';

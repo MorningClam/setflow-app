@@ -67,7 +67,8 @@ const network = {
   updateStatus: function(isOnline) {
     const wasOffline = !this.online;
     this.online = isOnline;
-    if (wasOffline && this.online && window.toast) {
+    // Check if toast exists on window before using it
+    if (wasOffline && this.online && window.toast && typeof window.toast.show === 'function') {
         window.toast.show('Back online. Syncing data...', 'success', 2000);
     }
     this.updateBanner();
@@ -117,7 +118,7 @@ export const ui = {
  * @param {Promise<*>} firestorePromise - Promise from getDoc or getDocs.
  * @param {string} [offlineMessage="Data may be unavailable offline."] - Message base for offline errors.
  * @param {string} [errorMessage="Error loading data."] - Message base for online errors.
- * @returns {Promise<*|null>} Firestore result or null.
+ * @returns {Promise<*|null>} Firestore result or null. Throws specific error on failure.
  */
 export async function gracefulGet(firestorePromise, offlineMessage = "Data may be unavailable offline.", errorMessage = "Error loading data.") {
     try {
@@ -137,11 +138,8 @@ export async function gracefulGet(firestorePromise, offlineMessage = "Data may b
         } else {
              throw new Error(`${errorMessage}: ${error.message}`);
         }
-        // Return null instead of throwing if preferred:
-        // return null;
     }
 }
-
 
 // --- AUTHENTICATION FUNCTIONS ---
 
@@ -180,7 +178,6 @@ export async function signOutUser() {
 }
 
 export async function deleteUserAccount() {
-    // ... (logic remains the same, uses httpsCallable) ...
     const user = auth.currentUser;
     if (!user) throw new Error("No user signed in.");
     if (!isOnline()) throw new Error("Account deletion requires connection.");
@@ -196,7 +193,8 @@ export async function deleteUserAccount() {
 }
 
 // --- BAND MANAGEMENT FUNCTIONS ---
-
+// (createBand, getBandsForUser, getBandData, inviteToBand, removeMemberFromBand, getJoinRequests, approveJoinRequest remain the same for now)
+// ... [Existing Band Management Functions] ...
 export async function createBand(bandName, adminUser) {
     // ... (logic remains the same, uses writeBatch) ...
     const bandRef = doc(collection(db, "bands"));
@@ -267,23 +265,29 @@ export async function getBandData(bandId) { // Removed loadingContainer param
 }
 
 export async function inviteToBand(bandId, inviteeEmail) {
-    // ... (logic remains the same, requires network) ...
     if (!isOnline()) throw new Error("Invites require connection.");
     const q = query(collection(db, "users"), where("email", "==", inviteeEmail));
     const userSnapshot = await getDocs(q); // Network needed
     if (userSnapshot.empty) throw new Error("User not found.");
-    // ... (rest of checks and setDoc) ...
+
     const inviteeId = userSnapshot.docs[0].id;
     const inviteeName = userSnapshot.docs[0].data().name || inviteeEmail;
     const bandSnap = await getDoc(doc(db, "bands", bandId)); // Cache potentially used
     if (bandSnap.exists() && bandSnap.data().members?.[inviteeId]) throw new Error(`${inviteeName} is already a member.`);
+
     const inviteRef = doc(collection(db, "invitations"));
     const bandName = bandSnap.exists() ? bandSnap.data().name : 'Unknown Band';
-    return await setDoc(inviteRef, { bandId, bandName, inviteeId, inviteeName, status: 'pending', createdAt: serverTimestamp() }); // Works offline after first connection
+    return await setDoc(inviteRef, {
+        bandId,
+        bandName,
+        inviteeId,
+        inviteeName,
+        status: 'pending',
+        createdAt: serverTimestamp()
+     }); // Works offline after first connection
 }
 
 export async function removeMemberFromBand(bandId, memberId) {
-    // ... (logic remains the same, uses writeBatch) ...
     const batch = writeBatch(db);
     batch.update(doc(db, "bands", bandId), { [`members.${memberId}`]: deleteField() });
     batch.update(doc(db, "users", memberId), { [`bands.${bandId}`]: deleteField() });
@@ -302,7 +306,7 @@ export async function getJoinRequests(bandId) { // Removed loadingContainer
         let userName = 'User (Offline?)';
         try {
             // Best effort fetch using cache
-            const userData = await getUserData(requestData.userId, null); // No container
+            const userData = await getUserData(requestData.userId); // No container
             if (userData) userName = userData.name || 'Name Unavailable';
         } catch(error) { console.warn(`Could not fetch user data for join request ${docSnap.id}:`, error); userName = 'User (Error)'; }
         return { id: docSnap.id, ...requestData, userName };
@@ -311,7 +315,6 @@ export async function getJoinRequests(bandId) { // Removed loadingContainer
 }
 
 export async function approveJoinRequest(requestId) {
-     // ... (logic remains the same, uses writeBatch) ...
      const requestRef = doc(db, "join_requests", requestId);
      const requestSnap = await getDoc(requestRef); // Uses cache
      if (!requestSnap.exists() || requestSnap.data().status !== 'pending') throw new Error("Request not found or not pending.");
@@ -337,7 +340,6 @@ export async function getUserData(userId) { // Removed loadingContainer
 }
 
 export async function updateUserProfile(userId, profileData) {
-  // ... (logic remains the same, uses updateDoc) ...
   if (!userId) throw new Error("User ID required.");
   const userDocRef = doc(db, "users", userId);
   profileData.updatedAt = serverTimestamp();
@@ -345,7 +347,6 @@ export async function updateUserProfile(userId, profileData) {
 }
 
 export async function updateUserPreferences(userId, preferencesData) {
-  // ... (logic remains the same, uses updateDoc) ...
     if (!userId) throw new Error("User ID required.");
     const userDocRef = doc(db, "users", userId);
     preferencesData.updatedAt = serverTimestamp();
@@ -353,8 +354,8 @@ export async function updateUserPreferences(userId, preferencesData) {
 }
 
 // --- GIG & APPLICATION FUNCTIONS ---
-
-// NOTE: Fetching ALL gigs might be inefficient. Consider adding filters (date, location).
+// (fetchGigs, getGigDetails, createCalendarEvent, fetchCalendarEvents, applyForGig, fetchMyApplications, fetchApplicantsForGig, fetchGigsForOwner, createGig remain the same for now)
+// ... [Existing Gig & Application Functions] ...
 export async function fetchGigs() { // Removed loadingContainer
   const q = query(collection(db, "gigs"), where("status", "==", "open"), orderBy("date", "asc")); // Filter open, order by date
   // Use gracefulGet
@@ -381,7 +382,6 @@ export async function getGigDetails(id) {
 }
 
 export async function createCalendarEvent(eventData) {
-  // ... (logic remains the same, uses addDoc, converts date/time) ...
   let eventTimestamp;
   try {
       // Ensure date and time are valid before creating Date
@@ -426,7 +426,6 @@ export async function fetchCalendarEvents(userId) { // Removed loadingContainer
 }
 
 export async function applyForGig(gigId, userId) {
-  // ... (logic remains the same, uses writeBatch) ...
   if (!gigId || !userId) throw new Error("Gig/User ID required.");
   const batch = writeBatch(db);
   batch.set(doc(collection(db, "applications")), { gigId, userId, status: 'applied', appliedAt: serverTimestamp() });
@@ -515,7 +514,6 @@ export async function fetchGigsForOwner(userId) { // Removed loadingContainer
 }
 
 export async function createGig(gigData) {
-  // ... (logic remains the same, uses addDoc, converts date) ...
     if (!gigData.ownerId) throw new Error("ownerId required.");
     let eventTimestamp;
     try {
@@ -534,10 +532,11 @@ export async function createGig(gigData) {
     return await addDoc(collection(db, "gigs"), gigToSave); // Works offline
 }
 
-// --- GEAR LISTING FUNCTIONS ---
 
+// --- GEAR LISTING FUNCTIONS ---
+// (createGearListing, fetchGearListings, getGearListing remain the same for now)
+// ... [Existing Gear Listing Functions] ...
 export async function createGearListing(itemData) {
-  // ... (logic remains the same, uses addDoc) ...
     if (!itemData.sellerId) throw new Error("sellerId required.");
     const itemToSave = { ...itemData, price: Number(itemData.price), createdAt: serverTimestamp() };
     return await addDoc(collection(db, "gear_listings"), itemToSave); // Works offline
@@ -575,9 +574,9 @@ export async function getGearListing(listingId) { // Removed loadingContainer
 }
 
 // --- PLAYER POST FUNCTIONS ---
-
+// (createPlayerPost, fetchPlayerPosts remain the same for now)
+// ... [Existing Player Post Functions] ...
 export async function createPlayerPost(postData) {
-  // ... (logic remains the same, uses addDoc) ...
     if (!postData.userId) throw new Error("userId required.");
     // Convert date string if present
     if (postData.date) {
@@ -614,9 +613,9 @@ export async function fetchPlayerPosts() { // Removed loadingContainer
 }
 
 // --- BOOKING & REVIEW FUNCTIONS ---
-
+// (confirmBooking, createReview remain the same for now)
+// ... [Existing Booking & Review Functions] ...
 export async function confirmBooking(gigId, artistId, artistName) {
-  // ... (logic remains the same, uses updateDoc) ...
     if (!gigId || !artistId || !artistName) throw new Error("Required info missing.");
     return await updateDoc(doc(db, "gigs", gigId), {
         status: 'booked', bookedArtistId: artistId, bookedArtistName: artistName,
@@ -625,7 +624,6 @@ export async function confirmBooking(gigId, artistId, artistName) {
 }
 
 export async function createReview(reviewData) {
-  // ... (logic remains the same, uses addDoc) ...
     if (!reviewData.reviewerId || !reviewData.subjectId || !reviewData.gigId || !reviewData.type) throw new Error("Required info missing.");
     reviewData.rating = Number(reviewData.rating);
     const reviewToSave = { ...reviewData, createdAt: serverTimestamp() };
@@ -633,9 +631,9 @@ export async function createReview(reviewData) {
 }
 
 // --- JAM SESSION FUNCTIONS ---
-
+// (createJamSession, fetchJamSessions remain the same for now)
+// ... [Existing Jam Session Functions] ...
 export async function createJamSession(sessionData) {
-  // ... (logic remains the same, uses addDoc, converts date/time) ...
     if (!sessionData.hostId) throw new Error("hostId required.");
     let sessionTimestamp;
     try {
@@ -682,9 +680,9 @@ export async function fetchJamSessions() { // Removed loadingContainer
 }
 
 // --- MESSAGING FUNCTIONS ---
-
+// (createOrGetConversation, sendMessage, getMessages, getConversations remain the same for now)
+// ... [Existing Messaging Functions] ...
 export async function createOrGetConversation(userId1, userId2) {
-  // ... (logic remains the same, uses getDoc/setDoc) ...
     const conversationId = [userId1, userId2].sort().join('_');
     const conversationRef = doc(db, "conversations", conversationId);
     const conversationSnap = await getDoc(conversationRef); // Uses cache
@@ -704,7 +702,6 @@ export async function createOrGetConversation(userId1, userId2) {
 }
 
 export async function sendMessage(conversationId, messageData) {
-  // ... (logic remains the same, uses writeBatch) ...
     const batch = writeBatch(db);
     const newMessageRef = doc(collection(db, "conversations", conversationId, "messages"));
     batch.set(newMessageRef, { ...messageData, timestamp: serverTimestamp() });
@@ -715,7 +712,6 @@ export async function sendMessage(conversationId, messageData) {
 }
 
 export function getMessages(conversationId, callback, errorCallback = console.error) {
-  // ... (logic remains the same, uses onSnapshot) ...
     const q = query(collection(db, "conversations", conversationId, "messages"), orderBy("timestamp", "asc"));
     return onSnapshot(q, (querySnapshot) => {
         const messages = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -755,7 +751,6 @@ export async function getConversations(userId) { // Removed loadingContainer
 // --- REPORTING ---
 
 export async function reportContent(reportedItemId, reportedItemType, reporterId, reason = 'N/A') {
-  // ... (logic remains the same, uses addDoc) ...
     if (!reportedItemId || !reportedItemType || !reporterId) throw new Error("Missing fields for report.");
     const reportData = { reportedItemId, reportedItemType, reporterId, reason, status: 'pending', createdAt: serverTimestamp() };
     return await addDoc(collection(db, "reports"), reportData); // Works offline
@@ -780,3 +775,106 @@ export async function getAllBands() { // Removed loadingContainer
     if (!querySnapshot) return null;
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
+
+
+// --- MODAL HANDLING --- ADDED FOR CENTRALIZATION ---
+
+/**
+ * Initializes modal open/close functionality for the entire document.
+ * Assumes specific data attributes and class names.
+ */
+function initModals() {
+    const modalTriggers = document.querySelectorAll('[data-modal-target]');
+    const modalContainers = document.querySelectorAll('.modal-container');
+
+    // --- Open Modal Logic ---
+    modalTriggers.forEach(trigger => {
+        const modalId = trigger.dataset.modalTarget;
+        const modal = document.querySelector(modalId);
+        if (modal) {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex'); // Use flex for centering/positioning defined in modal styles
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+
+                // Determine animation type based on modal classes or ID (example: bottom sheet vs centered)
+                const content = modal.querySelector('.modal-content');
+                const overlay = modal.querySelector('.modal-overlay');
+
+                requestAnimationFrame(() => { // Allow display change to take effect before transition
+                    if (overlay) overlay.style.opacity = '1'; // Fade in overlay
+
+                    // Handle different modal animation styles
+                    if (modalId === '#filter-modal') { // Specific ID for bottom sheet
+                        if (content) content.style.transform = 'translateY(0)';
+                    } else { // Default centered modal animation
+                         if (content) {
+                            content.style.opacity = '1';
+                            content.style.transform = 'scale(1)';
+                         }
+                    }
+                });
+            });
+        }
+    });
+
+    // --- Close Modal Logic ---
+    modalContainers.forEach(modal => {
+        const overlay = modal.querySelector('.modal-overlay');
+        const closeButtons = modal.querySelectorAll('.modal-close, .modal-close-x');
+        const content = modal.querySelector('.modal-content');
+        const modalId = modal.id; // Get the ID for specific animations
+
+        const closeModal = () => {
+            if (overlay) overlay.style.opacity = '0'; // Fade out overlay
+
+            // Handle different modal animation styles
+            if (modalId === 'filter-modal') { // Specific ID for bottom sheet
+                if (content) content.style.transform = 'translateY(100%)';
+            } else { // Default centered modal animation
+                if (content) {
+                    content.style.opacity = '0';
+                    content.style.transform = 'scale(0.95)';
+                }
+            }
+
+            // Wait for animation before hiding and restoring scroll
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = ''; // Restore scrolling
+            }, 300); // Match animation duration (adjust if needed)
+        };
+
+        if (overlay) {
+            overlay.addEventListener('click', closeModal);
+        }
+        closeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+        });
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    });
+
+    // --- Specific Modal Logic (Example: Filter Payout Slider) ---
+    // Keep specific logic like slider updates close to where it's needed,
+    // but the core open/close is handled above.
+    const payoutRange = document.getElementById('payout-range');
+    const payoutValue = document.getElementById('payout-value');
+    if (payoutRange && payoutValue) {
+        payoutRange.addEventListener('input', () => {
+            payoutValue.textContent = payoutRange.value;
+        });
+    }
+}
+
+// --- Initialize Modals on Page Load ---
+document.addEventListener('DOMContentLoaded', initModals);

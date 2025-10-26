@@ -53,7 +53,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        flex-grow: 1;
+        flex-grow: 1; /* Ensures links expand to fill space */
         padding: 0.5rem 0; /* py-2 */
         font-size: 0.75rem; /* text-xs */
         font-weight: 500; /* font-medium */
@@ -92,7 +92,8 @@
     </div>
   </header>
 
-  <main class="flex-grow p-5 pb-20"> <section class="mb-8">
+  <main class="flex-grow p-5 pb-20">
+    <section class="mb-8">
       <h1 id="welcome-header" class="text-3xl font-bold text-white">Welcome, Musician!</h1>
       <p class="text-neutral-400">Here's your command center.</p>
     </section>
@@ -203,9 +204,8 @@
     </div>
   </div>
 
-  <nav class="sticky bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Home">
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+    <div class="flex h-16 items-center justify-around"> <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Home">
         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
         <span class="text-xs font-medium">Home</span>
       </a>
@@ -227,8 +227,7 @@
       </a>
     </div>
   </nav>
-
-</div>
+  </div>
 
 <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
   <span id="toast-message">Placeholder message</span>
@@ -239,71 +238,8 @@
   import { onAuthState, fetchCalendarEvents, gracefulGet, doc, db, getUserData, createCalendarEvent, isOnline, fetchGigs } from './api.js'; // Added isOnline, fetchGigs
   import { toast } from './toast.js';
 
-  // --- Modal Logic (Canonical) ---
-  function initModals() {
-    const modalTriggers = document.querySelectorAll('[data-modal-target]');
-    const modalContainers = document.querySelectorAll('.modal-container');
-
-    modalTriggers.forEach(trigger => {
-      const modalId = trigger.dataset.modalTarget;
-      const modal = document.querySelector(modalId);
-      if (modal) {
-        trigger.addEventListener('click', (e) => {
-          e.preventDefault();
-          modal.classList.remove('hidden');
-          modal.classList.add('flex');
-          document.body.style.overflow = 'hidden';
-          requestAnimationFrame(() => {
-             modal.querySelector('.modal-overlay').style.opacity = '1';
-             modal.querySelector('.modal-content').style.opacity = '1';
-             modal.querySelector('.modal-content').style.transform = 'scale(1)';
-          });
-        });
-      }
-    });
-
-    modalContainers.forEach(modal => {
-      const overlay = modal.querySelector('.modal-overlay');
-      const closeButtons = modal.querySelectorAll('.modal-close, .modal-close-x');
-
-      const closeModal = () => {
-        modal.querySelector('.modal-overlay').style.opacity = '0';
-        modal.querySelector('.modal-content').style.opacity = '0';
-        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          modal.classList.add('hidden');
-          modal.classList.remove('flex');
-          document.body.style.overflow = '';
-        }, 300); // Match animation duration
-      };
-
-      if (overlay) {
-        overlay.addEventListener('click', closeModal);
-      }
-      closeButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-          e.preventDefault();
-          closeModal();
-        });
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-          closeModal();
-        }
-      });
-    });
-  }
-
-  // --- Toast Check ---
-  document.addEventListener('DOMContentLoaded', () => {
-    const toastMessage = sessionStorage.getItem('showToast');
-    if (toastMessage) {
-      const [message, type] = toastMessage.split('|');
-      toast.show(message, type || 'success');
-      sessionStorage.removeItem('showToast');
-    }
-    initModals(); // Initialize modals
-  });
+  // Toast Check handled by api.js now via DOMContentLoaded listener
+  // document.addEventListener('DOMContentLoaded', () => { ... }); // Removed this listener block
 
   const welcomeHeader = document.getElementById('welcome-header');
   const scheduleList = document.getElementById('schedule-list');
@@ -608,8 +544,23 @@
         toast.show("Date blocked successfully!", "success");
 
         // Close the modal
-        const closeButton = document.getElementById('block-date-modal').querySelector('.modal-close, .modal-close-x');
-        if (closeButton) closeButton.click();
+        const modal = document.getElementById('block-date-modal');
+        const closeModalButton = modal.querySelector('.modal-close, .modal-close-x');
+        if (closeModalButton) {
+            // Re-use logic similar to initModals close without full centralization yet
+            const overlay = modal.querySelector('.modal-overlay');
+            const content = modal.querySelector('.modal-content');
+            if(overlay) overlay.style.opacity = '0';
+            if(content) {
+                content.style.opacity = '0';
+                content.style.transform = 'scale(0.95)';
+            }
+            setTimeout(() => {
+              modal.classList.add('hidden');
+              modal.classList.remove('flex');
+              document.body.style.overflow = '';
+            }, 300);
+        }
 
         loadSchedule(userId); // Refresh schedule list
 
@@ -625,6 +576,6 @@
   }
 
 </script>
-
+<script type="module" src="./api.js"></script>
 </body>
 </html>
