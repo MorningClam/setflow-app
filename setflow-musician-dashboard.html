@@ -12,13 +12,12 @@
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: sticky; /* Sticky to scroll with content but stay at top */
-      top: 0; left: 0; right: 0;
+      position: fixed; top: 0; left: 0; right: 0;
       padding: 0.5rem; /* p-2 */
       background-color: theme('colors.red.600'); /* bg-red-600 */
       color: white; text-align: center;
       font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9998; /* Below modals, above header */
+      z-index: 9999;
     }
     /* Loading Spinner Styles (Canonical Tailwind) */
     .loading-spinner, .loading-spinner-inline {
@@ -56,15 +55,15 @@
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
+<div id="offline-banner">You are currently offline. Data may be out of sync.</div>
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <div id="offline-banner">You are currently offline. Data may be out of sync.</div>
 
-  <header class="border-b border-neutral-700 bg-neutral-900 px-5 py-4">
-    <div class="flex items-center justify-between">
-      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-5 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home" class="flex items-center">
         <img src="logo.png" alt="Setflow" class="h-7 w-auto">
       </a>
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
         <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Notifications">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notification-badge" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white"></span>
@@ -76,7 +75,7 @@
     </div>
   </header>
 
-  <main class="flex-grow p-5 pb-20">
+  <main class="flex-grow p-5 pt-20 pb-20">
     <section class="mb-8">
       <h1 id="welcome-header" class="text-3xl font-bold text-white">Welcome, Musician!</h1>
       <p class="text-neutral-400">Here's your command center.</p>
@@ -101,23 +100,21 @@
         <div id="profile-strength-bar" class="h-2.5 rounded-full bg-emerald-500 transition-all duration-500" style="width: 10%"></div>
       </div>
       <p class="text-sm text-neutral-400" id="profile-strength-prompt">Complete your profile to get noticed!</p>
-    </section>
-
-    <section class="mb-8">
-      <div class="mb-3 flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-white">My Schedule</h2>
-        <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">View Calendar</a>
-      </div>
-      <div id="schedule-loading" class="flex justify-center items-center py-10">
-        <div class="loading-spinner"></div> </div>
-      <div id="schedule-list" class="space-y-3">
+      <div id="schedule" class="mt-6">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-white">Your Schedule</h2>
+          <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">See All</a>
         </div>
-      <div id="schedule-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
+        <div id="schedule-loading" class="flex justify-center items-center py-10">
+          <div class="loading-spinner"></div>
+        </div>
+        <div id="schedule-list" class="space-y-4"></div>
+        <div id="schedule-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
         <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.25 9.75A2.25 2.25 0 0113.5 18H10.5a2.25 2.25 0 01-2.25-2.25V7.5a2.25 2.25 0 012.25-2.25h2.25a2.25 2.25 0 012.25 2.25v10.5m-3 3H9m3 0H7.5m3 0h.008v.008H10.5m0 0H9m1.5 0H12m1.5 0H15m-1.5 0H12" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v-6.375c0-1.035-.84-1.875-1.875-1.875h-6.375M9 12h3m-3 3h3m-6 4.5h11.25a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v11.25A2.25 2.25 0 006.75 20.25z" />
         </svg>
-        <h3 id="schedule-empty-title" class="mt-2 text-lg font-semibold text-white">No Upcoming Gigs</h3>
-        <p id="schedule-empty-text" class="mt-1 text-sm text-neutral-400">Your booked gigs will appear here. Check out these venues:</p>
+        <h3 id="schedule-empty-title" class="mt-2 text-lg font-semibold text-white">No upcoming bookings</h3>
+        <p id="schedule-empty-text" class="mt-1 text-sm text-neutral-400">You'll see your confirmed gigs here. Check out these nearby venues:</p>
         <div id="nearby-venues-list" class="mt-4 space-y-2 px-4">
            <div class="flex justify-center items-center py-2"><div class="loading-spinner-inline"></div> Fetching venues...</div>
         </div>
@@ -149,7 +146,7 @@
                  <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
              <a href="setflow-achievements.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 01.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
                 <span class="flex-1 font-semibold text-white">Achievements</span>
                  <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
@@ -173,12 +170,8 @@
         <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
         </svg>
-        <h3 class="mt-2 text-lg font-semibold text-white">No Gigs Found Nearby</h3>
-        <p class="mt-1 text-sm text-neutral-400">No open gigs match your current settings. <strong class="text-emerald-400">Upgrade to Pro to apply for gigs!</strong></p>
-        <div class="mt-6 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-3">
-          <a href="setflow-pricing-page.html" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Pro</a>
-          <a href="setflow-routing-availability.html" class="rounded-xl bg-neutral-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Edit Availability</a>
-        </div>
+        <h3 class="mt-2 text-lg font-semibold text-white">No Open Gigs</h3>
+        <p class="mt-1 text-sm text-neutral-400">We'll notify you when new gigs matching your profile become available.</p>
       </div>
       <div id="gigs-error" class="hidden rounded-xl border border-red-700 bg-neutral-800 px-4 py-10 text-center text-red-400">
          <p>Could not load open gigs.</p>
@@ -203,13 +196,13 @@
             </svg>
           </div>
           <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg font-semibold leading-6 text-white" id="modal-title">Block Off Date</h3>
+            <h3 class="text-lg font-medium leading-6 text-white" id="modal-title">Block a Date</h3>
             <div class="mt-2">
-              <p class="text-sm text-neutral-400">Add a date to your calendar when you are unavailable for gigs.</p>
+              <p class="text-sm text-neutral-300">Choose a date to mark yourself unavailable.</p>
             </div>
           </div>
         </div>
-        <form id="block-date-form" class="mt-5 space-y-4">
+        <form id="block-date-form" class="mt-6 space-y-4">
           <div>
             <label for="block-date" class="block text-sm font-semibold text-neutral-300">Date</label>
             <input type="date" name="block-date" id="block-date" style="color-scheme: dark;" class="mt-1 block w-full rounded-xl border border-neutral-600 bg-neutral-700 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
@@ -228,8 +221,28 @@
   </div>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-      </div>
+    <div class="flex h-16 items-center justify-around">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Home">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
+        <span class="text-xs font-medium">Home</span>
+      </a>
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <span class="text-xs font-medium">Gigs</span>
+      </a>
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Applied">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span class="text-xs font-medium">Applied</span>
+      </a>
+      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
+        <span class="text-xs font-medium">Inbox</span>
+      </a>
+      <a href="setflow-account-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Menu">
+        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        <span class="text-xs font-medium">Menu</span>
+      </a>
+    </div>
   </nav>
   </div>
 
@@ -300,7 +313,6 @@
             updateProfileStrengthUI(currentUserData);
         }
 
-        updateBottomNav(currentUserData?.subscriptionTier || 'free');
         setupBlockDateForm(user.uid);
 
         // Load schedule and gigs *concurrently* after user data is fetched
@@ -321,39 +333,12 @@
         if(profileStrengthPercent) profileStrengthPercent.textContent = 'Error';
         if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Could not load profile data.';
         if(profileStrengthBar) profileStrengthBar.style.width = '0%';
-        updateBottomNav('free'); // Default nav on error
       }
 
     } else {
       window.location.href = 'setflow-login-page.html';
     }
   });
-
-  function updateBottomNav(tier) {
-      // ... (logic remains the same) ...
-        const navContainer = document.getElementById('bottom-nav-container'); if (!navContainer) return;
-        navContainer.innerHTML = ''; // Clear
-        // Add Home, Gigs
-        navContainer.innerHTML += `<a href="setflow-musician-dashboard.html" class="bottom-nav-link ...">... Home ...</a>`;
-        navContainer.innerHTML += `<a href="setflow-browse-gigs.html" class="bottom-nav-link ...">... Gigs ...</a>`;
-        // Add Applied if Pro
-        if (tier !== 'free') { navContainer.innerHTML += `<a href="setflow-applied-gigs.html" class="bottom-nav-link ...">... Applied ...</a>`; }
-        // Add Inbox, Account
-        navContainer.innerHTML += `<a href="setflow-inbox.html" class="bottom-nav-link ...">... Inbox ...</a>`;
-        navContainer.innerHTML += `<a href="setflow-account-settings.html" class="bottom-nav-link ...">... Account ...</a>`;
-        // Re-apply active state logic
-        const currentPage = window.location.pathname.split('/').pop() || 'setflow-musician-dashboard.html'; // Default to dashboard
-        const links = navContainer.querySelectorAll('.bottom-nav-link');
-        links.forEach(link => {
-            const linkPage = link.getAttribute('href').split('/').pop();
-            link.classList.remove('active', 'text-emerald-400');
-            link.classList.add('text-neutral-400');
-            if (linkPage === currentPage) {
-                link.classList.add('active', 'text-emerald-400');
-                link.classList.remove('text-neutral-400');
-            }
-        });
-  }
 
   function updateProfileStrengthUI(userData) {
     // ... (logic remains the same) ...
@@ -396,8 +381,8 @@
           // No upcoming gigs, show empty state with venues
           scheduleList.style.display = 'none'; // Hide the list container
           scheduleEmpty.style.display = 'block'; // Show the empty container
-          document.getElementById('schedule-empty-title').textContent = 'No Upcoming Gigs';
-          document.getElementById('schedule-empty-text').textContent = 'Your booked gigs will appear here. Check out these nearby venues:';
+          document.getElementById('schedule-empty-title').textContent = 'No upcoming bookings';
+          document.getElementById('schedule-empty-text').textContent = "You'll see your confirmed gigs here. Check out these nearby venues:";
           nearbyVenuesList.innerHTML = `<div class="flex justify-center items-center py-2"><div class="loading-spinner-inline"></div> Fetching venues...</div>`; // Show venue loading
 
           // Fetch and display nearby venues
@@ -476,12 +461,10 @@
 
         if (openGigs.length === 0) {
           gigsEmpty.style.display = 'block'; // Show empty state
-          // Update empty state text and CTAs
-          gigsEmpty.querySelector('p').innerHTML = 'No open gigs match your current settings. <strong class="text-emerald-400">Upgrade to Pro to apply for gigs!</strong>';
-          gigsEmpty.querySelector('.mt-6').innerHTML = `
-            <a href="setflow-pricing-page.html" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white ...">Upgrade to Pro</a>
-            <a href="setflow-routing-availability.html" class="rounded-xl bg-neutral-700 px-4 py-2 text-sm font-semibold text-white ...">Edit Availability</a>
-          `;
+          const gigsEmptyHeading = gigsEmpty.querySelector('h3');
+          if (gigsEmptyHeading) gigsEmptyHeading.textContent = 'No Open Gigs';
+          const gigsEmptyMessage = gigsEmpty.querySelector('p');
+          if (gigsEmptyMessage) gigsEmptyMessage.textContent = "We'll notify you when new gigs matching your profile become available.";
           return; // Exit function
         }
 
@@ -518,30 +501,86 @@
     // ... (logic remains the same) ...
      const form = document.getElementById('block-date-form');
     const confirmBtn = document.getElementById('confirm-block-date');
-    if (!form || !confirmBtn) return;
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const date = document.getElementById('block-date').value;
-      const reason = document.getElementById('block-reason').value;
-      if (!date) { toast.show("Please select a date.", "error"); return; }
-      const [year, month, day] = date.split('-');
-      const eventTimestamp = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
-      const eventData = { userId, title: reason.trim() || 'Blocked Date', type: 'Personal (Blocked Off)', date: eventTimestamp, time: "12:00", notes: 'Blocked via dashboard quick action' };
-      confirmBtn.disabled = true; confirmBtn.textContent = 'Saving...';
+    const closeButtons = document.querySelectorAll('.modal-close, .modal-close-x');
+    const modal = document.getElementById('block-date-modal');
+    const modalOverlay = modal?.querySelector('.modal-overlay');
+
+    if(!form || !confirmBtn || !modal) return;
+
+    const openModalBtn = document.getElementById('open-modal-btn');
+
+    const openModal = () => {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+      form.reset();
+    };
+
+    openModalBtn?.addEventListener('click', openModal);
+    closeButtons.forEach(button => button.addEventListener('click', closeModal));
+    modalOverlay?.addEventListener('click', closeModal);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const date = form['block-date'].value;
+      const reason = form['block-reason'].value;
+
+      if(!date) {
+        toast.show('Please select a date to block.', 'error');
+        return;
+      }
+
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<span class="loading-spinner-inline"></span>Blocking...';
+
       try {
-        await createCalendarEvent(eventData);
-        toast.show("Date blocked successfully!", "success");
-        const modal = document.getElementById('block-date-modal');
-        const overlay = modal.querySelector('.modal-overlay'); const content = modal.querySelector('.modal-content');
-        if(overlay) overlay.style.opacity = '0'; if(content) { content.style.opacity = '0'; content.style.transform = 'scale(0.95)'; }
-        setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }, 300);
-        await loadSchedule(userId); // Use await here
-      } catch (error) { toast.show(`Error saving event: ${error.message}`, "error");
-      } finally { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; form.reset(); }
+        await createCalendarEvent(userId, {
+          title: 'Blocked',
+          date,
+          type: 'blocked',
+          reason,
+        });
+
+        toast.show('Date blocked successfully.', 'success');
+        await loadSchedule(userId);
+
+      } catch (error) {
+        console.error('Error blocking date:', error);
+        toast.show('Could not block the date. Please try again.', 'error');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirm';
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
     });
   }
 
+  document.addEventListener('app:new-notification', (event) => {
+    if(notificationBadge) {
+      notificationBadge.textContent = event.detail.count;
+      notificationBadge.classList.toggle('hidden', event.detail.count === 0);
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const isOnlineNow = isOnline();
+    offlineBanner.style.display = isOnlineNow ? 'none' : 'block';
+  });
 </script>
+
 <script type="module" src="./api.js"></script>
 </body>
 </html>
