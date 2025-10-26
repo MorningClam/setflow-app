@@ -41,7 +41,7 @@
   <main class="flex-1 p-5 pt-20"> <section class="mb-8">
         <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4 text-center">
             <p class="text-sm font-medium uppercase tracking-wider text-neutral-400">Total Earnings (YTD)</p>
-            <p class="mt-1 text-4xl font-bold text-emerald-400">$8,450</p>
+            <p id="ytd-total" class="mt-1 text-4xl font-bold text-emerald-400">$0</p>
         </div>
     </section>
 
@@ -70,14 +70,15 @@
 <script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, gracefulGet, isOnline } from './api.js';
-    // TODO: Need an API function like fetchCompletedGigsForUser(userId)
+    import { onAuthState, fetchCompletedGigsForUser, isOnline } from './api.js';
 
     const gigsListContainer = document.getElementById('completed-gigs-list');
     const loadingState = document.getElementById('loading-state');
     const emptyState = document.getElementById('empty-state');
     const errorState = document.getElementById('error-state');
     const offlineBanner = document.getElementById('offline-banner');
+    const ytdTotalElement = document.getElementById('ytd-total');
+    const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
 
      // Update offline banner based on initial status
     offlineBanner.style.display = isOnline() ? 'none' : 'block';
@@ -106,18 +107,15 @@
             return;
         }
 
-        loadingState.style.display = 'none'; // Hide states
+        loadingState.style.display = 'none';
         emptyState.style.display = 'none';
         errorState.style.display = 'none';
 
+        const sortedGigs = [...gigs].sort((a, b) => (b.dateObject || 0) - (a.dateObject || 0));
 
-        // Sort by date descending (most recent first)
-        gigs.sort((a,b) => (b.dateObject || 0) - (a.dateObject || 0)); // Use parsed dateObject
-
-        gigs.forEach(gig => {
+        sortedGigs.forEach(gig => {
             const gigElement = document.createElement('div');
-            // Use Canonical List Item Structure (modified for earnings)
-            gigElement.className = 'gig-item flex items-center justify-between rounded-lg bg-neutral-800 p-4'; // Removed hover
+            gigElement.className = 'gig-item flex items-center justify-between rounded-lg bg-neutral-800 p-4';
             const dateFormatted = gig.dateObject ? gig.dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'}) : 'Date N/A';
 
             gigElement.innerHTML = `
@@ -125,13 +123,21 @@
                 <p class="truncate font-semibold text-white">${gig.venueName}</p>
                 <p class="truncate text-xs text-neutral-400">${dateFormatted}</p>
               </div>
-              <p class="ml-4 flex-shrink-0 font-bold text-emerald-400">$${gig.payout}</p>
+              <p class="ml-4 flex-shrink-0 font-bold text-emerald-400">${currencyFormatter.format(gig.payout || 0)}</p>
             `;
-             // Insert before the state divs
              gigsListContainer.insertBefore(gigElement, loadingState);
         });
     }
 
+    function updateYtdTotal(gigs) {
+        if (!Array.isArray(gigs)) return;
+        const currentYear = new Date().getFullYear();
+        const total = gigs.reduce((sum, gig) => {
+            if (!gig.dateObject) return sum;
+            return gig.dateObject.getFullYear() === currentYear ? sum + (gig.payout || 0) : sum;
+        }, 0);
+        ytdTotalElement.textContent = currencyFormatter.format(total);
+    }
 
     onAuthState(async (user) => {
         if (!user) {
@@ -140,32 +146,21 @@
             loadingState.style.display = 'flex'; // Show loading
             emptyState.style.display = 'none';
             errorState.style.display = 'none';
-            // Placeholder: Fetch actual completed gigs data
             try {
-                // Replace with actual API call: e.g., gracefulGet(fetchCompletedGigsForUser(user.uid), null, ...)
-                const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
-                     // Example data structure (ensure date is convertible to Date)
-                     { id: 'gig1', venueName: 'The Underground', date: new Date('2025-10-10T21:00:00Z'), payout: 450 }, // Use Date objects or Firestore Timestamps
-                     { id: 'gig2', venueName: 'The Pour House', date: new Date('2025-09-26T20:00:00Z'), payout: 400 },
-                     { id: 'gig3', venueName: 'Local Brews', date: new Date('2025-08-15T19:30:00Z'), payout: 350 },
-                 ].map(g => ({...g, dateObject: g.date})) // Add dateObject for sorting
-                 ), 1000));
+                const completedGigs = await fetchCompletedGigsForUser(user.uid);
 
-                // Use gracefulGet, manage states manually
-                const completedGigs = await gracefulGet(fetchPromise, null, "Could not load earnings data offline.");
-
-                renderCompletedGigs(completedGigs); // Handles null/empty response
-
-                // TODO: Calculate and update the YTD total dynamically
-                if (completedGigs) {
-                    const totalYtd = completedGigs.reduce((sum, gig) => sum + (gig.payout || 0), 0);
-                    const ytdElement = document.querySelector('.text-4xl.font-bold.text-emerald-400');
-                    if(ytdElement) ytdElement.textContent = `$${totalYtd.toLocaleString()}`; // Format number
+                if (completedGigs === null) {
+                    renderCompletedGigs(null);
+                    ytdTotalElement.textContent = currencyFormatter.format(0);
+                    return;
                 }
 
+                renderCompletedGigs(completedGigs);
+                updateYtdTotal(completedGigs);
             } catch (error) {
                 console.error("Error fetching earnings:", error);
                 renderCompletedGigs(null); // Show error state
+                ytdTotalElement.textContent = currencyFormatter.format(0);
             }
         }
     });

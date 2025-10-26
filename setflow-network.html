@@ -58,8 +58,7 @@
 <script src="toast.js"></script>
 
  <script type="module">
-     import { onAuthState, gracefulGet, isOnline } from './api.js';
-     // TODO: Need API function like fetchUserNetwork(userId)
+     import { onAuthState, fetchUserNetwork, isOnline } from './api.js';
 
      const networkContainer = document.getElementById('network-list');
      const loadingState = document.getElementById('loading-state');
@@ -134,19 +133,15 @@
              loadingState.style.display = 'flex'; // Show loading
              emptyState.style.display = 'none';
              errorState.style.display = 'none';
-             try {
-                  // Placeholder fetch logic - Replace with actual fetchUserNetwork(user.uid)
-                 const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
-                      { id: 'venueUser1', name: 'The Pour House', role: 'Venue', location: 'Raleigh, NC', profileImageUrl: null },
-                      { id: 'venueUser2', name: 'Blue Note Brewpub', role: 'Venue', location: 'Durham, NC', profileImageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop' },
-                      { id: 'promoterUser1', name: 'Maria (Apex Fall Fest)', role: 'Promoter', location: 'Apex, NC', profileImageUrl: null },
-                      { id: 'musicianUser1', name: 'Alice Keys', role: 'Musician', location: 'Cary, NC', profileImageUrl: null },
-                  ]), 1000));
+            try {
+                const networkContacts = await fetchUserNetwork(user.uid);
 
-                 // Use gracefulGet, manage states manually
-                 const networkContacts = await gracefulGet(fetchPromise, null, "Could not load network contacts offline.");
-                 renderNetwork(networkContacts); // Handles null/empty response
+                if (networkContacts === null) {
+                    renderNetwork(null);
+                    return;
+                }
 
+                renderNetwork(networkContacts);
              } catch (error) {
                  console.error("Error loading network:", error);
                  renderNetwork(null); // Show error state

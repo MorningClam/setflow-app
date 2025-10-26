@@ -208,6 +208,48 @@ export async function createBand(bandName, adminUser) {
     return await batch.commit(); // Works offline
 }
 
+export async function requestToJoinBand(bandId, userId, message = '') {
+    if (!bandId || !userId) throw new Error("Band ID and user ID are required.");
+
+    const bandRef = doc(db, "bands", bandId);
+    const bandSnap = await gracefulGet(getDoc(bandRef), "Unable to submit join request.");
+    if (!bandSnap?.exists()) throw new Error("Band not found.");
+
+    const bandData = bandSnap.data();
+    if (bandData.members?.[userId]) {
+        throw new Error("You're already a member of this band.");
+    }
+
+    // Prevent duplicate pending requests when online (best effort offline)
+    try {
+        const pendingQuery = query(
+            collection(db, "join_requests"),
+            where("bandId", "==", bandId),
+            where("userId", "==", userId),
+            where("status", "==", "pending"),
+            limit(1)
+        );
+        const pendingSnapshot = await getDocs(pendingQuery);
+        if (!pendingSnapshot.empty) {
+            throw new Error("Join request already pending.");
+        }
+    } catch (error) {
+        // If we're offline the query may fail; allow the request to proceed but warn in console.
+        if (error.message && error.message.includes("Join request already pending.")) {
+            throw error;
+        }
+        console.warn("Could not verify existing join requests (continuing):", error);
+    }
+
+    return await addDoc(collection(db, "join_requests"), {
+        bandId,
+        userId,
+        status: 'pending',
+        message,
+        createdAt: serverTimestamp()
+    });
+}
+
 export async function getBandsForUser(userId) { // Removed loadingContainer param
     // Fetch user data first (gracefulGet handles errors/offline)
     const userSnap = await gracefulGet(getDoc(doc(db, "users", userId)), "Cannot load user data.");
@@ -513,6 +555,47 @@ export async function fetchGigsForOwner(userId) { // Removed loadingContainer
   return await Promise.all(gigProcessingPromises);
 }
 
+export async function fetchCompletedGigsForUser(userId) {
+  if (!userId) throw new Error("User ID required.");
+  const gigsRef = collection(db, "gigs");
+  const q = query(gigsRef, where("bookedArtistId", "==", userId), orderBy("date", "desc"));
+
+  const querySnapshot = await gracefulGet(getDocs(q), "Could not load completed gigs.");
+  if (!querySnapshot) return null;
+
+  const eligibleStatuses = ['completed', 'paid', 'closed'];
+  const gigs = [];
+
+  querySnapshot.forEach((docSnap) => {
+      const gigData = docSnap.data();
+      const status = gigData.status || 'open';
+      const isCompleted = eligibleStatuses.includes(status) || gigData.completedAt || gigData.payoutStatus === 'paid';
+      if (!isCompleted) return;
+
+      let dateObj = null;
+      if (gigData.date?.toDate) {
+          dateObj = gigData.date.toDate();
+      } else if (gigData.date instanceof Date) {
+          dateObj = gigData.date;
+      } else if (typeof gigData.date === 'string' || typeof gigData.date === 'number') {
+          const parsed = new Date(gigData.date);
+          if (!isNaN(parsed)) {
+              dateObj = parsed;
+          }
+      }
+      gigs.push({
+          id: docSnap.id,
+          venueName: gigData.venueName || gigData.eventName || 'Gig',
+          payout: Number(gigData.payout) || 0,
+          status,
+          dateObject: dateObj,
+          rawDate: gigData.date || null
+      });
+  });
+
+  return gigs;
+}
+
 export async function createGig(gigData) {
     if (!gigData.ownerId) throw new Error("ownerId required.");
     let eventTimestamp;
@@ -746,6 +829,57 @@ export async function getConversations(userId) { // Removed loadingContainer
   const conversations = (await Promise.all(conversationPromises)).filter(c => c !== null);
   conversations.sort((a, b) => (b.lastMessage.timestamp?.toDate() || 0) - (a.lastMessage.timestamp?.toDate() || 0));
   return conversations;
+}
+
+// --- NETWORK / CONNECTIONS ---
+
+export async function fetchUserNetwork(userId) {
+    if (!userId) throw new Error("User ID required.");
+
+    const connectionsRef = collection(db, "connections");
+    const q = query(connectionsRef, where("participants", "array-contains", userId), where("status", "==", "active"));
+
+    const querySnapshot = await gracefulGet(getDocs(q), "Could not load network.");
+    if (!querySnapshot) return null;
+
+    const otherUserIds = new Set();
+    querySnapshot.forEach((docSnap) => {
+        const participants = docSnap.data().participants || [];
+        participants.forEach((participantId) => {
+            if (participantId && participantId !== userId) {
+                otherUserIds.add(participantId);
+            }
+        });
+    });
+
+    const contacts = await Promise.all(Array.from(otherUserIds).map(async (otherUserId) => {
+        try {
+            const userData = await getUserData(otherUserId);
+            if (!userData) {
+                return { id: otherUserId, name: 'Contact (Offline)', role: 'Member', location: '', profileImageUrl: null };
+            }
+
+            const primaryRole = Array.isArray(userData.roles) && userData.roles.length > 0
+                ? userData.roles[0]
+                : (userData.role || 'Member');
+
+            const location = userData.location || userData.cityState || [userData.city, userData.state].filter(Boolean).join(', ');
+
+            return {
+                id: otherUserId,
+                name: userData.name || 'Contact',
+                role: primaryRole.charAt(0).toUpperCase() + primaryRole.slice(1),
+                location,
+                profileImageUrl: userData.profileImageUrl || null
+            };
+        } catch (error) {
+            console.warn(`Could not fetch network user ${otherUserId}:`, error);
+            return { id: otherUserId, name: 'Contact (Unavailable)', role: 'Member', location: '', profileImageUrl: null };
+        }
+    }));
+
+    contacts.sort((a, b) => a.name.localeCompare(b.name));
+    return contacts;
 }
 
 // --- REPORTING ---

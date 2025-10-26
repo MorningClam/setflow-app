@@ -76,7 +76,7 @@
 <script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, requestToJoinBand, getAllBands, gracefulGet, isOnline } from './api.js';
+  import { onAuthState, requestToJoinBand, getAllBands, isOnline } from './api.js';
 
   const searchInput = document.getElementById('search-input');
   const bandResultsContainer = document.getElementById('band-results');
@@ -190,8 +190,7 @@
      emptyState.style.display = 'none';
      errorState.style.display = 'none';
      try {
-        // Use gracefulGet, manage states manually
-        const bands = await gracefulGet(getAllBands(), null, "Could not load bands while offline.");
+        const bands = await getAllBands();
         if (bands) {
            allBands = bands; // Cache the full list
            applyFilters(); // Render initial filtered list (All)
