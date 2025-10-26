@@ -1,361 +1,585 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Setflow - Gig Details</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <title>Setflow - Musician Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
+    body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
+      position: sticky; /* Sticky to scroll with content but stay at top */
+      top: 0;
+      left: 0;
+      right: 0;
       padding: 0.5rem; /* p-2 */
       background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      color: white;
+      text-align: center;
+      font-size: 0.875rem; /* text-sm */
+      font-weight: 500; /* font-medium */
+      z-index: 9998; /* Below modals, above header */
     }
     /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block;
+        width: 1.5rem; /* w-6 */
+        height: 1.5rem; /* h-6 */
+        border: 4px solid rgba(115, 115, 115, 0.3); /* border-4 border-neutral-500/30 */
+        border-radius: 50%;
+        border-top-color: theme('colors.emerald.500'); /* border-t-emerald-500 */
+        animation: spin 1s ease-in-out infinite;
     }
-    .loading-spinner-inline { /* For inline text loading */
-        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    .loading-spinner-inline {
+        display: inline-block;
+        vertical-align: middle;
+        width: 1rem; /* w-4 */
+        height: 1rem; /* h-4 */
+        border: 2px solid rgba(255, 255, 255, 0.3); /* border-2 border-white/30 */
+        border-radius: 50%;
+        border-top-color: theme('colors.emerald.500');
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 0.5rem; /* mr-2 */
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1; /* Ensures links expand to fill space */
+        padding: 0.5rem 0; /* py-2 */
+        font-size: 0.75rem; /* text-xs */
+        font-weight: 500; /* font-medium */
+        color: theme('colors.neutral.400');
+        transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; /* mb-1 */ }
+    /* Modal styles */
+    .modal-container { transition: opacity 0.3s ease-out; }
+    .modal-overlay { transition: opacity 0.3s ease-out; opacity: 0;}
+    .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+    .modal-container.flex .modal-content { transform: scale(1); opacity: 1; }
+    .modal-container.flex .modal-overlay { opacity: 1; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Gig details may be cached.</div>
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-      <div class="flex h-full items-center justify-between">
-        <a href="setflow-browse-gigs.html" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        </a>
-        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gig Details</h1>
-        <div class="w-10 h-10"></div> </div>
-    </header>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <div id="offline-banner">You are currently offline. Data may be out of sync.</div>
 
-    <main id="gig-detail-content" class="flex-grow pt-16 pb-24"> <div class="flex justify-center items-center py-10" id="loading-state">
+  <header class="border-b border-neutral-700 bg-neutral-900 px-5 py-4">
+    <div class="flex items-center justify-between">
+      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home">
+        <img src="logo.png" alt="Setflow" class="h-7 w-auto">
+      </a>
+      <div class="flex items-center space-x-4">
+        <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Notifications">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <span id="notification-badge" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white"></span>
+        </a>
+        <a href="setflow-account-settings.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Account Settings">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow p-5 pb-20">
+    <section class="mb-8">
+      <h1 id="welcome-header" class="text-3xl font-bold text-white">Welcome, Musician!</h1>
+      <p class="text-neutral-400">Here's your command center.</p>
+    </section>
+
+    <section id="getting-started" class="hidden mb-6 rounded-xl border border-emerald-700 bg-neutral-800 p-4">
+        <h3 class="text-lg font-semibold text-white mb-2">Welcome to Setflow!</h3>
+        <p class="text-sm text-neutral-300 mb-4">Let's get you set up for success:</p>
+        <div class="space-y-2">
+             <a href="setflow-profile-setup.html" class="block w-full rounded-lg bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-emerald-500">Complete Your Profile</a>
+             <a href="setflow-browse-gigs.html" class="block w-full rounded-lg bg-neutral-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-neutral-600">Browse Open Gigs</a>
+             <a href="setflow-routing-availability.html" class="block w-full rounded-lg bg-neutral-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-neutral-600">Set Your Travel Radius</a>
+        </div>
+    </section>
+
+    <section id="profile-strength-widget" class="relative mb-6 rounded-xl border border-neutral-700 bg-neutral-800 p-4 transition-colors duration-300">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="font-semibold text-white">Profile Strength: <span id="profile-strength-percent" class="text-emerald-400">Loading...</span></h3>
+        <a href="setflow-edit-profile.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit Profile</a>
+      </div>
+      <div class="mb-2 h-2.5 w-full rounded-full bg-neutral-700">
+        <div id="profile-strength-bar" class="h-2.5 rounded-full bg-emerald-500 transition-all duration-500" style="width: 10%"></div>
+      </div>
+      <p class="text-sm text-neutral-400" id="profile-strength-prompt">Complete your profile to get noticed!</p>
+    </section>
+
+    <section class="mb-8">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-white">My Schedule</h2>
+        <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">View Calendar</a>
+      </div>
+      <div id="schedule-loading" class="flex justify-center items-center py-10">
         <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
       </div>
-       <div class="hidden p-5 text-center text-red-400" id="error-state">
-          <p>Gig not found or could not be loaded.</p>
+      <div id="schedule-list" class="space-y-3">
+        </div>
+      <div id="schedule-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
+        <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <h3 class="mt-2 text-lg font-semibold text-white">No Upcoming Events</h3>
+        <p class="mt-1 text-sm text-neutral-400">Your booked gigs and blocked dates will appear here.</p>
+        <div class="mt-6 flex justify-center space-x-3">
+          <button id="open-modal-btn" data-modal-target="#block-date-modal" class="rounded-xl bg-neutral-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Block Date</button>
+          <a href="setflow-browse-gigs.html" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Find Gigs</a>
+        </div>
       </div>
-      </main>
+    </section>
 
-    <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-      <div class="flex justify-center items-center h-[48px]" id="footer-loading-state"> <div class="loading-spinner-inline"></div>
-       </div>
-       </footer>
+     <section class="mb-8">
+        <h2 class="mb-3 text-xl font-semibold text-white">Community & Tools</h2>
+        <div class="space-y-3">
+            <a href="setflow-gear-swap.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="flex-1 font-semibold text-white">Gear Swap</span>
+                <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+            <a href="setflow-find-a-player.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg>
+                <span class="flex-1 font-semibold text-white">Find a Player</span>
+                 <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+            <a href="setflow-jam-sessions.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path></svg>
+                <span class="flex-1 font-semibold text-white">Jam Sessions</span>
+                 <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+             <a href="setflow-achievements.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                <span class="flex-1 font-semibold text-white">Achievements</span>
+                 <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+             <a href="setflow-routing-availability.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l6-3a1 1 0 00.553-.894V5.618a1 1 0 00-1.447-.894L15 7m0 10V7m0 10L9 7"></path></svg>
+                <span class="flex-1 font-semibold text-white">Routing & Availability</span>
+                 <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
+        </div>
+    </section>
+    <section class="mb-8">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-white">Open Gigs Near You</h2>
+        <a href="setflow-browse-gigs.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">See All</a>
+      </div>
+      <div id="gigs-loading" class="flex justify-center items-center py-10">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+      </div>
+      <div id="gigs-list" class="space-y-4">
+        </div>
+      <div id="gigs-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
+        <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+        </svg>
+        <h3 class="mt-2 text-lg font-semibold text-white">No Gigs Found Nearby</h3>
+        <p class="mt-1 text-sm text-neutral-400">No open gigs match your current settings. <strong class="text-emerald-400">Upgrade to Pro to apply for gigs!</strong></p>
+        <div class="mt-6 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-3">
+          <a href="setflow-pricing-page.html" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Pro</a>
+          <a href="setflow-routing-availability.html" class="rounded-xl bg-neutral-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Edit Availability</a>
+        </div>
+      </div>
+    </section>
+
+    </main>
+
+  <div id="block-date-modal" class="modal-container fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-overlay absolute inset-0 bg-black/70"></div>
+    <div class="modal-content relative z-10 w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transform transition-all">
+      <div class="relative p-6">
+        <div class="absolute top-0 right-0 pt-4 pr-4">
+          <button type="button" class="modal-close-x p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Close">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-900 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg font-semibold leading-6 text-white" id="modal-title">Block Off Date</h3>
+            <div class="mt-2">
+              <p class="text-sm text-neutral-400">Add a date to your calendar when you are unavailable for gigs.</p>
+            </div>
+          </div>
+        </div>
+        <form id="block-date-form" class="mt-5 space-y-4">
+          <div>
+            <label for="block-date" class="block text-sm font-semibold text-neutral-300">Date</label>
+            <input type="date" name="block-date" id="block-date" class="mt-1 block w-full rounded-xl border border-neutral-600 bg-neutral-700 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
+          </div>
+          <div>
+            <label for="block-reason" class="block text-sm font-semibold text-neutral-300">Reason (Optional)</label>
+            <input type="text" name="block-reason" id="block-reason" class="mt-1 block w-full rounded-xl border border-neutral-600 bg-neutral-700 px-4 py-3 text-white placeholder-neutral-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="e.g., Vacation, Personal">
+          </div>
+          <div class="mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+            <button type="submit" id="confirm-block-date" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 sm:col-start-2">Confirm</button>
+            <button type="button" id="close-modal-btn" class="modal-close mt-3 w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 sm:mt-0 sm:col-start-1">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-   <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script>
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+      </div>
+  </nav>
+  </div>
 
-  <script type="module">
-    import { onAuthState, getUserData, applyForGig, reportContent, gracefulGet, isOnline, getGigDetails } from './api.js';
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+  <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
-    const footerContainer = document.getElementById('footer-container');
-    const gigDetailContainer = document.getElementById('gig-detail-content');
-    const loadingState = document.getElementById('loading-state');
-    const errorState = document.getElementById('error-state');
-    const footerLoadingState = document.getElementById('footer-loading-state');
-    const offlineBanner = document.getElementById('offline-banner');
+<script type="module">
+  import { onAuthState, fetchCalendarEvents, gracefulGet, doc, db, getUserData, createCalendarEvent, isOnline, fetchGigs } from './api.js';
+  import { toast } from './toast.js';
 
-    let currentUserId = null;
-    let gigData = null; // Store fetched gig data
+  // Toast Check handled by api.js
+  // document.addEventListener('DOMContentLoaded', () => { ... });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const gigId = urlParams.get('id');
+  const welcomeHeader = document.getElementById('welcome-header');
+  const scheduleList = document.getElementById('schedule-list');
+  const scheduleLoading = document.getElementById('schedule-loading');
+  const scheduleEmpty = document.getElementById('schedule-empty');
+  const gigsList = document.getElementById('gigs-list');
+  const gigsLoading = document.getElementById('gigs-loading');
+  const gigsEmpty = document.getElementById('gigs-empty');
+  const notificationBadge = document.getElementById('notification-badge');
+  const offlineBanner = document.getElementById('offline-banner');
+  const gettingStartedSection = document.getElementById('getting-started');
 
-    // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
+  // Profile Strength Widget
+  const profileStrengthWidget = document.getElementById('profile-strength-widget');
+  const profileStrengthBar = document.getElementById('profile-strength-bar');
+  const profileStrengthPercent = document.getElementById('profile-strength-percent');
+  const profileStrengthPrompt = document.getElementById('profile-strength-prompt');
 
+  let currentUserId = null;
+  let currentUserData = null; // Store user data for tier checks
 
-    function renderGigDetails(gigSnap) {
-        loadingState.style.display = 'none'; // Hide loading state
+  // Update offline banner based on initial status
+  offlineBanner.style.display = isOnline() ? 'none' : 'block';
+  // Listen for network changes
+  document.body.addEventListener('app:network-change', (event) => {
+      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+  });
 
-        if (!gigSnap || !gigSnap.exists()) {
-             errorState.style.display = 'block'; // Show error state
-             footerLoadingState.style.display = 'none'; // Hide footer loading
-             footerContainer.innerHTML = ''; // Clear footer
-             return;
-        }
-        errorState.style.display = 'none'; // Hide error state if successful
+  onAuthState(async (user) => {
+    if (user) {
+      currentUserId = user.uid;
 
-        gigData = { id: gigSnap.id, ...gigSnap.data() };
-        const dateFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
-        const timeFormatted = gigData.date?.toDate ? gigData.date.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'Time N/A';
+      // Load user data first
+      try {
+        currentUserData = await gracefulGet(getUserData(user.uid), null); // Store user data
 
-        // Use canonical section spacing and typography
-        gigDetailContainer.innerHTML = `
-          <section class="border-b border-neutral-700 p-5">
-            <div class="flex items-center justify-between">
-              <a href="setflow-venue-profile.html?venueId=${gigData.ownerId}" class="rounded text-2xl font-bold text-white hover:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">${gigData.venueName}</a>
-              <span class="text-2xl font-bold text-emerald-400">$${gigData.payout}</span>
-            </div>
-            <p class="mt-1 text-base text-neutral-400">${gigData.location}</p>
-            <button id="view-map-btn" data-location="${gigData.location}" class="mt-2 rounded-lg py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">View on Map</button>
-            <div class="mt-2 text-right">
-                 <button id="report-gig-btn" class="rounded px-1 text-xs text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900">Report Gig</button>
-            </div>
-          </section>
-
-          <section class="border-b border-neutral-700 p-5">
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">Date and Time</p>
-                <p class="font-semibold text-white">${dateFormatted}</p>
-                <p class="text-neutral-300">${timeFormatted}</p>
-              </div>
-              <div>
-                <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-400">Genre</p>
-                <p class="mt-1">
-                    <span class="inline-flex items-center rounded-full bg-emerald-900 px-2.5 py-0.5 text-xs font-medium text-emerald-300">${gigData.genre || 'N/A'}</span>
-                </p>
-                </div>
-            </div>
-          </section>
-
-          <section class="border-b border-neutral-700 p-5">
-                <h3 class="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-400">Description / Requirements</h3>
-                <p class="text-sm leading-relaxed text-neutral-300">${gigData.description || 'No specific requirements listed.'}</p>
-          </section>
-
-          <section class="p-5">
-            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-400">House Specs</h3>
-            <div class="space-y-2 text-sm">
-              <div class="flex items-center">
-                  <svg class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span class="text-neutral-200">Full PA system provided</span>
-              </div>
-              <div class="flex items-center">
-                  <svg class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span class="text-neutral-200">Sound engineer on site</span>
-              </div>
-              </div>
-          </section>
-        `;
-
-        // Add event listeners after rendering content
-        addDynamicEventListeners();
-    }
-
-     function addDynamicEventListeners() {
-        const reportGigBtn = document.getElementById('report-gig-btn');
-        const viewMapBtn = document.getElementById('view-map-btn');
-
-        if (reportGigBtn) {
-            reportGigBtn.addEventListener('click', handleReportGig);
-        }
-        if (viewMapBtn) {
-            viewMapBtn.addEventListener('click', () => {
-                 const location = viewMapBtn.dataset.location || "USA";
-                 const encodedLocation = encodeURIComponent(location);
-                 // Open Google Maps in a new tab
-                 window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
-            });
-        }
-     }
-
-    // --- Auth Check ---
-    onAuthState(user => {
-      if (user) {
-        currentUserId = user.uid;
-        // Check status only *after* gig details are loaded
-        // checkUserStatus(user.uid); // Moved to initial load logic
-      } else {
-        // User not logged in, render basic Apply button, check auth on click
-        // But wait for gig details to load first
-        if (!gigData && loadingState.style.display !== 'none') {
-             // Still loading, keep footer loading
-             footerLoadingState.style.display = 'flex';
-        } else if (gigData) {
-            // Gig loaded, show apply button
-            renderApplyButton(true);
+        if (currentUserData && currentUserData.name) {
+          welcomeHeader.textContent = `Welcome, ${currentUserData.name.split(' ')[0]}!`;
         } else {
-             // Gig failed to load (error state), clear footer
-             footerLoadingState.style.display = 'none';
-             footerContainer.innerHTML = '';
+          welcomeHeader.textContent = 'Welcome, Musician!';
         }
+
+        // --- Onboarding Check ---
+        if (currentUserData && !currentUserData.profileSetupComplete) {
+            gettingStartedSection.classList.remove('hidden'); // Show getting started card
+            profileStrengthWidget.classList.add('hidden'); // Hide profile strength initially
+            // Optionally hide other sections too until profile is complete
+        } else {
+            gettingStartedSection.classList.add('hidden'); // Hide getting started card
+            profileStrengthWidget.classList.remove('hidden'); // Show profile strength
+            updateProfileStrengthUI(currentUserData); // Update profile strength
+        }
+
+        // --- Conditional Bottom Nav ---
+        updateBottomNav(currentUserData?.subscriptionTier || 'free');
+
+        // Load schedule and gigs after getting user data
+        loadSchedule(user.uid);
+        loadOpenGigs(user.uid, currentUserData?.subscriptionTier || 'free'); // Pass tier
+        // setupNotificationListener(user.uid); // Placeholder
+        setupBlockDateForm(user.uid);
+        // loadPayoutChart(); // Removed payout chart loading
+
+      } catch (error) {
+        console.error("Error loading initial user data:", error);
+        toast.show("Could not load your dashboard data.", "error");
+        // Ensure loading states are hidden on error, show empty states
+        if(scheduleLoading) scheduleLoading.style.display = 'none';
+        if(gigsLoading) gigsLoading.style.display = 'none';
+        if(scheduleEmpty) scheduleEmpty.style.display = 'block';
+        if(gigsEmpty) gigsEmpty.style.display = 'block';
+        // Show error in profile strength
+        if(profileStrengthPercent) profileStrengthPercent.textContent = 'Error';
+        if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Could not load profile data.';
+        if(profileStrengthBar) profileStrengthBar.style.width = '0%';
+        updateBottomNav('free'); // Default nav on error
       }
+
+    } else {
+      window.location.href = 'setflow-login-page.html';
+    }
+  });
+
+  function updateBottomNav(tier) {
+      const navContainer = document.getElementById('bottom-nav-container'); // Use ID for container
+      if (!navContainer) return;
+
+      // Remove all existing links first
+      navContainer.innerHTML = '';
+
+      // Add common links
+      navContainer.innerHTML += `
+          <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Home">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
+            <span class="text-xs font-medium">Home</span>
+          </a>
+          <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <span class="text-xs font-medium">Gigs</span>
+          </a>`;
+
+      // Add "Applied" only for Pro users
+      if (tier !== 'free') {
+          navContainer.innerHTML += `
+              <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Applied">
+                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-medium">Applied</span>
+              </a>`;
+      }
+
+      // Add Inbox and Account for everyone
+      navContainer.innerHTML += `
+          <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
+            <span class="text-xs font-medium">Inbox</span>
+          </a>
+          <a href="setflow-account-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Account">
+             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <span class="text-xs font-medium">Account</span>
+          </a>`;
+
+        // Re-apply active state based on current page AFTER rebuilding the nav
+        // Find the link whose href matches the current page's filename
+        const currentPage = window.location.pathname.split('/').pop();
+        const activeLink = navContainer.querySelector(`a[href="${currentPage}"]`);
+         // Reset all first
+        navContainer.querySelectorAll('.bottom-nav-link').forEach(link => {
+            link.classList.remove('active', 'text-emerald-400');
+            link.classList.add('text-neutral-400');
+        });
+        // Apply active to the correct one
+        if (activeLink) {
+            activeLink.classList.add('active', 'text-emerald-400');
+            activeLink.classList.remove('text-neutral-400');
+        } else {
+             // Fallback: If no match (e.g., on dashboard index), highlight Home
+             const homeLink = navContainer.querySelector('a[href="setflow-musician-dashboard.html"]');
+             if (homeLink) {
+                 homeLink.classList.add('active', 'text-emerald-400');
+                 homeLink.classList.remove('text-neutral-400');
+             }
+        }
+  }
+
+  function updateProfileStrengthUI(userData) {
+    // ... (logic remains the same) ...
+     if (!userData) {
+        profileStrengthPercent.textContent = 'Error';
+        profileStrengthPrompt.textContent = 'Could not load profile data.';
+        profileStrengthBar.style.width = '0%';
+        return;
+    }
+    let score = 10; let prompts = [];
+    if (userData.bio && userData.bio.length > 20) score += 30; else prompts.push('Add a detailed bio');
+    if (userData.location) score += 20; else prompts.push('Add your location');
+    if (userData.website || userData.spotify || userData.instagram) score += 20; else prompts.push('Add links');
+    if (userData.profileImageUrl) score += 20; else prompts.push('Add a profile picture');
+    score = Math.min(score, 100);
+    profileStrengthBar.style.width = `${score}%`;
+    profileStrengthPercent.textContent = `${score}%`;
+    if (score === 100) { profileStrengthPrompt.textContent = 'Your profile is looking great!'; profileStrengthWidget.classList.add('border-emerald-500/50');
+    } else if (prompts.length > 0) { profileStrengthPrompt.textContent = `Next step: ${prompts[0]}`; profileStrengthWidget.classList.remove('border-emerald-500/50');
+    } else { profileStrengthPrompt.textContent = 'Profile complete!'; profileStrengthWidget.classList.add('border-emerald-500/50'); }
+  }
+
+  async function loadSchedule(userId) {
+    scheduleLoading.style.display = 'flex';
+    scheduleList.innerHTML = '';
+    scheduleEmpty.style.display = 'none';
+    let events = null; // Declare events variable
+
+    try {
+        events = await gracefulGet(fetchCalendarEvents(userId), null, "Could not load schedule while offline.");
+
+        if (!events) { throw new Error("fetchCalendarEvents returned null or undefined."); } // Force error state if null
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcomingEvents = events
+            .filter(event => event.dateObject >= today)
+            .sort((a, b) => a.dateObject - b.dateObject);
+
+        if (upcomingEvents.length === 0) {
+          scheduleEmpty.style.display = 'block';
+          scheduleEmpty.querySelector('h3').textContent = 'No Upcoming Events';
+          scheduleEmpty.querySelector('p').textContent = 'Your booked gigs and blocked dates will appear here.';
+          scheduleEmpty.querySelector('.mt-6').style.display = 'flex';
+          return; // Exit function after showing empty state
+        }
+
+        upcomingEvents.slice(0, 3).forEach(event => {
+          const eventTypeClass = event.type === 'gig' ? 'border-emerald-500' : 'border-amber-500';
+          const eventIcon = event.type === 'gig' ? `<svg class="w-5 h-5 text-emerald-400"...></svg>` : `<svg class="w-5 h-5 text-amber-400"...></svg>`; // Simplified icon logic for brevity
+          const isGig = event.type === 'gig';
+          const linkHref = isGig ? `setflow-show-sheet.html?gigId=${event.id}` : '#';
+          const linkTagStart = isGig ? `<a href="${linkHref}" class="...">` : `<div class="...">`; // Simplified class logic
+          const linkTagEnd = isGig ? `</a>` : `</div>`;
+
+          const card = `
+            ${linkTagStart}
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">${eventIcon}</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-white truncate">${event.title}</p>
+                  <p class="text-sm text-neutral-400">${event.formattedDate} at ${event.formattedTime}</p>
+                </div>
+                ${isGig ? `<span aria-hidden="true" class="text-neutral-500 group-hover:text-emerald-400">→</span>` : ''}
+              </div>
+            ${linkTagEnd}
+          `;
+          scheduleList.innerHTML += card;
+        });
+
+    } catch (error) {
+        console.error("Error in loadSchedule:", error); // Log the specific error
+        scheduleEmpty.style.display = 'block';
+        scheduleEmpty.querySelector('h3').textContent = 'Error Loading Schedule';
+        scheduleEmpty.querySelector('p').textContent = 'Could not fetch your upcoming events.';
+        scheduleEmpty.querySelector('.mt-6').style.display = 'none';
+    } finally {
+        scheduleLoading.style.display = 'none'; // Ensure spinner is hidden
+    }
+  }
+
+
+  async function loadOpenGigs(userId, tier) {
+    gigsLoading.style.display = 'flex';
+    gigsList.innerHTML = '';
+    gigsEmpty.style.display = 'none';
+    errorState.style.display = 'none'; // Use error state specifically for gigs now
+    let allGigs = null; // Declare allGigs variable
+
+    try {
+        allGigs = await gracefulGet(fetchGigs(), null, "Could not load gigs while offline.");
+
+        if (!allGigs) { throw new Error("fetchGigs returned null or undefined."); } // Force error state if null
+
+        const openGigs = allGigs
+            .filter(gig => gig.ownerId !== userId && gig.status === 'open')
+            .sort((a, b) => (a.date?.toDate() || 0) - (b.date?.toDate() || 0));
+
+        if (openGigs.length === 0) {
+          gigsEmpty.style.display = 'block'; // Show empty state
+          // Update empty state text and CTAs based on tier
+          const emptyText = gigsEmpty.querySelector('p');
+          const emptyButtonsDiv = gigsEmpty.querySelector('.mt-6');
+          emptyText.innerHTML = 'No open gigs match your current settings. <strong class="text-emerald-400">Upgrade to Pro to apply for gigs!</strong>';
+          emptyButtonsDiv.innerHTML = `
+            <a href="setflow-pricing-page.html" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Pro</a>
+            <a href="setflow-routing-availability.html" class="rounded-xl bg-neutral-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Edit Availability</a>
+          `;
+          return; // Exit function after showing empty state
+        }
+
+        openGigs.slice(0, 3).forEach(gig => {
+          const date = gig.formattedDate;
+          const isFreeTier = tier === 'free';
+          const lockIcon = isFreeTier ? '<svg class="h-4 w-4 mr-1 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"></path></svg>' : '';
+          const card = `
+            <a href="setflow-gig-detail-view.html?id=${gig.id}" class="block rounded-xl border border-neutral-700 bg-neutral-800 p-4 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-lg font-semibold text-white truncate">${gig.venueName}</p>
+                  <p class="text-sm text-neutral-400">${gig.location || 'Location TBD'}</p>
+                </div>
+                <span class="text-lg font-bold text-emerald-400 flex items-center">
+                  ${lockIcon}
+                  $${gig.payout || 'N/A'}
+                </span>
+              </div>
+              <div class="mt-3 flex items-center justify-between text-sm">
+                <span class="inline-flex items-center rounded-full bg-emerald-900 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
+                  ${gig.genre || 'Open Genre'}
+                </span>
+                <span class="text-neutral-400">${date}</span>
+              </div>
+            </a>
+          `;
+          gigsList.innerHTML += card;
+        });
+
+    } catch (error) {
+        console.error("Error in loadOpenGigs:", error); // Log the specific error
+        const gigsErrorState = document.getElementById('error-state'); // Need separate error state if desired, or reuse empty state
+        if(gigsErrorState) { // Check if a specific error div exists
+             gigsErrorState.style.display = 'block';
+             gigsErrorState.querySelector('p').textContent = 'Could not load open gigs.';
+        } else { // Fallback to modifying empty state
+             gigsEmpty.style.display = 'block';
+             gigsEmpty.querySelector('h3').textContent = 'Error Loading Gigs';
+             gigsEmpty.querySelector('p').textContent = 'Could not fetch open gigs.';
+             gigsEmpty.querySelector('.mt-6').style.display = 'none';
+        }
+    } finally {
+        gigsLoading.style.display = 'none'; // Ensure spinner is hidden
+    }
+  }
+
+  function setupBlockDateForm(userId) {
+    // ... (logic remains the same) ...
+     const form = document.getElementById('block-date-form');
+    const confirmBtn = document.getElementById('confirm-block-date');
+    if (!form || !confirmBtn) return;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const date = document.getElementById('block-date').value;
+      const reason = document.getElementById('block-reason').value;
+      if (!date) { toast.show("Please select a date.", "error"); return; }
+      const [year, month, day] = date.split('-');
+      const eventTimestamp = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      const eventData = { userId, title: reason.trim() || 'Blocked Date', type: 'Personal (Blocked Off)', date: eventTimestamp, time: "12:00", notes: 'Blocked via dashboard quick action' };
+      confirmBtn.disabled = true; confirmBtn.textContent = 'Saving...';
+      try {
+        await createCalendarEvent(eventData);
+        toast.show("Date blocked successfully!", "success");
+        const modal = document.getElementById('block-date-modal');
+        const overlay = modal.querySelector('.modal-overlay'); const content = modal.querySelector('.modal-content');
+        if(overlay) overlay.style.opacity = '0'; if(content) { content.style.opacity = '0'; content.style.transform = 'scale(0.95)'; }
+        setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }, 300);
+        loadSchedule(userId);
+      } catch (error) { toast.show(`Error saving event: ${error.message}`, "error");
+      } finally { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; form.reset(); }
     });
+  }
 
-    // --- Check Gig Application Status ---
-    async function checkUserStatus(userId) {
-        footerLoadingState.style.display = 'flex'; // Show loading while checking
-        footerContainer.innerHTML = ''; // Clear previous buttons
-        footerContainer.appendChild(footerLoadingState);
-
-        try {
-            // Use gracefulGet for user data, don't show loading in footer itself
-            const userData = await gracefulGet(getUserData(userId), null, "Could not verify user status offline.");
-
-            footerLoadingState.style.display = 'none'; // Hide loading
-
-            if (!userData) {
-                 renderApplyButton(true); // Let apply handler manage errors/login prompt
-                 return;
-            }
-
-            const applicationsLeft = userData?.applicationsLeft ?? 5; // Example default
-            const subscriptionTier = userData?.subscriptionTier ?? 'free';
-            const hasApplied = userData?.appliedGigs?.[gigId];
-
-            if (hasApplied) {
-                renderAppliedState();
-            } else if (subscriptionTier === 'free' && applicationsLeft <= 0) {
-                renderUpgradeState();
-            } else {
-                renderApplyButton(); // Render normal apply button
-            }
-        } catch (error) {
-             console.error("Error checking user status:", error);
-             footerLoadingState.style.display = 'none'; // Hide loading
-             renderApplyButton(true); // Show apply button on error, click handler will manage
-        }
-    }
-
-    // --- Render Footer Buttons (Using Canonical Styles) ---
-    function renderApplyButton(needsAuthCheck = false) {
-        footerLoadingState.style.display = 'none';
-        footerContainer.innerHTML = `<button id="apply-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Apply for Gig</button>`;
-        const applyBtn = document.getElementById('apply-btn');
-        if (applyBtn) {
-            applyBtn.addEventListener('click', needsAuthCheck ? handleApplyClickAuthCheck : handleApplyClick);
-        }
-    }
-
-    function renderAppliedState() {
-        footerLoadingState.style.display = 'none';
-        footerContainer.innerHTML = `<button disabled class="w-full cursor-not-allowed rounded-xl bg-neutral-600 px-6 py-3 text-base font-semibold text-white opacity-50">✓ Applied</button>`;
-    }
-
-    function renderUpgradeState() {
-        footerLoadingState.style.display = 'none';
-        footerContainer.innerHTML = `
-            <div class="text-center">
-                <p class="mb-2 text-sm text-amber-400">You've used all your free applications this month.</p>
-                <a href="setflow-pricing-page.html" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade to Apply</a>
-            </div>
-        `;
-    }
-
-     // --- Apply Button Click Handlers ---
-    function handleApplyClickAuthCheck() {
-         if (!currentUserId) {
-            toast.show("Please log in to apply for a gig.", 'error');
-            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
-            return;
-         }
-         handleApplyClick();
-    }
-
-    async function handleApplyClick() {
-          const btn = document.getElementById('apply-btn');
-          if (!gigId || !currentUserId || !gigData) {
-            toast.show("Could not apply. Missing required information.", 'error');
-            return;
-          }
-
-          btn.disabled = true;
-          btn.innerText = 'Applying...';
-
-          try {
-            await applyForGig(gigId, currentUserId); // Works offline
-
-            renderAppliedState(); // Optimistic update
-            const successMessage = isOnline() ? 'Application submitted successfully!' : 'Application saved locally. Will sync when online.';
-            toast.show(successMessage, 'success');
-
-          } catch (error) {
-            console.error("Failed to apply for gig:", error);
-            toast.show("Error submitting application. Please try again.", 'error');
-            btn.disabled = false;
-            btn.innerText = 'Apply for Gig';
-          }
-    }
-
-    // --- Report Gig Functionality ---
-    async function handleReportGig() {
-        if (!currentUserId) {
-            toast.show('You must be logged in to report content.', 'error');
-            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
-            return;
-        }
-        if (!gigId) {
-             toast.show('Cannot report: Gig ID is missing.', 'error');
-             return;
-        }
-        if (confirm('Are you sure you want to report this gig?')) {
-            try {
-                await reportContent(gigId, 'gig', currentUserId, 'User reported from gig detail page');
-                toast.show('Gig reported. Thank you.', 'success');
-            } catch (error) {
-                console.error('Error reporting gig:', error);
-                toast.show('Could not submit report. Please try again.', 'error');
-            }
-        }
-    }
-
-    // --- Initial Load ---
-    document.addEventListener('DOMContentLoaded', async () => {
-        loadingState.style.display = 'flex'; // Show loading
-        errorState.style.display = 'none';
-        footerLoadingState.style.display = 'flex'; // Show footer loading initially
-
-        if (!gigId) {
-             loadingState.style.display = 'none';
-             errorState.textContent = 'Error: No Gig ID provided in URL.';
-             errorState.style.display = 'block';
-             footerLoadingState.style.display = 'none';
-             footerContainer.innerHTML = '';
-             return;
-        }
-
-        try {
-            // Use gracefulGet, manage states manually
-            const gigSnapshotPromise = getGigDetails(gigId); // Get the promise
-            const gigSnapshot = await gracefulGet(gigSnapshotPromise, null, "Could not load gig details while offline.");
-
-            renderGigDetails(gigSnapshot); // Render content or error state
-
-            // Now that gig details are potentially loaded, check user status
-            if (gigSnapshot && gigSnapshot.exists()) {
-                 if (currentUserId) {
-                     await checkUserStatus(currentUserId); // Fetch user status and render footer
-                 } else {
-                     renderApplyButton(true); // Render basic apply button if not logged in yet
-                 }
-            } else {
-                 // Error handled by renderGigDetails, clear footer loading
-                 footerLoadingState.style.display = 'none';
-                 footerContainer.innerHTML = '';
-            }
-        } catch (error) {
-            // Catch unexpected errors during the process
-            console.error("Error loading gig details page:", error);
-            loadingState.style.display = 'none';
-            errorState.textContent = 'An unexpected error occurred.';
-            errorState.style.display = 'block';
-            footerLoadingState.style.display = 'none';
-            footerContainer.innerHTML = '';
-        }
-    });
-
-  </script>
-
+</script>
+<script type="module" src="./api.js"></script>
 </body>
 </html>

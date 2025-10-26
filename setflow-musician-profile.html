@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Musician Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script> <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
@@ -39,14 +39,16 @@
       </div>
     </header>
 
-    <main id="profile-container" class="flex-grow pt-16 pb-5"> <div class="flex justify-center items-center py-10" id="loading-state">
+    <main id="profile-container" class="flex-grow pt-16 pb-5">
+      <div class="flex justify-center items-center py-10" id="loading-state">
         <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
       </div>
       <div class="hidden p-5 text-center text-red-400" id="error-state">
           <p>Could not load profile data.</p>
       </div>
       </main>
-    </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+    </div>
+   <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
      <span id="toast-message">Placeholder message</span>
    </div>
    <script src="toast.js"></script>
@@ -132,41 +134,100 @@
           <p class="text-sm leading-relaxed text-neutral-300">${userData.bio || 'No bio provided. Click Edit to add one!'}</p>
         </section>
         ${bandsSectionHtml}
-        <section class="p-5">
-          <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Links</h3>
+        <section class="p-5 border-b border-neutral-700"> <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Links</h3>
           <div class="space-y-3">
-            ${userData.spotify ? `<a href="${userData.spotify}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+            ${userData.spotify ? `<a href="${userData.spotify.startsWith('http') ? userData.spotify : '//'+userData.spotify}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
               <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.19 14.32c-.24.36-.76.47-1.12.23-2.9-1.78-6.48-2.19-10.88-1.2a.75.75 0 01-.81-.73c-.04-2.1.9-4.13 2.62-5.48.2-.16.48-.13.64.07.16.2.13.48-.07.64-1.55 1.23-2.38 3.01-2.35 4.86 4.08-.92 7.33-.55 9.95 1.04.36.24.47.76.23 1.12z"/></svg>
               <span class="flex-1 font-medium text-white truncate">Listen on Spotify</span>
               <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             </a>` : ''}
-             ${userData.youtube ? `<a href="${userData.youtube}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+             ${userData.youtube ? `<a href="${userData.youtube.startsWith('http') ? userData.youtube : '//'+userData.youtube}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.267,4,12,4,12,4S5.733,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.733,2,12,2,12s0,4.267,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.733,20,12,20,12,20s6.267,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.267,22,12,22,12S22,7.733,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"></path></svg>
               <span class="flex-1 font-medium text-white truncate">Watch on YouTube</span>
               <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             </a>` : ''}
-             ${!userData.spotify && !userData.youtube ? '<p class="text-sm text-neutral-500">No links added yet. Click Edit to add some!</p>' : ''}
+            ${!userData.spotify && !userData.youtube ? '<p class="text-sm text-neutral-500">No links added yet. Click Edit to add some!</p>' : ''}
           </div>
         </section>
-      `);
+
+        <section class="p-5">
+            <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Payouts (Last 6 Months)</h3>
+            <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+                <canvas id="payoutChart" height="150"></canvas>
+            </div>
+             <div class="mt-3 text-center">
+                 <a href="setflow-earnings-report.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">View Full Report →</a>
+             </div>
+        </section>
+        `);
     }
+
+    // --- ADDED Payout Chart Function ---
+    function loadPayoutChart() {
+        const ctx = document.getElementById('payoutChart');
+        if (!ctx) return;
+
+        // Static data for now - TODO: Replace with dynamic data
+        const labels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+        const data = [150, 400, 250, 600, 800, 550];
+
+        new Chart(ctx.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+            label: 'Monthly Payout ($)',
+            data: data,
+            borderColor: 'rgba(16, 185, 129, 1)', // Emerald-500
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(16, 185, 129, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: 'rgba(163, 163, 163, 0.7)' }, // Neutral-400
+                grid: { color: 'rgba(64, 64, 64, 0.5)' } // Neutral-700/50
+            },
+            x: {
+                ticks: { color: 'rgba(163, 163, 163, 0.7)' },
+                grid: { display: false }
+            }
+            },
+            plugins: {
+            legend: { display: false }
+            }
+        }
+        });
+    }
+    // --- END Payout Chart Function ---
 
     onAuthState(async (user) => {
       if (user) {
         loadingState.style.display = 'flex'; // Show loading
         errorState.style.display = 'none';
         try {
-          // Fetch user data and bands concurrently using gracefulGet
-          // Manage states manually based on results
           const [userData, bands] = await Promise.all([
              gracefulGet(getUserData(user.uid), null, "Could not load profile data while offline."),
-             gracefulGet(getBandsForUser(user.uid), null, "Could not load bands while offline.") // Don't show bands loading error in main container
+             gracefulGet(getBandsForUser(user.uid), null, "Could not load bands while offline.")
           ]);
 
           renderProfile(userData, bands); // Render profile (handles null userData)
 
+          // Load chart AFTER rendering the main profile content
+          if (userData) {
+              loadPayoutChart();
+          }
+
         } catch (error) {
-          // Catch errors from Promise.all or if gracefulGet re-throws
           console.error("Error fetching musician profile data:", error);
           renderProfile(null, null); // Show error state
         }
