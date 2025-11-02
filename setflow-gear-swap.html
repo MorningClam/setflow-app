@@ -113,7 +113,7 @@
       itemCard.href = `setflow-gear-detail.html?id=${item.id}`;
       // Apply Canonical Card Style (Grid item variant)
       itemCard.className = 'gear-card group block overflow-hidden rounded-xl border border-neutral-700 bg-neutral-800 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
-      const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format&fit=crop';
+      const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop';
       itemCard.innerHTML = `
         <img class="h-32 w-full object-cover transition-opacity group-hover:opacity-80" src="${imageUrl}" alt="${item.name}">
         <div class="p-3">
