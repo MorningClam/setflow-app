@@ -26,7 +26,8 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     /* Bottom Nav Styles */
     .bottom-nav-link { /* Duplicated from musician-dashboard, centralize if possible */
-        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
     }
     .bottom-nav-link:hover { color: theme('colors.white'); }
     .bottom-nav-link.active { color: theme('colors.emerald.400'); }
@@ -113,16 +114,13 @@
            </a>
         `;
 
-        // Add "Applied" only for Pro users (matching dashboard logic)
-        // Or if the user is on the Applied page (even if free, to avoid confusion)
-        if (tier !== 'free' || activePage === 'setflow-applied-gigs.html') {
-            navHtml += `
-                <a href="setflow-applied-gigs.html" class="bottom-nav-link ${isActive('setflow-applied-gigs.html')}" ${isCurrent('setflow-applied-gigs.html')} aria-label="Applied">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                   <span class="text-xs font-medium">Applied</span>
-               </a>
-            `;
-        }
+        // Add "Applied" link REGARDLESS of tier
+        navHtml += `
+            <a href="setflow-applied-gigs.html" class="bottom-nav-link ${isActive('setflow-applied-gigs.html')}" ${isCurrent('setflow-applied-gigs.html')} aria-label="Applied">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               <span class="text-xs font-medium">Applied</span>
+           </a>
+        `;
 
         navHtml += `
             <a href="setflow-inbox.html" class="bottom-nav-link ${isActive('setflow-inbox.html')}" ${isCurrent('setflow-inbox.html')} aria-label="Inbox">

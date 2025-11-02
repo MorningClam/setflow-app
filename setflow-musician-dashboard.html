@@ -12,36 +12,52 @@
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
       display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
+      position: sticky; /* Sticky to scroll with content but stay at top */
+      top: 0;
+      left: 0;
+      right: 0;
       padding: 0.5rem; /* p-2 */
       background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      color: white;
+      text-align: center;
+      font-size: 0.875rem; /* text-sm */
+      font-weight: 500; /* font-medium */
+      z-index: 9998; /* Below modals, above header */
     }
     /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner, .loading-spinner-inline {
-        display: inline-block; border-radius: 50%;
+    .loading-spinner {
+        display: inline-block;
+        width: 1.5rem; /* w-6 */
+        height: 1.5rem; /* h-6 */
+        border: 4px solid rgba(115, 115, 115, 0.3); /* border-4 border-neutral-500/30 */
+        border-radius: 50%;
+        border-top-color: theme('colors.emerald.500'); /* border-t-emerald-500 */
         animation: spin 1s ease-in-out infinite;
     }
-    .loading-spinner {
-        width: 1.5rem; height: 1.5rem; /* w-6 h-6 */
-        border: 4px solid rgba(115, 115, 115, 0.3); /* border-4 border-neutral-500/30 */
-        border-top-color: theme('colors.emerald.500'); /* border-t-emerald-500 */
-    }
     .loading-spinner-inline {
-        vertical-align: middle; width: 1rem; height: 1rem; /* w-4 h-4 */
+        display: inline-block;
+        vertical-align: middle;
+        width: 1rem; /* w-4 */
+        height: 1rem; /* h-4 */
         border: 2px solid rgba(255, 255, 255, 0.3); /* border-2 border-white/30 */
+        border-radius: 50%;
         border-top-color: theme('colors.emerald.500');
+        animation: spin 1s ease-in-out infinite;
         margin-right: 0.5rem; /* mr-2 */
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     /* Bottom Nav Styles */
     .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex-grow: 1; padding: 0.5rem 0; /* py-2 */
-        font-size: 0.75rem; /* text-xs */ font-weight: 500; /* font-medium */
-        color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1; /* Ensures links expand to fill space */
+        padding: 0.5rem 0; /* py-2 */
+        font-size: 0.75rem; /* text-xs */
+        font-weight: 500; /* font-medium */
+        color: theme('colors.neutral.400');
+        transition: color 0.15s ease-in-out;
     }
     .bottom-nav-link:hover { color: theme('colors.white'); }
     .bottom-nav-link.active { color: theme('colors.emerald.400'); }
@@ -55,15 +71,15 @@
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Data may be out of sync.</div>
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <div id="offline-banner">You are currently offline. Data may be out of sync.</div>
 
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-5 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home" class="flex items-center">
+  <header class="border-b border-neutral-700 bg-neutral-900 px-5 py-4">
+    <div class="flex items-center justify-between">
+      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home">
         <img src="logo.png" alt="Setflow" class="h-7 w-auto">
       </a>
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-4">
         <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Notifications">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notification-badge" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white"></span>
@@ -75,7 +91,7 @@
     </div>
   </header>
 
-  <main class="flex-grow p-5 pt-20 pb-20">
+  <main class="flex-grow p-5 pb-20">
     <section class="mb-8">
       <h1 id="welcome-header" class="text-3xl font-bold text-white">Welcome, Musician!</h1>
       <p class="text-neutral-400">Here's your command center.</p>
@@ -102,30 +118,26 @@
       <p class="text-sm text-neutral-400" id="profile-strength-prompt">Complete your profile to get noticed!</p>
     </section>
 
-    <section id="schedule" class="mb-8">
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-white">Your Schedule</h2>
-          <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">See All</a>
+    <section class="mb-8">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-xl font-semibold text-white">My Schedule</h2>
+        <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">View Calendar</a>
+      </div>
+      <div id="schedule-loading" class="flex justify-center items-center py-10">
+        <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+      </div>
+      <div id="schedule-list" class="space-y-3">
         </div>
-        <div id="schedule-loading" class="flex justify-center items-center py-10">
-          <div class="loading-spinner"></div>
-        </div>
-        <div id="schedule-list" class="space-y-4"></div>
-        <div id="schedule-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
+      <div id="schedule-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
         <svg class="mx-auto h-12 w-12 text-neutral-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v-6.375c0-1.035-.84-1.875-1.875-1.875h-6.375M9 12h3m-3 3h3m-6 4.5h11.25a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v11.25A2.25 2.25 0 006.75 20.25z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
         </svg>
-        <h3 id="schedule-empty-title" class="mt-2 text-lg font-semibold text-white">No upcoming bookings</h3>
-        <p id="schedule-empty-text" class="mt-1 text-sm text-neutral-400">You'll see your confirmed gigs here. Check out these nearby venues:</p>
-        <div id="nearby-venues-list" class="mt-4 space-y-2 px-4">
-           <div class="flex justify-center items-center py-2"><div class="loading-spinner-inline"></div> Fetching venues...</div>
-        </div>
+        <h3 class="mt-2 text-lg font-semibold text-white">No Upcoming Events</h3>
+        <p class="mt-1 text-sm text-neutral-400">Your booked gigs and blocked dates will appear here.</p>
         <div class="mt-6 flex justify-center space-x-3">
           <button id="open-modal-btn" data-modal-target="#block-date-modal" class="rounded-xl bg-neutral-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Block Date</button>
-          </div>
-      </div>
-      <div id="schedule-error" class="hidden rounded-xl border border-red-700 bg-neutral-800 px-4 py-10 text-center text-red-400">
-         <p>Could not load schedule data.</p>
+          <a href="setflow-browse-gigs.html" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Find Gigs</a>
+        </div>
       </div>
     </section>
 
@@ -277,23 +289,6 @@
       if(scheduleLoading) scheduleLoading.style.display = 'flex';
       if(gigsLoading) gigsLoading.style.display = 'flex';
 
-      // --- START HEADER/NAV FIX ---
-      // Update header account link to point to the correct musician settings file
-      const headerAccountLink = document.querySelector('header a[href="setflow-account-settings.html"]');
-      if (headerAccountLink) {
-          headerAccountLink.href = 'setflow-musician-settings.html';
-      }
-      // Update bottom nav "Account" link (formerly "Menu")
-      const bottomNavContainer = document.querySelector('nav .flex');
-      if (bottomNavContainer) {
-          const accountLink = bottomNavContainer.querySelector('a[aria-label="Account"]'); // Select new label
-          if(accountLink) {
-              accountLink.href = 'setflow-musician-settings.html'; // Point to correct file
-          }
-      }
-      // --- END HEADER/NAV FIX ---
-
-
       try {
         currentUserData = await gracefulGet(getUserData(user.uid), null); // Store user data
 
@@ -330,9 +325,8 @@
         // Ensure loading states are hidden on error, show empty states
         if(scheduleLoading) scheduleLoading.style.display = 'none';
         if(gigsLoading) gigsLoading.style.display = 'none';
-        if(scheduleEmpty) scheduleEmpty.style.display = 'block';
-        if(gigsEmpty) gigsEmpty.style.display = 'block';
-        // Show error in profile strength
+        if(scheduleError) scheduleError.style.display = 'block'; else if(scheduleEmpty) scheduleEmpty.style.display = 'block';
+        if(gigsError) gigsError.style.display = 'block'; else if(gigsEmpty) gigsEmpty.style.display = 'block';
         if(profileStrengthPercent) profileStrengthPercent.textContent = 'Error';
         if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Could not load profile data.';
         if(profileStrengthBar) profileStrengthBar.style.width = '0%';
