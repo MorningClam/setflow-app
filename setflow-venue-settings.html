@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <title>Setflow - Venue Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
+  <script src="version.js"></script>
+  <style>
+    body{font-family:'Inter',sans-serif}
+    #offline-banner {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white;
+      text-align: center;
+      font-size: 0.875rem; /* text-sm */
+      font-weight: 500; /* font-medium */
+      z-index: 9999;
+    }
+    .loading-spinner-inline { /* For inline text loading */
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+     /* Modal styles */
+    .modal-container { transition: opacity 0.3s ease-out; }
+    .modal-overlay { transition: opacity 0.3s ease-out; opacity: 0;}
+    .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+    .modal-container.flex .modal-content { transform: scale(1); opacity: 1; }
+    .modal-container.flex .modal-overlay { opacity: 1; }
+  </style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+<div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="setflow-venue-dashboard.html" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Account Settings</h1>
+      <div class="w-10 h-10"></div>
+    </div>
+  </header>
+
+  <main class="flex-1 space-y-8 p-5 pt-20 pb-20">
+    <section>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Personal Info</h2>
+      <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
+        <div class="flex items-center justify-between p-4">
+          <div>
+            <p class="text-sm text-neutral-400">Venue Name</p>
+            <p class="text-white" id="user-name">
+              <span class="loading-spinner-inline" id="user-name-spinner"></span>Loading...
+            </p>
+          </div>
+          <a href="setflow-edit-profile.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit</a>
+        </div>
+        <div class="flex items-center justify-between p-4">
+          <div>
+            <p class="text-sm text-neutral-400">Contact Email</p>
+            <p class="text-white" id="user-email">
+                <span class="loading-spinner-inline" id="user-email-spinner"></span>Loading...
+            </p>
+          </div>
+          <a href="setflow-edit-profile.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit</a>
+        </div>
+        <div class="flex items-center justify-between p-4">
+          <div>
+            <p class="text-sm text-neutral-400">Password</p>
+            <p class="text-white">••••••••</p>
+          </div>
+          <a href="setflow-password-reset-flow.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Change</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Your Venue</h2>
+      <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
+        <a href="setflow-edit-profile.html" class="flex items-center justify-between rounded-t-lg p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+            <span class="font-semibold text-white">Edit Venue Profile</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </a>
+        <a href="setflow-artist-discovery.html" class="flex items-center justify-between p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+            <span class="font-semibold text-white">Discover Artists</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </a>
+         <a href="setflow-gig-templates.html" class="flex items-center justify-between rounded-b-lg p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+            <span class="font-semibold text-white">Gig Templates</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Subscription</h2>
+      <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-semibold text-white">Current Plan:
+              <span class="inline-flex items-center">
+                <span class="loading-spinner-inline" id="subscription-status-spinner"></span>
+                <span class="text-emerald-400" id="subscription-status">Free</span>
+              </span>
+            </p>
+            <p id="subscription-cta" class="text-sm text-neutral-400">Upgrade to unlock advanced features.</p>
+          </div>
+          <a href="setflow-pricing-page.html" id="upgrade-btn" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade</a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+        <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Legal & Account</h2>
+        <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
+             <a href="setflow-privacy-policy.html" class="block rounded-t-lg p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                <p class="font-semibold text-white">Privacy Policy</p>
+            </a>
+             <button id="delete-account-btn" data-modal-target="#delete-confirm-modal" class="w-full rounded-b-lg p-4 text-left font-semibold text-red-400 hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500">
+                Delete Account
+            </button>
+        </div>
+         <p id="app-version-display" class="mt-2 px-1 text-xs text-neutral-500">Version...</p>
+    </section>
+
+    <section>
+        <button id="logout-btn" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-red-400 transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-neutral-900">
+            Log Out
+        </button>
+    </section>
+
+  </main>
+
+  <div id="delete-confirm-modal" class="modal-container fixed inset-0 z-50 hidden items-center justify-center p-4" aria-modal="true" role="dialog" aria-labelledby="delete-modal-title">
+      <div class="modal-overlay absolute inset-0 bg-black/70"></div>
+      <div class="modal-content relative z-10 w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transform transition-all">
+          <div class="p-6 text-center">
+              <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <h3 id="delete-modal-title" class="mt-4 text-lg font-semibold text-white">Delete Account?</h3>
+              <p class="mt-1 text-sm text-neutral-400">This action is permanent and cannot be undone. All your data, including posted gigs, applications, and messages, will be deleted.</p>
+          </div>
+          <div class="space-y-3 p-4">
+              <button id="confirm-delete-btn" class="w-full rounded-xl bg-red-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Yes, Delete My Account</button>
+              <button id="cancel-delete-btn" class="modal-close w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Cancel</button>
+          </div>
+      </div>
+  </div>
+
+</div>
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+  <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
+
+<script type="module">
+    import { signOutUser, onAuthState, getUserData, deleteUserAccount, gracefulGet, isOnline } from './api.js';
+    import { toast } from './toast.js';
+
+    const logoutButton = document.getElementById('logout-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const offlineBanner = document.getElementById('offline-banner');
+    const userNameElement = document.getElementById('user-name');
+    const userEmailElement = document.getElementById('user-email');
+    const subStatusElement = document.getElementById('subscription-status');
+    const subStatusSpinner = document.getElementById('subscription-status-spinner');
+    const userNameSpinner = document.getElementById('user-name-spinner');
+    const userEmailSpinner = document.getElementById('user-email-spinner');
+
+    // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
+    // --- Delete Account Logic ---
+    confirmDeleteBtn.addEventListener('click', async () => {
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.innerText = 'Deleting...';
+        if (!isOnline()) {
+             toast.show("Cannot delete account while offline.", 'error');
+             confirmDeleteBtn.disabled = false;
+             confirmDeleteBtn.innerText = 'Yes, Delete My Account';
+             return;
+        }
+        try {
+            const result = await deleteUserAccount();
+            if (result.success) {
+                toast.show('Account deleted successfully.');
+                setTimeout(() => window.location.href = 'setflow-login-page.html', 1500);
+            } else {
+                throw new Error(result.message || "Deletion failed on the server.");
+            }
+        } catch (error) {
+            console.error('Account Deletion Error:', error);
+            toast.show(`Error: ${error.message}`, 'error');
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.innerText = 'Yes, Delete My Account';
+        }
+    });
+
+    // --- Logout Logic ---
+    logoutButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        try {
+            await signOutUser();
+            window.location.href = 'setflow-login-page.html';
+        } catch (error) {
+            toast.show('Failed to log out.', 'error');
+        }
+    });
+
+    // --- Helper to show text and hide spinner ---
+    function showDataText(element, spinnerElement, text) {
+        if (element) {
+            element.innerHTML = '';
+            element.textContent = text;
+        }
+        if (spinnerElement) {
+            spinnerElement.style.display = 'none';
+        }
+    }
+
+    // --- Initial Data Loading ---
+    onAuthState(async (user) => {
+        if (user) {
+            try {
+                const userData = await gracefulGet(getUserData(user.uid));
+
+                if (userData) {
+                    showDataText(userNameElement, userNameSpinner, userData.name || 'N/A');
+                    showDataText(userEmailElement, userEmailSpinner, userData.email || 'N/A');
+                    const subStatus = userData.subscriptionTier ? `Setflow ${userData.subscriptionTier.charAt(0).toUpperCase() + userData.subscriptionTier.slice(1)}` : 'Setflow Free';
+                    showDataText(subStatusElement, subStatusSpinner, subStatus);
+
+                    if (userData.subscriptionTier && userData.subscriptionTier !== 'free') {
+                        document.getElementById('upgrade-btn').innerText = 'Manage';
+                        document.getElementById('subscription-cta').innerText = 'Manage your subscription.';
+                    }
+                } else {
+                    showDataText(userNameElement, userNameSpinner, 'Unavailable');
+                    showDataText(userEmailElement, userEmailSpinner, 'Unavailable');
+                    showDataText(subStatusElement, subStatusSpinner, 'Unavailable');
+                    toast.show('Could not load user details.', 'error');
+                }
+            } catch (error) {
+                 console.error("Error loading account settings data:", error);
+                 toast.show('Could not load all account details.', 'error');
+                 showDataText(userNameElement, userNameSpinner, 'Error');
+                 showDataText(userEmailElement, userEmailSpinner, 'Error');
+                 showDataText(subStatusElement, subStatusSpinner, 'Error');
+            }
+        } else {
+            window.location.href = 'setflow-login-page.html';
+        }
+    });
+
+    // --- Set App Version ---
+    if (typeof APP_VERSION !== 'undefined') {
+        const versionEl = document.getElementById('app-version-display');
+        if (versionEl) {
+            versionEl.innerText = `Version ${APP_VERSION}`;
+        }
+    }
+</script>
+<script type="module" src="./api.js"></script> </body>
+</html>

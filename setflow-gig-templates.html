@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Setflow - Gig Templates</title>
+  <title>Setflow - My Network</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
@@ -27,72 +27,46 @@
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Templates may be cached.</div>
+<div id="offline-banner">You are currently offline. Network data may be cached.</div>
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+       <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gig Templates</h1>
-       <a href="#" class="w-auto flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">New</a> </div>
+      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">My Network</h1>
+      <div class="w-10 h-10"></div> </div>
   </header>
 
-  <main class="flex-1 space-y-4 p-5 pt-20"> <div id="templates-list" class="space-y-4">
-        <div class="flex justify-center items-center py-10" id="loading-state">
-            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
-        </div>
-        <div class="hidden py-10 text-center" id="empty-state">
-             <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12.75h4.875a2.625 2.625 0 002.625-2.625V11.25c0-1.44-.93-2.671-2.198-3.037m-5.196 6.364A2.25 2.25 0 0013.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375H8.25m-1.5 6.75h.75c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H6.75m0 3.75h.75m-1.5 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-             </svg>
-            <h3 class="mt-2 text-lg font-semibold text-white">No Templates Created</h3>
-            <p class="mt-1 text-sm text-neutral-400">Create reusable templates for your common gig types.</p>
-             <div class="mt-6">
-                 <a href="#" class="w-auto rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white ...">Create Template</a> </div>
-        </div>
-        <div class="hidden py-10 text-center text-red-400" id="error-state">
-            <p>Could not load templates.</p>
-        </div>
-
-        <div class="template-item rounded-xl border border-neutral-700 bg-neutral-800 p-4">
-            <div class="flex items-start justify-between">
-                <div>
-                    <h3 class="font-semibold text-white">Saturday Night Headliner</h3>
-                    <p class="mt-1 text-sm text-neutral-400">9:00 PM - 11:00 PM • $500 Payout</p>
-                    <p class="mt-1 text-xs text-neutral-500">Genres: Rock, Indie, Pop</p>
-                </div>
-                <button class="ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Use</button>
-            </div>
-        </div>
-        <div class="template-item rounded-xl border border-neutral-700 bg-neutral-800 p-4">
-            <div class="flex items-start justify-between">
-                <div>
-                    <h3 class="font-semibold text-white">Acoustic Tuesday</h3>
-                    <p class="mt-1 text-sm text-neutral-400">7:00 PM - 9:00 PM • $250 Payout</p>
-                    <p class="mt-1 text-xs text-neutral-500">Genres: Singer-Songwriter, Folk</p>
-                </div>
-                <button class="ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Use</button>
-            </div>
-        </div>
-        </div>
-  </main>
+  <main id="network-list" class="flex-1 space-y-3 p-5 pt-20"> <div class="flex justify-center items-center py-10" id="loading-state">
+      <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+    </div>
+    <div class="hidden py-10 text-center" id="empty-state">
+      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.94-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.06 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-white">Network Empty</h3>
+      <p class="mt-1 text-sm text-neutral-400">Connect with venues, promoters, and other musicians.</p>
+       </div>
+    <div class="hidden py-10 text-center text-red-400" id="error-state">
+        <p>Could not load network contacts.</p>
+    </div>
+    </main>
   </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-   <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script>
+ <span id="toast-message">Placeholder message</span>
+</div>
+<script src="toast.js"></script>
 
  <script type="module">
-     import { onAuthState, gracefulGet, isOnline } from './api.js';
-     // TODO: Need function like fetchGigTemplates()
+     import { onAuthState, gracefulGet, isOnline, fetchUserNetwork } from './api.js'; // Import the new function
 
-     const listContainer = document.getElementById('templates-list');
+     const networkContainer = document.getElementById('network-list');
      const loadingState = document.getElementById('loading-state');
      const emptyState = document.getElementById('empty-state');
      const errorState = document.getElementById('error-state');
      const offlineBanner = document.getElementById('offline-banner');
 
-      // Update offline banner based on initial status
+     // Update offline banner based on initial status
      offlineBanner.style.display = isOnline() ? 'none' : 'block';
      // Listen for network changes
      document.body.addEventListener('app:network-change', (event) => {
@@ -100,90 +74,81 @@
      });
 
 
-     function renderTemplates(templates) {
-         // Clear previous items
-         const existingItems = listContainer.querySelectorAll('.template-item');
+     function renderNetwork(contacts) {
+         // Clear previous items FIRST
+         const existingItems = networkContainer.querySelectorAll('.network-item');
          existingItems.forEach(item => item.remove());
 
-         if (!templates) { // Error case
-             loadingState.style.display = 'none';
-             emptyState.style.display = 'none';
+         // Manage states explicitly
+         loadingState.style.display = 'none';
+         emptyState.style.display = 'none';
+         errorState.style.display = 'none';
+
+         if (!contacts) { // Error case
              errorState.style.display = 'block';
              return;
          }
 
-         if (templates.length === 0) {
-             loadingState.style.display = 'none';
-             errorState.style.display = 'none';
+         if (contacts.length === 0) {
              emptyState.style.display = 'block';
              return;
          }
 
-         loadingState.style.display = 'none'; // Hide states
-         emptyState.style.display = 'none';
-         errorState.style.display = 'none';
+         // Only reach here if contacts is a non-empty array
+         contacts.forEach(contact => {
+             const contactCard = document.createElement('div');
+             // Use Canonical List Item Structure (modified)
+             contactCard.className = 'network-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
 
-         templates.forEach(template => {
-             const card = document.createElement('div');
-             // Use Canonical Card style
-             card.className = 'template-item rounded-xl border border-neutral-700 bg-neutral-800 p-4';
-             // Format details nicely
-             const timeRange = template.startTime && template.endTime ? `${template.startTime} - ${template.endTime}` : 'Time TBD';
-             const payout = template.payout ? `$${template.payout}` : 'Payout TBD';
-             const genres = template.genres ? template.genres.join(', ') : 'Any Genre';
+             let profileLink = `setflow-public-profile.html?userId=${contact.id}`; // Default
+             // Adjust link based on role (assuming role is stored reliably)
+             if (contact.role?.toLowerCase() === 'venue') {
+                 profileLink = `setflow-venue-profile.html?venueId=${contact.id}`;
+             } else if (contact.role?.toLowerCase() === 'promoter') {
+                 // Potentially link to a generic public profile or a specific promoter view if created
+                 profileLink = `setflow-public-profile.html?userId=${contact.id}`;
+             }
 
-             card.innerHTML = `
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h3 class="font-semibold text-white">${template.name}</h3>
-                        <p class="mt-1 text-sm text-neutral-400">${timeRange} • ${payout}</p>
-                        <p class="mt-1 text-xs text-neutral-500">Genres: ${genres}</p>
-                    </div>
-                    <button data-template-id="${template.id}" class="use-template-btn ml-2 flex-shrink-0 rounded-lg px-3 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Use</button>
-                </div>
-                ${template.description ? `<p class="mt-2 border-t border-neutral-700 pt-2 text-xs text-neutral-400">${template.description}</p>` : ''}
-            `;
-             // Insert before the state divs
-             listContainer.insertBefore(card, loadingState);
-         });
+             const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
+             const profileImage = contact.profileImageUrl || placeholderImg;
+             // Basic role display, handle potential array vs string
+             const roleString = Array.isArray(contact.roles) ? contact.roles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ') : (contact.role || '');
+             const roleDisplay = roleString ? `${roleString} • ` : '';
 
-         // Add 'Use' button logic
-         document.querySelectorAll('.use-template-btn').forEach(button => {
-             button.addEventListener('click', () => {
-                 const templateId = button.dataset.templateId;
-                 // Redirect to post-event page with template ID or pre-filled data
-                 window.location.href = `setflow-post-event-page.html?templateId=${templateId}`; // Example redirect
-             });
+             contactCard.innerHTML = `
+                 <a href="${profileLink}" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
+                     <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${profileImage}" alt="${contact.name} photo">
+                     <div class="min-w-0">
+                         <p class="truncate font-semibold text-white group-hover:text-emerald-400">${contact.name}</p>
+                         <p class="truncate text-xs text-neutral-400">${roleDisplay}${contact.location || 'Location N/A'}</p>
+                     </div>
+                 </a>
+                 <a href="setflow-conversation-view.html?recipientId=${contact.id}" class="message-btn ml-2 flex-shrink-0 rounded-xl bg-neutral-700 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Message</a>
+             `;
+              // Insert before the state divs
+              networkContainer.insertBefore(contactCard, loadingState);
          });
      }
 
-
      onAuthState(async (user) => {
-         if (!user) {
+         if (user) {
+             loadingState.style.display = 'flex'; // Show loading
+             emptyState.style.display = 'none';
+             errorState.style.display = 'none';
+             // Clear previous items before fetching
+             const existingItems = networkContainer.querySelectorAll('.network-item');
+             existingItems.forEach(item => item.remove());
+             try {
+                 // Fetch actual network data using the new API function
+                 const networkContacts = await gracefulGet(fetchUserNetwork(user.uid), null, "Could not load network contacts offline.");
+                 renderNetwork(networkContacts); // Handles null/empty response
+
+             } catch (error) {
+                 console.error("Error loading network:", error);
+                 renderNetwork(null); // Show error state
+             }
+         } else {
              window.location.href = 'setflow-login-page.html';
-             return;
-         }
-
-         loadingState.style.display = 'flex'; // Show loading
-         emptyState.style.display = 'none';
-         errorState.style.display = 'none';
-
-         // Placeholder: Fetch actual templates
-         try {
-             // Replace with actual API call: e.g., gracefulGet(fetchGigTemplates(user.uid), null, ...)
-             const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
-                 { id: 'tpl1', name: 'Saturday Night Headliner', startTime: '9:00 PM', endTime: '11:00 PM', payout: 500, genres: ['Rock', 'Indie', 'Pop'], description: 'Standard headliner slot, 2x60min sets.' },
-                 { id: 'tpl2', name: 'Acoustic Tuesday', startTime: '7:00 PM', endTime: '9:00 PM', payout: 250, genres: ['Singer-Songwriter', 'Folk'], description: null },
-                 { id: 'tpl3', name: 'Sunday Brunch Background', startTime: '11:00 AM', endTime: '1:00 PM', payout: 150, genres: ['Jazz', 'Instrumental'], description: 'Low volume background music.' },
-             ]), 1000));
-
-             // Use gracefulGet, manage states manually
-             const templates = await gracefulGet(fetchPromise, null, "Could not load templates while offline.");
-             renderTemplates(templates); // Handles null/empty response
-
-         } catch (e) {
-             console.error("Could not load templates:", e);
-             renderTemplates(null); // Show error state
          }
      });
  </script>

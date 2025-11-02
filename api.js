@@ -328,6 +328,32 @@ export async function approveJoinRequest(requestId) {
      return await batch.commit(); // Works offline
 }
 
+// --- NEW FUNCTION ---
+/**
+ * Creates a request for a user to join a band.
+ * @param {string} bandId The ID of the band to join.
+ * @param {string} userId The ID of the user requesting to join.
+ * @returns {Promise<void>}
+ */
+export async function requestToJoinBand(bandId, userId) {
+    if (!bandId || !userId) throw new Error("Band ID and User ID required.");
+    // Check if a pending request already exists to prevent duplicates (optional but good practice)
+    const requestsRef = collection(db, "join_requests");
+    const q = query(requestsRef, where("bandId", "==", bandId), where("userId", "==", userId), where("status", "==", "pending"));
+    const existingRequests = await getDocs(q); // Uses cache
+    if (!existingRequests.empty) {
+        throw new Error("You already have a pending request to join this band.");
+    }
+    // Create the new request
+    const requestRef = doc(collection(db, "join_requests"));
+    return await setDoc(requestRef, {
+        bandId: bandId,
+        userId: userId,
+        status: 'pending',
+        createdAt: serverTimestamp()
+    }); // Works offline
+}
+
 // --- USER DATA & PROFILE FUNCTIONS ---
 
 export async function getUserData(userId) { // Removed loadingContainer
@@ -354,8 +380,7 @@ export async function updateUserPreferences(userId, preferencesData) {
 }
 
 // --- GIG & APPLICATION FUNCTIONS ---
-// (fetchGigs, getGigDetails, createCalendarEvent, fetchCalendarEvents, applyForGig, fetchMyApplications, fetchApplicantsForGig, fetchGigsForOwner, createGig remain the same for now)
-// ... [Existing Gig & Application Functions] ...
+
 export async function fetchGigs() { // Removed loadingContainer
   const q = query(collection(db, "gigs"), where("status", "==", "open"), orderBy("date", "asc")); // Filter open, order by date
   // Use gracefulGet
@@ -380,6 +405,44 @@ export async function getGigDetails(id) {
     // Let caller use gracefulGet
     return getDoc(doc(db, "gigs", id));
 }
+
+// --- NEW FUNCTION ---
+/**
+ * Fetches gigs that a specific musician has completed (booked and date passed).
+ * @param {string} userId The musician's user ID.
+ * @returns {Promise<Array|null>} Array of completed gig objects or null on error.
+ */
+export async function fetchCompletedGigsForUser(userId) {
+    if (!userId) throw new Error("User ID required.");
+    const gigsRef = collection(db, "gigs");
+    const yesterday = new Date(); // Get gigs up to yesterday
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayTimestamp = Timestamp.fromDate(yesterday);
+
+    const q = query(gigsRef,
+        where("bookedArtistId", "==", userId),
+        where("status", "==", "booked"),
+        where("date", "<=", yesterdayTimestamp), // Date must be in the past
+        orderBy("date", "desc") // Most recent completed first
+    );
+
+    // Use gracefulGet
+    const querySnapshot = await gracefulGet(getDocs(q), "Could not load completed gigs.");
+    if (!querySnapshot) return null; // Null on error
+
+    const gigs = [];
+    querySnapshot.forEach((doc) => {
+        const gigData = doc.data();
+        const dateObj = gigData.date?.toDate ? gigData.date.toDate() : null;
+        gigs.push({
+            id: doc.id, ...gigData,
+            dateObject: dateObj, // Keep Date object
+            formattedDate: dateObj ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date N/A'
+        });
+    });
+    return gigs;
+}
+
 
 export async function createCalendarEvent(eventData) {
   let eventTimestamp;
@@ -414,8 +477,19 @@ export async function fetchCalendarEvents(userId) { // Removed loadingContainer
     const eventData = doc.data();
     const dateObj = eventData.dateTime?.toDate ? eventData.dateTime.toDate() : null;
     if (dateObj) { // Ensure date is valid
+        // Determine type based on source if possible (e.g., from a gig booking)
+        let eventType = eventData.type || 'Other';
+        let gigId = eventData.gigId || null; // Assume gigId might be stored on calendar event
+         // Correctly fetch 'gig' type if it exists in data, map it properly
+        if (eventData.type === 'gig' || gigId) { // Check if it's explicitly a gig or has a gigId
+            eventType = 'gig';
+            gigId = gigId || doc.id; // Use event ID as fallback if gigId not present but type is gig
+        }
+
         events.push({
-          id: doc.id, ...eventData,
+          id: gigId || doc.id, // Prefer gigId if available for linking
+          title: eventData.title,
+          type: eventType, // Use determined type
           dateObject: dateObj,
           formattedDate: dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
           formattedTime: dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
@@ -424,6 +498,7 @@ export async function fetchCalendarEvents(userId) { // Removed loadingContainer
   });
   return events;
 }
+
 
 export async function applyForGig(gigId, userId) {
   if (!gigId || !userId) throw new Error("Gig/User ID required.");
@@ -527,7 +602,9 @@ export async function createGig(gigData) {
         ownerId: gigData.ownerId, venueName: gigData.eventName, location: gigData.location,
         date: eventTimestamp, payout: Number(gigData.payout),
         description: gigData.description || '', genre: gigData.genre || '',
-        status: 'open', createdAt: serverTimestamp()
+        status: 'open', createdAt: serverTimestamp(),
+        // Add default guestListLimit
+        guestListLimit: 5 // Default guest list limit
     };
     return await addDoc(collection(db, "gigs"), gigToSave); // Works offline
 }
@@ -617,11 +694,36 @@ export async function fetchPlayerPosts() { // Removed loadingContainer
 // ... [Existing Booking & Review Functions] ...
 export async function confirmBooking(gigId, artistId, artistName) {
     if (!gigId || !artistId || !artistName) throw new Error("Required info missing.");
-    return await updateDoc(doc(db, "gigs", gigId), {
+    const gigRef = doc(db, "gigs", gigId);
+    // Update gig status
+    await updateDoc(gigRef, {
         status: 'booked', bookedArtistId: artistId, bookedArtistName: artistName,
         bookedAt: serverTimestamp()
     }); // Works offline
+
+    // Add booked gig to artist's calendar
+    const gigSnap = await getDoc(gigRef); // Re-fetch to get date, etc. (uses cache)
+    if (gigSnap.exists()) {
+        const gigData = gigSnap.data();
+        const eventData = {
+            userId: artistId,
+            title: `Gig: ${gigData.venueName}`,
+            type: 'gig', // Specific type for calendar
+            dateTime: gigData.date, // Use the Firestore Timestamp
+            notes: `Booked via Setflow. Payout: $${gigData.payout}`,
+            gigId: gigId // Link back to the gig
+        };
+        // Use setDoc with a specific ID to prevent duplicates if function runs twice
+        const calendarEventRef = doc(db, "calendarEvents", `gig_${gigId}_${artistId}`);
+        await setDoc(calendarEventRef, { ...eventData, createdAt: serverTimestamp() });
+        console.log(`Gig added to calendar for artist ${artistId}`);
+    } else {
+        console.warn(`Could not find gig ${gigId} to add to calendar.`);
+    }
+
+    return true; // Indicate success
 }
+
 
 export async function createReview(reviewData) {
     if (!reviewData.reviewerId || !reviewData.subjectId || !reviewData.gigId || !reviewData.type) throw new Error("Required info missing.");
@@ -758,17 +860,17 @@ export async function reportContent(reportedItemId, reportedItemType, reporterId
 
 // --- PLAYER DISCOVERY ---
 
+// TODO: Inefficient for large scale. Needs server-side pagination/filtering.
 export async function getAllPlayers() { // Removed loadingContainer
-  // WARNING: Fetching ALL users is inefficient for large scale. Use pagination/indexing.
-  const q = query(collection(db, "users"), orderBy("name")); // Add index for name
+  const q = query(collection(db, "users"), where("roles", "array-contains", "musician"), orderBy("name")); // Filter musicians, add index for name
   // Use gracefulGet
   const querySnapshot = await gracefulGet(getDocs(q), "Could not load players.");
   if (!querySnapshot) return null;
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
+// TODO: Inefficient for large scale. Needs server-side pagination/filtering.
 export async function getAllBands() { // Removed loadingContainer
-    // WARNING: Fetching ALL bands is inefficient.
     const q = query(collection(db, "bands"), orderBy("name")); // Add index for name
     // Use gracefulGet
     const querySnapshot = await gracefulGet(getDocs(q), "Could not load bands.");
@@ -776,24 +878,94 @@ export async function getAllBands() { // Removed loadingContainer
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
-// ... (all the existing functions like getAllBands, reportContent, etc.) ...
+
+// --- NEW PLACEHOLDER FUNCTIONS ---
+
+// TODO: Implement actual Firestore logic for fetching templates.
+export async function fetchGigTemplates(userId) {
+    console.log("Fetching gig templates for user:", userId);
+    // Placeholder data
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+    return [
+        { id: 'tpl1', name: 'Saturday Night Headliner', startTime: '9:00 PM', endTime: '11:00 PM', payout: 500, genres: ['Rock', 'Indie', 'Pop'], description: 'Standard headliner slot, 2x60min sets.' },
+        { id: 'tpl2', name: 'Acoustic Tuesday', startTime: '7:00 PM', endTime: '9:00 PM', payout: 250, genres: ['Singer-Songwriter', 'Folk'], description: null },
+    ];
+}
+
+// TODO: Implement actual Firestore logic for fetching user's network.
+export async function fetchUserNetwork(userId) {
+    console.log("Fetching network for user:", userId);
+    // Placeholder data
+    await new Promise(resolve => setTimeout(resolve, 800)); // Simulate delay
+    return [
+         { id: 'venueUser1', name: 'The Pour House', role: 'Venue', location: 'Raleigh, NC', profileImageUrl: null },
+         { id: 'musicianUser1', name: 'Alice Keys', role: 'Musician', location: 'Cary, NC', profileImageUrl: null },
+         { id: 'promoterUser1', name: 'Maria (Fest)', role: 'Promoter', location: 'Apex, NC', profileImageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop' },
+    ];
+}
+
+// TODO: Implement actual Firestore logic for fetching notifications.
+export async function fetchNotifications(userId) {
+    console.log("Fetching notifications for user:", userId);
+    // Placeholder data
+    await new Promise(resolve => setTimeout(resolve, 600)); // Simulate delay
+    return [
+        { id: 'notif1', type: 'application_viewed', text: '<span class="font-semibold">Venue X</span> viewed your application for <span class="font-semibold text-emerald-400">Weekend Gig</span>.', timestampRelative: '1 hour ago', link: '#', isUnread: true },
+        { id: 'notif2', type: 'new_message', text: 'New message from <span class="font-semibold">Promoter Y</span>.', timestampRelative: 'Yesterday', link: 'setflow-conversation-view.html?recipientId=promoterY', isUnread: false },
+        { id: 'notif3', type: 'gig_booked', text: 'You\'ve been booked for <span class="font-semibold text-amber-400">Acoustic Night</span>.', timestampRelative: '3 days ago', link: 'setflow-show-sheet.html?gigId=gigABC', isUnread: false },
+    ];
+}
+
+// TODO: Implement actual Firestore logic for fetching setlist (likely from gig document).
+export async function fetchSetlist(eventId) {
+    console.log("Fetching setlist for event:", eventId);
+    if (!eventId) return []; // Handle missing ID case
+    // Placeholder: Fetch gig doc and return its 'songs' array
+    const gigSnap = await getDoc(doc(db, "gigs", eventId)); // Uses cache
+    if (gigSnap.exists() && gigSnap.data().songs) {
+        return gigSnap.data().songs; // Assuming songs are stored as an array of objects/strings
+    }
+    // Placeholder data if not found
+    await new Promise(resolve => setTimeout(resolve, 700)); // Simulate delay
+    return [
+        { title: 'Sample Song 1', artist: 'Artist A' },
+        { title: 'Sample Song 2', artist: 'Artist B' },
+    ];
+}
+
+// TODO: Implement actual Firestore logic for saving setlist (update gig document).
+export async function saveSetlist(eventId, songs) {
+    if (!eventId || !songs) throw new Error("Event ID and songs array required.");
+    console.log("Saving setlist for event:", eventId, songs);
+    const gigRef = doc(db, "gigs", eventId);
+    await updateDoc(gigRef, {
+        songs: songs, // Overwrite or update the songs array
+        setlistUpdatedAt: serverTimestamp()
+    }); // Works offline
+    return true;
+}
+
+// TODO: Implement actual Firestore logic for fetching scouted artists (e.g., from user doc).
+export async function fetchTalentPool(userId) {
+    console.log("Fetching talent pool for user:", userId);
+    // Placeholder data
+    await new Promise(resolve => setTimeout(resolve, 900)); // Simulate delay
+    return [
+        { id: 'artist1', name: 'George & The Vibe', genres: ['Funk', 'Soul'], rating: 4.9, profileImageUrl: 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop' },
+        { id: 'artist2', name: 'The Sidewinders', genres: ['Blues Rock'], rating: 4.7, profileImageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop' },
+    ];
+}
 
 // --- VENUE FETCHING (Placeholder) ---
 
-// Placeholder function to get a few nearby venues
-// TODO: Implement actual location-based fetching
+// TODO: Implement actual location-based fetching or better source.
 export async function fetchNearbyVenues(limitCount = 3) {
-    // For now, return a few hardcoded venues from the pre-populated list
-    // Ensure these IDs match the ones generated by your upload script if possible,
-    // otherwise, just use the names/data directly for the placeholder.
-    // Using gracefulGet simulates fetching them, though it's synchronous here.
+    // For now, return a few hardcoded venues
     const hardcodedVenues = [
-        { id: 'venue_the-pour-house-music-hall-record-shop_raleigh', name: "The Pour House Music Hall & Record Shop", location: "224 S Blount St, Raleigh, NC 27601", roles: ["venue"] },
-        { id: 'venue_cats-cradle_carrboro', name: "Cat's Cradle", location: "300 E Main St, Carrboro, NC 27510", roles: ["venue"] },
-        { id: 'venue_lincoln-theatre_raleigh', name: "Lincoln Theatre", location: "126 E Cabarrus St, Raleigh, NC 27601", roles: ["venue"] },
-        { id: 'venue_bowstring-pizza-and-bretyard_raleigh', name: "Bowstring Pizza and Brewyard", location: "1930 Wake Forest Rd, Raleigh, NC 27608", roles: ["venue"] },
+        { id: 'venueUser1', name: "The Pour House", location: "Raleigh, NC", roles: ["venue"] },
+        { id: 'venueUser2', name: "Cat's Cradle", location: "Carrboro, NC", roles: ["venue"] },
+        { id: 'venueUser3', name: "Lincoln Theatre", location: "Raleigh, NC", roles: ["venue"] },
     ];
-    // Simulate fetching
     await new Promise(resolve => setTimeout(resolve, 100)); // Simulate async
     return hardcodedVenues.slice(0, limitCount);
 }
@@ -806,19 +978,7 @@ export async function fetchNearbyVenues(limitCount = 3) {
  * Assumes specific data attributes and class names.
  */
 function initModals() {
-    // ... (rest of the initModals function) ...
-}
-
-// --- Initialize Modals on Page Load ---
-document.addEventListener('DOMContentLoaded', initModals);
-
-// --- MODAL HANDLING --- ADDED FOR CENTRALIZATION ---
-
-/**
- * Initializes modal open/close functionality for the entire document.
- * Assumes specific data attributes and class names.
- */
-function initModals() {
+    // ... (rest of the initModals function - no changes needed here) ...
     const modalTriggers = document.querySelectorAll('[data-modal-target]');
     const modalContainers = document.querySelectorAll('.modal-container');
 
@@ -859,13 +1019,14 @@ function initModals() {
         const overlay = modal.querySelector('.modal-overlay');
         const closeButtons = modal.querySelectorAll('.modal-close, .modal-close-x');
         const content = modal.querySelector('.modal-content');
-        const modalId = modal.id; // Get the ID for specific animations
+        const modalId = '#' + modal.id; // Get the ID for specific animations (add #)
+
 
         const closeModal = () => {
             if (overlay) overlay.style.opacity = '0'; // Fade out overlay
 
             // Handle different modal animation styles
-            if (modalId === 'filter-modal') { // Specific ID for bottom sheet
+            if (modalId === '#filter-modal') { // Specific ID for bottom sheet
                 if (content) content.style.transform = 'translateY(100%)';
             } else { // Default centered modal animation
                 if (content) {
@@ -910,6 +1071,7 @@ function initModals() {
         });
     }
 }
+
 
 // --- Initialize Modals on Page Load ---
 document.addEventListener('DOMContentLoaded', initModals);
