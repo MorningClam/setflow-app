@@ -64,28 +64,8 @@
     </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div class="flex h-16 items-center justify-around">
-          <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Home">
-               <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
-              <span class="text-xs font-medium">Home</span>
-          </a>
-          <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
-              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              <span class="text-xs font-medium">Gigs</span>
-          </a>
-          <a href="setflow-applied-gigs.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Applied">
-               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span class="text-xs font-medium">Applied</span>
-          </a>
-          <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
-              <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
-              <span class="text-xs font-medium">Inbox</span>
-          </a>
-          <a href="setflow-account-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Menu">
-               <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-              <span class="text-xs font-medium">Menu</span>
-          </a>
-      </div>
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
     </nav>
 </div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
  <span id="toast-message">Placeholder message</span>
@@ -93,7 +73,7 @@
 <script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, fetchMyApplications, gracefulGet, isOnline } from './api.js';
+    import { onAuthState, fetchMyApplications, gracefulGet, isOnline, getUserData } from './api.js';
 
     const applicationsContainer = document.getElementById('applications-container');
     const loadingState = document.getElementById('loading-state');
@@ -108,6 +88,55 @@
         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
     });
 
+
+    // --- START NAV RENDER ---
+    /**
+     * Renders the correct bottom navigation bar based on musician tier.
+     * @param {string} tier - The user's subscription tier ('free', 'pro', etc.)
+     * @param {string} activePage - The filename of the current page.
+     */
+    function renderBottomNav(tier, activePage) {
+        const navContainer = document.getElementById('bottom-nav-container');
+        if (!navContainer) return;
+
+        const isActive = (page) => page === activePage ? 'active text-emerald-400' : 'text-neutral-400';
+        const isCurrent = (page) => page === activePage ? 'aria-current="page"' : '';
+
+        let navHtml = `
+            <a href="setflow-musician-dashboard.html" class="bottom-nav-link ${isActive('setflow-musician-dashboard.html')}" ${isCurrent('setflow-musician-dashboard.html')} aria-label="Home">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
+               <span class="text-xs font-medium">Home</span>
+           </a>
+           <a href="setflow-browse-gigs.html" class="bottom-nav-link ${isActive('setflow-browse-gigs.html')}" ${isCurrent('setflow-browse-gigs.html')} aria-label="Gigs">
+               <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+               <span class="text-xs font-medium">Gigs</span>
+           </a>
+        `;
+
+        // Add "Applied" only for Pro users (matching dashboard logic)
+        // Or if the user is on the Applied page (even if free, to avoid confusion)
+        if (tier !== 'free' || activePage === 'setflow-applied-gigs.html') {
+            navHtml += `
+                <a href="setflow-applied-gigs.html" class="bottom-nav-link ${isActive('setflow-applied-gigs.html')}" ${isCurrent('setflow-applied-gigs.html')} aria-label="Applied">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                   <span class="text-xs font-medium">Applied</span>
+               </a>
+            `;
+        }
+
+        navHtml += `
+            <a href="setflow-inbox.html" class="bottom-nav-link ${isActive('setflow-inbox.html')}" ${isCurrent('setflow-inbox.html')} aria-label="Inbox">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
+               <span class="text-xs font-medium">Inbox</span>
+           </a>
+           <a href="setflow-musician-settings.html" class="bottom-nav-link ${isActive('setflow-musician-settings.html')}" ${isCurrent('setflow-musician-settings.html')} aria-label="Account">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+               <span class="text-xs font-medium">Account</span>
+           </a>
+        `;
+        navContainer.innerHTML = navHtml;
+    }
+    // --- END NAV RENDER ---
 
     // Canonical Status Styles (Using Tags)
     const statusStyles = {
@@ -169,6 +198,21 @@
             loadingState.style.display = 'flex'; // Show loading
             emptyState.style.display = 'none';
             errorState.style.display = 'none';
+
+            // --- START NAV FIX ---
+            let userTier = 'free';
+            try {
+                const userData = await gracefulGet(getUserData(user.uid), null);
+                if (userData && userData.subscriptionTier) {
+                    userTier = userData.subscriptionTier;
+                }
+            } catch (e) {
+                console.error("Could not fetch user tier for nav", e);
+            }
+            // Pass userTier and the current page filename
+            renderBottomNav(userTier, 'setflow-applied-gigs.html');
+            // --- END NAV FIX ---
+
             try {
                 // Use gracefulGet, manage states manually
                 const myApplications = await gracefulGet(fetchMyApplications(user.uid), null, "Could not load applications while offline.");
