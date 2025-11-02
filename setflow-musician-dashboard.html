@@ -223,28 +223,8 @@
   </div>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Home">
-        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
-        <span class="text-xs font-medium">Home</span>
-      </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
-        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-        <span class="text-xs font-medium">Gigs</span>
-      </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Applied">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <span class="text-xs font-medium">Applied</span>
-      </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
-        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
-        <span class="text-xs font-medium">Inbox</span>
-      </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Account">
-         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-        <span class="text-xs font-medium">Account</span>
-      </a>
-    </div>
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+      </div>
   </nav>
   </div>
 
@@ -315,7 +295,7 @@
 
 
       try {
-        currentUserData = await gracefulGet(getUserData(user.uid), null);
+        currentUserData = await gracefulGet(getUserData(user.uid), null); // Store user data
 
         if (currentUserData && currentUserData.name) {
           welcomeHeader.textContent = `Welcome, ${currentUserData.name.split(' ')[0]}!`;
@@ -323,35 +303,40 @@
           welcomeHeader.textContent = 'Welcome, Musician!';
         }
 
+        // --- Onboarding Check ---
         if (currentUserData && !currentUserData.profileSetupComplete) {
-            gettingStartedSection.classList.remove('hidden');
-            profileStrengthWidget.classList.add('hidden');
+            gettingStartedSection.classList.remove('hidden'); // Show getting started card
+            profileStrengthWidget.classList.add('hidden'); // Hide profile strength initially
+            // Optionally hide other sections too until profile is complete
         } else {
-            gettingStartedSection.classList.add('hidden');
-            profileStrengthWidget.classList.remove('hidden');
-            updateProfileStrengthUI(currentUserData);
+            gettingStartedSection.classList.add('hidden'); // Hide getting started card
+            profileStrengthWidget.classList.remove('hidden'); // Show profile strength
+            updateProfileStrengthUI(currentUserData); // Update profile strength
         }
 
-        setupBlockDateForm(user.uid);
+        // --- Conditional Bottom Nav ---
+        updateBottomNav(currentUserData?.subscriptionTier || 'free');
 
-        // Load schedule and gigs *concurrently* after user data is fetched
-        await Promise.all([
-             loadSchedule(user.uid),
-             loadOpenGigs(user.uid, currentUserData?.subscriptionTier || 'free')
-        ]);
-        // loadPayoutChart(); // REMOVED
+        // Load schedule and gigs after getting user data
+        loadSchedule(user.uid);
+        loadOpenGigs(user.uid, currentUserData?.subscriptionTier || 'free'); // Pass tier
+        // setupNotificationListener(user.uid); // Placeholder
+        setupBlockDateForm(user.uid);
+        // loadPayoutChart(); // Removed payout chart loading
 
       } catch (error) {
         console.error("Error loading initial user data:", error);
         toast.show("Could not load your dashboard data.", "error");
-        // Hide spinners, show error/empty states on initial load failure
+        // Ensure loading states are hidden on error, show empty states
         if(scheduleLoading) scheduleLoading.style.display = 'none';
         if(gigsLoading) gigsLoading.style.display = 'none';
-        if(scheduleError) scheduleError.style.display = 'block'; else if(scheduleEmpty) scheduleEmpty.style.display = 'block';
-        if(gigsError) gigsError.style.display = 'block'; else if(gigsEmpty) gigsEmpty.style.display = 'block';
+        if(scheduleEmpty) scheduleEmpty.style.display = 'block';
+        if(gigsEmpty) gigsEmpty.style.display = 'block';
+        // Show error in profile strength
         if(profileStrengthPercent) profileStrengthPercent.textContent = 'Error';
         if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Could not load profile data.';
         if(profileStrengthBar) profileStrengthBar.style.width = '0%';
+        updateBottomNav('free'); // Default nav on error
       }
 
     } else {
@@ -359,20 +344,86 @@
     }
   });
 
+  function updateBottomNav(tier) {
+      const navContainer = document.getElementById('bottom-nav-container'); // Use ID for container
+      if (!navContainer) return;
+
+      // Remove all existing links first
+      navContainer.innerHTML = '';
+
+      // Add common links
+      navContainer.innerHTML += `
+          <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Home">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
+            <span class="text-xs font-medium">Home</span>
+          </a>
+          <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Gigs">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <span class="text-xs font-medium">Gigs</span>
+          </a>`;
+
+      // Add "Applied" only for Pro users
+      if (tier !== 'free') {
+          navContainer.innerHTML += `
+              <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Applied">
+                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-medium">Applied</span>
+              </a>`;
+      }
+
+      // Add Inbox and Account for everyone
+      navContainer.innerHTML += `
+          <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
+            <span class="text-xs font-medium">Inbox</span>
+          </a>
+          <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Account">
+             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <span class="text-xs font-medium">Account</span>
+          </a>`;
+
+        // Re-apply active state based on current page AFTER rebuilding the nav
+        // Find the link whose href matches the current page's filename
+        const currentPage = window.location.pathname.split('/').pop();
+        const activeLink = navContainer.querySelector(`a[href="${currentPage}"]`);
+         // Reset all first
+        navContainer.querySelectorAll('.bottom-nav-link').forEach(link => {
+            link.classList.remove('active', 'text-emerald-400');
+            link.classList.add('text-neutral-400');
+        });
+        // Apply active to the correct one
+        if (activeLink) {
+            activeLink.classList.add('active', 'text-emerald-400');
+            activeLink.classList.remove('text-neutral-400');
+        } else {
+             // Fallback: If no match (e.g., on dashboard index), highlight Home
+             const homeLink = navContainer.querySelector('a[href="setflow-musician-dashboard.html"]');
+             if (homeLink) {
+                 homeLink.classList.add('active', 'text-emerald-400');
+                 homeLink.classList.remove('text-neutral-400');
+             }
+        }
+  }
+
   function updateProfileStrengthUI(userData) {
     // ... (logic remains the same) ...
-     if (!userData) { /* Handle error state */ return; }
-     let score = 10; let prompts = [];
-     if (userData.bio && userData.bio.length > 20) score += 30; else prompts.push('Add a detailed bio');
-     if (userData.location) score += 20; else prompts.push('Add your location');
-     if (userData.website || userData.spotify || userData.instagram) score += 20; else prompts.push('Add links');
-     if (userData.profileImageUrl) score += 20; else prompts.push('Add a profile picture');
-     score = Math.min(score, 100);
-     if(profileStrengthBar) profileStrengthBar.style.width = `${score}%`;
-     if(profileStrengthPercent) profileStrengthPercent.textContent = `${score}%`;
-     if (score === 100) { if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Your profile is looking great!'; if(profileStrengthWidget) profileStrengthWidget.classList.add('border-emerald-500/50');
-     } else if (prompts.length > 0) { if(profileStrengthPrompt) profileStrengthPrompt.textContent = `Next step: ${prompts[0]}`; if(profileStrengthWidget) profileStrengthWidget.classList.remove('border-emerald-500/50');
-     } else { if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Profile complete!'; if(profileStrengthWidget) profileStrengthWidget.classList.add('border-emerald-500/50'); }
+     if (!userData) {
+        profileStrengthPercent.textContent = 'Error';
+        profileStrengthPrompt.textContent = 'Could not load profile data.';
+        profileStrengthBar.style.width = '0%';
+        return;
+    }
+    let score = 10; let prompts = [];
+    if (userData.bio && userData.bio.length > 20) score += 30; else prompts.push('Add a detailed bio');
+    if (userData.location) score += 20; else prompts.push('Add your location');
+    if (userData.website || userData.spotify || userData.instagram) score += 20; else prompts.push('Add links');
+    if (userData.profileImageUrl) score += 20; else prompts.push('Add a profile picture');
+    score = Math.min(score, 100);
+    if(profileStrengthBar) profileStrengthBar.style.width = `${score}%`;
+    if(profileStrengthPercent) profileStrengthPercent.textContent = `${score}%`;
+    if (score === 100) { if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Your profile is looking great!'; if(profileStrengthWidget) profileStrengthWidget.classList.add('border-emerald-500/50');
+    } else if (prompts.length > 0) { if(profileStrengthPrompt) profileStrengthPrompt.textContent = `Next step: ${prompts[0]}`; if(profileStrengthWidget) profileStrengthWidget.classList.remove('border-emerald-500/50');
+    } else { if(profileStrengthPrompt) profileStrengthPrompt.textContent = 'Profile complete!'; if(profileStrengthWidget) profileStrengthWidget.classList.add('border-emerald-500/50'); }
   }
 
   async function loadSchedule(userId) {
@@ -596,6 +647,47 @@
   document.addEventListener('DOMContentLoaded', () => {
     const isOnlineNow = isOnline();
     offlineBanner.style.display = isOnlineNow ? 'none' : 'block';
+
+    // --- START MODAL FIX ---
+    // Manually initialize modal listeners for this page
+    const modalTriggers = document.querySelectorAll('[data-modal-target]');
+    const modalContainers = document.querySelectorAll('.modal-container');
+
+    modalTriggers.forEach(trigger => {
+        const modalId = trigger.dataset.modalTarget;
+        const modal = document.querySelector(modalId);
+        if (modal) {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                requestAnimationFrame(() => {
+                    modal.querySelector('.modal-overlay').style.opacity = '1';
+                    modal.querySelector('.modal-content').style.opacity = '1';
+                    modal.querySelector('.modal-content').style.transform = 'scale(1)';
+                });
+            });
+        }
+    });
+    modalContainers.forEach(modal => {
+         const overlay = modal.querySelector('.modal-overlay');
+         const closeButtons = modal.querySelectorAll('.modal-close, .modal-close-x');
+         const closeModal = () => {
+            modal.querySelector('.modal-overlay').style.opacity = '0';
+            modal.querySelector('.modal-content').style.opacity = '0';
+            modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 300);
+         };
+         if (overlay) overlay.addEventListener('click', closeModal);
+         closeButtons.forEach(button => button.addEventListener('click', (e) => { e.preventDefault(); closeModal(); }));
+         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
+    });
+    // --- END MODAL FIX ---
   });
 </script>
 
