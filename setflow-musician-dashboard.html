@@ -68,7 +68,7 @@
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notification-badge" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white"></span>
         </a>
-        <a href="setflow-account-settings.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Account Settings">
+        <a href="setflow-musician-settings.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900" aria-label="Account Settings">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         </a>
       </div>
@@ -100,7 +100,9 @@
         <div id="profile-strength-bar" class="h-2.5 rounded-full bg-emerald-500 transition-all duration-500" style="width: 10%"></div>
       </div>
       <p class="text-sm text-neutral-400" id="profile-strength-prompt">Complete your profile to get noticed!</p>
-      <div id="schedule" class="mt-6">
+    </section>
+
+    <section id="schedule" class="mb-8">
         <div class="mb-4 flex items-center justify-between">
           <h2 class="text-xl font-semibold text-white">Your Schedule</h2>
           <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">See All</a>
@@ -146,7 +148,7 @@
                  <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
              <a href="setflow-achievements.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 01.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
                 <span class="flex-1 font-semibold text-white">Achievements</span>
                  <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
@@ -238,9 +240,9 @@
         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
         <span class="text-xs font-medium">Inbox</span>
       </a>
-      <a href="setflow-account-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Menu">
+      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Account">
          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-        <span class="text-xs font-medium">Menu</span>
+        <span class="text-xs font-medium">Account</span>
       </a>
     </div>
   </nav>
@@ -294,6 +296,23 @@
       // Show loading states initially
       if(scheduleLoading) scheduleLoading.style.display = 'flex';
       if(gigsLoading) gigsLoading.style.display = 'flex';
+
+      // --- START HEADER/NAV FIX ---
+      // Update header account link to point to the correct musician settings file
+      const headerAccountLink = document.querySelector('header a[href="setflow-account-settings.html"]');
+      if (headerAccountLink) {
+          headerAccountLink.href = 'setflow-musician-settings.html';
+      }
+      // Update bottom nav "Account" link (formerly "Menu")
+      const bottomNavContainer = document.querySelector('nav .flex');
+      if (bottomNavContainer) {
+          const accountLink = bottomNavContainer.querySelector('a[aria-label="Account"]'); // Select new label
+          if(accountLink) {
+              accountLink.href = 'setflow-musician-settings.html'; // Point to correct file
+          }
+      }
+      // --- END HEADER/NAV FIX ---
+
 
       try {
         currentUserData = await gracefulGet(getUserData(user.uid), null);
@@ -412,7 +431,7 @@
 
           upcomingGigs.slice(0, 3).forEach(event => { // Show max 3 gigs
             const eventTypeClass = 'border-emerald-500'; // Always gig type now
-            const eventIcon = `<svg class="w-5 h-5 text-emerald-400" ...></svg>`; // Gig icon
+            const eventIcon = `<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`; // Calendar icon
             const linkHref = `setflow-show-sheet.html?gigId=${event.id}`;
             const card = `
                 <a href="${linkHref}" class="block rounded-xl border border-neutral-700 bg-neutral-800 p-4 transition-colors hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 border-l-4 ${eventTypeClass}">
@@ -498,58 +517,64 @@
 
 
   function setupBlockDateForm(userId) {
-    // ... (logic remains the same) ...
-     const form = document.getElementById('block-date-form');
+    const form = document.getElementById('block-date-form');
     const confirmBtn = document.getElementById('confirm-block-date');
-    const closeButtons = document.querySelectorAll('.modal-close, .modal-close-x');
-    const modal = document.getElementById('block-date-modal');
-    const modalOverlay = modal?.querySelector('.modal-overlay');
-
-    if(!form || !confirmBtn || !modal) return;
-
-    const openModalBtn = document.getElementById('open-modal-btn');
-
-    const openModal = () => {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.body.classList.add('overflow-hidden');
-    };
-
-    const closeModal = () => {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      document.body.classList.remove('overflow-hidden');
-      form.reset();
-    };
-
-    openModalBtn?.addEventListener('click', openModal);
-    closeButtons.forEach(button => button.addEventListener('click', closeModal));
-    modalOverlay?.addEventListener('click', closeModal);
+    if (!form || !confirmBtn) return;
+    
+    // Modal open/close logic is handled by api.js global init
+    // const closeButtons = document.querySelectorAll('.modal-close, .modal-close-x');
+    // const modal = document.getElementById('block-date-modal');
+    // const modalOverlay = modal?.querySelector('.modal-overlay');
+    // ... open/close listeners ...
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      const date = document.getElementById('block-date').value;
+      const reason = document.getElementById('block-reason').value.trim();
+      if (!date) { toast.show("Please select a date.", "error"); return; }
 
-      const date = form['block-date'].value;
-      const reason = form['block-reason'].value;
-
-      if(!date) {
-        toast.show('Please select a date to block.', 'error');
-        return;
+      // Convert YYYY-MM-DD to a Timestamp at midday UTC
+      let eventTimestamp;
+      try {
+          const [year, month, day] = date.split('-');
+          // Use UTC to avoid timezone shift issues
+          eventTimestamp = Timestamp.fromDate(new Date(Date.UTC(year, month - 1, day, 12, 0, 0)));
+      } catch (e) {
+          console.error("Invalid date format:", e);
+          toast.show("Invalid date format.", "error"); return;
       }
+
+      const eventData = { 
+          userId: userId, 
+          title: reason || 'Blocked Date', 
+          type: 'Personal (Blocked Off)', 
+          dateTime: eventTimestamp, // Use the Timestamp
+          notes: 'Blocked via dashboard quick action' 
+      };
 
       confirmBtn.disabled = true;
       confirmBtn.innerHTML = '<span class="loading-spinner-inline"></span>Blocking...';
 
       try {
-        await createCalendarEvent(userId, {
-          title: 'Blocked',
-          date,
-          type: 'blocked',
-          reason,
-        });
-
+        // We must use the *correct* API call format from api.js
+        // createCalendarEvent expects (eventData), not (userId, {details})
+        await createCalendarEvent(eventData); // Pass the single event object
         toast.show('Date blocked successfully.', 'success');
-        await loadSchedule(userId);
+        
+        // Manually close the modal on success
+        const modal = document.getElementById('block-date-modal');
+        const overlay = modal.querySelector('.modal-overlay');
+        const content = modal.querySelector('.modal-content');
+        if(overlay) overlay.style.opacity = '0';
+        if(content) { content.style.opacity = '0'; content.style.transform = 'scale(0.95)'; }
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+            form.reset();
+        }, 300);
+
+        await loadSchedule(userId); // Reload schedule
 
       } catch (error) {
         console.error('Error blocking date:', error);
@@ -557,13 +582,6 @@
       } finally {
         confirmBtn.disabled = false;
         confirmBtn.textContent = 'Confirm';
-        closeModal();
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-        closeModal();
       }
     });
   }

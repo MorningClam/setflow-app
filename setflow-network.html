@@ -31,7 +31,7 @@
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-       <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+       <a href="setflow-musician-settings.html" aria-label="Go back to settings" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">My Network</h1>
@@ -51,6 +51,27 @@
     <div class="hidden py-10 text-center text-red-400" id="error-state">
         <p>Could not load network contacts.</p>
     </div>
+    
+    <div class="network-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700">
+        <a href="setflow-venue-profile.html?venueId=venueUser1" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
+            <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop" alt="The Pour House photo">
+            <div class="min-w-0">
+                <p class="truncate font-semibold text-white group-hover:text-emerald-400">The Pour House</p>
+                <p class="truncate text-xs text-neutral-400">Venue • Raleigh, NC</p>
+            </div>
+        </a>
+        <a href="setflow-conversation-view.html?recipientId=venueUser1" class="message-btn ml-2 flex-shrink-0 rounded-xl bg-neutral-700 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Message</a>
+    </div>
+     <div class="network-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700">
+        <a href="setflow-public-profile.html?userId=promoterUser1" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
+            <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop" alt="Maria (Fest) photo">
+            <div class="min-w-0">
+                <p class="truncate font-semibold text-white group-hover:text-emerald-400">Maria (Fest)</p>
+                <p class="truncate text-xs text-neutral-400">Promoter • Apex, NC</p>
+            </div>
+        </a>
+        <a href="setflow-conversation-view.html?recipientId=promoterUser1" class="message-btn ml-2 flex-shrink-0 rounded-xl bg-neutral-700 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Message</a>
+    </div>
     </main>
   </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
  <span id="toast-message">Placeholder message</span>
@@ -58,8 +79,7 @@
 <script src="toast.js"></script>
 
  <script type="module">
-     import { onAuthState, gracefulGet, isOnline } from './api.js';
-     // TODO: Need API function like fetchUserNetwork(userId)
+     import { onAuthState, gracefulGet, isOnline, fetchUserNetwork } from './api.js'; // Import the new function
 
      const networkContainer = document.getElementById('network-list');
      const loadingState = document.getElementById('loading-state');
@@ -76,43 +96,45 @@
 
 
      function renderNetwork(contacts) {
-         // Clear previous items
+         // Clear previous items FIRST
          const existingItems = networkContainer.querySelectorAll('.network-item');
          existingItems.forEach(item => item.remove());
 
+         // Manage states explicitly
+         loadingState.style.display = 'none';
+         emptyState.style.display = 'none';
+         errorState.style.display = 'none';
+
          if (!contacts) { // Error case
-             loadingState.style.display = 'none';
-             emptyState.style.display = 'none';
              errorState.style.display = 'block';
              return;
          }
 
          if (contacts.length === 0) {
-             loadingState.style.display = 'none';
-             errorState.style.display = 'none';
              emptyState.style.display = 'block';
              return;
          }
 
-         loadingState.style.display = 'none'; // Hide states
-         emptyState.style.display = 'none';
-         errorState.style.display = 'none';
-
-
+         // Only reach here if contacts is a non-empty array
          contacts.forEach(contact => {
              const contactCard = document.createElement('div');
              // Use Canonical List Item Structure (modified)
              contactCard.className = 'network-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
 
              let profileLink = `setflow-public-profile.html?userId=${contact.id}`; // Default
+             // Adjust link based on role (assuming role is stored reliably)
              if (contact.role?.toLowerCase() === 'venue') {
                  profileLink = `setflow-venue-profile.html?venueId=${contact.id}`;
+             } else if (contact.role?.toLowerCase() === 'promoter') {
+                 // Potentially link to a generic public profile or a specific promoter view if created
+                 profileLink = `setflow-public-profile.html?userId=${contact.id}`;
              }
 
              const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
              const profileImage = contact.profileImageUrl || placeholderImg;
-             // Basic role display
-             const roleDisplay = contact.role ? `${contact.role} • ` : '';
+             // Basic role display, handle potential array vs string
+             const roleString = Array.isArray(contact.roles) ? contact.roles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ') : (contact.role || '');
+             const roleDisplay = roleString ? `${roleString} • ` : '';
 
              contactCard.innerHTML = `
                  <a href="${profileLink}" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
@@ -134,17 +156,12 @@
              loadingState.style.display = 'flex'; // Show loading
              emptyState.style.display = 'none';
              errorState.style.display = 'none';
+             // Clear previous items before fetching
+             const existingItems = networkContainer.querySelectorAll('.network-item');
+             existingItems.forEach(item => item.remove());
              try {
-                  // Placeholder fetch logic - Replace with actual fetchUserNetwork(user.uid)
-                 const fetchPromise = new Promise(resolve => setTimeout(() => resolve([
-                      { id: 'venueUser1', name: 'The Pour House', role: 'Venue', location: 'Raleigh, NC', profileImageUrl: null },
-                      { id: 'venueUser2', name: 'Blue Note Brewpub', role: 'Venue', location: 'Durham, NC', profileImageUrl: 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop' },
-                      { id: 'promoterUser1', name: 'Maria (Apex Fall Fest)', role: 'Promoter', location: 'Apex, NC', profileImageUrl: null },
-                      { id: 'musicianUser1', name: 'Alice Keys', role: 'Musician', location: 'Cary, NC', profileImageUrl: null },
-                  ]), 1000));
-
-                 // Use gracefulGet, manage states manually
-                 const networkContacts = await gracefulGet(fetchPromise, null, "Could not load network contacts offline.");
+                 // Fetch actual network data using the new API function
+                 const networkContacts = await gracefulGet(fetchUserNetwork(user.uid), null, "Could not load network contacts offline.");
                  renderNetwork(networkContacts); // Handles null/empty response
 
              } catch (error) {
