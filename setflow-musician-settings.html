@@ -41,6 +41,14 @@
     .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
     .modal-container.flex .modal-content { transform: scale(1); opacity: 1; }
     .modal-container.flex .modal-overlay { opacity: 1; }
+
+    /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -75,8 +83,7 @@
                 <span class="loading-spinner-inline" id="user-email-spinner"></span>Loading...
             </p>
           </div>
-          <a href="setflow-edit-profile.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit</a>
-        </div>
+          </div>
         <div class="flex items-center justify-between p-4">
           <div>
             <p class="text-sm text-neutral-400">Password</p>
@@ -197,14 +204,15 @@
       </div>
   </div>
 
-</div>
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message">Placeholder message</span>
+</div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
+  </nav>
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
-
-<script type="module">
-    import { signOutUser, onAuthState, getUserData, getBandsForUser, deleteUserAccount, gracefulGet, isOnline } from './api.js'; // Removed ui import
+<script src="nav.js"></script> <script type="module">
+    import { signOutUser, onAuthState, getUserData, getBandsForUser, deleteUserAccount, gracefulGet, isOnline } from './api.js';
     import { toast } from './toast.js';
 
     // Modal init is now handled by api.js
@@ -221,8 +229,8 @@
     const userEmailElement = document.getElementById('user-email');
     const subStatusElement = document.getElementById('subscription-status');
     const subStatusSpinner = document.getElementById('subscription-status-spinner');
-    const userNameSpinner = document.getElementById('user-name-spinner'); // Corrected ID needed in HTML
-    const userEmailSpinner = document.getElementById('user-email-spinner'); // Corrected ID needed in HTML
+    const userNameSpinner = document.getElementById('user-name-spinner');
+    const userEmailSpinner = document.getElementById('user-email-spinner');
 
     // Update offline banner based on initial status
     offlineBanner.style.display = isOnline() ? 'none' : 'block';
@@ -313,9 +321,10 @@
     onAuthState(async (user) => {
         if (user) {
             // Load user data and bands concurrently
+            let userData, bands;
             try {
                 // Fetch data using gracefulGet, manage band loading state visually
-                const [userData, bands] = await Promise.all([
+                [userData, bands] = await Promise.all([
                      gracefulGet(getUserData(user.uid)), // No container needed for user data
                      gracefulGet(getBandsForUser(user.uid), null) // No container needed, manage manually
                 ]);
@@ -338,6 +347,12 @@
                     showDataText(subStatusElement, subStatusSpinner, 'Unavailable');
                     toast.show('Could not load user details.', 'error');
                 }
+                
+                // --- ADDED NAV LOGIC ---
+                const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
+                const userTier = userData?.subscriptionTier || 'free';
+                renderBottomNav(userRole, userTier, 'setflow-musician-settings.html');
+                // --- END NAV LOGIC ---
 
                 // Render bands (handles null/error case internally)
                 renderBands(bands);
@@ -350,6 +365,9 @@
                  showDataText(userEmailElement, document.getElementById('user-email-spinner'), 'Error');
                  showDataText(subStatusElement, subStatusSpinner, 'Error');
                  renderBands(null); // Show error state for bands
+                 
+                 // --- ADDED FALLBACK NAV LOGIC ---
+                 renderBottomNav('musician', 'free', 'setflow-musician-settings.html');
             }
         } else {
             window.location.href = 'setflow-login-page.html';

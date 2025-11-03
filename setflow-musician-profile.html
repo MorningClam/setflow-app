@@ -24,6 +24,14 @@
         display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -39,21 +47,21 @@
       </div>
     </header>
 
-    <main id="profile-container" class="flex-grow pt-16 pb-5">
-      <div class="flex justify-center items-center py-10" id="loading-state">
+    <main id="profile-container" class="flex-grow pt-16 pb-20"> <div class="flex justify-center items-center py-10" id="loading-state">
         <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
       </div>
       <div class="hidden p-5 text-center text-red-400" id="error-state">
           <p>Could not load profile data.</p>
       </div>
       </main>
-    </div>
-   <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder message</span>
+    </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
+  </nav>
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
    </div>
    <script src="toast.js"></script>
-
-  <script type="module">
+   <script src="nav.js"></script> <script type="module">
     import { onAuthState, getUserData, getBandsForUser, gracefulGet, isOnline } from './api.js';
 
     const profileContainer = document.getElementById('profile-container');
@@ -100,7 +108,7 @@
             <div class="space-y-3">
               ${bands.map(band => `
                 <a href="setflow-band-management.html?bandId=${band.id}" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-                  <img class="mr-4 h-12 w-12 flex-shrink-0 rounded-lg bg-neutral-700 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop'}" alt="${band.name} photo">
+                  <img class="mr-4 h-12 w-12 flex-shrink-0 rounded-lg bg-neutral-700 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}" alt="${band.name} photo">
                   <div class="min-w-0 flex-1">
                     <p class="truncate font-semibold text-white">${band.name}</p>
                     <p class="truncate text-xs text-neutral-400">${band.genre || 'Music'}</p>
@@ -125,7 +133,7 @@
       profileContainer.insertAdjacentHTML('beforeend', `
         ${lookingForBandsBanner}
         <section class="border-b border-neutral-700 p-5 text-center">
-          <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format&fit=crop'}" alt="Profile photo">
+          <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop'}" alt="Profile photo">
           <h2 class="mt-4 text-2xl font-bold text-white">${userData.name || 'Your Name'}</h2>
           <p class="text-base text-neutral-400">${userData.location || 'Your Location'}</p>
         </section>
@@ -214,13 +222,21 @@
       if (user) {
         loadingState.style.display = 'flex'; // Show loading
         errorState.style.display = 'none';
+        
+        let userData, bands;
         try {
-          const [userData, bands] = await Promise.all([
+          [userData, bands] = await Promise.all([
              gracefulGet(getUserData(user.uid), null, "Could not load profile data while offline."),
              gracefulGet(getBandsForUser(user.uid), null, "Could not load bands while offline.")
           ]);
 
           renderProfile(userData, bands); // Render profile (handles null userData)
+
+          // --- ADDED NAV LOGIC ---
+          const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
+          const userTier = userData?.subscriptionTier || 'free';
+          renderBottomNav(userRole, userTier, 'setflow-musician-profile.html');
+          // --- END NAV LOGIC ---
 
           // Load chart AFTER rendering the main profile content
           if (userData) {
@@ -230,6 +246,8 @@
         } catch (error) {
           console.error("Error fetching musician profile data:", error);
           renderProfile(null, null); // Show error state
+          // --- ADDED FALLBACK NAV LOGIC ---
+          renderBottomNav('musician', 'free', 'setflow-musician-profile.html');
         }
       } else {
         window.location.href = 'setflow-login-page.html';

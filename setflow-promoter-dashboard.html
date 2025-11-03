@@ -72,30 +72,13 @@
     </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div class="flex h-16 items-center justify-around">
-          <a href="setflow-promoter-dashboard.html" class="bottom-nav-link active text-emerald-400" aria-current="page" aria-label="Dashboard">
-              <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg>
-              <span class="text-xs font-medium">Dashboard</span>
-          </a>
-          <a href="setflow-post-event-page.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Post Gig">
-              <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="text-xs font-medium">Post</span>
-          </a>
-          <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Inbox">
-              <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="text-xs font-medium">Inbox</span>
-          </a>
-          <a href="setflow-promoter-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white" aria-label="Account">
-               <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="text-xs font-medium">Account</span>
-          </a>
-      </div>
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
   </nav>
-</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+  </div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
-
-<script type="module">
+<script src="nav.js"></script> <script type="module">
   import { onAuthState, fetchGigsForOwner, getUserData, gracefulGet, isOnline } from './api.js';
 
   const eventsContainer = document.getElementById('events-container');
@@ -126,7 +109,10 @@
     }
 
     // Add Section Header only if rendering content
-    eventsContainer.insertAdjacentHTML('afterbegin', '<h2 class="text-xl font-semibold text-white mb-4">Your Events</h2>'); // Added afterbegin
+    // Check if header already exists to avoid duplicates on re-render
+    if (!eventsContainer.querySelector('h2')) {
+        eventsContainer.insertAdjacentHTML('afterbegin', '<h2 class="text-xl font-semibold text-white mb-4">Your Events</h2>');
+    }
 
     if (gigs.length === 0) {
         loadingState.style.display = 'none';
@@ -150,7 +136,7 @@
       // Use Canonical Card style
       const cardClass = isBooked
           ? 'rounded-xl border border-neutral-700 bg-neutral-800 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900' // Booked style
-          : 'rounded-xl border border-emerald-500 bg-neutral-800 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900'; // Open style (removed shadow)
+          : 'rounded-xl border border-emerald-500 bg-neutral-800 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900'; // Open style
       eventCard.className = cardClass;
 
       const reviewLink = `setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}`;
@@ -194,6 +180,12 @@
 
         // Update header
         promoterNameHeader.textContent = userData?.name || "Promoter Dashboard"; // Use textContent
+        
+        // --- ADDED NAV LOGIC ---
+        const userRole = (userData?.roles && userData.roles.includes('promoter')) ? 'promoter' : 'unknown';
+        // Call the global function from nav.js
+        renderBottomNav(userRole, 'free', 'setflow-promoter-dashboard.html');
+        // --- END NAV LOGIC ---
 
         renderEvents(gigs); // Handles null/empty response
 
@@ -203,6 +195,8 @@
          if (!promoterNameHeader.textContent || promoterNameHeader.textContent === 'Loading...') {
              promoterNameHeader.textContent = "Dashboard";
          }
+         // --- ADDED FALLBACK NAV LOGIC ---
+         renderBottomNav('promoter', 'free', 'setflow-promoter-dashboard.html');
       }
     } else {
       window.location.href = 'setflow-login-page.html';
