@@ -55,6 +55,13 @@
     .badge-icon.unlocked-stone { color: theme('colors.stone.400'); }
     .badge-icon.locked { color: theme('colors.neutral.500'); }
 
+     /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -69,7 +76,7 @@
       <div class="w-10 h-10"></div> </div>
   </header>
 
-  <main class="flex-1 p-5 pt-20"> <div class="mb-8 text-center"> <h2 class="text-2xl font-bold text-white">Your Trophy Case</h2>
+  <main class="flex-1 p-5 pt-20 pb-20"> <div class="mb-8 text-center"> <h2 class="text-2xl font-bold text-white">Your Trophy Case</h2>
         <p class="mt-1 text-base text-neutral-400">Unlock badges for reaching new milestones.</p>
     </div>
 
@@ -124,12 +131,14 @@
 
     </div>
   </main>
-  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-   <span id="toast-message">Placeholder message</span>
+  </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
+  </nav>
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
  </div>
  <script src="toast.js"></script>
-
- <script type="module">
+ <script src="nav.js"></script> <script type="module">
      // Basic script for offline banner, etc.
      // TODO: Add logic to fetch user's achievement status and dynamically apply 'badge-locked' class
      import { onAuthState, getUserData, gracefulGet, isOnline } from './api.js';
@@ -149,9 +158,18 @@
              window.location.href = 'setflow-login-page.html';
              return;
          }
-         // Placeholder: Fetch user data which might contain achievement progress
+         
+         // Fetch user data which might contain achievement progress
          try {
-             // const userData = await gracefulGet(getUserData(user.uid), null);
+             const userData = await gracefulGet(getUserData(user.uid), null);
+
+             // --- ADDED NAV LOGIC ---
+             const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
+             const userTier = userData?.subscriptionTier || 'free';
+             // Call the global function from nav.js
+             renderBottomNav(userRole, userTier, 'setflow-achievements.html');
+             // --- END NAV LOGIC ---
+             
              // if (userData && userData.achievements) {
              //     updateAchievementUI(userData.achievements);
              // }
@@ -159,6 +177,10 @@
          } catch (error) {
              console.error("Error loading achievement data:", error);
              toast.show("Could not load achievement status.", "error");
+             
+             // --- ADDED FALLBACK NAV LOGIC ---
+             renderBottomNav('musician', 'free', 'setflow-achievements.html');
+             // --- END FALLBACK NAV LOGIC ---
          }
      });
 

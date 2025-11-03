@@ -29,6 +29,14 @@
         background-color: theme('colors.emerald.800'); /* bg-emerald-800 */
         color: theme('colors.emerald.300'); /* text-emerald-300 */
     }
+
+    /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -56,7 +64,7 @@
         </div>
   </header>
 
-  <main id="band-results" class="flex-1 space-y-3 p-5 pt-40"> <div class="flex justify-center items-center py-10" id="loading-state">
+  <main id="band-results" class="flex-1 space-y-3 p-5 pt-40 pb-20"> <div class="flex justify-center items-center py-10" id="loading-state">
       <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
     </div>
     <div class="hidden py-10 text-center" id="empty-state">
@@ -70,13 +78,15 @@
         <p>Could not load bands.</p>
     </div>
     </main>
-  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
- <span id="toast-message">Placeholder message</span>
+  </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
+  </nav>
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
-
-<script type="module">
-  import { onAuthState, requestToJoinBand, getAllBands, gracefulGet, isOnline } from './api.js';
+<script src="nav.js"></script> <script type="module">
+  import { onAuthState, requestToJoinBand, getAllBands, gracefulGet, isOnline, getUserData } from './api.js'; // Added getUserData
 
   const searchInput = document.getElementById('search-input');
   const bandResultsContainer = document.getElementById('band-results');
@@ -97,11 +107,23 @@
       offlineBanner.style.display = event.detail.online ? 'none' : 'block';
   });
 
-  onAuthState(user => {
+  onAuthState(async (user) => { // Made async
     if (!user) {
       window.location.href = 'setflow-login-page.html';
     } else {
       currentUser = user;
+      
+      // --- ADDED: Fetch user data for nav ---
+      try {
+          const userData = await gracefulGet(getUserData(user.uid), null);
+          const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
+          const userTier = userData?.subscriptionTier || 'free';
+          renderBottomNav(userRole, userTier, 'setflow-find-a-band.html');
+      } catch(e) {
+          console.error("Nav error:", e);
+          renderBottomNav('musician', 'free', 'setflow-find-a-band.html'); // Fallback
+      }
+      // --- END NAV LOGIC ---
     }
   });
 
@@ -133,7 +155,7 @@
       const bandCard = document.createElement('div');
       // Canonical List Item Structure (modified)
       bandCard.className = 'band-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
-      const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
+      const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format&fit=crop';
       const isMember = band.members && currentUser && band.members[currentUser.uid]; // Check if current user is member
 
       bandCard.innerHTML = `

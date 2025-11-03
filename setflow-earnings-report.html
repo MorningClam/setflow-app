@@ -24,6 +24,14 @@
         display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -38,7 +46,7 @@
       <div class="w-10 h-10"></div> </div>
   </header>
 
-  <main class="flex-1 p-5 pt-20"> <section class="mb-8">
+  <main class="flex-1 p-5 pt-20 pb-20"> <section class="mb-8">
         <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4 text-center">
             <p class="text-sm font-medium uppercase tracking-wider text-neutral-400">Total Earnings (YTD)</p>
             <p class="mt-1 text-4xl font-bold text-emerald-400">$0</p> </div>
@@ -63,13 +71,15 @@
         </div>
     </section>
  </main>
- </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
- <span id="toast-message">Placeholder message</span>
+ </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
+  </nav>
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
-
-<script type="module">
-    import { onAuthState, gracefulGet, isOnline, fetchCompletedGigsForUser } from './api.js'; // Import the new function
+<script src="nav.js"></script> <script type="module">
+    import { onAuthState, gracefulGet, isOnline, fetchCompletedGigsForUser, getUserData } from './api.js'; // Import getUserData
 
     const gigsListContainer = document.getElementById('completed-gigs-list');
     const loadingState = document.getElementById('loading-state');
@@ -146,6 +156,13 @@
             if(ytdElement) ytdElement.textContent = '$0'; // Reset YTD display
 
             try {
+                // --- ADDED: Fetch user data for nav ---
+                const userData = await gracefulGet(getUserData(user.uid), null);
+                const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
+                const userTier = userData?.subscriptionTier || 'free';
+                renderBottomNav(userRole, userTier, 'setflow-earnings-report.html');
+                // --- END NAV LOGIC ---
+            
                 // Fetch actual completed gigs data using the new API function
                 const completedGigs = await gracefulGet(fetchCompletedGigsForUser(user.uid), null, "Could not load earnings data offline.");
 
@@ -164,6 +181,8 @@
                 console.error("Error fetching earnings:", error);
                 renderCompletedGigs(null); // Show error state
                 // YTD error state already set in renderCompletedGigs
+                // --- ADDED: Fallback nav render ---
+                renderBottomNav('musician', 'free', 'setflow-earnings-report.html');
             }
         }
     });
