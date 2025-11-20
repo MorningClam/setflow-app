@@ -24,7 +24,7 @@
         display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
+    
     /* Bottom Nav Styles */
     .bottom-nav-link {
         display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
@@ -61,7 +61,7 @@
     </div>
 
     </main>
-  </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+</div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
       <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
           </div>
   </nav>
@@ -70,7 +70,7 @@
  <script src="toast.js"></script>
  <script src="nav.js"></script> <script type="module">
      import { onAuthState, gracefulGet, isOnline, getUserData, fetchNotifications } from './api.js'; // Added getUserData, fetchNotifications
-     // TODO: Add fetchNotifications() function in api.js (using placeholder for now)
+     // TODO: Add fetchNotifications() function in api.js
 
      const listContainer = document.getElementById('notifications-list');
      const loadingState = document.getElementById('loading-state');
@@ -129,7 +129,8 @@
                     iconBgClass = 'bg-sky-500';
                     iconSvg = `<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg>`;
                     break;
-                case 'gig_booked': // Added case
+                // Add more cases: gig_booked, review_left, etc.
+                case 'gig_booked':
                     iconBgClass = 'bg-amber-500';
                     iconSvg = `<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
                     break;
@@ -168,9 +169,13 @@
         try {
             // --- ADDED: Fetch user data for nav ---
             userData = await gracefulGet(getUserData(user.uid), null);
-            const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
+            // This page could be for Musician, Venue, or Promoter, so we need to find the right role
+            let userRole = 'musician'; // Default
+            if (userData?.roles?.includes('venue')) userRole = 'venue';
+            else if (userData?.roles?.includes('promoter')) userRole = 'promoter';
+            
             const userTier = userData?.subscriptionTier || 'free';
-            renderBottomNav(userRole, userTier, 'setflow-notifications.html');
+            renderBottomNav(userRole, userTier, 'setflow-notifications.html'); // This page doesn't exist on nav, so no item will be active (which is fine)
             // --- END NAV LOGIC ---
         
             // Fetch notifications

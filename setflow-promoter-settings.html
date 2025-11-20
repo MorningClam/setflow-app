@@ -35,6 +35,14 @@
     .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
     .modal-container.flex .modal-content { transform: scale(1); opacity: 1; }
     .modal-container.flex .modal-overlay { opacity: 1; }
+
+    /* Bottom Nav Styles */
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+    }
+    .bottom-nav-link:hover { color: theme('colors.white'); }
+    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -144,13 +152,14 @@
       </div>
   </div>
 
-</div>
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message">Placeholder message</span>
+</div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+          </div>
+  </nav>
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
-
-<script type="module">
+<script src="nav.js"></script> <script type="module">
     import { signOutUser, onAuthState, getUserData, deleteUserAccount, gracefulGet, isOnline } from './api.js';
     import { toast } from './toast.js';
 
@@ -222,8 +231,9 @@
     // --- Initial Data Loading ---
     onAuthState(async (user) => {
         if (user) {
+            let userData;
             try {
-                const userData = await gracefulGet(getUserData(user.uid));
+                userData = await gracefulGet(getUserData(user.uid));
 
                 if (userData) {
                     showDataText(userNameElement, userNameSpinner, userData.name || 'N/A');
@@ -241,12 +251,20 @@
                     showDataText(subStatusElement, subStatusSpinner, 'Unavailable');
                     toast.show('Could not load user details.', 'error');
                 }
+                
+                // --- ADDED NAV LOGIC ---
+                const userRole = (userData?.roles && userData.roles.includes('promoter')) ? 'promoter' : 'unknown';
+                renderBottomNav(userRole, 'free', 'setflow-promoter-settings.html');
+                // --- END NAV LOGIC ---
+                
             } catch (error) {
                  console.error("Error loading account settings data:", error);
                  toast.show('Could not load all account details.', 'error');
                  showDataText(userNameElement, userNameSpinner, 'Error');
                  showDataText(userEmailElement, userEmailSpinner, 'Error');
                  showDataText(subStatusElement, subStatusSpinner, 'Error');
+                 // --- ADDED FALLBACK NAV LOGIC ---
+                 renderBottomNav('promoter', 'free', 'setflow-promoter-settings.html');
             }
         } else {
             window.location.href = 'setflow-login-page.html';
