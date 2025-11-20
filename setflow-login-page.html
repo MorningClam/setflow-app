@@ -1,52 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Login</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem; /* text-sm */
-      font-weight: 500; /* font-medium */
-      z-index: 9999;
-    }
-    /* Loading Spinner Styles (Moved to Tailwind in canonical version) */
-    .loading-spinner {
-        display: inline-block;
-        width: 1.5rem; /* w-6 */
-        height: 1.5rem; /* h-6 */
-        border: 4px solid rgba(115, 115, 115, 0.3); /* border-4 border-neutral-500/30 */
-        border-radius: 50%;
-        border-top-color: theme('colors.emerald.500'); /* border-t-emerald-500 */
-        animation: spin 1s ease-in-out infinite;
-    }
-    .loading-spinner-inline {
-        display: inline-block;
-        vertical-align: middle; /* Align better with text */
-        width: 1rem; /* w-4 */
-        height: 1rem; /* h-4 */
-        border: 2px solid rgba(255, 255, 255, 0.3); /* border-2 border-white/30 */
-        border-radius: 50%;
-        border-top-color: theme('colors.emerald.500'); /* border-t-emerald-500 */
-        animation: spin 1s ease-in-out infinite;
-        margin-right: 0.5rem; /* mr-2 */
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Login requires connection.</div>
@@ -90,12 +45,12 @@
   <script src="toast.js"></script>
 
   <script type="module">
+    import { loadCommonHead } from './components.js'; // Implicitly runs
     import { signInUser, getUserData, isOnline } from './api.js';
 
     const loginForm = document.getElementById('login-form');
     const urlParams = new URLSearchParams(window.location.search);
     const redirectUrlParam = urlParams.get('redirect');
-    const offlineBanner = document.getElementById('offline-banner');
 
     const roleRedirectMap = {
       'musician': 'setflow-musician-dashboard.html',
@@ -103,23 +58,14 @@
       'promoter': 'setflow-promoter-dashboard.html'
     };
 
-    // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
-
-
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const submitButton = loginForm.querySelector('button[type="submit"]');
 
-      // Check network connection before attempting login
       if (!isOnline()) {
-           toast.show('Login requires an internet connection.', 'error');
+           window.toast.show('Login requires an internet connection.', 'error');
            return;
       }
 
@@ -130,59 +76,35 @@
         const userCredential = await signInUser(email, password);
         const user = userCredential.user;
 
-        // Check for redirect URL *first*
         if (redirectUrlParam) {
-            console.log("Redirecting after login to:", redirectUrlParam);
             window.location.href = redirectUrlParam;
             return;
         }
 
-        // --- If no redirect parameter, proceed with normal role-based dashboard logic ---
         const userData = await getUserData(user.uid);
 
         if (userData && userData.roles && userData.roles.length > 0) {
           const primaryRole = userData.roles[0];
-          // Check if profile setup is complete
           if (!userData.profileSetupComplete) {
-              console.warn('Profile setup not complete for UID:', user.uid, 'Redirecting to profile setup.');
-              toast.show('Login successful. Please complete your profile.', 'success');
+              window.toast.show('Login successful. Please complete your profile.', 'success');
               setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${primaryRole}`, 1500);
               return;
           }
-
-          const defaultRedirect = roleRedirectMap[primaryRole];
-          if (defaultRedirect) {
-            window.location.href = defaultRedirect;
-          } else {
-             console.warn('Login successful, but role not recognized:', primaryRole);
-             toast.show('Login successful, role unknown. Defaulting to musician dashboard.', 'success');
-             setTimeout(() => window.location.href = roleRedirectMap['musician'], 1500);
-          }
+          window.location.href = roleRedirectMap[primaryRole] || roleRedirectMap['musician'];
         } else {
-          // User authenticated, but no data or roles found -> profile setup needed
-          console.warn('Could not find complete user data for UID:', user.uid, 'Redirecting to profile setup.');
-          toast.show('Login successful. Please complete your profile setup.', 'success');
-          const setupRole = userData?.roles?.[0] || 'musician'; // Best guess or default
-          setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${setupRole}`, 1500);
+          window.toast.show('Login successful. Please complete your profile setup.', 'success');
+          setTimeout(() => window.location.href = `setflow-profile-setup.html?role=musician`, 1500);
         }
 
       } catch (error) {
         console.error('Login Error:', error);
         let message = 'Login failed. Please check your email and password.';
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-            message = 'Invalid email or password.';
-        } else if (error.code === 'auth/too-many-requests') {
-             message = 'Too many attempts. Please try again later.';
-        } else if (error.message.includes('network error') || error.message.includes('internet connection')) {
-             message = 'Network error. Please check your connection and try again.';
-        }
-        toast.show(message, 'error');
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') message = 'Invalid email or password.';
+        window.toast.show(message, 'error');
         submitButton.disabled = false;
         submitButton.innerText = 'Sign In';
       }
     });
   </script>
-
-  <script type="module" src="./api.js"></script>
 </body>
 </html>
