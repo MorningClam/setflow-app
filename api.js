@@ -93,6 +93,7 @@ export async function signInUser(e, p) { return signInWithEmailAndPassword(auth,
 export async function signOutUser() { return signOut(auth); }
 export async function signUpUser(name, email, password, role) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // Explicitly create user doc on signup
     await setDoc(doc(db, "users", cred.user.uid), {
         name, email, roles: [role.toLowerCase()], bands: {}, profileSetupComplete: false, createdAt: serverTimestamp()
     });
@@ -111,7 +112,9 @@ export async function getUserData(uid) {
     return snap?.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
-// FIX: Use setDoc with merge:true to handle both create and update scenarios gracefully
+// CRITICAL FIX: Use setDoc with merge:true. 
+// This prevents "Missing Permissions" errors if the user document 
+// was not successfully created during signup (e.g. network issue).
 export async function updateUserProfile(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
@@ -211,7 +214,6 @@ export async function fetchApplicantsForGig(gigId) {
 export async function confirmBooking(gigId, artistId, artistName) {
     const batch = writeBatch(db);
     batch.update(doc(db, "gigs", gigId), { status: 'booked', bookedArtistId: artistId, bookedArtistName: artistName });
-    // Create calendar event
     batch.set(doc(collection(db, "calendarEvents")), { 
         userId: artistId, type: 'gig', title: 'Gig Booking', notes: `Booked as ${artistName}`, dateTime: Timestamp.now(), gigId 
     });
@@ -220,7 +222,6 @@ export async function confirmBooking(gigId, artistId, artistName) {
 
 // --- MOCK / PLACEHOLDERS (Restored for robustness) ---
 export async function fetchCalendarEvents(uid) { 
-    // Real fetch logic
     const q = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
     const snap = await gracefulGet(getDocs(q));
     if(!snap) return [];

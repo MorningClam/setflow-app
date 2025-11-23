@@ -28,11 +28,12 @@ service cloud.firestore {
 
     // --- Collection Rules ---
 
-    // Users: Public Read (critical for profiles), Owner Write
+    // Users: Public Read (critical for browsing profiles), Owner Write
     match /users/{userId} {
       allow read: if isAuthed(); 
       allow update, delete: if isOwner(userId);
-      allow create: if isAuthed();
+      // Allow create if authenticated and ID matches (for initial signup)
+      allow create: if isAuthed() && request.auth.uid == userId;
     }
 
     // Bands
@@ -57,6 +58,7 @@ service cloud.firestore {
 
     // Applications
     match /applications/{appId} {
+      // Allow read if you are the applicant OR the owner of the gig
       allow read: if isAuthed() && (resource.data.userId == request.auth.uid ||
                     get(/databases/$(database)/documents/gigs/$(resource.data.gigId)).data.ownerId == request.auth.uid);
       allow create: if isAuthed() && request.resource.data.userId == request.auth.uid;
