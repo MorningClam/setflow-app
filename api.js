@@ -49,7 +49,7 @@ export const navigation = {
         }
     }
 };
-window.goBackOr = navigation.goBackOr; // Expose for inline HTML
+window.goBackOr = navigation.goBackOr; 
 
 // --- Network Status ---
 const network = {
@@ -110,11 +110,14 @@ export async function getUserData(uid) {
     const snap = await gracefulGet(getDoc(doc(db, "users", uid)));
     return snap?.exists() ? { id: snap.id, ...snap.data() } : null;
 }
+
+// FIX: Use setDoc with merge:true to handle both create and update scenarios gracefully
 export async function updateUserProfile(uid, data) {
-    return updateDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() });
+    return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
+
 export async function updateUserPreferences(uid, data) {
-    return updateDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() });
+    return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
 
 // --- GIGS & POSTS ---
@@ -149,7 +152,6 @@ export async function fetchGigs() {
 }
 export async function getGigDetails(id) { return getDoc(doc(db, "gigs", id)); }
 export async function createGig(data) {
-    // Ensure date is a Date object or Timestamp before saving
     const dateObj = new Date(data.date); 
     return addDoc(collection(db, "gigs"), { 
         ...data, 
@@ -183,7 +185,7 @@ export async function getConversations(uid) {
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return null;
     const convos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const userMap = await getUsersBatch(convos.flatMap(c => c.participants)); // Fetch all participants
+    const userMap = await getUsersBatch(convos.flatMap(c => c.participants)); 
     
     return convos.map(c => {
         const otherId = c.participants.find(p => p !== uid);

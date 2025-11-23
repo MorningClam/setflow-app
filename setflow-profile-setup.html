@@ -135,7 +135,7 @@
     
     if(!isOnline()) offlineBanner.style.display = 'block';
 
-    // --- Image Resizer Utility ---
+    // --- Image Resizer Utility (Fixes 1MB Limit) ---
     function resizeImage(file, maxWidth, quality, callback) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -177,13 +177,13 @@
         }
     });
 
+    // 2. Load Existing Data
     onAuthState(async (user) => {
         if (!user) {
             window.location.href = 'setflow-login-page.html';
         } else {
             currentUserId = user.uid;
             finishButton.disabled = true;
-            
             try {
                 const userData = await gracefulGet(getUserData(currentUserId));
                 if (userData) {
@@ -205,6 +205,7 @@
         }
     });
 
+    // 3. Save Profile
     async function handleProfileSave(event) {
         event.preventDefault();
         if (!currentUserId) return;
@@ -214,9 +215,6 @@
              return;
         }
 
-        const bio = bioTextarea.value.trim();
-        const location = locationInput.value.trim();
-        
         finishButton.disabled = true;
         finishButton.innerHTML = '<span class="loading-spinner-inline"></span>Saving...';
 
@@ -226,9 +224,9 @@
 
         try {
             const updates = {
-                bio: bio,
-                location: location,
-                instruments: checkedInstruments,
+                bio: bioTextarea.value.trim(),
+                location: locationInput.value.trim(),
+                instruments: checkedInstruments, // New field
                 profileSetupComplete: true
             };
 
