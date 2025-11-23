@@ -57,38 +57,36 @@
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
-        Home
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+        <span class="text-xs font-medium">Home</span>
       </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link">
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        Gigs
+        <span class="text-xs font-medium">Gigs</span>
       </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link active">
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link active text-emerald-400">
          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        Applied
+        <span class="text-xs font-medium">Applied</span>
       </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link">
+      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
-        Inbox
+        <span class="text-xs font-medium">Inbox</span>
       </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link">
+      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        Account
+        <span class="text-xs font-medium">Account</span>
       </a>
     </div>
   </nav>
 </div>
 
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message"></span>
-</div>
 <script src="toast.js"></script>
+<script src="nav.js"></script>
 
 <script type="module">
-    import { onAuthState, fetchMyApplications, gracefulGet, isOnline, escapeHTML } from './api.js';
+    import { onAuthState, fetchMyApplications, gracefulGet, isOnline, getUserData } from './api.js';
 
     const container = document.getElementById('applications-container');
     const loading = document.getElementById('loading-state');
@@ -131,6 +129,11 @@
 
     onAuthState(async (user) => {
         if(user) {
+             // --- NAV FIX ---
+            if(window.renderBottomNav) {
+                 window.renderBottomNav('musician', 'free', 'setflow-applied-gigs.html');
+            }
+            
             const apps = await gracefulGet(fetchMyApplications(user.uid));
             renderApplications(apps);
         } else {

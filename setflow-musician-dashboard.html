@@ -56,6 +56,16 @@
       <p class="text-neutral-400">Here's your command center.</p>
     </section>
 
+    <section id="getting-started" class="hidden mb-6 rounded-xl border border-emerald-700 bg-neutral-800 p-4">
+        <h3 class="text-lg font-semibold text-white mb-2">Welcome to Setflow!</h3>
+        <p class="text-sm text-neutral-300 mb-4">Let's get you set up for success:</p>
+        <div class="space-y-2">
+             <a href="setflow-profile-setup.html" class="block w-full rounded-lg bg-emerald-600 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-emerald-500">Complete Your Profile</a>
+             <a href="setflow-browse-gigs.html" class="block w-full rounded-lg bg-neutral-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-neutral-600">Browse Open Gigs</a>
+             <a href="setflow-routing-availability.html" class="block w-full rounded-lg bg-neutral-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-neutral-600">Set Your Travel Radius</a>
+        </div>
+    </section>
+
     <section id="profile-strength-widget" class="relative mb-6 rounded-xl border border-neutral-700 bg-neutral-800 p-4 transition-colors duration-300">
       <div class="mb-2 flex items-center justify-between">
         <h3 class="font-semibold text-white">Profile Strength: <span id="profile-strength-percent" class="text-emerald-400">Loading...</span></h3>
@@ -80,6 +90,9 @@
         <p class="text-sm text-neutral-400">No upcoming events.</p>
         <a href="setflow-new-calendar-event.html" class="mt-4 inline-block rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Add Event</a>
       </div>
+      <div id="schedule-error" class="hidden rounded-xl border border-red-700 bg-neutral-800 px-4 py-10 text-center text-red-400">
+         <p>Could not load schedule.</p>
+      </div>
     </section>
 
      <section class="mb-8">
@@ -102,30 +115,36 @@
       <div id="gigs-loading" class="flex justify-center items-center py-10">
         <div class="loading-spinner"></div> </div>
       <div id="gigs-list" class="space-y-4"></div>
+      <div id="gigs-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
+          <p class="text-sm text-neutral-400">No open gigs right now.</p>
+      </div>
+      <div id="gigs-error" class="hidden rounded-xl border border-red-700 bg-neutral-800 px-4 py-10 text-center text-red-400">
+         <p>Could not load gigs.</p>
+      </div>
     </section>
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
-        Home
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+        <span class="text-xs font-medium">Home</span>
       </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link">
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        Gigs
+        <span class="text-xs font-medium">Gigs</span>
       </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link">
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        Applied
+         <span class="text-xs font-medium">Applied</span>
       </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link">
+      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
-        Inbox
+        <span class="text-xs font-medium">Inbox</span>
       </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link">
+      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        Account
+        <span class="text-xs font-medium">Account</span>
       </a>
     </div>
   </nav>
@@ -135,6 +154,7 @@
   <span id="toast-message"></span>
 </div>
 <script src="toast.js"></script>
+<script src="nav.js"></script>
 
 <script type="module">
   import { onAuthState, fetchCalendarEvents, gracefulGet, getUserData, fetchGigs, escapeHTML, isOnline } from './api.js';
@@ -145,30 +165,83 @@
   const welcomeHeader = document.getElementById('welcome-header');
   const scheduleList = document.getElementById('schedule-list');
   const scheduleLoading = document.getElementById('schedule-loading');
+  const scheduleEmpty = document.getElementById('schedule-empty');
+  const scheduleError = document.getElementById('schedule-error');
   const gigsList = document.getElementById('gigs-list');
   const gigsLoading = document.getElementById('gigs-loading');
+  const gigsEmpty = document.getElementById('gigs-empty');
+  const gigsError = document.getElementById('gigs-error');
+  const gettingStartedSection = document.getElementById('getting-started');
+  const profileStrengthWidget = document.getElementById('profile-strength-widget');
 
+  let currentUserId = null;
+  let currentUserData = null;
+
+  onAuthState(async (user) => {
+    if (user) {
+      currentUserId = user.uid;
+      
+      try {
+        currentUserData = await gracefulGet(getUserData(user.uid), null);
+
+        if (currentUserData && currentUserData.name) {
+          welcomeHeader.textContent = `Welcome, ${currentUserData.name.split(' ')[0]}!`;
+        }
+
+        // Onboarding Check
+        if (currentUserData && !currentUserData.profileSetupComplete) {
+            gettingStartedSection.classList.remove('hidden');
+            profileStrengthWidget.classList.add('hidden');
+        } else {
+            gettingStartedSection.classList.add('hidden');
+            profileStrengthWidget.classList.remove('hidden');
+            updateProfileStrengthUI(currentUserData);
+        }
+
+        // --- NAV CONSISTENCY FIX ---
+        // Always render the standard Musician nav, which includes "Applied".
+        // No longer conditionally hiding it based on tier.
+        if (window.renderBottomNav) {
+             window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
+        }
+
+        loadSchedule(user.uid);
+        loadOpenGigs();
+
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+        if(scheduleLoading) scheduleLoading.style.display = 'none';
+        if(gigsLoading) gigsLoading.style.display = 'none';
+        if(scheduleError) scheduleError.style.display = 'block';
+        if(gigsError) gigsError.style.display = 'block';
+      }
+    } else {
+      window.location.href = 'setflow-login-page.html';
+    }
+  });
+
+  // ... (Rest of helper functions: updateProfileStrengthUI, loadSchedule, loadOpenGigs remain the same) ...
+  
   function updateProfileStrengthUI(userData) {
-    let score = 10;
-    if (userData.bio && userData.bio.length > 10) score += 30; 
-    if (userData.location) score += 20;
-    if (userData.website || userData.spotify) score += 20;
-    if (userData.profileImageUrl) score += 20;
-    
-    document.getElementById('profile-strength-bar').style.width = `${score}%`;
-    document.getElementById('profile-strength-percent').textContent = `${score}%`;
-    if(score >= 90) document.getElementById('profile-strength-prompt').textContent = 'Profile looking great!';
+      // ... existing logic ...
+      if (!userData) return;
+      let score = 10;
+      if (userData.bio && userData.bio.length > 10) score += 30;
+      if (userData.location) score += 20;
+      if (userData.website || userData.spotify) score += 20;
+      if (userData.profileImageUrl) score += 20;
+      
+      document.getElementById('profile-strength-bar').style.width = `${score}%`;
+      document.getElementById('profile-strength-percent').textContent = `${score}%`;
   }
 
   async function loadSchedule(userId) {
     const events = await gracefulGet(fetchCalendarEvents(userId));
     scheduleLoading.style.display = 'none';
-    
     if(!events || events.length === 0) {
-        document.getElementById('schedule-empty').classList.remove('hidden');
+        scheduleEmpty.style.display = 'block';
         return;
     }
-
     events.slice(0, 3).forEach(evt => {
         const div = document.createElement('div');
         div.className = 'rounded-xl border border-neutral-700 bg-neutral-800 p-4 border-l-4 border-emerald-500';
@@ -180,36 +253,21 @@
   async function loadOpenGigs() {
     const gigs = await gracefulGet(fetchGigs());
     gigsLoading.style.display = 'none';
-    
-    if(gigs && gigs.length > 0) {
-        gigs.slice(0, 3).forEach(gig => {
-            const div = document.createElement('a');
-            div.href = `setflow-gig-detail-view.html?id=${gig.id}`;
-            div.className = 'block rounded-xl border border-neutral-700 bg-neutral-800 p-4 hover:bg-neutral-700 transition';
-            div.innerHTML = `
-                <div class="flex justify-between"><p class="font-semibold text-white truncate">${escapeHTML(gig.venueName)}</p><span class="text-emerald-400 font-bold">$${gig.payout}</span></div>
-                <p class="text-sm text-neutral-400">${gig.formattedDate} • ${escapeHTML(gig.location)}</p>
-            `;
-            gigsList.appendChild(div);
-        });
-    } else {
-        gigsList.innerHTML = '<p class="text-center text-neutral-500">No open gigs right now.</p>';
+    if(!gigs || gigs.length === 0) {
+        gigsEmpty.style.display = 'block';
+        return;
     }
+    gigs.slice(0, 3).forEach(gig => {
+        const div = document.createElement('a');
+        div.href = `setflow-gig-detail-view.html?id=${gig.id}`;
+        div.className = 'block rounded-xl border border-neutral-700 bg-neutral-800 p-4 hover:bg-neutral-700 transition';
+        div.innerHTML = `
+            <div class="flex justify-between"><p class="font-semibold text-white truncate">${escapeHTML(gig.venueName)}</p><span class="text-emerald-400 font-bold">$${gig.payout}</span></div>
+            <p class="text-sm text-neutral-400">${gig.formattedDate} • ${escapeHTML(gig.location)}</p>
+        `;
+        gigsList.appendChild(div);
+    });
   }
-
-  onAuthState(async (user) => {
-    if (user) {
-        const userData = await getUserData(user.uid);
-        if(userData) {
-            welcomeHeader.textContent = `Welcome, ${escapeHTML(userData.name.split(' ')[0])}!`;
-            updateProfileStrengthUI(userData);
-        }
-        loadSchedule(user.uid);
-        loadOpenGigs();
-    } else {
-        window.location.href = 'setflow-login-page.html';
-    }
-  });
 </script>
 </body>
 </html>
