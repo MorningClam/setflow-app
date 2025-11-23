@@ -129,9 +129,20 @@
 
     onAuthState(async (user) => {
         if(user) {
-             // --- NAV FIX ---
+            // --- NAV FIX: Correct role and tier passing ---
+            let userTier = 'free';
+            try {
+                const userData = await gracefulGet(getUserData(user.uid), null);
+                if (userData && userData.subscriptionTier) {
+                    userTier = userData.subscriptionTier;
+                }
+            } catch (e) {
+                console.error("Could not fetch user info for nav", e);
+            }
+            
+            // IMPORTANT: Pass 'musician' as the role, not the tier variable
             if(window.renderBottomNav) {
-                 window.renderBottomNav('musician', 'free', 'setflow-applied-gigs.html');
+                 window.renderBottomNav('musician', userTier, 'setflow-applied-gigs.html');
             }
             
             const apps = await gracefulGet(fetchMyApplications(user.uid));

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Checkout</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .loading-spinner-inline {
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-neutral-900 text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Checkout</h1>
+        <div class="w-10 h-10"></div> 
+      </div>
+    </header>
+
+    <main class="flex-grow p-5 pt-20 pb-24"> 
+      <section class="mb-6 rounded-xl border border-neutral-700 bg-neutral-800 p-4">
+        <h2 class="mb-4 text-sm font-medium uppercase tracking-wider text-neutral-400">Order Summary</h2>
+        <div class="flex justify-between items-center mb-2">
+            <span class="font-semibold text-white" id="plan-name">Setflow Pro (Monthly)</span>
+            <span class="font-bold text-emerald-400" id="plan-price">$7.99</span>
+        </div>
+        <div class="border-t border-neutral-700 my-2"></div>
+        <div class="flex justify-between items-center text-sm">
+            <span class="text-neutral-400">Total due today</span>
+            <span class="font-bold text-white" id="total-price">$7.99</span>
+        </div>
+      </section>
+
+      <form id="payment-form" class="space-y-4">
+        <h2 class="text-sm font-medium uppercase tracking-wider text-neutral-400">Payment Method</h2>
+        
+        <div>
+            <label class="block text-sm font-semibold text-neutral-300 mb-1">Cardholder Name</label>
+            <input type="text" id="card-name" placeholder="Name on card" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none" required>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-neutral-300 mb-1">Card Number</label>
+            <div class="relative">
+                <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none" required>
+                <div class="absolute right-4 top-3.5">
+                    <svg class="h-6 w-6 text-neutral-500" fill="currentColor" viewBox="0 0 24 24"><path d="M2 7a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7zm2 2v8h16V9H4zm9 4h4v2h-4v-2z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-neutral-300 mb-1">Expiration</label>
+                <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none" required>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-neutral-300 mb-1">CVC</label>
+                <input type="text" id="card-cvc" placeholder="123" maxlength="4" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none" required>
+            </div>
+        </div>
+
+        <div class="flex items-center mt-4">
+            <svg class="h-4 w-4 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <p class="text-xs text-neutral-400">Payments are secure and encrypted.</p>
+        </div>
+      </form>
+    </main>
+
+    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+        <button id="pay-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+            Pay & Subscribe
+        </button>
+    </footer>
+  </div>
+
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+    <span id="toast-message">Placeholder</span>
+  </div>
+  <script src="toast.js"></script>
+
+  <script type="module">
+    import { onAuthState, getUserData, updateUserProfile, isOnline, gracefulGet } from './api.js';
+
+    const payBtn = document.getElementById('pay-btn');
+    const planNameEl = document.getElementById('plan-name');
+    const planPriceEl = document.getElementById('plan-price');
+    const totalPriceEl = document.getElementById('total-price');
+    
+    // Parse URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const planType = urlParams.get('plan') || 'monthly';
+    
+    let currentUserId = null;
+    let currentUserRole = 'musician'; // Default
+
+    // Setup UI based on plan
+    if (planType === 'annual') {
+        planNameEl.textContent = "Setflow Pro (Annual)";
+        planPriceEl.textContent = "$79.99";
+        totalPriceEl.textContent = "$79.99";
+    } else {
+        planNameEl.textContent = "Setflow Pro (Monthly)";
+        planPriceEl.textContent = "$7.99";
+        totalPriceEl.textContent = "$7.99";
+    }
+
+    onAuthState(async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            const userData = await gracefulGet(getUserData(currentUserId));
+            if (userData && userData.roles) currentUserRole = userData.roles[0];
+        } else {
+            window.location.href = 'setflow-login-page.html';
+        }
+    });
+
+    // Simple Input Formatting
+    document.getElementById('card-number').addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+    });
+    document.getElementById('card-expiry').addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/^(\d{2})/, '$1/');
+    });
+
+    payBtn.addEventListener('click', async () => {
+        if (!currentUserId) return;
+        if (!isOnline()) {
+            window.toast.show("Internet required to process payment.", 'error');
+            return;
+        }
+
+        // Simple validation
+        const name = document.getElementById('card-name').value;
+        const number = document.getElementById('card-number').value;
+        if (!name || number.length < 16) {
+            window.toast.show("Please enter valid card details.", 'error');
+            return;
+        }
+
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<span class="loading-spinner-inline"></span>Processing...';
+
+        try {
+            // Simulate API Latency
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Update User Profile to Pro
+            await updateUserProfile(currentUserId, {
+                subscriptionTier: 'pro',
+                subscriptionPlan: planType,
+                subscriptionStatus: 'active',
+                paymentMethodLast4: number.slice(-4) // Save last 4 digits for display
+            });
+
+            window.toast.show("Payment successful! Welcome to Pro.", 'success');
+
+            // Redirect based on role
+            setTimeout(() => {
+                const dash = currentUserRole === 'venue' ? 'setflow-venue-dashboard.html' : 
+                             currentUserRole === 'promoter' ? 'setflow-promoter-dashboard.html' : 
+                             'setflow-musician-dashboard.html';
+                window.location.href = dash;
+            }, 1500);
+
+        } catch (error) {
+            console.error("Payment Error:", error);
+            window.toast.show("Payment failed. Try again.", 'error');
+            payBtn.disabled = false;
+            payBtn.textContent = 'Pay & Subscribe';
+        }
+    });
+  </script>
+  <script type="module" src="./api.js"></script>
+</body>
+</html>

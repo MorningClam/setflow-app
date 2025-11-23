@@ -18,7 +18,7 @@ window.renderBottomNav = function(role, tier = 'free', activePage = '') {
     let navHtml = '';
 
     if (role === 'musician') {
-        // Musician Nav (5 Items)
+        // Musician Nav (5 Items) - Standardized for ALL tiers
         navHtml = `
             <a href="setflow-musician-dashboard.html" class="bottom-nav-link ${isActive('setflow-musician-dashboard.html')}" ${isCurrent('setflow-musician-dashboard.html')} aria-label="Home">
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
@@ -56,7 +56,7 @@ window.renderBottomNav = function(role, tier = 'free', activePage = '') {
                 <span class="text-xs font-medium">Post</span>
             </a>
             <a href="setflow-inbox.html" class="bottom-nav-link ${isActive('setflow-inbox.html')}" ${isCurrent('setflow-inbox.html')} aria-label="Inbox">
-                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="text-xs font-medium">Inbox</span>
             </a>
             <a href="${settingsLink}" class="bottom-nav-link ${isActive(settingsLink)}" ${isCurrent(settingsLink)} aria-label="Account">
@@ -67,3 +67,6 @@ window.renderBottomNav = function(role, tier = 'free', activePage = '') {
     }
     navContainer.innerHTML = navHtml;
 }
+
+// This makes the function available globally for inline scripts to call
+window.renderBottomNav = renderBottomNav;

@@ -41,9 +41,9 @@
         <h3 class="text-xl font-semibold">Monthly</h3>
         <p class="mt-2 text-4xl font-bold">$7.99<span class="text-base font-medium text-neutral-400">/mo</span></p> 
         <p class="mt-2 text-sm text-neutral-400">Flexible plan, cancel anytime.</p>
-        <button onclick="handleSubscription('monthly')" class="mt-6 w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white hover:bg-neutral-600 transition-colors">
+        <a href="setflow-checkout.html?plan=monthly" class="block mt-6 w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white hover:bg-neutral-600 transition-colors">
           Choose Monthly
-        </button>
+        </a>
       </div>
 
       <div class="relative rounded-xl border-2 border-emerald-500 bg-neutral-800 p-6">
@@ -53,9 +53,9 @@
         <h3 class="text-xl font-semibold">Annual</h3>
         <p class="mt-2 text-4xl font-bold">$79.99<span class="text-base font-medium text-neutral-400">/yr</span></p> 
         <p class="mt-2 text-sm font-semibold text-emerald-400">Save 16% - Get 2 months free!</p>
-        <button onclick="handleSubscription('annual')" class="mt-6 w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition-colors">
+        <a href="setflow-checkout.html?plan=annual" class="block mt-6 w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500 transition-colors">
           Choose Annual
-        </button>
+        </a>
       </div>
     </section>
 
@@ -70,26 +70,7 @@
     </section>
   </main>
 </div> 
-
-<div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
- <span id="toast-message">Placeholder message</span>
-</div>
 <script src="toast.js"></script>
-
-<script type="module">
-     import { isOnline } from './api.js';
-
-     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
-
-     window.handleSubscription = function(plan) {
-         if (!isOnline()) {
-             window.toast.show("Internet required for subscription.", 'error');
-             return;
-         }
-         console.log(`Initiating ${plan} plan`);
-         window.toast.show(`Redirecting to ${plan} checkout... (Mock)`, 'success');
-         // setTimeout(() => window.location.href = 'https://stripe.com/checkout...', 1000);
-     }
- </script>
+<script type="module" src="./api.js"></script>
 </body>
 </html>
