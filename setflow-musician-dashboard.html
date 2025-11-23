@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Musician Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -36,15 +35,15 @@
 
   <header class="border-b border-neutral-700 bg-neutral-900 px-5 py-4">
     <div class="flex items-center justify-between">
-      <a href="setflow-musician-dashboard.html" aria-label="Dashboard Home">
+      <a href="setflow-musician-dashboard.html">
         <img src="logo.png" alt="Setflow" class="h-7 w-auto">
       </a>
       <div class="flex items-center space-x-4">
-        <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notification-badge" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white"></span>
         </a>
-        <a href="setflow-musician-settings.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <a href="setflow-musician-settings.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         </a>
       </div>
@@ -59,7 +58,7 @@
 
     <section id="profile-strength-widget" class="relative mb-6 rounded-xl border border-neutral-700 bg-neutral-800 p-4 transition-colors duration-300">
       <div class="mb-2 flex items-center justify-between">
-        <h3 class="font-semibold text-white">Profile Strength: <span id="profile-strength-percent" class="text-emerald-400">0%</span></h3>
+        <h3 class="font-semibold text-white">Profile Strength: <span id="profile-strength-percent" class="text-emerald-400">Loading...</span></h3>
         <a href="setflow-edit-profile.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit Profile</a>
       </div>
       <div class="mb-2 h-2.5 w-full rounded-full bg-neutral-700">
@@ -83,7 +82,7 @@
       </div>
     </section>
 
-    <section class="mb-8">
+     <section class="mb-8">
         <h2 class="mb-3 text-xl font-semibold text-white">Community & Tools</h2>
         <div class="space-y-3">
             <a href="setflow-gear-swap.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700">
@@ -101,8 +100,7 @@
         <a href="setflow-browse-gigs.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300">See All</a>
       </div>
       <div id="gigs-loading" class="flex justify-center items-center py-10">
-        <div class="loading-spinner"></div>
-      </div>
+        <div class="loading-spinner"></div> </div>
       <div id="gigs-list" class="space-y-4"></div>
     </section>
   </main>

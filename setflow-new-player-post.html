@@ -1,213 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Setflow - New Player Post</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setflow - New Post</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif;}
+    body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Canonical style for segmented control buttons */
-    .post-type-btn {
-        transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-    }
-    .post-type-btn.active { /* Use 'active' class */
-        background-color: theme('colors.emerald.600');
-        color: white;
-    }
-     .post-type-btn:not(.active) {
-         background-color: transparent;
-         color: theme('colors.neutral.300');
-     }
-      .post-type-btn:not(.active):hover {
-          background-color: theme('colors.neutral.700');
-      }
+    .post-type-btn.active { background-color: #059669; color: white; }
+    .post-type-btn { background-color: transparent; color: #D4D4D4; transition: all 0.2s; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Post will sync when back online.</div>
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="setflow-find-a-player.html" aria-label="Go back to find a player" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Create a New Post</h1>
-      <div class="w-10 h-10"></div> </div>
-  </header>
+  <div id="offline-banner">You are currently offline.</div>
 
-  <main class="flex-1 p-5 pt-20 pb-24"> <form id="player-post-form" class="space-y-6">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Create Post</h1>
+        <div class="w-10 h-10"></div>
+      </div>
+    </header>
+
+    <main class="flex-grow p-5 pt-20 pb-24">
+      <form id="player-post-form" class="space-y-6">
         <div>
             <label class="mb-2 block text-sm font-semibold text-neutral-300">Post Type</label>
             <div class="grid grid-cols-2 gap-1 rounded-xl bg-neutral-800 p-1">
-                <button type="button" data-type="looking" class="post-type-btn active rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">I'm Looking For a Player</button>
-                <button type="button" data-type="available" class="post-type-btn rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">I'm Available for Gigs</button>
+                <button type="button" data-type="looking" class="post-type-btn active rounded-lg px-3 py-2 text-sm font-semibold">Looking for Player</button>
+                <button type="button" data-type="available" class="post-type-btn rounded-lg px-3 py-2 text-sm font-semibold">Available for Gigs</button>
             </div>
         </div>
 
         <div id="looking-for-fields" class="space-y-4">
             <div>
-                <label for="instrument-needed" class="mb-2 block text-sm font-semibold text-neutral-300">Instrument Needed</label>
-                <input id="instrument-needed" type="text" placeholder="e.g., Bassist, Drummer" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <label class="mb-2 block text-sm font-semibold text-neutral-300">Instrument Needed</label>
+                <input id="instrument-needed" type="text" placeholder="e.g., Bassist" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
             </div>
             <div>
-                <label for="event-details" class="mb-2 block text-sm font-semibold text-neutral-300">Event Details (Venue/Location)</label>
-                <input id="event-details" type="text" placeholder="e.g., The Pour House - Raleigh, NC" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <label class="mb-2 block text-sm font-semibold text-neutral-300">Date & Time</label>
+                <input id="date-details" type="datetime-local" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" style="color-scheme: dark;">
             </div>
              <div>
-                <label for="date-details" class="mb-2 block text-sm font-semibold text-neutral-300">Date & Time</label>
-                <input id="date-details" type="datetime-local" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" style="color-scheme: dark;"> </div>
-            <div>
-                <label for="description-looking" class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
-                <textarea id="description-looking" rows="3" placeholder="e.g., Need a bassist for a 2-hour funk gig. Paid." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                <label class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
+                <textarea id="description-looking" rows="3" placeholder="Gig details..." class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
             </div>
         </div>
 
         <div id="available-for-fields" class="hidden space-y-4">
             <div>
-                <label for="instrument-available" class="mb-2 block text-sm font-semibold text-neutral-300">What I Play</label>
-                <input id="instrument-available" type="text" placeholder="e.g., Drummer, Vocalist" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <label class="mb-2 block text-sm font-semibold text-neutral-300">I Play</label>
+                <input id="instrument-available" type="text" placeholder="e.g., Drums" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
             </div>
             <div>
-                <label for="location" class="mb-2 block text-sm font-semibold text-neutral-300">My Location</label>
-                <input id="location" type="text" placeholder="e.g., Apex, NC" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <label class="mb-2 block text-sm font-semibold text-neutral-300">Location</label>
+                <input id="location" type="text" placeholder="e.g., Raleigh" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
             </div>
             <div>
-                <label for="availability" class="mb-2 block text-sm font-semibold text-neutral-300">Availability</label>
-                <input id="availability" type="text" placeholder="e.g., Weekends, Most evenings" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-            </div>
-            <div>
-                <label for="description-available" class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
-                <textarea id="description-available" rows="3" placeholder="e.g., Experienced in Rock, Blues, and Country. Pro gear and reliable transportation." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                <label class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
+                <textarea id="description-available" rows="3" placeholder="Experience, gear, etc..." class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
             </div>
         </div>
-    </form>
-  </main>
+      </form>
+    </main>
 
-  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-    <button type="submit" form="player-post-form" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Submit Post</button>
-  </footer>
-</div> <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script>
+    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+        <button form="player-post-form" type="submit" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition-colors">Submit Post</button>
+    </footer>
+  </div>
 
-<script type="module">
-  import { onAuthState, createPlayerPost, isOnline } from './api.js';
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+    <span id="toast-message"></span>
+  </div>
+  <script src="toast.js"></script>
 
-  const postForm = document.getElementById('player-post-form');
-  const submitButton = document.getElementById('submit-btn');
-  const postTypeButtons = document.querySelectorAll('.post-type-btn');
-  const lookingForFields = document.getElementById('looking-for-fields');
-  const availableForFields = document.getElementById('available-for-fields');
-  const offlineBanner = document.getElementById('offline-banner');
+  <script type="module">
+    import { onAuthState, createPlayerPost, isOnline } from './api.js';
 
-  let currentUserId = null;
-  let postType = 'looking'; // Default
+    const form = document.getElementById('player-post-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btns = document.querySelectorAll('.post-type-btn');
+    const lookingFields = document.getElementById('looking-for-fields');
+    const availableFields = document.getElementById('available-for-fields');
+    const offlineBanner = document.getElementById('offline-banner');
 
-  // Update offline banner based on initial status
-  offlineBanner.style.display = isOnline() ? 'none' : 'block';
-  // Listen for network changes
-  document.body.addEventListener('app:network-change', (event) => {
-      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-  });
+    if(!isOnline()) offlineBanner.style.display = 'block';
+    let currentUserId = null;
+    let postType = 'looking';
 
-  // --- User Authentication ---
-  onAuthState(user => {
-    if (user) {
-      currentUserId = user.uid;
-    } else {
-      window.location.href = 'setflow-login-page.html';
-    }
-  });
-
-  // --- Post Type Selection ---
-  postTypeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      postTypeButtons.forEach(btn => btn.classList.remove('active')); // Use 'active' class
-      button.classList.add('active'); // Use 'active' class
-      postType = button.dataset.type;
-
-      // Toggle form visibility
-      lookingForFields.classList.toggle('hidden', postType !== 'looking');
-      availableForFields.classList.toggle('hidden', postType !== 'available');
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            postType = btn.dataset.type;
+            lookingFields.classList.toggle('hidden', postType !== 'looking');
+            availableFields.classList.toggle('hidden', postType !== 'available');
+        });
     });
-  });
 
-  // --- Form Submission ---
-  postForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!currentUserId) {
-      toast.show("You must be logged in to create a post.", 'error');
-      return;
-    }
+    onAuthState(user => {
+        if(user) currentUserId = user.uid;
+        else window.location.href = 'setflow-login-page.html';
+    });
 
-    submitButton.disabled = true;
-    submitButton.textContent = 'Posting...'; // Use textContent
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(!currentUserId) return;
 
-    let postData = {
-      userId: currentUserId,
-      type: postType,
-      // Timestamp added by API
-    };
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Posting...';
 
-    let isValid = true;
-    let requiredFieldsMissing = [];
+        let data = { userId: currentUserId, type: postType };
 
-    if (postType === 'looking') {
-      postData.instrument = document.getElementById('instrument-needed').value.trim();
-      postData.eventDetails = document.getElementById('event-details').value.trim();
-      postData.date = document.getElementById('date-details').value; // Keep as string
-      postData.description = document.getElementById('description-looking').value.trim();
-      // Required fields for 'looking'
-      if (!postData.instrument) requiredFieldsMissing.push('Instrument Needed');
-      if (!postData.date) requiredFieldsMissing.push('Date & Time');
-      isValid = requiredFieldsMissing.length === 0;
-    } else { // 'available'
-      postData.instrument = document.getElementById('instrument-available').value.trim();
-      postData.location = document.getElementById('location').value.trim();
-      postData.availability = document.getElementById('availability').value.trim();
-      postData.description = document.getElementById('description-available').value.trim();
-      // Required field for 'available'
-      if (!postData.instrument) requiredFieldsMissing.push('What I Play');
-      isValid = requiredFieldsMissing.length === 0;
-    }
+        if (postType === 'looking') {
+            data.instrument = document.getElementById('instrument-needed').value.trim();
+            data.date = document.getElementById('date-details').value;
+            data.description = document.getElementById('description-looking').value.trim();
+            if (!data.instrument || !data.date) {
+                window.toast.show("Missing required fields", "error");
+                submitBtn.disabled = false; return;
+            }
+        } else {
+            data.instrument = document.getElementById('instrument-available').value.trim();
+            data.location = document.getElementById('location').value.trim();
+            data.description = document.getElementById('description-available').value.trim();
+            if (!data.instrument) {
+                window.toast.show("Missing instrument", "error");
+                submitBtn.disabled = false; return;
+            }
+        }
 
-     if (!isValid) {
-         toast.show(`Please fill out: ${requiredFieldsMissing.join(', ')}.`, 'error');
-         submitButton.disabled = false;
-         submitButton.textContent = 'Submit Post';
-         return;
-     }
-
-    try {
-      await createPlayerPost(postData); // Works offline
-      const successMessage = isOnline() ? 'Your post has been published!' : 'Post saved locally. Will publish when online.';
-      // Set toast for the next page
-      sessionStorage.setItem('showToast', `${successMessage}|success`);
-      // Redirect immediately
-      window.location.href = 'setflow-find-a-player.html';
-
-    } catch (error) {
-      console.error("Error creating post:", error);
-      toast.show("Failed to publish your post. Please try again.", 'error');
-      submitButton.disabled = false;
-      submitButton.textContent = 'Submit Post';
-    }
-  });
-</script>
-
-<script type="module" src="./api.js"></script>
+        try {
+            await createPlayerPost(data);
+            window.toast.show("Post created!", "success");
+            setTimeout(() => window.location.href = 'setflow-find-a-player.html', 1000);
+        } catch (err) {
+            console.error(err);
+            window.toast.show("Error posting.", "error");
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Submit Post';
+        }
+    });
+  </script>
 </body>
 </html>

@@ -56,7 +56,7 @@
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
     <div class="flex h-16 items-center justify-around">
       <a href="setflow-musician-dashboard.html" class="bottom-nav-link">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
         Home
       </a>
       <a href="setflow-browse-gigs.html" class="bottom-nav-link active">
@@ -87,6 +87,8 @@
 <script type="module">
   import { fetchGigs, gracefulGet, onAuthState, getUserData, escapeHTML, navigation } from './api.js';
 
+  window.goBackOr = navigation.goBackOr;
+
   const gigsContainer = document.getElementById('gigs-container');
   const loadingState = document.getElementById('loading-state');
   const emptyState = document.getElementById('empty-state');
@@ -111,7 +113,7 @@
             <p class="mt-1 text-sm text-neutral-300">${gig.formattedDate}</p>
           </div>
           <div class="text-right">
-            <p class="text-lg font-bold text-emerald-400">$${escapeHTML(gig.payout)}</p>
+            <p class="text-lg font-bold text-emerald-400">$${escapeHTML(String(gig.payout))}</p>
             <p class="text-xs text-neutral-500">${escapeHTML(gig.genre)}</p>
           </div>
         </div>

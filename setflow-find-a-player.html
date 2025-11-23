@@ -1,255 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Setflow - Find a Player</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
+    body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem;
+        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Bottom Nav Styles */
     .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
+        color: #A3A3A3; transition: color 0.15s ease-in-out;
     }
-    .bottom-nav-link:hover { color: theme('colors.white'); }
-    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
     .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Showing cached posts.</div>
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-settings.html" aria-label="Go back to settings" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Find a Player</h1>
-       <a href="setflow-new-player-post.html" class="w-auto flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Post</a>
-    </div>
-  </header>
+  <div id="offline-banner">You are currently offline. Showing cached posts.</div>
 
-  <main class="flex-1 space-y-8 p-5 pt-20 pb-20"> <section>
+  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+      <div class="flex h-full items-center justify-between">
+        <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Find a Player</h1>
+        <a href="setflow-new-player-post.html" class="w-auto rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white hover:bg-emerald-500">Post</a>
+      </div>
+    </header>
+
+    <main class="flex-grow p-5 pt-20 pb-24"> 
+      <section class="mb-8">
         <h2 class="mb-3 text-base font-semibold text-emerald-400">✓ Available Now</h2>
         <div id="available-players-posts" class="space-y-3">
              <div class="flex justify-center items-center py-5" id="available-loading-state">
-                <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+                <div class="loading-spinner"></div>
             </div>
-            </div>
-    </section>
+        </div>
+      </section>
 
-    <section>
+      <section>
         <h2 class="mb-3 text-base font-semibold text-white">Looking For Players</h2>
         <div id="looking-for-players-posts" class="space-y-3">
              <div class="flex justify-center items-center py-5" id="looking-loading-state">
-                <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+                <div class="loading-spinner"></div>
             </div>
-             </div>
-    </section>
-  </main>
-  </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-          </div>
-  </nav>
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
-</div>
-<script src="toast.js"></script>
-<script src="nav.js"></script> <script type="module">
-  import { onAuthState, fetchPlayerPosts, reportContent, gracefulGet, isOnline, getUserData } from './api.js'; // Added getUserData
-
-  const availableContainer = document.getElementById('available-players-posts');
-  const availableLoadingState = document.getElementById('available-loading-state');
-  const lookingContainer = document.getElementById('looking-for-players-posts');
-  const lookingLoadingState = document.getElementById('looking-loading-state');
-  const offlineBanner = document.getElementById('offline-banner');
-
-  const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop";
-  let currentUserId = null;
-
-  // Update offline banner based on initial status
-  offlineBanner.style.display = isOnline() ? 'none' : 'block';
-  // Listen for network changes
-  document.body.addEventListener('app:network-change', (event) => {
-      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-  });
-
-  function renderPosts(posts) {
-    // Clear previous items
-    availableContainer.querySelectorAll('.player-post-item').forEach(el => el.remove());
-    lookingContainer.querySelectorAll('.player-post-item').forEach(el => el.remove());
-
-    // Clear error/empty states
-    availableContainer.querySelectorAll('p').forEach(p => p.remove());
-    lookingContainer.querySelectorAll('p').forEach(p => p.remove());
-
-
-    if (!posts) { // Error case
-        availableLoadingState.style.display = 'none';
-        lookingLoadingState.style.display = 'none';
-        availableContainer.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-red-400">Could not load posts.</p>');
-        lookingContainer.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-red-400">Could not load posts.</p>');
-        return;
-    }
-
-    const availablePosts = posts.filter(p => p.type === 'available');
-    const lookingPosts = posts.filter(p => p.type === 'looking');
-
-    availableLoadingState.style.display = 'none';
-    lookingLoadingState.style.display = 'none';
-
-    if (availablePosts.length === 0) {
-      availableContainer.insertAdjacentHTML('beforeend', `<p class="py-4 text-center text-sm text-neutral-500">No players currently available.</p>`);
-    } else {
-        availablePosts.forEach(post => renderPostCard(availableContainer, post));
-    }
-
-    if (lookingPosts.length === 0) {
-      lookingContainer.insertAdjacentHTML('beforeend', `<p class="py-4 text-center text-sm text-neutral-500">No posts currently seeking players.</p>`);
-    } else {
-        lookingPosts.forEach(post => renderPostCard(lookingContainer, post));
-    }
-  }
-
-  function renderPostCard(container, post) {
-      const postCard = document.createElement('div');
-      // Use Canonical Card style
-      postCard.className = 'player-post-item rounded-xl border border-neutral-700 bg-neutral-800 p-4';
-      const profileLink = `setflow-public-profile.html?userId=${post.userId}`;
-
-      // Customize content based on post type
-      let detailsHtml = '';
-      if (post.type === 'available') {
-          detailsHtml = `
-            <p class="mt-2 text-sm text-neutral-300">Plays: <span class="font-semibold text-white">${post.instrument}</span></p>
-            <p class="text-sm text-neutral-400">Location: ${post.location || 'N/A'}</p>
-            <p class="text-sm text-neutral-400">Availability: ${post.availability || 'N/A'}</p>
-          `;
-      } else { // 'looking'
-           let formattedDate = 'N/A';
-           if (post.date) {
-               try {
-                  const dateObj = new Date(post.date); // Assumes ISO string like YYYY-MM-DDTHH:mm
-                  if (!isNaN(dateObj)) {
-                       formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
-                   } else { formattedDate = post.date; }
-               } catch (e) { formattedDate = post.date; }
-           }
-          detailsHtml = `
-            <p class="mt-2 text-sm text-neutral-300">Needs: <span class="font-semibold text-white">${post.instrument}</span></p>
-            <p class="text-sm text-neutral-400">For: ${post.eventDetails || 'N/A'}</p>
-            <p class="text-sm text-neutral-400">Date: ${formattedDate}</p>
-          `;
-      }
-
-      postCard.innerHTML = `
-        <div class="flex items-start justify-between">
-            <a href="${profileLink}" class="flex flex-1 items-center space-x-3 min-w-0 group rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 -m-1 p-1"> <img class="h-10 w-10 flex-shrink-0 rounded-full object-cover bg-neutral-700" src="${post.userProfileImage || placeholderImage}" alt="${post.userName}'s photo">
-                <div class="min-w-0">
-                    <p class="truncate font-semibold text-white group-hover:text-emerald-400">${post.userName}</p>
-                    <p class="truncate text-xs text-neutral-500">${post.type === 'available' ? 'Available Player' : 'Seeking Player'}</p>
-                </div>
-            </a>
-            ${currentUserId && currentUserId !== post.userId ?
-            // Canonical Button-Primary (Small)
-            `<a href="setflow-conversation-view.html?recipientId=${post.userId}" class="ml-2 flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Message</a>`
-            : currentUserId === post.userId ? '<span class="ml-2 flex-shrink-0 text-xs text-neutral-500">(Your Post)</span>' : ''}
         </div>
-        ${detailsHtml}
-        <p class="mt-3 border-t border-neutral-700 pt-3 text-sm text-neutral-300">${post.description || 'No description provided.'}</p>
-        <div class="mt-2 text-right">
-             ${currentUserId && currentUserId !== post.userId ?
-             // Canonical Tertiary Destructive Button Style (Small)
-             `<button data-post-id="${post.id}" class="report-post-btn rounded px-1 text-xs font-semibold text-neutral-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 focus:ring-offset-neutral-900">Report</button>`
-             : ''}
-        </div>
-      `;
-      // Insert before loading state if it exists
-      const loadingEl = container.querySelector('#available-loading-state, #looking-loading-state');
-      if (loadingEl) {
-          container.insertBefore(postCard, loadingEl);
-      } else {
-          container.appendChild(postCard);
-      }
-  }
+      </section>
+    </main>
 
-  // --- Report Post Functionality ---
-  async function handleReportPost(postId) {
-    if (!currentUserId) {
-        toast.show('You must be logged in to report content.', 'error');
-        // Optional: Redirect to login
-        return;
-    }
-    if (confirm('Are you sure you want to report this post?')) {
-        try {
-            await reportContent(postId, 'player_post', currentUserId, 'User reported from find a player page');
-            toast.show('Post reported. Thank you.', 'success');
-        } catch (error) {
-            console.error('Error reporting post:', error);
-            toast.show('Could not submit report. Please try again.', 'error');
+    <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div class="flex h-16 items-center justify-around">
+        <a href="setflow-musician-dashboard.html" class="bottom-nav-link active">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+          Home
+        </a>
+        <a href="setflow-browse-gigs.html" class="bottom-nav-link">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          Gigs
+        </a>
+        <a href="setflow-applied-gigs.html" class="bottom-nav-link">
+           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Applied
+        </a>
+        <a href="setflow-inbox.html" class="bottom-nav-link">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
+          Inbox
+        </a>
+        <a href="setflow-musician-settings.html" class="bottom-nav-link">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          Account
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+    <span id="toast-message">Placeholder</span>
+  </div>
+  <script src="toast.js"></script>
+
+  <script type="module">
+    import { onAuthState, fetchPlayerPosts, gracefulGet, isOnline, escapeHTML } from './api.js';
+
+    const availableContainer = document.getElementById('available-players-posts');
+    const lookingContainer = document.getElementById('looking-for-players-posts');
+    const availableLoading = document.getElementById('available-loading-state');
+    const lookingLoading = document.getElementById('looking-loading-state');
+    const offlineBanner = document.getElementById('offline-banner');
+    const placeholderImage = "https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop";
+
+    if(!isOnline()) offlineBanner.style.display = 'block';
+    
+    let currentUserId = null;
+
+    function renderPosts(posts) {
+        availableLoading.style.display = 'none';
+        lookingLoading.style.display = 'none';
+
+        // Clear old posts
+        document.querySelectorAll('.player-post-item, .empty-msg').forEach(el => el.remove());
+
+        if (!posts) {
+             availableContainer.innerHTML += '<p class="empty-msg text-center text-red-400 py-4">Error loading posts.</p>';
+             lookingContainer.innerHTML += '<p class="empty-msg text-center text-red-400 py-4">Error loading posts.</p>';
+             return;
         }
+
+        const available = posts.filter(p => p.type === 'available');
+        const looking = posts.filter(p => p.type === 'looking');
+
+        if(available.length === 0) availableContainer.innerHTML += '<p class="empty-msg text-neutral-500 text-sm text-center">No players available.</p>';
+        else available.forEach(p => renderPostCard(availableContainer, p));
+
+        if(looking.length === 0) lookingContainer.innerHTML += '<p class="empty-msg text-neutral-500 text-sm text-center">No active listings.</p>';
+        else looking.forEach(p => renderPostCard(lookingContainer, p));
     }
-  }
 
-  // --- Event Delegation for Report Buttons ---
-  document.querySelector('main').addEventListener('click', (event) => {
-    const reportButton = event.target.closest('.report-post-btn');
-    if (reportButton) {
-        const postId = reportButton.dataset.postId;
-        handleReportPost(postId);
+    function renderPostCard(container, post) {
+        const div = document.createElement('div');
+        div.className = 'player-post-item rounded-xl border border-neutral-700 bg-neutral-800 p-4 mb-3';
+        
+        let detailsHtml = '';
+        if (post.type === 'available') {
+             detailsHtml = `
+               <p class="mt-2 text-sm text-neutral-300">Plays: <span class="text-white font-medium">${escapeHTML(post.instrument)}</span></p>
+               <p class="text-sm text-neutral-400">Loc: ${escapeHTML(post.location)}</p>
+             `;
+        } else {
+             detailsHtml = `
+               <p class="mt-2 text-sm text-neutral-300">Needs: <span class="text-white font-medium">${escapeHTML(post.instrument)}</span></p>
+               <p class="text-sm text-neutral-400">Date: ${post.date}</p>
+             `;
+        }
+
+        div.innerHTML = `
+           <div class="flex justify-between items-start">
+              <a href="setflow-public-profile.html?userId=${post.userId}" class="flex items-center space-x-3 group">
+                  <img src="${post.userProfileImage || placeholderImage}" class="w-10 h-10 rounded-full object-cover bg-neutral-700">
+                  <div>
+                      <p class="text-white font-semibold text-sm group-hover:text-emerald-400">${escapeHTML(post.userName)}</p>
+                      <p class="text-xs text-neutral-500">${post.type === 'available' ? 'Available' : 'Looking'}</p>
+                  </div>
+              </a>
+              ${currentUserId !== post.userId 
+                ? `<a href="setflow-conversation-view.html?recipientId=${post.userId}" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-emerald-500">Message</a>`
+                : `<span class="text-xs text-neutral-500">(You)</span>`
+              }
+           </div>
+           ${detailsHtml}
+           <p class="mt-3 pt-3 border-t border-neutral-700 text-sm text-neutral-300">${escapeHTML(post.description)}</p>
+        `;
+        container.appendChild(div);
     }
-  });
 
-
-  onAuthState(async (user) => {
-    if (user) {
-      currentUserId = user.uid;
-      availableLoadingState.style.display = 'flex'; // Show loading
-      lookingLoadingState.style.display = 'flex';
-
-      // --- ADDED: Fetch user data for nav ---
-      try {
-          const userData = await gracefulGet(getUserData(user.uid), null);
-          const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
-          const userTier = userData?.subscriptionTier || 'free';
-          renderBottomNav(userRole, userTier, 'setflow-find-a-player.html');
-      } catch(e) {
-          console.error("Nav error:", e);
-          renderBottomNav('musician', 'free', 'setflow-find-a-player.html'); // Fallback
-      }
-      // --- END NAV LOGIC ---
-
-      try {
-        // Use gracefulGet, manage states manually
-        const posts = await gracefulGet(fetchPlayerPosts(), null, "Could not load posts while offline.");
-        renderPosts(posts); // Handles null/empty response
-      } catch (error) {
-        console.error("Failed to fetch player posts:", error);
-        renderPosts(null); // Show error state
-      }
-    } else {
-      window.location.href = 'setflow-login-page.html';
-    }
-  });
-</script>
-
-<script type="module" src="./api.js"></script>
+    onAuthState(async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            const posts = await gracefulGet(fetchPlayerPosts());
+            renderPosts(posts);
+        } else {
+            window.location.href = 'setflow-login-page.html';
+        }
+    });
+  </script>
 </body>
 </html>

@@ -1,75 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Gig Templates</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="toast.css">
-  <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
-    }
-    /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Bottom Nav Styles */
-    .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
-    }
-    .bottom-nav-link:hover { color: theme('colors.white'); }
-    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
-  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Template data may be cached.</div>
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-       <a href="javascript:history.back()" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gig Templates</h1>
-      <div class="w-10 h-10"></div> </div>
-  </header>
+<div id="offline-banner">You are currently offline. Templates cached.</div>
 
-  <main id="template-list" class="flex-1 space-y-3 p-5 pt-20 pb-20"> <div class="flex justify-center items-center py-10" id="loading-state">
-      <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <main id="template-list" class="flex-1 space-y-3 p-5 pt-20 pb-20"> 
+    <div class="flex justify-center items-center py-10" id="loading-state">
+      <div class="loading-spinner"></div>
     </div>
     <div class="hidden py-10 text-center" id="empty-state">
-      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m9.75 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM19.5 14.25v2.625a3.375 3.375 0 01-3.375 3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 013.375-3.375H19.5zM4.5 14.25v-2.625a3.375 3.375 0 013.375-3.375h1.5A1.125 1.125 0 0010.5 7.125v-1.5a3.375 3.375 0 013.375-3.375H15.75m-6 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM4.5 14.25v2.625a3.375 3.375 0 003.375 3.375h1.5a1.125 1.125 0 001.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H4.5z" />
-      </svg>
       <h3 class="mt-2 text-lg font-semibold text-white">No Templates Saved</h3>
       <p class="mt-1 text-sm text-neutral-400">Create a gig to save it as a template.</p>
-       </div>
+    </div>
     <div class="hidden py-10 text-center text-red-400" id="error-state">
         <p>Could not load gig templates.</p>
     </div>
-    
-    </main>
-  </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-          </div>
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around"></div>
   </nav>
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+</div> 
+
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder</span>
 </div>
 <script src="toast.js"></script>
-<script src="nav.js"></script> <script type="module">
-     import { onAuthState, gracefulGet, isOnline, getUserData, fetchGigTemplates } from './api.js'; // Added getUserData, fetchGigTemplates
+<script src="nav.js"></script>
+
+<script type="module">
+     import { renderHeader } from './components.js';
+     import { onAuthState, gracefulGet, isOnline, getUserData, fetchGigTemplates, escapeHTML } from './api.js';
+
+     // 1. Render UI
+     // Determine back link based on role, but safe default is history
+     renderHeader("Gig Templates", "history");
 
      const templateContainer = document.getElementById('template-list');
      const loadingState = document.getElementById('loading-state');
@@ -77,92 +45,62 @@
      const errorState = document.getElementById('error-state');
      const offlineBanner = document.getElementById('offline-banner');
 
-     // Update offline banner based on initial status
-     offlineBanner.style.display = isOnline() ? 'none' : 'block';
-     // Listen for network changes
-     document.body.addEventListener('app:network-change', (event) => {
-         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-     });
-
+     if(!isOnline()) offlineBanner.style.display = 'block';
 
      function renderTemplates(templates) {
-         // Clear previous items
-         const existingItems = templateContainer.querySelectorAll('.template-item');
-         existingItems.forEach(item => item.remove());
-
-         if (!templates) { // Error case
-             loadingState.style.display = 'none';
-             emptyState.style.display = 'none';
+         loadingState.style.display = 'none';
+         
+         if (!templates) {
              errorState.style.display = 'block';
              return;
          }
 
          if (templates.length === 0) {
-             loadingState.style.display = 'none';
-             errorState.style.display = 'none';
              emptyState.style.display = 'block';
              return;
          }
 
-         loadingState.style.display = 'none'; // Hide states
-         emptyState.style.display = 'none';
-         errorState.style.display = 'none';
-
+         // Clear previous content just in case
+         templateContainer.innerHTML = ''; 
 
          templates.forEach(template => {
              const templateCard = document.createElement('div');
-             // Use Canonical List Item Structure (modified)
-             templateCard.className = 'template-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
+             templateCard.className = 'template-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 transition-colors border border-neutral-700 mb-3';
 
              const payout = template.payout ? `$${template.payout} • ` : '';
              const genres = (template.genres && template.genres.length > 0) ? template.genres.join(', ') : 'No genre';
 
              templateCard.innerHTML = `
                  <div class="flex-1 min-w-0">
-                     <p class="font-semibold text-white truncate">${template.name}</p>
-                     <p class="text-xs text-neutral-400 truncate">${payout}${genres}</p>
+                     <p class="font-semibold text-white truncate">${escapeHTML(template.name)}</p>
+                     <p class="text-xs text-neutral-400 truncate">${escapeHTML(payout + genres)}</p>
                  </div>
-                 <a href="setflow-post-event-page.html?templateId=${template.id}" class="ml-2 flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Use</a>
+                 <a href="setflow-post-event-page.html?templateId=${template.id}" class="ml-2 flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">Use</a>
              `;
-              // Insert before the state divs
-              templateContainer.insertBefore(templateCard, loadingState);
+              templateContainer.appendChild(templateCard);
          });
      }
 
      onAuthState(async (user) => {
-         if (user) { // Assume promoter/venue role
-             loadingState.style.display = 'flex'; // Show loading
-             emptyState.style.display = 'none';
-             errorState.style.display = 'none';
-             
-             let userRole = 'promoter'; // Default
-             
+         if (user) { 
              try {
-                // --- ADDED: Fetch user data for nav ---
-                const userData = await gracefulGet(getUserData(user.uid), null);
-                if (userData?.roles?.includes('venue')) {
-                    userRole = 'venue';
-                }
-                // Call the global function from nav.js
-                renderBottomNav(userRole, 'free', 'setflow-gig-templates.html'); // This page is not in the nav, so no item will be active
-                // --- END NAV LOGIC ---
-             
-                 // Fetch actual templates
-                 const templates = await gracefulGet(fetchGigTemplates(user.uid), null, "Could not load templates offline.");
-                 renderTemplates(templates); // Handles null/empty response
+                 const userData = await gracefulGet(getUserData(user.uid));
+                 // Update Bottom Nav based on Role
+                 let role = 'promoter';
+                 if(userData?.roles?.includes('venue')) role = 'venue';
+                 if(window.renderBottomNav) window.renderBottomNav(role, 'free', 'setflow-gig-templates.html');
+
+                 const templates = await gracefulGet(fetchGigTemplates(user.uid));
+                 renderTemplates(templates);
 
              } catch (error) {
                  console.error("Error loading templates:", error);
-                 renderTemplates(null); // Show error state
-                 // --- ADDED: Fallback nav render ---
-                 renderBottomNav(userRole, 'free', 'setflow-gig-templates.html');
+                 renderTemplates(null);
              }
          } else {
              window.location.href = 'setflow-login-page.html';
          }
      });
  </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

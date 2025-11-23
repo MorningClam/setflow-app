@@ -3,191 +3,143 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Setflow - Earnings Report</title>
+  <title>Setflow - Earnings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-     /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem;
+        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Bottom Nav Styles */
     .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
+        color: #A3A3A3; transition: color 0.15s ease-in-out;
     }
-    .bottom-nav-link:hover { color: theme('colors.white'); }
-    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
     .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Earnings data may be cached.</div>
+<div id="offline-banner">You are currently offline.</div>
+
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Earnings Report</h1>
-      <div class="w-10 h-10"></div> </div>
+      <div class="w-10 h-10"></div> 
+    </div>
   </header>
 
-  <main class="flex-1 p-5 pt-20 pb-20"> <section class="mb-8">
+  <main class="flex-1 p-5 pt-20 pb-20"> 
+    <section class="mb-8">
         <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4 text-center">
             <p class="text-sm font-medium uppercase tracking-wider text-neutral-400">Total Earnings (YTD)</p>
-            <p class="mt-1 text-4xl font-bold text-emerald-400">$0</p> </div>
+            <p class="mt-1 text-4xl font-bold text-emerald-400" id="ytd-total">$0</p> 
+        </div>
     </section>
 
     <section>
       <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Completed Gigs</h2>
       <div id="completed-gigs-list" class="space-y-3">
         <div class="flex justify-center items-center py-5" id="loading-state">
-            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+            <div class="loading-spinner"></div>
         </div>
         <div class="hidden py-10 text-center" id="empty-state">
-            <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0l.879-.659M12 6v.845m0 9.273l-3 2.182m3-2.182l3 2.182M3 12.75l2.67.668c.94 1.237 2.43 2.082 4.148 2.082s3.207-.845 4.148-2.082L19.5 12.75M3 8.25l2.67-.668c.94-1.237 2.43-2.082 4.148-2.082s3.207.845 4.148 2.082L19.5 8.25m-16.5 0a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM19.5 8.25a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0z" />
-            </svg>
             <h3 class="mt-2 text-lg font-semibold text-white">No Completed Gigs</h3>
-            <p class="mt-1 text-sm text-neutral-400">Your completed gigs and earnings will appear here.</p>
+            <p class="mt-1 text-sm text-neutral-400">Your earnings will appear here after you complete gigs.</p>
         </div>
-        <div class="hidden py-10 text-center text-red-400" id="error-state">
-            <p>Could not load earnings data.</p>
-        </div>
-        </div>
+      </div>
     </section>
  </main>
- </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-          </div>
+
+ <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+    <div class="flex h-16 items-center justify-around">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+        Home
+      </a>
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        Gigs
+      </a>
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link">
+         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Applied
+      </a>
+      <a href="setflow-inbox.html" class="bottom-nav-link">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
+        Inbox
+      </a>
+      <a href="setflow-musician-settings.html" class="bottom-nav-link active">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        Account
+      </a>
+    </div>
   </nav>
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+ </div>
+
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+  <span id="toast-message"></span>
 </div>
 <script src="toast.js"></script>
-<script src="nav.js"></script> <script type="module">
-    import { onAuthState, gracefulGet, isOnline, fetchCompletedGigsForUser, getUserData } from './api.js'; // Import getUserData
 
-    const gigsListContainer = document.getElementById('completed-gigs-list');
-    const loadingState = document.getElementById('loading-state');
-    const emptyState = document.getElementById('empty-state');
-    const errorState = document.getElementById('error-state');
-    const offlineBanner = document.getElementById('offline-banner');
-    const ytdElement = document.querySelector('.text-4xl.font-bold.text-emerald-400'); // Cache YTD element
+<script type="module">
+    import { onAuthState, gracefulGet, isOnline, fetchCompletedGigsForUser, escapeHTML } from './api.js';
 
-     // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
+    const container = document.getElementById('completed-gigs-list');
+    const loading = document.getElementById('loading-state');
+    const empty = document.getElementById('empty-state');
+    const ytdEl = document.getElementById('ytd-total');
+    
+    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
-
-    function renderCompletedGigs(gigs) {
-        // Clear previous items
-        const existingItems = gigsListContainer.querySelectorAll('.gig-item');
-        existingItems.forEach(item => item.remove());
-
-        // Select the YTD element once (already cached above)
-        // const ytdElement = document.querySelector('.text-4xl.font-bold.text-emerald-400');
-
-        if (!gigs) { // Error case
-            loadingState.style.display = 'none';
-            emptyState.style.display = 'none';
-            errorState.style.display = 'block';
-            if(ytdElement) ytdElement.textContent = `$0`; // **FIX: Show $0 on error**
+    function renderGigs(gigs) {
+        loading.style.display = 'none';
+        
+        if (!gigs || gigs.length === 0) {
+            empty.style.display = 'block';
             return;
         }
 
-        if (gigs.length === 0) {
-            loadingState.style.display = 'none';
-            errorState.style.display = 'none';
-            emptyState.style.display = 'block';
-            if(ytdElement) ytdElement.textContent = `$0`; // Ensure YTD is 0 if no gigs
-            return;
-        }
-
-        loadingState.style.display = 'none'; // Hide states
-        emptyState.style.display = 'none';
-        errorState.style.display = 'none';
-
-
-        // Sort by date descending (most recent first) - API query should handle this
-        // gigs.sort((a,b) => (b.dateObject || 0) - (a.dateObject || 0)); // Use parsed dateObject
-
+        let total = 0;
         gigs.forEach(gig => {
-            const gigElement = document.createElement('div');
-            // Use Canonical List Item Structure (modified for earnings)
-            gigElement.className = 'gig-item flex items-center justify-between rounded-lg bg-neutral-800 p-4'; // Removed hover
-            const dateFormatted = gig.formattedDate || 'Date N/A'; // Use pre-formatted date
-
-            gigElement.innerHTML = `
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between rounded-lg bg-neutral-800 p-4';
+            div.innerHTML = `
               <div class="flex-1 min-w-0">
-                <p class="truncate font-semibold text-white">${gig.venueName}</p>
-                <p class="truncate text-xs text-neutral-400">${dateFormatted}</p>
+                <p class="truncate font-semibold text-white">${escapeHTML(gig.venueName)}</p>
+                <p class="truncate text-xs text-neutral-400">${gig.formattedDate}</p>
               </div>
-              <p class="ml-4 flex-shrink-0 font-bold text-emerald-400">$${gig.payout || 0}</p> `;
-             // Insert before the state divs
-             gigsListContainer.insertBefore(gigElement, loadingState);
+              <p class="ml-4 flex-shrink-0 font-bold text-emerald-400">$${gig.payout || 0}</p>
+            `;
+            container.appendChild(div);
+            total += Number(gig.payout || 0);
         });
+        
+        ytdEl.textContent = `$${total.toLocaleString()}`;
     }
 
-
     onAuthState(async (user) => {
-        if (!user) {
-            window.location.href = 'setflow-login-page.html';
+        if (user) {
+            const gigs = await gracefulGet(fetchCompletedGigsForUser(user.uid));
+            renderGigs(gigs);
         } else {
-            loadingState.style.display = 'flex'; // Show loading
-            emptyState.style.display = 'none';
-            errorState.style.display = 'none';
-            if(ytdElement) ytdElement.textContent = '$0'; // Reset YTD display
-
-            try {
-                // --- ADDED: Fetch user data for nav ---
-                const userData = await gracefulGet(getUserData(user.uid), null);
-                const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
-                const userTier = userData?.subscriptionTier || 'free';
-                renderBottomNav(userRole, userTier, 'setflow-earnings-report.html');
-                // --- END NAV LOGIC ---
-            
-                // Fetch actual completed gigs data using the new API function
-                const completedGigs = await gracefulGet(fetchCompletedGigsForUser(user.uid), null, "Could not load earnings data offline.");
-
-                renderCompletedGigs(completedGigs); // Handles null/empty response
-
-                // Calculate and update the YTD total dynamically
-                if (completedGigs) {
-                    // TODO: Implement proper YTD calculation based on dates if needed.
-                    // This simple sum assumes all fetched gigs are within the current year.
-                    const totalYtd = completedGigs.reduce((sum, gig) => sum + (gig.payout || 0), 0);
-                    if(ytdElement) ytdElement.textContent = `$${totalYtd.toLocaleString()}`; // Format number
-                }
-                // Error case handled within renderCompletedGigs
-
-            } catch (error) {
-                console.error("Error fetching earnings:", error);
-                renderCompletedGigs(null); // Show error state
-                // YTD error state already set in renderCompletedGigs
-                // --- ADDED: Fallback nav render ---
-                renderBottomNav('musician', 'free', 'setflow-earnings-report.html');
-            }
+            window.location.href = 'setflow-login-page.html';
         }
     });
 </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

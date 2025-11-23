@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Pro Pricing</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -11,29 +10,28 @@
   <style>
     body{font-family:'Inter',sans-serif}
      #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
    </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Pricing info may be cached.</div>
+<div id="offline-banner">You are currently offline.</div>
+
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="#" onclick="goBackOr('setflow-musician-dashboard.html')" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+      <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Setflow Pro</h1>
-      <div class="w-10 h-10"></div> </div>
+      <div class="w-10 h-10"></div> 
+    </div>
   </header>
 
-  <main class="flex-1 p-5 pt-20"> <section class="text-center">
+  <main class="flex-1 p-5 pt-20"> 
+    <section class="text-center">
       <h2 class="text-3xl font-bold text-white">Find Your Flow.</h2>
       <p class="mt-2 text-lg text-neutral-400">Stop searching, start playing. Upgrade to unlock your full potential.</p>
     </section>
@@ -41,8 +39,9 @@
     <section class="mt-8 space-y-4">
       <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-6">
         <h3 class="text-xl font-semibold">Monthly</h3>
-        <p class="mt-2 text-4xl font-bold">$7.99<span class="text-base font-medium text-neutral-400">/mo</span></p> <p class="mt-2 text-sm text-neutral-400">Flexible plan, cancel anytime.</p>
-        <button onclick="handleSubscription('monthly')" class="mt-6 w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <p class="mt-2 text-4xl font-bold">$7.99<span class="text-base font-medium text-neutral-400">/mo</span></p> 
+        <p class="mt-2 text-sm text-neutral-400">Flexible plan, cancel anytime.</p>
+        <button onclick="handleSubscription('monthly')" class="mt-6 w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white hover:bg-neutral-600 transition-colors">
           Choose Monthly
         </button>
       </div>
@@ -52,8 +51,9 @@
           Most Popular
         </div>
         <h3 class="text-xl font-semibold">Annual</h3>
-        <p class="mt-2 text-4xl font-bold">$79.99<span class="text-base font-medium text-neutral-400">/yr</span></p> <p class="mt-2 text-sm font-semibold text-emerald-400">Save 16% - Get 2 months free!</p>
-        <button onclick="handleSubscription('annual')" class="mt-6 w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <p class="mt-2 text-4xl font-bold">$79.99<span class="text-base font-medium text-neutral-400">/yr</span></p> 
+        <p class="mt-2 text-sm font-semibold text-emerald-400">Save 16% - Get 2 months free!</p>
+        <button onclick="handleSubscription('annual')" class="mt-6 w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition-colors">
           Choose Annual
         </button>
       </div>
@@ -62,45 +62,34 @@
     <section class="mt-10">
       <h4 class="mb-4 text-center text-sm font-medium uppercase tracking-wider text-neutral-500">All Pro Plans Include</h4>
       <ul class="space-y-3 text-sm text-neutral-300">
-        <li class="flex items-center"><svg aria-hidden="true" class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited Gig Applications & Posts</li>
-        <li class="flex items-center"><svg aria-hidden="true" class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Access to Artist Discovery & Talent Pool</li>
-        <li class="flex items-center"><svg aria-hidden="true" class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Enhanced Profile with Media Links</li>
-        <li class="flex items-center"><svg aria-hidden="true" class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Advanced Earnings & Analytics</li>
-        <li class="flex items-center"><svg aria-hidden="true" class="mr-3 h-5 w-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Priority Placement in Search</li>
+        <li class="flex items-center"><svg class="mr-3 h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited Gig Applications & Posts</li>
+        <li class="flex items-center"><svg class="mr-3 h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Access to Artist Discovery</li>
+        <li class="flex items-center"><svg class="mr-3 h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Enhanced Profile</li>
+        <li class="flex items-center"><svg class="mr-3 h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Advanced Analytics</li>
       </ul>
     </section>
   </main>
-  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+</div> 
+
+<div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
  <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
-<script src="nav.js"></script> <script type="module">
+
+<script type="module">
      import { isOnline } from './api.js';
-     // import { toast } from './toast.js'; // Assuming toast.js exports
 
-     const offlineBanner = document.getElementById('offline-banner');
+     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
-      // Update offline banner based on initial status
-     offlineBanner.style.display = isOnline() ? 'none' : 'block';
-     // Listen for network changes
-     document.body.addEventListener('app:network-change', (event) => {
-         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-     });
-
-
-     // Placeholder for subscription handling
      window.handleSubscription = function(plan) {
          if (!isOnline()) {
-             toast.show("Managing subscriptions requires an internet connection.", 'error');
+             window.toast.show("Internet required for subscription.", 'error');
              return;
          }
-         // TODO: Implement payment flow (e.g., Stripe Checkout)
-         console.log(`Initiating subscription for plan: ${plan}`);
-         toast.show(`Redirecting to ${plan} subscription page... (Not Implemented)`, 'success');
-         // Example: window.location.href = `/subscribe?plan=${plan}`;
+         console.log(`Initiating ${plan} plan`);
+         window.toast.show(`Redirecting to ${plan} checkout... (Mock)`, 'success');
+         // setTimeout(() => window.location.href = 'https://stripe.com/checkout...', 1000);
      }
  </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

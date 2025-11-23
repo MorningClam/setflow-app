@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Signup</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -11,33 +10,17 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Canonical style for segmented control buttons */
-    .role-btn {
-        transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-    }
-    .role-btn.active { /* Use 'active' class instead of role-btn-active */
-        background-color: theme('colors.emerald.600');
-        color: white;
-    }
-    .role-btn:not(.active) {
-        background-color: transparent; /* Ensure default is transparent within container */
-        color: theme('colors.neutral.300');
-    }
-     .role-btn:not(.active):hover {
-         background-color: theme('colors.neutral.700'); /* Add hover for inactive */
-     }
+    .role-btn.active { background-color: #059669; color: white; }
+    .role-btn { background-color: transparent; color: #D4D4D4; transition: all 0.2s; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">Sign up requires an internet connection.</div>
+  
   <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
     <header class="px-5 py-8 text-center">
       <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500">
@@ -46,29 +29,30 @@
       <h1 class="text-3xl font-bold">Create your account</h1>
       <p class="mt-2 text-neutral-400">Join the Command Center.</p>
     </header>
+    
     <main class="flex-grow p-5">
       <form id="signup-form" class="space-y-6">
         <div>
             <label class="mb-2 block text-sm font-semibold text-neutral-300">I am a...</label>
-            <div role="radiogroup" aria-label="Select your role" class="grid grid-cols-3 gap-1 rounded-xl bg-neutral-800 p-1">
-                <button type="button" role="radio" aria-checked="true" class="role-btn active rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">Musician</button>
-                <button type="button" role="radio" aria-checked="false" class="role-btn rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">Venue</button>
-                <button type="button" role="radio" aria-checked="false" class="role-btn rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">Promoter</button>
+            <div class="grid grid-cols-3 gap-1 rounded-xl bg-neutral-800 p-1">
+                <button type="button" class="role-btn active rounded-lg px-3 py-2 text-sm font-semibold">Musician</button>
+                <button type="button" class="role-btn rounded-lg px-3 py-2 text-sm font-semibold">Venue</button>
+                <button type="button" class="role-btn rounded-lg px-3 py-2 text-sm font-semibold">Promoter</button>
             </div>
         </div>
         <div>
           <label for="name" class="mb-2 block text-sm font-semibold text-neutral-300">Name</label>
-          <input id="name" type="text" placeholder="Your Name or Band Name" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
+          <input id="name" type="text" placeholder="Your Name or Band Name" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" required>
         </div>
         <div>
           <label for="email" class="mb-2 block text-sm font-semibold text-neutral-300">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required>
+          <input id="email" type="email" placeholder="you@example.com" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" required>
         </div>
         <div>
           <label for="password" class="mb-2 block text-sm font-semibold text-neutral-300">Password</label>
-          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" required minlength="6">
+          <input id="password" type="password" placeholder="Create a password (min. 6 characters)" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" required minlength="6">
         </div>
-        <button type="submit" id="create-account-btn" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="submit" id="create-account-btn" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500 transition-colors">
             Create Account
         </button>
       </form>
@@ -77,92 +61,67 @@
     <footer class="px-5 py-6 text-center">
       <p class="text-sm text-neutral-400">
         Already have an account?
-        <a href="setflow-login-page.html" class="rounded font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Sign in</a>
+        <a href="setflow-login-page.html" class="rounded font-medium text-emerald-400 hover:text-emerald-300">Sign in</a>
       </p>
     </footer>
   </div>
 
   <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-    <span id="toast-message">Placeholder message</span>
+    <span id="toast-message">Placeholder</span>
   </div>
   <script src="toast.js"></script>
 
   <script type="module">
     import { signUpUser, isOnline } from './api.js';
 
-    const roleButtons = document.querySelectorAll('.role-btn');
-    const signupForm = document.getElementById('signup-form');
-    const offlineBanner = document.getElementById('offline-banner');
-    let selectedRole = 'Musician'; // Default role
+    const btns = document.querySelectorAll('.role-btn');
+    const form = document.getElementById('signup-form');
+    const submitBtn = document.getElementById('create-account-btn');
+    
+    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
-     // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
+    let role = 'Musician';
 
-
-    // --- Role Selection Logic ---
-    roleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            roleButtons.forEach(btn => {
-                 btn.classList.remove('active'); // Use 'active' class
-                 btn.setAttribute('aria-checked', 'false');
-            });
-            button.classList.add('active'); // Use 'active' class
-            button.setAttribute('aria-checked', 'true');
-            selectedRole = button.innerText;
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            role = btn.textContent;
         });
     });
 
-    // --- Form Submission Logic ---
-    signupForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-         // Check network connection first
-         if (!isOnline()) {
-              toast.show('Sign up requires an internet connection.', 'error');
-              return;
-         }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if(!isOnline()) { window.toast.show("Internet required.", "error"); return; }
 
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const submitButton = document.getElementById('create-account-btn');
 
-         // Basic validation
-        if (password.length < 6) {
-             toast.show('Password must be at least 6 characters long.', 'error');
-             return;
+        if(password.length < 6) {
+            window.toast.show("Password must be 6+ chars.", "error");
+            return;
         }
 
-
-        submitButton.disabled = true;
-        submitButton.innerText = 'Creating Account...';
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Creating...";
 
         try {
-            await signUpUser(name, email, password, selectedRole); // Requires network
-            // Redirect to profile setup on successful signup
-            // Pass role for context, profile setup will re-fetch if needed
-            window.location.href = `setflow-profile-setup.html?role=${selectedRole.toLowerCase()}`;
-        } catch (error) {
-            console.error('Signup Error:', error);
-             let message = 'Could not create account. Please try again.';
-             if (error.code === 'auth/email-already-in-use') {
-                 message = 'This email address is already in use.';
-             } else if (error.code === 'auth/invalid-email') {
-                 message = 'Please enter a valid email address.';
-             } else if (error.message.includes('network error')) {
-                  message = 'Network error. Please check your connection and try again.';
-             }
-            toast.show(message, 'error');
-            submitButton.disabled = false;
-            submitButton.innerText = 'Create Account';
+            await signUpUser(name, email, password, role);
+            window.toast.show("Account created!", "success");
+            setTimeout(() => {
+                window.location.href = `setflow-profile-setup.html?role=${role.toLowerCase()}`;
+            }, 1500);
+        } catch (err) {
+            console.error(err);
+            let msg = "Signup failed.";
+            if(err.code === 'auth/email-already-in-use') msg = "Email already in use.";
+            window.toast.show(msg, "error");
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Create Account";
         }
     });
   </script>
-
-  <script type="module" src="./api.js"></script>
 </body>
 </html>

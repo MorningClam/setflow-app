@@ -3,82 +3,108 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Artist Discovery</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
-   <style>
+  <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-     /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem;
+        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Bottom Nav Styles */
     .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
+        color: #A3A3A3; transition: color 0.15s ease-in-out;
     }
-    .bottom-nav-link:hover { color: theme('colors.white'); }
-    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
     .bottom-nav-link svg { margin-bottom: 0.25rem; }
-   </style>
+    .genre-filter.active { background-color: #064E3B; color: #6EE7B7; }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Showing cached artist data.</div>
+<div id="offline-banner">You are currently offline.</div>
+
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-venue-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+      <a href="setflow-venue-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Artist Discovery</h1>
-      <div class="w-10 h-10"></div> </div>
+      <div class="w-10 h-10"></div> 
+    </div>
   </header>
 
-  <main class="flex-1 space-y-8 p-5 pt-20 pb-20"> <section>
-        <h2 class="text-xl font-semibold text-white mb-1">Raleigh Local Charts</h2>
+  <main class="flex-1 space-y-8 p-5 pt-20 pb-24"> 
+    <section>
+        <h2 class="text-xl font-semibold text-white mb-1">Local Charts</h2>
         <p class="text-base text-neutral-400">Trending artists in your area.</p>
+        
+        <div class="flex space-x-2 mt-4 overflow-x-auto pb-2 no-scrollbar">
+            <button class="genre-filter active px-3 py-1 rounded-full bg-neutral-800 border border-neutral-700 text-sm font-medium whitespace-nowrap">All</button>
+            <button class="genre-filter px-3 py-1 rounded-full bg-neutral-800 border border-neutral-700 text-sm font-medium whitespace-nowrap hover:bg-neutral-700">Rock</button>
+            <button class="genre-filter px-3 py-1 rounded-full bg-neutral-800 border border-neutral-700 text-sm font-medium whitespace-nowrap hover:bg-neutral-700">Indie</button>
+            <button class="genre-filter px-3 py-1 rounded-full bg-neutral-800 border border-neutral-700 text-sm font-medium whitespace-nowrap hover:bg-neutral-700">Jazz</button>
+        </div>
     </section>
 
     <section id="highest-rated-container">
         <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-amber-400">★ Highest Rated</h3>
         <div class="space-y-3" id="highest-rated-list">
             <div class="flex justify-center items-center py-5" id="rated-loading-state">
-                <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+                <div class="loading-spinner"></div>
             </div>
-             </div>
+        </div>
     </section>
 
     <section id="most-booked-container">
          <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-emerald-400">🚀 Most Booked</h3>
         <div class="space-y-3" id="most-booked-list">
              <div class="flex justify-center items-center py-5" id="booked-loading-state">
-                <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+                <div class="loading-spinner"></div>
             </div>
-            </div>
+        </div>
     </section>
   </main>
-  </div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-          </div>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+    <div class="flex h-16 items-center justify-around">
+        <a href="setflow-venue-dashboard.html" class="bottom-nav-link">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1 1v4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Dashboard
+        </a>
+        <a href="setflow-post-event-page.html" class="bottom-nav-link">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Post
+        </a>
+        <a href="setflow-inbox.html" class="bottom-nav-link">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Inbox
+        </a>
+        <a href="setflow-venue-settings.html" class="bottom-nav-link">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Account
+        </a>
+    </div>
   </nav>
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+</div> 
+
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder</span>
 </div>
 <script src="toast.js"></script>
-<script src="nav.js"></script> <script type="module">
-     import { onAuthState, getAllPlayers, gracefulGet, isOnline, getUserData } from './api.js'; // Added getUserData
-     // import { toast } from './toast.js';
+
+ <script type="module">
+     import { onAuthState, getAllPlayers, gracefulGet, isOnline, getUserData, escapeHTML } from './api.js';
 
      const highestRatedList = document.getElementById('highest-rated-list');
      const ratedLoadingState = document.getElementById('rated-loading-state');
@@ -86,131 +112,87 @@
      const bookedLoadingState = document.getElementById('booked-loading-state');
      const offlineBanner = document.getElementById('offline-banner');
 
-     // Update offline banner based on initial status
-     offlineBanner.style.display = isOnline() ? 'none' : 'block';
-     // Listen for network changes
-     document.body.addEventListener('app:network-change', (event) => {
-         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-     });
+     if(!isOnline()) offlineBanner.style.display = 'block';
 
+     // Filter Logic
+     document.querySelectorAll('.genre-filter').forEach(btn => {
+         btn.addEventListener('click', (e) => {
+             document.querySelectorAll('.genre-filter').forEach(b => {
+                 b.classList.remove('active', 'bg-emerald-900', 'text-emerald-300');
+                 b.classList.add('bg-neutral-800', 'text-white');
+             });
+             e.target.classList.add('active', 'bg-emerald-900', 'text-emerald-300');
+             e.target.classList.remove('bg-neutral-800');
+             window.toast.show(`Filtering by ${e.target.innerText}...`, 'success');
+             // Note: Real filtering would re-render the lists here
+         });
+     });
 
      function renderArtistCard(container, artist) {
          const card = document.createElement('div');
-         // Canonical List Item Structure (modified for this layout)
-         card.className = 'artist-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus-within:bg-neutral-700 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500';
+         card.className = 'artist-item flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 transition mb-3 border border-neutral-700';
          const profileLink = `setflow-public-profile.html?userId=${artist.id}`;
          const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
-
          const ratingDisplay = artist.rating ? `★ ${artist.rating.toFixed(1)}` : 'No Rating';
+         const genreText = Array.isArray(artist.genres) ? artist.genres.join(', ') : (artist.genre || 'Music');
 
          card.innerHTML = `
-            <a href="${profileLink}" class="flex flex-1 items-center space-x-4 min-w-0 group rounded focus:outline-none">
-                <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${artist.profileImageUrl || placeholderImg}" alt="${artist.name} photo">
+            <a href="${profileLink}" class="flex flex-1 items-center space-x-4 min-w-0 group">
+                <img class="h-12 w-12 rounded-lg object-cover bg-neutral-700" src="${artist.profileImageUrl || placeholderImg}" alt="Photo">
                 <div class="min-w-0">
-                    <p class="truncate font-semibold text-white group-hover:text-emerald-400">${artist.name}</p>
-                    <p class="truncate text-xs text-neutral-400">${artist.genres ? artist.genres.join(', ') : 'Music'} • ${ratingDisplay}</p>
+                    <p class="truncate font-semibold text-white group-hover:text-emerald-400">${escapeHTML(artist.name)}</p>
+                    <p class="truncate text-xs text-neutral-400">${escapeHTML(genreText)} • ${ratingDisplay}</p>
                 </div>
             </a>
-            <button data-artist-id="${artist.id}" class="scout-btn ml-2 flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Scout</button>
+            <button data-artist-id="${artist.id}" class="scout-btn ml-2 flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition-colors">Scout</button>
             `;
-         // Insert before loading state if it exists
-         const loadingEl = container.querySelector('#rated-loading-state, #booked-loading-state');
-         if (loadingEl) {
-            container.insertBefore(card, loadingEl);
-         } else {
-            container.appendChild(card);
-         }
+         
+         container.appendChild(card);
      }
 
      function renderArtists(artists) {
-         // Clear previous items
-         highestRatedList.querySelectorAll('.artist-item').forEach(el => el.remove());
-         mostBookedList.querySelectorAll('.artist-item').forEach(el => el.remove());
-
-         if (!artists) { // Error case
-             ratedLoadingState.style.display = 'none';
-             bookedLoadingState.style.display = 'none';
-             highestRatedList.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-red-400">Could not load artists.</p>');
-             mostBookedList.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-red-400">Could not load artists.</p>');
-             return;
-         }
-
-         if (artists.length === 0) {
-             ratedLoadingState.style.display = 'none';
-             bookedLoadingState.style.display = 'none';
-             highestRatedList.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-neutral-500">No artists found in discovery.</p>');
-             mostBookedList.insertAdjacentHTML('beforeend', '<p class="py-4 text-center text-sm text-neutral-500">No artists found in discovery.</p>');
-             return;
-         }
-
-         ratedLoadingState.style.display = 'none'; // Hide loading states
+         ratedLoadingState.style.display = 'none';
          bookedLoadingState.style.display = 'none';
 
-         // Placeholder logic: Split list, sort rated. Needs actual rating/booking data.
-         const ratedArtists = [...artists].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5); // Top 5 rated
-         const bookedArtists = artists.slice(0, 5); // Placeholder: Top 5 overall for "booked"
-
-         if (ratedArtists.length > 0) {
-             ratedArtists.forEach(artist => renderArtistCard(highestRatedList, artist));
-         } else {
-             highestRatedList.insertAdjacentHTML('beforeend','<p class="py-4 text-center text-sm text-neutral-500">No highly rated artists found.</p>');
+         if (!artists || artists.length === 0) {
+             const emptyMsg = '<p class="py-4 text-center text-sm text-neutral-500">No artists found.</p>';
+             highestRatedList.innerHTML = emptyMsg;
+             mostBookedList.innerHTML = emptyMsg;
+             return;
          }
 
-         if (bookedArtists.length > 0) {
-             bookedArtists.forEach(artist => renderArtistCard(mostBookedList, artist));
-         } else {
-              mostBookedList.insertAdjacentHTML('beforeend','<p class="py-4 text-center text-sm text-neutral-500">No frequently booked artists found.</p>');
-         }
+         // Mock Sorting
+         const ratedArtists = [...artists].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+         const bookedArtists = artists.slice(0, 5);
 
-         // Add Scout button logic after rendering
+         ratedArtists.forEach(a => renderArtistCard(highestRatedList, a));
+         bookedArtists.forEach(a => renderArtistCard(mostBookedList, a));
+
          document.querySelectorAll('.scout-btn').forEach(button => {
-             // TODO: Check if artist is already scouted and set initial state
              button.addEventListener('click', (e) => {
-                 e.target.textContent = 'Scouted'; // Use textContent
+                 e.target.textContent = 'Scouted';
                  e.target.disabled = true;
-                 e.target.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-                 e.target.classList.add('bg-neutral-700', 'opacity-50'); // Use canonical disabled style
-                 const artistName = e.target.closest('.artist-item').querySelector('a .font-semibold')?.innerText || 'Artist';
-                 toast.show(`${artistName} added to your scout list.`, 'success');
-                 // TODO: Add API call to save scouted status
+                 e.target.classList.replace('bg-emerald-600', 'bg-neutral-700');
+                 e.target.classList.add('text-neutral-400');
+                 window.toast.show('Artist added to your scout list.', 'success');
              });
          });
      }
 
-
      onAuthState(async (user) => {
-         if (user) { // Assume venue/promoter role needs access
-             ratedLoadingState.style.display = 'flex'; // Show loading
-             bookedLoadingState.style.display = 'flex';
-             
-             let userRole = 'venue'; // Default
-             
+         if (user) {
              try {
-                // --- ADDED: Fetch user data for nav ---
-                const userData = await gracefulGet(getUserData(user.uid), null);
-                if (userData?.roles?.includes('promoter')) {
-                    userRole = 'promoter';
-                }
-                // Call the global function from nav.js
-                renderBottomNav(userRole, 'free', 'setflow-artist-discovery.html'); // Active page is this one
-                // --- END NAV LOGIC ---
-             
-                 // Use gracefulGet, manage states manually
-                 const artists = await gracefulGet(getAllPlayers(), null, "Could not load artists while offline.");
-                 renderArtists(artists); // Handles null/empty response
+                 const artists = await gracefulGet(getAllPlayers());
+                 renderArtists(artists);
              } catch (error) {
                  console.error("Failed to load artists:", error);
-                 renderArtists(null); // Show error state
-                 // --- ADDED: Fallback nav render ---
-                 renderBottomNav(userRole, 'free', 'setflow-artist-discovery.html');
+                 ratedLoadingState.style.display = 'none';
+                 bookedLoadingState.style.display = 'none';
              }
          } else {
              window.location.href = 'setflow-login-page.html';
          }
      });
-
  </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

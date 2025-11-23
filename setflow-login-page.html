@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Setflow - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="toast.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    #offline-banner {
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
+    }
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
   <div id="offline-banner">You are currently offline. Login requires connection.</div>
@@ -27,30 +40,31 @@
           Sign In
         </button>
          <div class="text-center">
-             <a href="setflow-password-reset-flow.html" class="rounded text-sm text-neutral-400 hover:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">Forgot Password?</a>
+             <a href="setflow-password-reset-flow.html" class="rounded text-sm text-neutral-400 hover:text-emerald-400">Forgot Password?</a>
          </div>
       </form>
     </main>
     <footer class="px-5 py-6 text-center">
       <p class="text-sm text-neutral-400">
         Don't have an account?
-        <a href="setflow-signup-page.html" class="rounded font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Sign up</a>
+        <a href="setflow-signup-page.html" class="rounded font-medium text-emerald-400 hover:text-emerald-300">Sign up</a>
       </p>
     </footer>
   </div>
 
   <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-    <span id="toast-message">Placeholder message</span>
+    <span id="toast-message"></span>
   </div>
   <script src="toast.js"></script>
 
   <script type="module">
-    import { loadCommonHead } from './components.js'; // Implicitly runs
     import { signInUser, getUserData, isOnline } from './api.js';
 
     const loginForm = document.getElementById('login-form');
     const urlParams = new URLSearchParams(window.location.search);
     const redirectUrlParam = urlParams.get('redirect');
+    
+    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
     const roleRedirectMap = {
       'musician': 'setflow-musician-dashboard.html',
@@ -65,7 +79,7 @@
       const submitButton = loginForm.querySelector('button[type="submit"]');
 
       if (!isOnline()) {
-           window.toast.show('Login requires an internet connection.', 'error');
+           window.toast.show('Login requires internet connection.', 'error');
            return;
       }
 
@@ -92,13 +106,13 @@
           }
           window.location.href = roleRedirectMap[primaryRole] || roleRedirectMap['musician'];
         } else {
-          window.toast.show('Login successful. Please complete your profile setup.', 'success');
+          window.toast.show('Login successful. Please complete profile.', 'success');
           setTimeout(() => window.location.href = `setflow-profile-setup.html?role=musician`, 1500);
         }
 
       } catch (error) {
         console.error('Login Error:', error);
-        let message = 'Login failed. Please check your email and password.';
+        let message = 'Login failed. Check credentials.';
         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') message = 'Invalid email or password.';
         window.toast.show(message, 'error');
         submitButton.disabled = false;

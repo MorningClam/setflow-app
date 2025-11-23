@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-  <title>Setflow - Account Settings</title>
+  <title>Setflow - Venue Settings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
@@ -12,24 +11,19 @@
   <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white;
-      text-align: center;
-      font-size: 0.875rem; /* text-sm */
-      font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    .loading-spinner-inline { /* For inline text loading */
-        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    .bottom-nav-link {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
+        color: #A3A3A3; transition: color 0.15s ease-in-out;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-     /* Modal styles */
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    /* Modal */
     .modal-container { transition: opacity 0.3s ease-out; }
     .modal-overlay { transition: opacity 0.3s ease-out; opacity: 0;}
     .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
@@ -38,11 +32,13 @@
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
+<div id="offline-banner">You are currently offline.</div>
+
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-venue-dashboard.html" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      <a href="setflow-venue-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Account Settings</h1>
       <div class="w-10 h-10"></div>
@@ -56,18 +52,14 @@
         <div class="flex items-center justify-between p-4">
           <div>
             <p class="text-sm text-neutral-400">Venue Name</p>
-            <p class="text-white" id="user-name">
-              <span class="loading-spinner-inline" id="user-name-spinner"></span>Loading...
-            </p>
+            <p class="text-white" id="user-name">Loading...</p>
           </div>
-          <a href="setflow-edit-profile.html" aria-label="Edit profile" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit</a>
+          <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Edit</a>
         </div>
         <div class="flex items-center justify-between p-4">
           <div>
-            <p class="text-sm text-neutral-400">Contact Email</p>
-            <p class="text-white" id="user-email">
-                <span class="loading-spinner-inline" id="user-email-spinner"></span>Loading...
-            </p>
+            <p class="text-sm text-neutral-400">Email</p>
+            <p class="text-white" id="user-email">Loading...</p>
           </div>
         </div>
         <div class="flex items-center justify-between p-4">
@@ -75,19 +67,19 @@
             <p class="text-sm text-neutral-400">Password</p>
             <p class="text-white">••••••••</p>
           </div>
-          <a href="setflow-password-reset-flow.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Change</a>
+          <a href="setflow-password-reset-flow.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Change</a>
         </div>
       </div>
     </section>
 
     <section>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Your Venue</h2>
+      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Venue Tools</h2>
       <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
-        <a href="setflow-artist-discovery.html" class="flex items-center justify-between rounded-t-lg p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+        <a href="setflow-artist-discovery.html" class="flex items-center justify-between p-4 hover:bg-neutral-700 transition">
             <span class="font-semibold text-white">Discover Artists</span>
             <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </a>
-         <a href="setflow-gig-templates.html" class="flex items-center justify-between rounded-b-lg p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+         <a href="setflow-gig-templates.html" class="flex items-center justify-between p-4 hover:bg-neutral-700 transition">
             <span class="font-semibold text-white">Gig Templates</span>
             <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </a>
@@ -99,15 +91,10 @@
       <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="font-semibold text-white">Current Plan:
-              <span class="inline-flex items-center">
-                <span class="loading-spinner-inline" id="subscription-status-spinner"></span>
-                <span class="text-emerald-400" id="subscription-status">Free</span>
-              </span>
-            </p>
+            <p class="font-semibold text-white">Current Plan: <span class="text-emerald-400" id="subscription-status">Free</span></p>
             <p id="subscription-cta" class="text-sm text-neutral-400">Upgrade to unlock advanced features.</p>
           </div>
-          <a href="setflow-pricing-page.html" id="upgrade-btn" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Upgrade</a>
+          <a href="setflow-pricing-page.html" id="upgrade-btn" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition">Upgrade</a>
         </div>
       </div>
     </section>
@@ -115,155 +102,127 @@
     <section>
         <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Legal & Account</h2>
         <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
-             <a href="setflow-privacy-policy.html" class="block rounded-t-lg p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+             <a href="setflow-privacy-policy.html" class="block p-4 hover:bg-neutral-700 transition">
                 <p class="font-semibold text-white">Privacy Policy</p>
             </a>
-             <button id="delete-account-btn" data-modal-target="#delete-confirm-modal" class="w-full rounded-b-lg p-4 text-left font-semibold text-red-400 hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500">
+             <button id="delete-account-btn" class="w-full p-4 text-left font-semibold text-red-400 hover:bg-red-900/30 transition">
                 Delete Account
             </button>
         </div>
-         <p id="app-version-display" class="mt-2 px-1 text-xs text-neutral-500">Version...</p>
+         <p id="app-version-display" class="mt-2 px-1 text-xs text-neutral-500">Version 1.0.0</p>
     </section>
 
     <section>
-        <button id="logout-btn" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-red-400 transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-neutral-900">
+        <button id="logout-btn" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-red-400 hover:bg-neutral-600 transition">
             Log Out
         </button>
     </section>
-
   </main>
 
-  <div id="delete-confirm-modal" class="modal-container fixed inset-0 z-50 hidden items-center justify-center p-4" aria-modal="true" role="dialog" aria-labelledby="delete-modal-title">
+  <div id="delete-confirm-modal" class="modal-container fixed inset-0 z-50 hidden items-center justify-center p-4" aria-modal="true" role="dialog">
       <div class="modal-overlay absolute inset-0 bg-black/70"></div>
-      <div class="modal-content relative z-10 w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transform transition-all">
+      <div class="modal-content relative z-10 w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transition-all">
           <div class="p-6 text-center">
-              <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              <h3 id="delete-modal-title" class="mt-4 text-lg font-semibold text-white">Delete Account?</h3>
-              <p class="mt-1 text-sm text-neutral-400">This action is permanent and cannot be undone. All your data, including posted gigs, applications, and messages, will be deleted.</p>
+              <h3 class="text-lg font-semibold text-white">Delete Account?</h3>
+              <p class="mt-1 text-sm text-neutral-400">This action is permanent. All your data will be deleted.</p>
           </div>
           <div class="space-y-3 p-4">
-              <button id="confirm-delete-btn" class="w-full rounded-xl bg-red-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Yes, Delete My Account</button>
-              <button id="cancel-delete-btn" class="modal-close w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Cancel</button>
+              <button id="confirm-delete-btn" class="w-full rounded-xl bg-red-600 px-6 py-3 text-base font-semibold text-white hover:bg-red-700 transition">Yes, Delete My Account</button>
+              <button id="cancel-delete-btn" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white hover:bg-neutral-600 transition">Cancel</button>
           </div>
       </div>
   </div>
 
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div class="flex h-16 items-center justify-around">
+            <a href="setflow-venue-dashboard.html" class="bottom-nav-link">
+                <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg>
+                Dashboard
+            </a>
+            <a href="setflow-post-event-page.html" class="bottom-nav-link">
+                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Post
+            </a>
+            <a href="setflow-inbox.html" class="bottom-nav-link">
+                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Inbox
+            </a>
+            <a href="setflow-venue-settings.html" class="bottom-nav-link active">
+               <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Account
+            </a>
+      </div>
+  </nav>
 </div>
+
 <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message">Placeholder message</span>
+  <span id="toast-message"></span>
 </div>
 <script src="toast.js"></script>
 
 <script type="module">
     import { signOutUser, onAuthState, getUserData, deleteUserAccount, gracefulGet, isOnline } from './api.js';
-    import { toast } from './toast.js';
 
-    const logoutButton = document.getElementById('logout-btn');
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-    const offlineBanner = document.getElementById('offline-banner');
-    const userNameElement = document.getElementById('user-name');
-    const userEmailElement = document.getElementById('user-email');
-    const subStatusElement = document.getElementById('subscription-status');
-    const subStatusSpinner = document.getElementById('subscription-status-spinner');
-    const userNameSpinner = document.getElementById('user-name-spinner');
-    const userEmailSpinner = document.getElementById('user-email-spinner');
+    const nameEl = document.getElementById('user-name');
+    const emailEl = document.getElementById('user-email');
+    const modal = document.getElementById('delete-confirm-modal');
+    
+    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
-    // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    // Modal Logic
+    document.getElementById('delete-account-btn').addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        requestAnimationFrame(() => {
+            modal.querySelector('.modal-overlay').style.opacity = '1';
+            modal.querySelector('.modal-content').style.opacity = '1';
+            modal.querySelector('.modal-content').style.transform = 'scale(1)';
+        });
     });
 
-    // --- Delete Account Logic ---
-    confirmDeleteBtn.addEventListener('click', async () => {
-        confirmDeleteBtn.disabled = true;
-        confirmDeleteBtn.innerText = 'Deleting...';
-        if (!isOnline()) {
-             toast.show("Cannot delete account while offline.", 'error');
-             confirmDeleteBtn.disabled = false;
-             confirmDeleteBtn.innerText = 'Yes, Delete My Account';
-             return;
-        }
+    document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+        modal.querySelector('.modal-overlay').style.opacity = '0';
+        modal.querySelector('.modal-content').style.opacity = '0';
+        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    });
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
         try {
-            const result = await deleteUserAccount();
-            if (result.success) {
-                toast.show('Account deleted successfully.');
-                setTimeout(() => window.location.href = 'setflow-login-page.html', 1500);
-            } else {
-                throw new Error(result.message || "Deletion failed on the server.");
-            }
-        } catch (error) {
-            console.error('Account Deletion Error:', error);
-            toast.show(`Error: ${error.message}`, 'error');
-            confirmDeleteBtn.disabled = false;
-            confirmDeleteBtn.innerText = 'Yes, Delete My Account';
+            await deleteUserAccount();
+            window.location.href = 'setflow-login-page.html';
+        } catch(e) {
+            window.toast.show(e.message, 'error');
         }
     });
 
-    // --- Logout Logic ---
-    logoutButton.addEventListener('click', async (event) => {
-        event.preventDefault();
+    document.getElementById('logout-btn').addEventListener('click', async () => {
         try {
             await signOutUser();
             window.location.href = 'setflow-login-page.html';
-        } catch (error) {
-            toast.show('Failed to log out.', 'error');
+        } catch (e) {
+            window.toast.show("Failed to log out.", "error");
         }
     });
 
-    // --- Helper to show text and hide spinner ---
-    function showDataText(element, spinnerElement, text) {
-        if (element) {
-            element.innerHTML = '';
-            element.textContent = text;
-        }
-        if (spinnerElement) {
-            spinnerElement.style.display = 'none';
-        }
-    }
-
-    // --- Initial Data Loading ---
     onAuthState(async (user) => {
-        if (user) {
-            try {
-                const userData = await gracefulGet(getUserData(user.uid));
-
-                if (userData) {
-                    showDataText(userNameElement, userNameSpinner, userData.name || 'N/A');
-                    showDataText(userEmailElement, userEmailSpinner, userData.email || 'N/A');
-                    const subStatus = userData.subscriptionTier ? `Setflow ${userData.subscriptionTier.charAt(0).toUpperCase() + userData.subscriptionTier.slice(1)}` : 'Setflow Free';
-                    showDataText(subStatusElement, subStatusSpinner, subStatus);
-
-                    if (userData.subscriptionTier && userData.subscriptionTier !== 'free') {
-                        document.getElementById('upgrade-btn').innerText = 'Manage';
-                        document.getElementById('subscription-cta').innerText = 'Manage your subscription.';
-                    }
-                } else {
-                    showDataText(userNameElement, userNameSpinner, 'Unavailable');
-                    showDataText(userEmailElement, userEmailSpinner, 'Unavailable');
-                    showDataText(subStatusElement, subStatusSpinner, 'Unavailable');
-                    toast.show('Could not load user details.', 'error');
+        if(user) {
+            const userData = await gracefulGet(getUserData(user.uid));
+            if(userData) {
+                nameEl.textContent = userData.name || 'N/A';
+                emailEl.textContent = userData.email || 'N/A';
+                if(userData.subscriptionTier !== 'free') {
+                    document.getElementById('subscription-status').textContent = 'Pro';
+                    document.getElementById('upgrade-btn').textContent = 'Manage';
                 }
-            } catch (error) {
-                 console.error("Error loading account settings data:", error);
-                 toast.show('Could not load all account details.', 'error');
-                 showDataText(userNameElement, userNameSpinner, 'Error');
-                 showDataText(userEmailElement, userEmailSpinner, 'Error');
-                 showDataText(subStatusElement, subStatusSpinner, 'Error');
             }
         } else {
             window.location.href = 'setflow-login-page.html';
         }
     });
-
-    // --- Set App Version ---
-    if (typeof APP_VERSION !== 'undefined') {
-        const versionEl = document.getElementById('app-version-display');
-        if (versionEl) {
-            versionEl.innerText = `Version ${APP_VERSION}`;
-        }
-    }
 </script>
-<script type="module" src="./api.js"></script> </body>
+</body>
 </html>

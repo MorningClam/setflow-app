@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Complete Your Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -11,35 +10,33 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-     /* Loading Spinner Styles (Canonical Tailwind) */
     .loading-spinner-inline {
-        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Profile setup requires connection for initial save.</div>
+<div id="offline-banner">You are currently offline. Setup requires connection.</div>
+
 <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto max-w-md border-b border-neutral-700 bg-neutral-900 px-5 py-4">
     <div class="mb-3 flex items-center justify-between">
       <h1 class="text-lg font-semibold">Complete Your Profile</h1>
       <span class="text-sm text-neutral-400">Step 1 of 1</span>
     </div>
-    <div class="h-1.5 w-full rounded-full bg-neutral-700" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" aria-label="Profile completion progress: 33%">
+    <div class="h-1.5 w-full rounded-full bg-neutral-700">
         <div class="h-1.5 rounded-full bg-emerald-500" style="width: 33.33%"></div>
     </div>
   </header>
 
-  <main class="flex-grow p-5 pt-28 pb-24"> <section class="mb-6">
+  <main class="flex-grow p-5 pt-28 pb-24"> 
+    <section class="mb-6">
       <h2 class="mb-2 text-2xl font-bold text-white">Let's get started</h2>
       <p class="text-base text-neutral-400">Tell us a bit about yourself to personalize your experience.</p>
     </section>
@@ -50,7 +47,7 @@
           <div class="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-4 border-neutral-700 bg-neutral-800">
             <svg aria-hidden="true" class="h-8 w-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           </div>
-          </div>
+        </div>
       </div>
       <div>
         <label for="bio" class="mb-2 block text-sm font-semibold text-neutral-300">Your Bio</label>
@@ -60,7 +57,7 @@
         <label for="location" class="mb-2 block text-sm font-semibold text-neutral-300">Location</label>
         <input id="location" type="text" placeholder="e.g., Raleigh, NC" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
       </div>
-      </form>
+    </form>
   </main>
 
   <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto flex max-w-md items-center justify-between border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
@@ -70,15 +67,12 @@
 </div>
 
 <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message">Placeholder message</span>
+  <span id="toast-message">Placeholder</span>
 </div>
 <script src="toast.js"></script>
 
 <script type="module">
-    import { onAuthState, updateUserProfile, getUserData, isOnline } from './api.js';
-    // Import toast.js assuming it exports a toast object/function
-    // If toast.js adds `window.toast`, this import might not be needed, but it's cleaner.
-    // import { toast } from './toast.js'; // Adjust path if needed
+    import { onAuthState, updateUserProfile, getUserData, isOnline, gracefulGet } from './api.js';
 
     const finishButton = document.getElementById('finish-btn');
     const bioTextarea = document.getElementById('bio');
@@ -92,90 +86,61 @@
     };
 
     let currentUserId = null;
+    
+    if(!isOnline()) offlineBanner.style.display = 'block';
 
-    // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
-
-    onAuthState(async (user) => { // Added async
+    onAuthState(async (user) => {
         if (!user) {
             window.location.href = 'setflow-login-page.html';
         } else {
             currentUserId = user.uid;
-            // Pre-fill fields if user already has data (e.g., editing profile later)
-            finishButton.disabled = true; // Disable until loaded
-            bioTextarea.disabled = true;
-            locationInput.disabled = true;
-             try {
-                // Use gracefulGet without container, manage fields manually
-                const userData = await gracefulGet(getUserData(currentUserId), null);
+            finishButton.disabled = true;
+            
+            try {
+                const userData = await gracefulGet(getUserData(currentUserId));
                 if (userData) {
                     bioTextarea.value = userData.bio || '';
                     locationInput.value = userData.location || '';
-                } else {
-                    // Don't necessarily show error toast here, just proceed with empty form
-                    console.warn("Could not load existing profile data, starting fresh.");
                 }
-             } catch (error) {
+            } catch (error) {
                  console.error("Error pre-filling profile:", error);
-                 // Proceed with empty form on error
-             } finally {
-                 finishButton.disabled = false; // Re-enable
-                 bioTextarea.disabled = false;
-                 locationInput.disabled = false;
-             }
+            } finally {
+                 finishButton.disabled = false;
+            }
         }
     });
 
-    async function handleProfileSave(event) { // Make the handler async
+    async function handleProfileSave(event) {
         event.preventDefault();
-        if (!currentUserId) {
-            toast.show("Authentication error. Please log in again.", 'error');
-            return;
-        }
-         // Check connection for *initial* save attempt during setup
+        if (!currentUserId) return;
+        
         if (!isOnline()) {
-             toast.show("Profile setup requires an internet connection for the initial save.", 'error');
+             window.toast.show("Internet required for setup.", 'error');
              return;
         }
 
         const bio = bioTextarea.value.trim();
         const location = locationInput.value.trim();
+        
         finishButton.disabled = true;
-        finishButton.innerText = 'Saving...';
+        finishButton.innerHTML = '<span class="loading-spinner-inline"></span>Saving...';
 
         try {
             await updateUserProfile(currentUserId, {
                 bio: bio,
                 location: location,
-                profileSetupComplete: true // Mark setup as done
+                profileSetupComplete: true
             });
 
-            // Re-fetch user data to get the role reliably
-            const userData = await getUserData(currentUserId); // Assume this works or throws
-            const userRole = (userData && userData.roles && userData.roles.length > 0) ? userData.roles[0] : null;
+            const userData = await getUserData(currentUserId);
+            const userRole = (userData?.roles?.[0]) || 'musician';
+            const redirectUrl = roleRedirectMap[userRole] || roleRedirectMap['musician'];
 
-            const redirectUrl = roleRedirectMap[userRole] || roleRedirectMap['musician']; // Default redirect
-
-            // Set toast for the *next* page
-            sessionStorage.setItem('showToast', 'Profile saved successfully!|success');
-
-            // Redirect immediately
             window.location.href = redirectUrl;
 
         } catch (error) {
             console.error("Profile Setup Error:", error);
-            // Provide more specific feedback if possible
-            let errorMsg = "Could not save your profile. Please try again.";
-             if (!isOnline()) { // Check again in case connection dropped during save attempt
-                 errorMsg = "Connection lost. Please check network and try again.";
-             } else if (error.message) {
-                 errorMsg += ` (${error.message})`;
-             }
-            toast.show(errorMsg, 'error');
+            window.toast.show("Could not save profile.", 'error');
             finishButton.disabled = false;
             finishButton.innerText = 'Finish';
         }
@@ -183,9 +148,6 @@
 
     finishButton.addEventListener('click', handleProfileSave);
     document.getElementById('profile-form').addEventListener('submit', handleProfileSave);
-
 </script>
-
-<script type="module" src="./api.js"></script>
 </body>
 </html>

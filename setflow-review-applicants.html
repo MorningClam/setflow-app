@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Review Applicants</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -11,160 +10,133 @@
   <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem;
+        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Some features may be unavailable.</div>
+  <div id="offline-banner">You are currently offline.</div>
+
   <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top: 0; left: 0; right: 0; z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm"> <div class="flex h-10 items-center justify-between"> <a href="javascript:history.back()" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <div id="header-title" class="flex-grow text-center">
-             <h1 class="text-lg font-semibold tracking-tight">Review Applicants</h1>
-             </div>
-        <div class="w-10 h-10"></div> </div>
-      <div class="mt-3 px-1 py-1"> <label for="sort" class="mr-2 text-xs text-neutral-400">Sort by:</label>
-         <select id="sort" class="rounded-lg border-0 bg-neutral-700 p-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-             <option>Best Match</option>
-             <option>Newest</option>
-         </select>
-      </div>
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm"> 
+        <div class="flex h-10 items-center justify-between"> 
+            <a href="#" onclick="window.history.length > 1 ? window.history.back() : window.location.href='setflow-venue-dashboard.html'; return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </a>
+            <div id="header-title" class="flex-grow text-center">
+                 <h1 class="text-lg font-semibold tracking-tight">Review Applicants</h1>
+            </div>
+            <div class="w-10 h-10"></div> 
+        </div>
+        <div class="mt-3 px-1 py-1"> 
+            <label for="sort" class="mr-2 text-xs text-neutral-400">Sort by:</label>
+            <select id="sort" class="rounded-lg border-0 bg-neutral-700 p-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <option>Best Match</option>
+                <option>Newest</option>
+            </select>
+        </div>
     </header>
 
-    <main id="applicants-container" class="flex-grow divide-y divide-neutral-700 pt-32 pb-5"> <div class="flex justify-center items-center py-10" id="loading-state">
-            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+    <main id="applicants-container" class="flex-grow divide-y divide-neutral-700 pt-32 pb-5"> 
+        <div class="flex justify-center items-center py-10" id="loading-state">
+            <div class="loading-spinner"></div>
         </div>
         <div class="hidden py-10 text-center" id="empty-state">
-            <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
             <h3 class="mt-2 text-lg font-semibold text-white">No Applicants Yet</h3>
             <p class="mt-1 text-sm text-neutral-400">Share your gig post to attract talent!</p>
         </div>
         <div class="hidden py-10 text-center text-red-400" id="error-state">
             <p>Could not load applicants.</p>
         </div>
-        </main>
-    </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-   <span id="toast-message">Placeholder message</span>
+    </main>
+  </div>
+
+  <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <span id="toast-message">Placeholder</span>
   </div>
   <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, fetchApplicantsForGig, gracefulGet, isOnline } from './api.js';
+    import { onAuthState, fetchApplicantsForGig, gracefulGet, isOnline, escapeHTML } from './api.js';
 
-    const applicantsContainer = document.getElementById('applicants-container');
-    const loadingState = document.getElementById('loading-state');
-    const emptyState = document.getElementById('empty-state');
-    const errorState = document.getElementById('error-state');
-    const headerTitleDiv = document.getElementById('header-title');
-    const offlineBanner = document.getElementById('offline-banner');
+    const container = document.getElementById('applicants-container');
+    const loading = document.getElementById('loading-state');
+    const empty = document.getElementById('empty-state');
+    const error = document.getElementById('error-state');
+    const headerTitle = document.getElementById('header-title');
+    
+    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
     const urlParams = new URLSearchParams(window.location.search);
     const gigId = urlParams.get('gigId');
-    const gigName = urlParams.get('gigName') || 'a Gig';
+    const gigName = urlParams.get('gigName') || 'Gig';
 
-    // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
-
-
-    // Update header to be more descriptive (using canonical styles)
-    headerTitleDiv.innerHTML = `<h1 class="text-lg font-semibold tracking-tight">Applicants for</h1><p class="text-sm text-neutral-400">${decodeURIComponent(gigName)}</p>`;
+    // Set Header
+    headerTitle.innerHTML = `<h1 class="text-lg font-semibold tracking-tight">Applicants for</h1><p class="text-sm text-neutral-400 truncate max-w-[200px] mx-auto">${escapeHTML(decodeURIComponent(gigName))}</p>`;
 
     function renderApplicants(applicants) {
-       // Clear previous items
-       const existingItems = applicantsContainer.querySelectorAll('.applicant-item');
-       existingItems.forEach(item => item.remove());
+      loading.style.display = 'none';
+      document.querySelectorAll('.applicant-item').forEach(e => e.remove());
 
-
-      if (!applicants) { // Error case
-        loadingState.style.display = 'none';
-        emptyState.style.display = 'none';
-        errorState.style.display = 'block';
+      if (!applicants || applicants.length === 0) {
+        empty.style.display = 'block';
         return;
       }
 
-      if (applicants.length === 0) {
-        loadingState.style.display = 'none';
-        errorState.style.display = 'none';
-        emptyState.style.display = 'block';
-        return;
-      }
-
-      loadingState.style.display = 'none'; // Hide states
-      emptyState.style.display = 'none';
-      errorState.style.display = 'none';
-
-      applicants.forEach(applicant => {
-        const applicantCard = document.createElement('div');
-        // Use Canonical List Item structure, modified
-        applicantCard.className = 'applicant-item p-4 hover:bg-neutral-800 focus-within:bg-neutral-800 focus-within:ring-2 focus-within:ring-inset focus-within:ring-emerald-500 rounded-lg'; // Added rounded-lg
-        const profileLink = `setflow-applicant-profile.html?userId=${applicant.id}&gigId=${gigId}&artistName=${encodeURIComponent(applicant.name)}`;
+      applicants.forEach(app => {
+        const div = document.createElement('div');
+        div.className = 'applicant-item p-4 hover:bg-neutral-800 transition';
+        // Pass artist name and gigId to the profile for context
+        const profileLink = `setflow-applicant-profile.html?userId=${app.id}&gigId=${gigId}&artistName=${encodeURIComponent(app.name)}`;
         const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
+        
+        const genreText = Array.isArray(app.genres) ? app.genres.join(', ') : (app.genre || 'Music');
 
-        applicantCard.innerHTML = `
-          <a href="${profileLink}" class="flex items-center space-x-4 group rounded focus:outline-none">
-            <img class="h-16 w-16 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${applicant.profileImageUrl || placeholderImg}" alt="${applicant.name}">
+        div.innerHTML = `
+          <a href="${profileLink}" class="flex items-center space-x-4 group mb-3">
+            <img class="h-16 w-16 rounded-lg object-cover bg-neutral-700" src="${app.profileImageUrl || placeholderImg}">
             <div class="flex-1 min-w-0">
-              <p class="truncate text-lg font-semibold text-white group-hover:text-emerald-400">${applicant.name}</p>
-              <p class="truncate text-sm text-neutral-300">${applicant.genres ? applicant.genres.join(', ') : 'Music'}</p>
+              <p class="text-lg font-semibold text-white group-hover:text-emerald-400 truncate">${escapeHTML(app.name)}</p>
+              <p class="text-sm text-neutral-300 truncate">${escapeHTML(genreText)}</p>
             </div>
              <svg class="h-5 w-5 text-neutral-500 group-hover:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
-          <div class="mt-3 flex items-center space-x-2">
-              <a href="setflow-conversation-view.html?recipientId=${applicant.id}" class="flex-1 rounded-xl bg-neutral-700 px-4 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Message</a>
-              <button class="flex-1 rounded-xl bg-neutral-700 px-4 py-2 text-center text-xs font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Bookmark</button>
+          <div class="flex items-center space-x-2">
+              <a href="setflow-conversation-view.html?recipientId=${app.id}" class="flex-1 rounded-xl bg-neutral-700 px-4 py-2 text-center text-xs font-semibold text-white hover:bg-neutral-600 transition">Message</a>
+              <button class="flex-1 rounded-xl bg-neutral-700 px-4 py-2 text-center text-xs font-semibold text-white hover:bg-neutral-600 transition">Bookmark</button>
           </div>
         `;
-         // Insert before the state divs
-         applicantsContainer.insertBefore(applicantCard, loadingState);
+        container.insertBefore(div, loading);
       });
     }
 
     onAuthState(async (user) => {
       if (user) {
-        loadingState.style.display = 'flex'; // Show loading
-        emptyState.style.display = 'none';
-        errorState.style.display = 'none';
-
         if (!gigId) {
-          loadingState.style.display = 'none';
-          errorState.textContent = 'Error: No Gig ID provided in URL.';
-          errorState.style.display = 'block';
+          loading.style.display = 'none';
+          error.textContent = 'Error: No Gig ID.';
+          error.style.display = 'block';
           return;
         }
         try {
-          // Use gracefulGet, manage states manually
-          const applicants = await gracefulGet(fetchApplicantsForGig(gigId), null, "Could not load applicants while offline.");
-          renderApplicants(applicants); // Handles null/empty response
-
-        } catch (error) {
-          console.error("Failed to fetch applicants:", error);
-          renderApplicants(null); // Show error state
+          const applicants = await gracefulGet(fetchApplicantsForGig(gigId));
+          renderApplicants(applicants);
+        } catch (err) {
+          console.error(err);
+          loading.style.display = 'none';
+          error.style.display = 'block';
         }
       } else {
         window.location.href = 'setflow-login-page.html';
       }
     });
   </script>
-
-   <script type="module" src="./api.js"></script>
- </body>
+</body>
 </html>

@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Confirm Booking</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,204 +10,139 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    /* Modal styles (Canonical Centered) - Adjusted for Full Screen Blur Effect */
-    .modal-container { transition: opacity 0.3s ease-out; }
-    .modal-overlay { /* Using bg-black/70 */ transition: opacity 0.3s ease-out; opacity: 1;}
-    .modal-content { /* Card inside the overlay */ transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
-    .modal-container.flex .modal-content { transform: scale(1); opacity: 1; }
-    .modal-container.flex .modal-overlay { opacity: 1; } /* Already opaque */
+    .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Booking confirmation requires connection.</div>
-  <div id="booking-confirmation-container" class="relative mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <div class="flex-grow blur-sm pointer-events-none">
-        <header class="flex h-16 items-center justify-between px-4">
-            <span class="p-2 opacity-50"> <svg class="h-6 w-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </span>
-            <h1 class="text-lg font-semibold tracking-tight opacity-50">Applicant Profile</h1>
-            <span class="w-10 h-10 opacity-0"></span> </header>
-        <main class="pt-16"> <section class="border-b border-neutral-700 p-5 text-center opacity-50">
-                <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="https://images.unsplash.com/photo-1516280440614-37_50&w=2187&auto=format&fit=crop" alt="Blurred background photo">
-                <h2 id="blurred-artist-name" class="mt-4 text-2xl font-bold text-white">Loading...</h2>
-                </section>
+  <div id="offline-banner">You are currently offline. Booking requires connection.</div>
+  
+  <div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+    <div class="flex-grow blur-sm pointer-events-none opacity-50">
+        <header class="flex h-16 items-center justify-between px-4 border-b border-neutral-800">
+            <span class="p-2"> <svg class="h-6 w-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></span>
+            <h1 class="text-lg font-semibold">Applicant Profile</h1>
+            <span class="w-10 h-10"></span> 
+        </header>
+        <main class="pt-16 p-5 text-center">
+            <div class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 bg-neutral-800"></div>
+            <h2 id="blurred-artist-name" class="mt-4 text-2xl font-bold">Loading...</h2>
         </main>
     </div>
 
-    <div id="modal-container" class="modal-container absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4"> <div id="modal-loading-state" class="flex justify-center items-center">
+    <div id="modal-container" class="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4"> 
+        <div id="modal-loading" class="flex justify-center items-center">
             <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-8 h-8"></div>
         </div>
-        <div id="modal-content-card" class="modal-content relative z-10 hidden w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transform transition-all">
-           </div>
+        
+        <div id="modal-card" class="hidden w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transition-all opacity-0 scale-95 border border-neutral-700">
+            </div>
     </div>
-  </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder message</span>
+  </div> 
+  
+  <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+     <span id="toast-message">Placeholder</span>
    </div>
    <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, getUserData, db, confirmBooking, gracefulGet, isOnline } from './api.js';
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { onAuthState, getUserData, getGigDetails, confirmBooking, gracefulGet, isOnline, escapeHTML } from './api.js';
 
-    const modalContainer = document.getElementById('modal-container');
-    const modalLoadingState = document.getElementById('modal-loading-state');
-    const modalContentCard = document.getElementById('modal-content-card');
-    const blurredArtistName = document.getElementById('blurred-artist-name');
-    const offlineBanner = document.getElementById('offline-banner');
+    const modalLoading = document.getElementById('modal-loading');
+    const modalCard = document.getElementById('modal-card');
+    const blurredName = document.getElementById('blurred-artist-name');
+    const offline = document.getElementById('offline-banner');
+
+    if(!isOnline()) offline.style.display = 'block';
 
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId'); // Artist ID
+    const userId = urlParams.get('userId');
     const gigId = urlParams.get('gigId');
     const artistNameParam = urlParams.get('artistName');
-    let currentUser = null; // Venue/Promoter user
 
-     // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
+    if (artistNameParam) blurredName.textContent = decodeURIComponent(artistNameParam);
 
+    function renderModal(artist, gig) {
+        modalLoading.style.display = 'none';
+        modalCard.classList.remove('hidden');
+        
+        requestAnimationFrame(() => {
+            modalCard.style.opacity = '1';
+            modalCard.style.transform = 'scale(1)';
+        });
 
-    // Set blurred name immediately if available
-    if (artistNameParam) {
-        blurredArtistName.textContent = decodeURIComponent(artistNameParam);
-    }
+        if (!artist || !gig) {
+            modalCard.innerHTML = `
+                <div class="p-6 text-center text-red-400">
+                    <p>Error loading details.</p>
+                    <a href="javascript:history.back()" class="mt-4 inline-block bg-neutral-700 px-4 py-2 rounded-lg text-white">Go Back</a>
+                </div>`;
+            return;
+        }
 
-    // Function to fetch a single gig's data (used internally)
-    async function getGigDataInternal(gigId) {
-        if (!gigId) return null;
-        const gigRef = doc(db, "gigs", gigId);
-        return getDoc(gigRef); // Let gracefulGet handle promise later
-    }
+        const date = gig.date?.toDate ? gig.date.toDate().toLocaleDateString() : 'TBD';
 
-    function renderConfirmationModal(artist, gigSnap) {
-      modalLoadingState.style.display = 'none'; // Hide loading spinner
-
-      if (!artist || !gigSnap || !gigSnap.exists()) {
-          // Show error inside the modal card area
-          modalContentCard.classList.remove('hidden'); // Show card structure
-          modalContentCard.innerHTML = `
-            <div class="p-6 text-center text-red-400">
-                <p>Error: Could not load booking details.</p>
-                <a href="javascript:history.back()" class="mt-4 inline-block rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-white ...">Go Back</a>
-            </div>`;
-          blurredArtistName.textContent = "Error";
-          // Animate modal in even on error
-          requestAnimationFrame(() => {
-              modalContentCard.style.opacity = '1';
-              modalContentCard.style.transform = 'scale(1)';
-          });
-          return;
-      }
-
-      const gig = { id: gigSnap.id, ...gigSnap.data() };
-      // Ensure blurred name matches final data
-      blurredArtistName.textContent = artist.name;
-
-      const gigDate = gig.date?.toDate ? gig.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date N/A';
-
-      // Use canonical styles for modal content
-      modalContentCard.innerHTML = `
+        modalCard.innerHTML = `
             <div class="p-6 text-center">
                 <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-4 border-emerald-500/30 bg-emerald-900/50">
-                    <svg class="h-6 w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <svg class="h-6 w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h3 class="mt-4 text-lg font-semibold text-white">Confirm Booking</h3>
-                <p class="mt-1 text-sm text-neutral-400">You are about to book this artist. A show sheet will be sent upon confirmation.</p>
+                <p class="mt-1 text-sm text-neutral-400">You are about to book this artist.</p>
             </div>
             <div class="mx-4 mb-6 space-y-2 rounded-lg bg-neutral-900/50 p-4 text-sm">
-                <div class="flex justify-between"><span class="text-neutral-400">Artist</span><span class="font-semibold text-white">${artist.name}</span></div>
-                <div class="flex justify-between"><span class="text-neutral-400">Date</span><span class="font-semibold text-white">${gigDate}</span></div>
+                <div class="flex justify-between"><span class="text-neutral-400">Artist</span><span class="font-semibold text-white">${escapeHTML(artist.name)}</span></div>
+                <div class="flex justify-between"><span class="text-neutral-400">Gig</span><span class="font-semibold text-white text-right truncate w-32">${escapeHTML(gig.venueName)}</span></div>
+                <div class="flex justify-between"><span class="text-neutral-400">Date</span><span class="font-semibold text-white">${date}</span></div>
                 <div class="flex justify-between"><span class="text-neutral-400">Payout</span><span class="font-bold text-emerald-400">$${gig.payout}</span></div>
             </div>
             <div class="space-y-3 px-4 pb-4">
-                <p class="text-center text-xs text-neutral-500">By confirming, you agree to the <a href="setflow-booking-terms.html" class="rounded underline text-neutral-400 hover:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500">Setflow Booking Agreement</a>.</p>
-                <button id="confirm-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Confirm & Send Show Sheet</button>
-                <a href="javascript:history.back()" class="block w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Cancel</a>
+                <p class="text-center text-xs text-neutral-500">By confirming, you agree to the <a href="setflow-booking-terms.html" target="_blank" class="underline hover:text-emerald-400">Booking Agreement</a>.</p>
+                <button id="confirm-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition">Confirm & Send Show Sheet</button>
+                <a href="javascript:history.back()" class="block w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white hover:bg-neutral-600 transition">Cancel</a>
             </div>
         `;
-      modalContentCard.classList.remove('hidden'); // Show card
 
-       // Animate modal in after content is set
-       requestAnimationFrame(() => {
-            modalContentCard.style.opacity = '1';
-            modalContentCard.style.transform = 'scale(1)';
-       });
+        document.getElementById('confirm-btn').addEventListener('click', async (e) => {
+            if(!isOnline()) { window.toast.show("Connection required.", "error"); return; }
+            
+            e.target.innerText = "Booking...";
+            e.target.disabled = true;
 
-      // Add event listener to the newly created button
-      const confirmBtn = document.getElementById('confirm-btn');
-      confirmBtn.addEventListener('click', async () => {
-          confirmBtn.textContent = 'Booking...';
-          confirmBtn.disabled = true;
-
-           if (!isOnline()) {
-               toast.show("Booking confirmation requires an internet connection.", 'error');
-               confirmBtn.disabled = false;
-               confirmBtn.textContent = 'Confirm & Send Show Sheet';
-               return;
-           }
-
-          try {
-            await confirmBooking(gig.id, artist.id, artist.name);
-            confirmBtn.textContent = '✓ Booked!';
-            toast.show('Booking confirmed! Show sheet sent.', 'success');
-            setTimeout(() => {
-              // Redirect (assuming venue dashboard)
-              window.location.href = 'setflow-venue-dashboard.html?booked=true';
-            }, 1500);
-          } catch(error) {
-            console.error("Booking failed: ", error);
-            toast.show("Error confirming booking. Please try again.", 'error');
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Confirm & Send Show Sheet';
-          }
-      });
+            try {
+                await confirmBooking(gig.id, artist.id, artist.name);
+                window.toast.show("Booking Confirmed!", "success");
+                setTimeout(() => window.location.href = 'setflow-venue-dashboard.html', 1500);
+            } catch(err) {
+                console.error(err);
+                window.toast.show("Booking failed.", "error");
+                e.target.innerText = "Confirm";
+                e.target.disabled = false;
+            }
+        });
     }
 
     onAuthState(async (user) => {
-      if (user) {
-         currentUser = user;
-        if (!userId || !gigId) {
-             modalLoadingState.style.display = 'none';
-             modalContentCard.classList.remove('hidden');
-             modalContentCard.innerHTML = `<div class="p-6 text-center text-red-400"><p>Error: Missing user or gig ID.</p>...</div>`; // Simplified error
-             blurredArtistName.textContent = "Error";
-             return;
+        if(user) {
+            if(!userId || !gigId) { renderModal(null, null); return; }
+            
+            try {
+                const [artist, gigSnap] = await Promise.all([
+                    gracefulGet(getUserData(userId)),
+                    gracefulGet(getGigDetails(gigId))
+                ]);
+                const gig = gigSnap?.exists() ? { id: gigSnap.id, ...gigSnap.data() } : null;
+                renderModal(artist, gig);
+            } catch(e) {
+                renderModal(null, null);
+            }
+        } else {
+            window.location.href = 'setflow-login-page.html';
         }
-        try {
-          // Fetch artist and gig data concurrently using gracefulGet (no container needed for gracefulGet)
-          const [artistData, gigSnap] = await Promise.all([
-               gracefulGet(getUserData(userId), null, "Could not load artist details offline."),
-               gracefulGet(getGigDataInternal(gigId), null, "Could not load gig details offline.")
-          ]);
-
-          renderConfirmationModal(artistData, gigSnap); // Render modal (handles nulls/errors)
-
-        } catch (error) {
-          // This catch is less likely needed if gracefulGet handles errors, but good fallback
-          console.error("Error loading booking data:", error);
-          renderConfirmationModal(null, null); // Render error state in modal
-        }
-      } else {
-        window.location.href = 'setflow-login-page.html';
-      }
     });
   </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

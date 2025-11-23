@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Notifications</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -11,188 +10,122 @@
   <style>
     body{font-family:'Inter',sans-serif}
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem;
+        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    /* Bottom Nav Styles */
     .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: theme('colors.neutral.400'); transition: color 0.15s ease-in-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
+        color: #A3A3A3; transition: color 0.15s ease-in-out;
     }
-    .bottom-nav-link:hover { color: theme('colors.white'); }
-    .bottom-nav-link.active { color: theme('colors.emerald.400'); }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
     .bottom-nav-link svg { margin-bottom: 0.25rem; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Notifications may be cached.</div>
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" aria-label="Go back to dashboard" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Notifications</h1>
-      <div class="w-10 h-10"></div> </div>
-  </header>
+<div id="offline-banner">You are currently offline.</div>
 
-  <main id="notifications-list" class="flex-1 divide-y divide-neutral-700 pt-16 pb-20"> <div class="flex justify-center items-center py-10" id="loading-state">
-      <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
+  <main id="notifications-list" class="flex-1 divide-y divide-neutral-700 pt-20 pb-20"> 
+    <div class="flex justify-center items-center py-10" id="loading-state">
+      <div class="loading-spinner"></div>
     </div>
     <div class="hidden py-10 text-center" id="empty-state">
-      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.017 5.454 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
       </svg>
       <h3 class="mt-2 text-lg font-semibold text-white">No New Notifications</h3>
       <p class="mt-1 text-sm text-neutral-400">We'll let you know when something happens.</p>
     </div>
-     <div class="hidden py-10 text-center text-red-400" id="error-state">
-        <p>Could not load notifications.</p>
-    </div>
+  </main>
 
-    </main>
-</div> <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-          </div>
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around"></div>
   </nav>
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
- </div>
- <script src="toast.js"></script>
- <script src="nav.js"></script> <script type="module">
-     import { onAuthState, gracefulGet, isOnline, getUserData, fetchNotifications } from './api.js'; // Added getUserData, fetchNotifications
-     // TODO: Add fetchNotifications() function in api.js
+</div> 
 
-     const listContainer = document.getElementById('notifications-list');
-     const loadingState = document.getElementById('loading-state');
-     const emptyState = document.getElementById('empty-state');
-     const errorState = document.getElementById('error-state');
-     const offlineBanner = document.getElementById('offline-banner');
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder</span>
+</div>
+<script src="toast.js"></script>
+<script src="nav.js"></script>
 
-      // Update offline banner based on initial status
-     offlineBanner.style.display = isOnline() ? 'none' : 'block';
-     // Listen for network changes
-     document.body.addEventListener('app:network-change', (event) => {
-         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-     });
+<script type="module">
+     import { renderHeader } from './components.js';
+     import { onAuthState, gracefulGet, isOnline, fetchNotifications, escapeHTML, getUserData, navigation } from './api.js';
 
+     renderHeader("Notifications", "history");
+     window.goBackOr = navigation.goBackOr;
+
+     const list = document.getElementById('notifications-list');
+     const loading = document.getElementById('loading-state');
+     const empty = document.getElementById('empty-state');
+     const offline = document.getElementById('offline-banner');
+
+     if(!isOnline()) offline.style.display = 'block';
 
      function renderNotifications(notifications) {
-        // Clear previous items
-        const existingItems = listContainer.querySelectorAll('.notification-item');
-        existingItems.forEach(item => item.remove());
+        loading.style.display = 'none';
+        list.querySelectorAll('.notification-item').forEach(el => el.remove());
 
-        if (!notifications) { // Error case
-            loadingState.style.display = 'none';
-            emptyState.style.display = 'none';
-            errorState.style.display = 'block';
+        if (!notifications || notifications.length === 0) {
+            empty.style.display = 'block';
             return;
         }
-
-        if (notifications.length === 0) {
-            loadingState.style.display = 'none';
-            errorState.style.display = 'none';
-            emptyState.style.display = 'block';
-            return;
-        }
-
-        loadingState.style.display = 'none'; // Hide states
-        emptyState.style.display = 'none';
-        errorState.style.display = 'none';
 
         notifications.forEach(notif => {
             const item = document.createElement('a');
-            item.href = notif.link || '#'; // Use link from data or fallback
-            item.className = 'notification-item flex items-start space-x-4 p-4 hover:bg-neutral-800 focus:outline-none focus:bg-neutral-800 focus:ring-2 focus:ring-inset focus:ring-emerald-500';
-            if (notif.isUnread) { // Example: dim read notifications
-                 item.classList.add('bg-neutral-800/30'); // Subtle background for unread
-            }
-
-            // Determine icon and color based on type (example)
-            let iconSvg = '';
-            let iconBgClass = 'bg-neutral-500';
-            switch (notif.type) {
-                case 'application_viewed':
-                    iconBgClass = 'bg-emerald-500';
-                    iconSvg = `<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>`;
-                    break;
-                case 'new_message':
-                    iconBgClass = 'bg-sky-500';
-                    iconSvg = `<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg>`;
-                    break;
-                // Add more cases: gig_booked, review_left, etc.
-                case 'gig_booked':
-                    iconBgClass = 'bg-amber-500';
-                    iconSvg = `<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-                    break;
-                default:
-                    iconSvg = `<svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-            }
+            item.href = notif.link || '#';
+            item.className = `notification-item flex items-start space-x-4 p-4 hover:bg-neutral-800 transition ${notif.isUnread ? 'bg-neutral-800/50' : ''}`;
+            
+            let iconBg = 'bg-neutral-700';
+            if(notif.type === 'gig_booked') iconBg = 'bg-emerald-900 text-emerald-400';
+            if(notif.type === 'new_message') iconBg = 'bg-sky-900 text-sky-400';
 
             item.innerHTML = `
-                <div aria-hidden="true" class="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${iconBgClass}">
-                    ${iconSvg}
+                <div class="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${iconBg}">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm text-white">${notif.text}</p>
-                    <p class="mt-1 text-xs text-neutral-400">${notif.timestampRelative || 'Just now'}</p>
+                    <p class="text-sm text-white">${notif.text}</p> 
+                    <p class="mt-1 text-xs text-neutral-400">${escapeHTML(notif.timestampRelative)}</p>
                 </div>
-                ${notif.isUnread ? '<span class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500"></span>' : '<div class="w-2 h-2 flex-shrink-0"></div>'}
+                ${notif.isUnread ? '<span class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500"></span>' : ''}
             `;
-             // Insert before the state divs
-             listContainer.insertBefore(item, loadingState);
+            list.insertBefore(item, loading);
         });
      }
 
-      // --- Initial Load ---
-     onAuthState(async (user) => { // Made async
+     onAuthState(async (user) => {
         if (!user) {
             window.location.href = 'setflow-login-page.html';
             return;
         }
-     
-        loadingState.style.display = 'flex'; // Show loading
-        emptyState.style.display = 'none';
-        errorState.style.display = 'none';
         
-        let userData, notifications;
-
         try {
-            // --- ADDED: Fetch user data for nav ---
-            userData = await gracefulGet(getUserData(user.uid), null);
-            // This page could be for Musician, Venue, or Promoter, so we need to find the right role
-            let userRole = 'musician'; // Default
-            if (userData?.roles?.includes('venue')) userRole = 'venue';
-            else if (userData?.roles?.includes('promoter')) userRole = 'promoter';
+            const [notifs, userData] = await Promise.all([
+                gracefulGet(fetchNotifications(user.uid)),
+                gracefulGet(getUserData(user.uid))
+            ]);
             
-            const userTier = userData?.subscriptionTier || 'free';
-            renderBottomNav(userRole, userTier, 'setflow-notifications.html'); // This page doesn't exist on nav, so no item will be active (which is fine)
-            // --- END NAV LOGIC ---
-        
-            // Fetch notifications
-            notifications = await gracefulGet(fetchNotifications(user.uid), null, "Could not load notifications offline.");
-            renderNotifications(notifications); // Handles null/empty
-
-        } catch (e) {
-             console.error("Could not load notifications page:", e);
-             renderNotifications(null); // Show error state
-             // --- ADDED: Fallback nav render ---
-             if (!userData) { // Only render fallback if user data failed too
-                renderBottomNav('musician', 'free', 'setflow-notifications.html');
-             }
+            renderNotifications(notifs);
+            
+            // Render correct nav based on role
+            if(window.renderBottomNav && userData) {
+                const role = userData.roles && userData.roles[0] ? userData.roles[0] : 'musician';
+                window.renderBottomNav(role, userData.subscriptionTier || 'free', 'setflow-notifications.html');
+            }
+        } catch(e) {
+            console.error(e);
         }
      });
  </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

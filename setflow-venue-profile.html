@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Venue Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,49 +10,52 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
+      display: none; position: sticky; top: 0; left: 0; right: 0;
+      padding: 0.5rem; background-color: #DC2626; color: white;
+      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
     }
-    /* Loading Spinner Styles (Canonical Tailwind) */
-    .loading-spinner { /* For full section loading */
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
+    .loading-spinner {
+        display: inline-block; width: 1.5rem; height: 1.5rem;
+        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
+        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
+  <div id="offline-banner">You are currently offline.</div>
   <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top: 0; left: 0; right: 0; z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="#" onclick="goBackOr('setflow-browse-gigs.html')" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <a href="#" onclick="goBackOr('setflow-browse-gigs.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
         <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Venue Profile</h1>
-        <div class="w-10 h-10"></div> </div>
+        <div class="w-10 h-10"></div> 
+      </div>
     </header>
 
-    <main class="flex-grow pt-16 pb-5"> <div id="venue-profile-content">
+    <main class="flex-grow pt-16 pb-5"> 
+        <div id="venue-profile-content">
           <div class="flex justify-center items-center py-10" id="loading-state">
-            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
+            <div class="loading-spinner"></div>
           </div>
           <div class="hidden p-5 text-center text-red-400" id="error-state">
               <p>Could not load venue profile.</p>
           </div>
-          </div>
+        </div>
     </main>
-    </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder message</span>
-   </div>
-   <script src="toast.js"></script>
-   <script src="nav.js"></script> <script type="module">
-     import { gracefulGet, onAuthState, getUserData, isOnline } from './api.js';
-     // TODO: Need API function like fetchGigsForOwner(venueId)
+  </div> 
+  
+  <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+     <span id="toast-message">Placeholder</span>
+  </div>
+  <script src="toast.js"></script>
+  
+  <script type="module">
+     import { gracefulGet, onAuthState, getUserData, isOnline, fetchGigsForOwner, escapeHTML, navigation } from './api.js';
+     
+     // Bind goBackOr to window for inline onclick
+     window.goBackOr = navigation.goBackOr;
 
      const profileContainer = document.getElementById('venue-profile-content');
      const loadingState = document.getElementById('loading-state');
@@ -61,47 +63,34 @@
      const offlineBanner = document.getElementById('offline-banner');
 
      const urlParams = new URLSearchParams(window.location.search);
-     // Use consistent naming: userId or venueId depending on your data model
-     // Assuming venues are stored in the 'users' collection for now, use userId
      const venueUserId = urlParams.get('venueId') || urlParams.get('userId');
 
-      // Update offline banner based on initial status
-     offlineBanner.style.display = isOnline() ? 'none' : 'block';
-     // Listen for network changes
-     document.body.addEventListener('app:network-change', (event) => {
-         offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-     });
+     if(!isOnline()) offlineBanner.style.display = 'block';
 
-
-     function renderVenueProfile(venueData, upcomingShows) { // Added upcomingShows param
-         loadingState.style.display = 'none'; // Hide loading
+     function renderVenueProfile(venueData, upcomingShows) {
+         loadingState.style.display = 'none';
 
          if (!venueData) {
-             errorState.style.display = 'block'; // Show error
+             errorState.style.display = 'block';
              return;
          }
-         errorState.style.display = 'none'; // Hide error
-
-         // Clear previous content
-         const existingContent = profileContainer.querySelectorAll('section, div:not(#loading-state):not(#error-state)');
-         existingContent.forEach(el => el.remove());
+         errorState.style.display = 'none';
+         profileContainer.innerHTML = ''; // Clear loader
 
          let showsSectionHtml = '';
-         if (upcomingShows) { // Check if shows data is available
+         if (upcomingShows) {
              showsSectionHtml = `
                 <section class="p-5">
                     <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Upcoming Shows</h3>
                     <div class="space-y-3">
              `;
              if (upcomingShows.length > 0) {
-                 upcomingShows.slice(0, 3).forEach(show => { // Show max 3
-                    const showDate = show.dateObject ? show.dateObject.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Date TBD';
-                    // Canonical List Item (Link Style)
+                 upcomingShows.slice(0, 3).forEach(show => {
                     showsSectionHtml += `
-                        <a href="setflow-gig-detail-view.html?id=${show.id}" class="flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                        <a href="setflow-gig-detail-view.html?id=${show.id}" class="flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700">
                             <div>
-                                <p class="font-semibold text-white">${show.bookedArtistName || show.eventName || 'Open Slot'}</p>
-                                <p class="text-xs text-neutral-400">${showDate}</p>
+                                <p class="font-semibold text-white">${escapeHTML(show.bookedArtistName || show.eventName || 'Open Slot')}</p>
+                                <p class="text-xs text-neutral-400">${show.formattedDate}</p>
                             </div>
                             <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </a>
@@ -113,28 +102,30 @@
              showsSectionHtml += `</div></section>`;
          }
 
-         // Use canonical sections
-         profileContainer.insertAdjacentHTML('beforeend', `
+         const bio = venueData.bio ? escapeHTML(venueData.bio) : 'No description provided.';
+         const location = venueData.location ? escapeHTML(venueData.location) : 'Location N/A';
+         const name = venueData.name ? escapeHTML(venueData.name) : 'Venue Name';
+         const profileImg = venueData.profileImageUrl || ''; 
+
+         profileContainer.innerHTML = `
             <section class="border-b border-neutral-700 p-5 text-center">
-                 <div aria-hidden="true" class="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-neutral-700 bg-sky-800">
-                    <svg class="h-12 w-12 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                 <div aria-hidden="true" class="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-neutral-700 bg-sky-800 overflow-hidden">
+                    ${profileImg 
+                        ? `<img src="${profileImg}" class="w-full h-full object-cover">` 
+                        : `<svg class="h-12 w-12 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>`}
                  </div>
-                 <h2 class="mt-4 text-2xl font-bold text-white">${venueData.name || 'Venue Name'}</h2>
-                 <p class="text-base text-neutral-400">${venueData.location || 'Location N/A'}</p>
-                 </section>
+                 <h2 class="mt-4 text-2xl font-bold text-white">${name}</h2>
+                 <p class="text-base text-neutral-400">${location}</p>
+            </section>
             <section class="border-b border-neutral-700 p-5">
                 <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">About</h3>
-                <p class="text-sm leading-relaxed text-neutral-300">${venueData.bio || 'No description provided.'}</p>
+                <p class="text-sm leading-relaxed text-neutral-300">${bio}</p>
             </section>
             ${showsSectionHtml}
-            `);
+         `;
      }
 
-     // --- Initial Load ---
-     document.addEventListener('DOMContentLoaded', async () => { // Use DOMContentLoaded
-         loadingState.style.display = 'flex'; // Show loading
-         errorState.style.display = 'none';
-
+     document.addEventListener('DOMContentLoaded', async () => {
          if (!venueUserId) {
              loadingState.style.display = 'none';
              errorState.textContent = 'Error: No venue specified.';
@@ -142,25 +133,19 @@
              return;
          }
          try {
-             // Fetch venue data (assuming stored as user) and upcoming shows concurrently
-             // TODO: Replace 'null' with actual fetchGigsForOwner(venueUserId) when available
-             const fetchShowsPromise = Promise.resolve([]); // Placeholder for shows fetch
-
+             // Parallel fetch
              const [venueData, upcomingShows] = await Promise.all([
-                 gracefulGet(getUserData(venueUserId), null, "Could not load venue details offline."),
-                 gracefulGet(fetchShowsPromise, null, "Could not load upcoming shows offline.")
+                 gracefulGet(getUserData(venueUserId)),
+                 gracefulGet(fetchGigsForOwner(venueUserId))
              ]);
 
-             renderVenueProfile(venueData, upcomingShows); // Handles null venueData
+             renderVenueProfile(venueData, upcomingShows);
 
          } catch (error) {
               console.error("Error loading venue profile:", error);
-              renderVenueProfile(null, null); // Show error state
+              renderVenueProfile(null, null);
          }
      });
-
    </script>
-
-   <script type="module" src="./api.js"></script>
- </body>
+</body>
 </html>

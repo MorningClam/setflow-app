@@ -3,101 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Privacy Policy</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
-    }
-    /* Removed @apply rules */
-   </style>
+  </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline.</div>
   <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
     <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="javascript:history.back()" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
         <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Privacy Policy</h1>
-        <div class="w-10 h-10"></div> </div>
+        <div class="w-10 h-10"></div> 
+      </div>
     </header>
 
-    <main class="flex-grow p-5 pt-20"> <h2 class="text-xl font-semibold text-white mb-4">Privacy Policy</h2>
-      <div>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300"><strong class="font-semibold text-neutral-100">Last Updated: October 25, 2025</strong></p>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">Welcome to Setflow! Your privacy is critically important to us. This Privacy Policy outlines how Setflow ("we," "us," or "our") collects, uses, maintains, and discloses information collected from users ("User" or "you") of the Setflow application and related services (collectively, the "Service").</p>
+    <main class="flex-grow p-5 pt-20 text-sm leading-relaxed text-neutral-300"> 
+        <h2 class="text-xl font-semibold text-white mb-4">Privacy Policy</h2>
+        <p class="mb-4"><strong>Last Updated: October 25, 2025</strong></p>
+        <p class="mb-4">Welcome to Setflow! Your privacy is critically important to us.</p>
 
         <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Information We Collect</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">We may collect personal identification information from Users in various ways, including, but not limited to:</p>
-        <ul class="list-disc list-inside space-y-2 pl-4 text-sm text-neutral-300 mb-4"> <li>When Users register on the Service (name, email address).</li>
-            <li>When Users complete their profile (location, bio, links to social media/music platforms, profile picture).</li>
-            <li>When Users post content (gigs, gear listings, player posts, jam sessions, messages, reviews).</li>
-            <li>When Users interact with features (applying for gigs, booking artists, saving preferences).</li>
-        </ul>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">We may also collect non-personal identification information whenever Users interact with our Service (e.g., browser name, device type, operating system).</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">How We Use Collected Information</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">Setflow uses Users' personal information for the following purposes:</p>
-        <ul class="list-disc list-inside space-y-2 pl-4 text-sm text-neutral-300 mb-4">
-            <li><strong class="font-semibold text-neutral-100">To operate and personalize the Service:</strong> Displaying profiles, matching artists with gigs, showing relevant content.</li>
-            <li><strong class="font-semibold text-neutral-100">To improve customer service:</strong> Information helps us respond to your support requests more efficiently.</li>
-            <li><strong class="font-semibold text-neutral-100">To send periodic emails:</strong> We may use the email address to send User information and updates pertaining to their account or bookings. It may also be used to respond to inquiries or questions.</li>
-            <li><strong class="font-semibold text-neutral-100">To facilitate communication:</strong> Enabling messaging between users.</li>
+        <ul class="list-disc list-inside space-y-2 pl-4 mb-4"> 
+            <li>Registration data (name, email).</li>
+            <li>Profile data (location, bio, links).</li>
+            <li>User content (gigs, posts, messages).</li>
         </ul>
 
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">How We Protect Your Information</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">We adopt appropriate data collection, storage, and processing practices and security measures (including data encryption and secure server practices) to protect against unauthorized access, alteration, disclosure, or destruction of your personal information, username, password, transaction information, and data stored on our Service. Our backend infrastructure is hosted on Google Cloud Platform / Firebase, leveraging their security measures.</p>
+        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">How We Use It</h3>
+        <p class="mb-4">To operate the service, connect musicians with venues, and facilitate bookings.</p>
 
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Sharing Your Personal Information</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">We do not sell, trade, or rent Users' personal identification information to others. Your profile information (name, location, bio, links, associated bands) is visible to other registered users as necessary for the functioning of the platform (e.g., when applying for a gig, browsing artists). Messages are private between participants. We may share generic aggregated demographic information not linked to any personal identification information regarding visitors and users with our business partners for the purposes outlined above. We only share information with third parties when required by law or to provide essential services (like payment processing, if implemented).</p>
+        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Data Security</h3>
+        <p class="mb-4">We use industry-standard encryption via Google Cloud Platform.</p>
 
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Data Retention</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">We retain your personal information only for as long as necessary to provide you with the Service and as described in this Privacy Policy. We will also retain and use your information to the extent necessary to comply with our legal obligations, resolve disputes, and enforce our agreements.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Your Rights</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">You have the right to access, update, or delete the information we have on you. You can manage most of your profile information through your Account Settings within the app. For account deletion, please use the "Delete Account" option in settings, which will trigger our automated deletion process.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Changes to This Privacy Policy</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">Setflow has the discretion to update this privacy policy at any time. When we do, we will revise the updated date at the top of this page. We encourage Users to frequently check this page for any changes. You acknowledge and agree that it is your responsibility to review this privacy policy periodically and become aware of modifications.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Your Acceptance of These Terms</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">By using this Service, you signify your acceptance of this policy. If you do not agree to this policy, please do not use our Service. Your continued use of the Service following the posting of changes to this policy will be deemed your acceptance of those changes.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Contacting Us</h3>
-        <p class="mb-4 text-sm leading-relaxed text-neutral-300">If you have any questions about this Privacy Policy, the practices of this site, or your dealings with this site, please contact us at [Placeholder Contact Email/Method].</p>
-      </div>
+        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Contact</h3>
+        <p class="mb-4">Questions? Contact support@setflow.app</p>
     </main>
-    </div> <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-   <span id="toast-message">Placeholder message</span>
   </div>
-  <script src="toast.js"></script>
-
-  <script type="module">
-    // Basic script for offline banner, etc.
-    import { isOnline } from './api.js';
-
-    const offlineBanner = document.getElementById('offline-banner');
-
-    // Update offline banner based on initial status
-    offlineBanner.style.display = isOnline() ? 'none' : 'block';
-    // Listen for network changes
-    document.body.addEventListener('app:network-change', (event) => {
-        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-    });
-  </script>
-
-  <script type="module" src="./api.js"></script>
 </body>
 </html>
