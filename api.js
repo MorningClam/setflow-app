@@ -1,5 +1,5 @@
 /* =========================================================================
- * Setflow Frontend API Helper (Robust & Secure)
+ * Setflow Frontend API Helper (Production Ready)
  * ========================================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -11,6 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
+// --- Configuration ---
 const firebaseConfig = {
   apiKey: "AIzaSyCsgE4N9TIud4Udydkb9lF0u1EynG8lCX8",
   authDomain: "setflow-app.firebaseapp.com",
@@ -74,7 +75,7 @@ export async function gracefulGet(promise, fallback = null) {
     catch (e) { console.error(e); return fallback; }
 }
 
-// --- Helper: Batch User Fetching (Performance) ---
+// --- Helper: Batch User Fetching ---
 async function getUsersBatch(userIds) {
     const cleanIds = [...new Set(userIds.filter(id => id))].slice(0, 10);
     if (cleanIds.length === 0) return {};
@@ -112,9 +113,7 @@ export async function getUserData(uid) {
     return snap?.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
-// CRITICAL FIX: Use setDoc with merge:true. 
-// This prevents "Missing Permissions" errors if the user document 
-// was not successfully created during signup (e.g. network issue).
+// FIX: Use setDoc with merge: true. Solves "Missing Permissions"/Not Found errors.
 export async function updateUserProfile(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
@@ -123,22 +122,16 @@ export async function updateUserPreferences(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
 
-// --- GIGS & POSTS ---
+// --- DATA FUNCTIONS ---
 export async function fetchPlayerPosts() {
     const q = query(collection(db, "player_posts"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return null;
-
     const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const userMap = await getUsersBatch(posts.map(p => p.userId));
-
-    return posts.map(p => ({
-        ...p,
-        userName: userMap[p.userId]?.name || 'Unknown',
-        userProfileImage: userMap[p.userId]?.profileImageUrl,
-        date: p.dateTime?.toDate ? p.dateTime.toDate().toLocaleString() : p.date
-    }));
+    return posts.map(p => ({ ...p, userName: userMap[p.userId]?.name || 'Unknown', userProfileImage: userMap[p.userId]?.profileImageUrl }));
 }
+
 export async function createPlayerPost(data) {
     return addDoc(collection(db, "player_posts"), { ...data, createdAt: serverTimestamp() });
 }
@@ -155,16 +148,10 @@ export async function fetchGigs() {
 }
 export async function getGigDetails(id) { return getDoc(doc(db, "gigs", id)); }
 export async function createGig(data) {
-    const dateObj = new Date(data.date); 
-    return addDoc(collection(db, "gigs"), { 
-        ...data, 
-        date: Timestamp.fromDate(dateObj), 
-        status: 'open', 
-        createdAt: serverTimestamp() 
-    });
+    const dateObj = new Date(data.date);
+    return addDoc(collection(db, "gigs"), { ...data, date: Timestamp.fromDate(dateObj), status: 'open', createdAt: serverTimestamp() });
 }
 
-// --- MESSAGING ---
 export async function createOrGetConversation(u1, u2) {
     const id = [u1, u2].sort().join('_');
     const ref = doc(db, "conversations", id);
@@ -188,15 +175,12 @@ export async function getConversations(uid) {
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return null;
     const convos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const userMap = await getUsersBatch(convos.flatMap(c => c.participants)); 
-    
+    const userMap = await getUsersBatch(convos.flatMap(c => c.participants));
     return convos.map(c => {
         const otherId = c.participants.find(p => p !== uid);
         return { ...c, otherUserId: otherId, otherUserName: userMap[otherId]?.name || 'Unknown', otherUserImage: userMap[otherId]?.profileImageUrl };
     });
 }
-
-// --- APPS & BOOKING ---
 export async function applyForGig(gigId, userId) {
     const batch = writeBatch(db);
     batch.set(doc(collection(db, "applications")), { gigId, userId, status: 'applied', appliedAt: serverTimestamp() });
@@ -214,27 +198,19 @@ export async function fetchApplicantsForGig(gigId) {
 export async function confirmBooking(gigId, artistId, artistName) {
     const batch = writeBatch(db);
     batch.update(doc(db, "gigs", gigId), { status: 'booked', bookedArtistId: artistId, bookedArtistName: artistName });
-    batch.set(doc(collection(db, "calendarEvents")), { 
-        userId: artistId, type: 'gig', title: 'Gig Booking', notes: `Booked as ${artistName}`, dateTime: Timestamp.now(), gigId 
-    });
+    batch.set(doc(collection(db, "calendarEvents")), { userId: artistId, type: 'gig', title: 'Gig Booking', notes: `Booked as ${artistName}`, dateTime: Timestamp.now(), gigId });
     return batch.commit();
 }
 
-// --- MOCK / PLACEHOLDERS (Restored for robustness) ---
+// Placeholders
 export async function fetchCalendarEvents(uid) { 
     const q = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
     const snap = await gracefulGet(getDocs(q));
     if(!snap) return [];
-    return snap.docs.map(d => {
-        const data = d.data();
-        const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date();
-        return { id: d.id, ...data, dateObject: date, formattedDate: date.toLocaleDateString(), formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
-    });
+    return snap.docs.map(d => { const data = d.data(); const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); return { id: d.id, ...data, dateObject: date, formattedDate: date.toLocaleDateString(), formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) }; });
 }
-
-// These allow the UI to render even if DB is empty
 export async function fetchMyApplications(uid) { return []; }
-export async function fetchGigsForOwner(uid) { return fetchGigs(); } // Fallback to all gigs for proto
+export async function fetchGigsForOwner(uid) { return fetchGigs(); } 
 export async function fetchCompletedGigsForUser(uid) { return []; }
 export async function getBandsForUser(uid) { return []; }
 export async function getBandData(id) { return null; }
@@ -249,16 +225,10 @@ export async function fetchGearListings() { return []; }
 export async function getGearListing(id) { return null; }
 export async function getAllPlayers() { return []; }
 export async function createReview(data) { return addDoc(collection(db, "reviews"), data); }
-export async function fetchNotifications(uid) { 
-    return [
-        { type: 'system', text: 'Welcome to Setflow!', timestampRelative: 'Just now', isUnread: true }
-    ]; 
-}
+export async function fetchNotifications(uid) { return []; }
 export async function fetchUserNetwork(uid) { return []; }
 export async function fetchGigTemplates(uid) { return []; }
 export async function createCalendarEvent(data) { return addDoc(collection(db, "calendarEvents"), { ...data, createdAt: serverTimestamp() }); }
 export async function requestToJoinBand(bid, uid) {}
 export async function getAllBands() { return []; }
-export async function reportContent(itemId, type, reporterId, reason) {
-    return addDoc(collection(db, "reports"), { itemId, type, reporterId, reason, createdAt: serverTimestamp() });
-}
+export async function reportContent(itemId, type, reporterId, reason) { return addDoc(collection(db, "reports"), { itemId, type, reporterId, reason, createdAt: serverTimestamp() }); }

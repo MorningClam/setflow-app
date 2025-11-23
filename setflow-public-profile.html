@@ -3,166 +3,228 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setflow - Profile</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <title>Setflow - Musician Profile</title> <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; }
     #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
+      display: none; /* Hidden by default */
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 0.5rem; /* p-2 */
+      background-color: theme('colors.red.600'); /* bg-red-600 */
+      color: white; text-align: center;
+      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
+      z-index: 9999;
     }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
+    /* Loading Spinner Styles (Canonical Tailwind) */
+    .loading-spinner { /* For full section loading */
+        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite;
     }
+     .loading-spinner-inline { /* For inline text loading */
+        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: theme('colors.emerald.500'); animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline.</div>
-
+  <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
   <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
     <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="#" onclick="goBackOr('setflow-musician-dashboard.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+        <a href="#" onclick="goBackOr('setflow-musician-dashboard.html')" aria-label="Go back" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
         <h1 id="profile-header-name" class="flex-grow text-center text-lg font-semibold tracking-tight">Profile</h1>
-        <div class="w-10 h-10"></div> 
-      </div>
+        <div class="w-10 h-10"></div> </div>
     </header>
 
-    <main id="profile-container" class="flex-grow pt-16 pb-32"> 
-        <div class="flex justify-center items-center py-10" id="loading-state">
-          <div class="loading-spinner"></div>
+    <main id="profile-container" class="flex-grow pt-16 pb-32"> <div class="flex justify-center items-center py-10" id="loading-state">
+          <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-6 h-6"></div>
         </div>
         <div class="hidden p-5 text-center text-red-400" id="error-state">
             <p>Could not load profile.</p>
         </div>
-    </main>
+        </main>
 
-    <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm hidden">
-       <div class="hidden" id="footer-buttons"></div>
+    <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
+      <div class="flex justify-center items-center h-[48px]" id="footer-loading-state"> <div class="loading-spinner-inline"></div> Loading Actions...
+       </div>
+       <div class="hidden" id="footer-buttons">
+          </div>
     </footer>
-  </div>
-
-  <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder</span>
+  </div> <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
    </div>
    <script src="toast.js"></script>
+   <script src="nav.js"></script> <script type="module">
+    import { onAuthState, getUserData, getBandsForUser, reportContent, gracefulGet, isOnline } from './api.js';
 
-  <script type="module">
-    import { onAuthState, getUserData, getBandsForUser, reportContent, gracefulGet, isOnline, escapeHTML, navigation } from './api.js';
-
-    window.goBackOr = navigation.goBackOr;
-    
-    const container = document.getElementById('profile-container');
-    const loading = document.getElementById('loading-state');
-    const error = document.getElementById('error-state');
-    const footer = document.getElementById('footer-actions');
-    const footerBtns = document.getElementById('footer-buttons');
-    const headerName = document.getElementById('profile-header-name');
-    const offline = document.getElementById('offline-banner');
-
-    if(!isOnline()) offline.style.display = 'block';
+    const profileContainer = document.getElementById('profile-container');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const footerActions = document.getElementById('footer-actions');
+    const footerLoadingState = document.getElementById('footer-loading-state');
+    const footerButtons = document.getElementById('footer-buttons');
+    const profileHeaderName = document.getElementById('profile-header-name');
+    const offlineBanner = document.getElementById('offline-banner');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
-    let currentUserId = null;
+    const userId = urlParams.get('userId'); // ID of the profile being viewed
+    let currentUserId = null; // Logged-in user's ID
+
+     // Update offline banner based on initial status
+    offlineBanner.style.display = isOnline() ? 'none' : 'block';
+    // Listen for network changes
+    document.body.addEventListener('app:network-change', (event) => {
+        offlineBanner.style.display = event.detail.online ? 'none' : 'block';
+    });
+
 
     function renderProfile(userData, bands) {
-      loading.style.display = 'none';
-      if (!userData) { error.style.display = 'block'; return; }
+      loadingState.style.display = 'none'; // Hide loading
 
-      headerName.textContent = userData.name || 'Profile';
-      const placeholderImg = 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop';
+      if (!userData) {
+        errorState.style.display = 'block'; // Show error
+        profileHeaderName.textContent = "Error"; // Use textContent
+        footerLoadingState.style.display = 'none';
+        footerButtons.classList.add('hidden');
+        return;
+      }
+      errorState.style.display = 'none'; // Hide error
 
-      // Bands Section
-      let bandsHtml = '';
+      profileHeaderName.textContent = userData.name || 'Profile'; // Set header name
+
+      // Clear previous content
+      const existingContent = profileContainer.querySelectorAll('section, div:not(#loading-state):not(#error-state)');
+      existingContent.forEach(el => el.remove());
+
+      let bandsSectionHtml = '';
       if (bands && bands.length > 0) {
-        bandsHtml = `
+        bandsSectionHtml = `
           <section class="border-b border-neutral-700 p-5">
             <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Bands</h3>
             <div class="space-y-3">
               ${bands.map(band => `
                 <div class="flex items-center rounded-lg bg-neutral-800 p-4">
-                  <div class="h-12 w-12 rounded-lg bg-neutral-700 overflow-hidden flex-shrink-0">
-                    <img class="h-full w-full object-cover" src="${band.photoURL || placeholderImg}">
-                  </div>
-                  <div class="ml-4 min-w-0 flex-1">
-                    <p class="truncate font-semibold text-white">${escapeHTML(band.name)}</p>
-                    <p class="truncate text-xs text-neutral-400">${escapeHTML(band.genre || 'Music')}</p>
+                  <img class="mr-4 h-12 w-12 flex-shrink-0 rounded-lg bg-neutral-700 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}" alt="${band.name} photo">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate font-semibold text-white">${band.name}</p>
+                    <p class="truncate text-xs text-neutral-400">${band.genre || 'Music'}</p>
                   </div>
                 </div>
               `).join('')}
             </div>
-          </section>`;
+          </section>
+        `;
       }
+      // Don't show bands section if error or empty on public profile
 
-      container.innerHTML = `
+      // Use canonical sections
+      profileContainer.insertAdjacentHTML('beforeend', `
         <section class="border-b border-neutral-700 p-5 text-center">
-          <div class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 overflow-hidden">
-            <img class="h-full w-full object-cover" src="${userData.profileImageUrl || placeholderImg}">
-          </div>
-          <h2 class="mt-4 text-2xl font-bold text-white">${escapeHTML(userData.name)}</h2>
-          <p class="text-base text-neutral-400">${escapeHTML(userData.location || 'Location not set')}</p>
+          <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="${userData.profileImageUrl || 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop'}" alt="Profile photo">
+          <h2 class="mt-4 text-2xl font-bold text-white">${userData.name || 'Musician'}</h2>
+          <p class="text-base text-neutral-400">${userData.location || 'Location not set'}</p>
         </section>
         <section class="border-b border-neutral-700 p-5">
           <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Bio</h3>
-          <p class="text-sm leading-relaxed text-neutral-300">${escapeHTML(userData.bio || 'No bio.')}</p>
+          <p class="text-sm leading-relaxed text-neutral-300">${userData.bio || 'No bio provided.'}</p>
         </section>
-        ${bandsHtml}
+        ${bandsSectionHtml}
+        <section class="border-b border-neutral-700 p-5">
+           <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Links</h3>
+           <div class="space-y-3">
+              ${userData.website ? `<a href="${userData.website.startsWith('http') ? userData.website : '//'+userData.website}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg class="mr-4 h-6 w-6 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg><span class="flex-1 font-medium text-white truncate">${userData.website}</span><svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : ''}
+              ${userData.spotify ? `<a href="${userData.spotify.startsWith('http') ? userData.spotify : '//'+userData.spotify}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.19 14.32c-.24.36-.76.47-1.12.23-2.9-1.78-6.48-2.19-10.88-1.2a.75.75 0 01-.81-.73c-.04-2.1.9-4.13 2.62-5.48.2-.16.48-.13.64.07.16.2.13.48-.07.64-1.55 1.23-2.38 3.01-2.35 4.86 4.08-.92 7.33-.55 9.95 1.04.36.24.47.76.23 1.12z"/></svg><span class="flex-1 font-medium text-white truncate">Spotify</span><svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : ''}
+              ${userData.instagram ? `<a href="${userData.instagram.startsWith('http') ? userData.instagram : '//'+userData.instagram}" target="_blank" rel="noopener noreferrer" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900"> <svg aria-hidden="true" class="mr-4 h-6 w-6 flex-shrink-0 text-pink-500" fill="currentColor" viewBox="0 0 24 24">...</svg><span class="flex-1 font-medium text-white truncate">Instagram</span><svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : ''}
+              ${!userData.website && !userData.spotify && !userData.instagram ? '<p class="text-sm text-neutral-500">No links provided.</p>' : ''}
+           </div>
+        </section>
         <section class="p-5 text-center">
-            ${currentUserId && currentUserId !== userId ? 
-            `<button id="report-btn" class="text-xs text-red-400 hover:text-red-300 border border-red-900/50 px-3 py-1 rounded">Report User</button>` : ''}
+            ${currentUserId && currentUserId !== userId ?
+            // Canonical Tertiary Destructive Button Style
+            `<button id="report-user-btn" data-user-id="${userData.id}" class="w-auto rounded-xl px-4 py-2 text-sm font-semibold text-red-400 transition-colors hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-red-500">Report this user</button>`
+            : currentUserId === userId ? '<p class="text-sm text-neutral-500">(This is your public profile)</p>' : ''}
         </section>
-      `;
+      `);
 
-      // Footer Actions
-      footer.classList.remove('hidden');
-      footerBtns.classList.remove('hidden');
-      
+      // Update footer actions
+      footerLoadingState.style.display = 'none'; // Hide loading
+      footerButtons.classList.remove('hidden'); // Show buttons container
       if (currentUserId && currentUserId !== userId) {
-        footerBtns.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500">Send Message</a>`;
+        // Canonical Button-Primary
+        footerButtons.innerHTML = `<a href="setflow-conversation-view.html?recipientId=${userId}" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Send Message</a>`;
       } else if (currentUserId === userId) {
-         footerBtns.innerHTML = `<a href="setflow-edit-profile.html" class="block w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white hover:bg-neutral-600">Edit My Profile</a>`;
+         // Canonical Button-Secondary
+         footerButtons.innerHTML = `<a href="setflow-edit-profile.html" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Edit My Profile</a>`;
+      } else {
+          // Not logged in - maybe hide footer or show login prompt? Hiding for now.
+          footerButtons.innerHTML = '';
+          footerActions.classList.add('hidden'); // Hide the whole footer
       }
 
-      const reportBtn = document.getElementById('report-btn');
-      if(reportBtn) reportBtn.addEventListener('click', () => handleReport(userId));
+      // Add event listener for the report button if it exists
+      const reportBtn = document.getElementById('report-user-btn');
+      if (reportBtn) {
+          reportBtn.addEventListener('click', () => handleReport('user', userId));
+      }
     }
 
-    async function handleReport(id) {
-        if (confirm('Report this user?')) {
-            await reportContent(id, 'user', currentUserId, 'Profile report');
-            window.toast.show('Report submitted.', 'success');
+    async function handleReport(type, id) {
+        if (!currentUserId) {
+            toast.show('You must be logged in to report content.', 'error');
+            setTimeout(() => window.location.href = `setflow-login-page.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`, 1000);
+            return;
+        }
+        if (confirm('Are you sure you want to report this user?')) {
+            try {
+                await reportContent(id, type, currentUserId, 'User reported from public profile page');
+                toast.show('User reported. Thank you.', 'success');
+            } catch (error) {
+                console.error('Error reporting user:', error);
+                toast.show('Could not submit report. Please try again.', 'error');
+            }
         }
     }
 
     onAuthState(async (user) => {
-      if (user) currentUserId = user.uid;
-      
+      if (user) {
+        currentUserId = user.uid;
+      }
+      // Proceed even if not logged in
+
+      loadingState.style.display = 'flex'; // Show loading
+      errorState.style.display = 'none';
+      footerLoadingState.style.display = 'flex'; // Show footer loading
+      footerButtons.classList.add('hidden');
+
+
       if (!userId) {
-        loading.style.display = 'none';
-        error.textContent = 'Error: No user ID.';
-        error.style.display = 'block';
+        loadingState.style.display = 'none';
+        errorState.textContent = 'Error: No user ID specified.';
+        errorState.style.display = 'block';
+        profileHeaderName.textContent = "Error"; // Use textContent
+        footerLoadingState.style.display = 'none';
         return;
       }
 
       try {
+        // Fetch profile and bands data concurrently using gracefulGet
         const [userData, bands] = await Promise.all([
-             gracefulGet(getUserData(userId)),
-             gracefulGet(getBandsForUser(userId))
+             gracefulGet(getUserData(userId), null, "Could not load profile while offline."),
+             gracefulGet(getBandsForUser(userId), null, "Could not load bands while offline.")
         ]);
-        renderProfile(userData, bands);
-      } catch (e) {
-        console.error(e);
-        renderProfile(null, null);
+
+        renderProfile(userData, bands); // Render profile (handles null userData)
+
+      } catch (error) {
+        console.error("Error fetching public profile data:", error);
+        renderProfile(null, null); // Show error state
       }
     });
   </script>
+
+  <script type="module" src="./api.js"></script>
 </body>
 </html>
