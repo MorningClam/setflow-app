@@ -71,21 +71,21 @@
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
       <div class="flex h-16 items-center justify-around">
-            <a href="setflow-promoter-dashboard.html" class="bottom-nav-link active">
+            <a href="setflow-promoter-dashboard.html" class="bottom-nav-link active text-emerald-400">
                 <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg>
-                Dashboard
+                <span class="text-xs font-medium">Dashboard</span>
             </a>
-            <a href="setflow-post-event-page.html" class="bottom-nav-link">
+            <a href="setflow-post-event-page.html" class="bottom-nav-link text-neutral-400 hover:text-white">
                 <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Post
+                <span class="text-xs font-medium">Post</span>
             </a>
-            <a href="setflow-inbox.html" class="bottom-nav-link">
+            <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
                 <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Inbox
+                <span class="text-xs font-medium">Inbox</span>
             </a>
-            <a href="setflow-promoter-settings.html" class="bottom-nav-link">
+            <a href="setflow-promoter-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Account
+              <span class="text-xs font-medium">Account</span>
             </a>
       </div>
   </nav>
@@ -176,6 +176,15 @@
         loadingState.style.display = 'flex';
       try {
         const userData = await gracefulGet(getUserData(user.uid));
+        
+        // --- ROLE GUARD ---
+        // If user is NOT a promoter, redirect them
+        if (!userData || !userData.roles || !userData.roles.includes('promoter')) {
+             window.location.href = 'setflow-musician-dashboard.html';
+             return;
+        }
+        // ------------------
+
         const gigs = await gracefulGet(fetchGigsForOwner(user.uid));
 
         if(userData) promoterNameHeader.textContent = userData.name || "Promoter Dashboard";

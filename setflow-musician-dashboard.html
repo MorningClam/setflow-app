@@ -27,6 +27,10 @@
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; }
     .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    
+    /* Hide scrollbar for horizontal sections */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-neutral-900 text-white antialiased">
@@ -35,11 +39,13 @@
 
   <header class="border-b border-neutral-700 bg-neutral-900 px-5 py-4">
     <div class="flex items-center justify-between">
-      <a href="setflow-musician-dashboard.html">
-        <img src="logo.png" alt="Setflow" class="h-7 w-auto">
+      <a href="setflow-musician-dashboard.html" class="flex items-center space-x-2">
+        <img src="logo.png" alt="Setflow" class="h-8 w-8">
+        <span class="text-xl font-bold tracking-tight text-white">Setflow</span>
       </a>
+      
       <div class="flex items-center space-x-4">
-        <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+        <a href="setflow-notifications.html" class="relative p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notification-badge" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white"></span>
         </a>
@@ -50,80 +56,120 @@
     </div>
   </header>
 
-  <main class="flex-grow p-5 pb-20">
-    <section class="mb-8">
-      <h1 id="welcome-header" class="text-3xl font-bold text-white">Welcome, Musician!</h1>
-      <p class="text-neutral-400">Here's your command center.</p>
+  <main class="flex-grow p-5 pb-20 space-y-6">
+    
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700 p-5 shadow-lg">
+      <div class="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-emerald-500/10 blur-2xl"></div>
+      
+      <div class="flex items-center justify-between relative z-10">
+         <div>
+            <h1 id="welcome-header" class="text-lg font-bold text-white">Hello, Musician</h1>
+            <p class="text-xs text-neutral-400 font-medium tracking-wide">YOUR CAREER SNAPSHOT</p>
+         </div>
+         <div class="text-right">
+             <p class="text-xs text-neutral-400">YTD Earnings</p>
+             <p class="text-2xl font-bold text-emerald-400" id="hud-earnings">$0</p>
+         </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-3 gap-2 border-t border-neutral-700/50 pt-4 relative z-10">
+          <div class="text-center">
+              <span class="block text-lg font-bold text-white" id="hud-gigs-count">0</span>
+              <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Gigs Played</span>
+          </div>
+          <div class="text-center border-l border-neutral-700/50">
+               <span class="block text-lg font-bold text-white" id="hud-views-count">--</span>
+               <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Profile Views</span>
+          </div>
+          <div class="text-center border-l border-neutral-700/50">
+               <span class="block text-lg font-bold text-amber-400 truncate" id="hud-next-show">--</span>
+               <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Next Show</span>
+          </div>
+      </div>
     </section>
 
-    <section id="profile-strength-widget" class="relative mb-6 rounded-xl border border-neutral-700 bg-neutral-800 p-4 transition-colors duration-300">
-      <div class="mb-2 flex items-center justify-between">
-        <h3 class="font-semibold text-white">Profile Strength: <span id="profile-strength-percent" class="text-emerald-400">Loading...</span></h3>
-        <a href="setflow-edit-profile.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500">Edit Profile</a>
-      </div>
-      <div class="mb-2 h-2.5 w-full rounded-full bg-neutral-700">
-        <div id="profile-strength-bar" class="h-2.5 rounded-full bg-emerald-500 transition-all duration-500" style="width: 0%"></div>
-      </div>
-      <p class="text-sm text-neutral-400" id="profile-strength-prompt">Complete your profile to get noticed!</p>
-    </section>
-
-    <section class="mb-8">
-      <div class="mb-3 flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-white">My Schedule</h2>
-        <a href="setflow-calendar.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300">View Calendar</a>
-      </div>
-      <div id="schedule-loading" class="flex justify-center items-center py-10">
-        <div class="loading-spinner"></div>
-      </div>
-      <div id="schedule-list" class="space-y-3"></div>
-      <div id="schedule-empty" class="hidden rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-10 text-center">
-        <p class="text-sm text-neutral-400">No upcoming events.</p>
-        <a href="setflow-new-calendar-event.html" class="mt-4 inline-block rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Add Event</a>
-      </div>
-    </section>
-
-     <section class="mb-8">
-        <h2 class="mb-3 text-xl font-semibold text-white">Community & Tools</h2>
-        <div class="space-y-3">
-            <a href="setflow-gear-swap.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700">
-                <span class="flex-1 font-semibold text-white">Gear Swap</span>
+    <section>
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Quick Actions</h2>
+        <div class="grid grid-cols-2 gap-3">
+            <a href="setflow-find-a-player.html" class="flex flex-col items-center justify-center rounded-xl bg-neutral-800 p-4 hover:bg-neutral-700 transition group border border-neutral-700/50 hover:border-neutral-600">
+                <div class="mb-2 rounded-full bg-neutral-700/50 p-3 group-hover:bg-neutral-600 text-sky-400">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <span class="text-sm font-medium text-white">Find Player</span>
             </a>
-            <a href="setflow-find-a-player.html" class="flex items-center rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700">
-                <span class="flex-1 font-semibold text-white">Find a Player</span>
+            <a href="setflow-gear-swap.html" class="flex flex-col items-center justify-center rounded-xl bg-neutral-800 p-4 hover:bg-neutral-700 transition group border border-neutral-700/50 hover:border-neutral-600">
+                <div class="mb-2 rounded-full bg-neutral-700/50 p-3 group-hover:bg-neutral-600 text-amber-400">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                </div>
+                <span class="text-sm font-medium text-white">Gear Market</span>
+            </a>
+            <a href="setflow-jam-sessions.html" class="flex flex-col items-center justify-center rounded-xl bg-neutral-800 p-4 hover:bg-neutral-700 transition group border border-neutral-700/50 hover:border-neutral-600">
+                <div class="mb-2 rounded-full bg-neutral-700/50 p-3 group-hover:bg-neutral-600 text-rose-400">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path></svg>
+                </div>
+                <span class="text-sm font-medium text-white">Join Jam</span>
+            </a>
+            <a href="setflow-routing-availability.html" class="flex flex-col items-center justify-center rounded-xl bg-neutral-800 p-4 hover:bg-neutral-700 transition group border border-neutral-700/50 hover:border-neutral-600">
+                <div class="mb-2 rounded-full bg-neutral-700/50 p-3 group-hover:bg-neutral-600 text-emerald-400">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="text-sm font-medium text-white">Update Cal</span>
             </a>
         </div>
     </section>
 
-    <section class="mb-8">
-      <div class="mb-3 flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-white">Open Gigs Near You</h2>
-        <a href="setflow-browse-gigs.html" class="rounded-lg px-3 py-1 text-sm font-semibold text-emerald-400 transition-colors hover:text-emerald-300">See All</a>
-      </div>
-      <div id="gigs-loading" class="flex justify-center items-center py-10">
-        <div class="loading-spinner"></div> </div>
-      <div id="gigs-list" class="space-y-4"></div>
+    <section>
+       <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-white">Hot Opportunities 🔥</h2>
+          <a href="setflow-browse-gigs.html" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 uppercase tracking-wide">See All</a>
+       </div>
+       
+       <div id="gigs-loading" class="flex justify-center py-4"><div class="loading-spinner"></div></div>
+       
+       <div id="hot-gigs-container" class="flex space-x-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
+           </div>
+       <div id="gigs-empty" class="hidden text-center text-sm text-neutral-500 py-4 border border-dashed border-neutral-700 rounded-xl">No hot gigs right now.</div>
+       <div id="gigs-error" class="hidden text-center text-sm text-red-400 py-4">Failed to load gigs.</div>
     </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold text-white">Up Next</h2>
+        <a href="setflow-calendar.html" class="text-xs font-semibold text-neutral-400 hover:text-white uppercase tracking-wide">Full Calendar</a>
+      </div>
+      
+      <div id="schedule-loading" class="hidden justify-center py-4"><div class="loading-spinner"></div></div>
+      
+      <div id="schedule-list" class="space-y-3"></div>
+      
+      <div id="schedule-empty" class="hidden rounded-xl border border-dashed border-neutral-700 bg-neutral-800/50 px-4 py-8 text-center">
+        <p class="text-sm text-neutral-400">Nothing on the books.</p>
+        <a href="setflow-new-calendar-event.html" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:underline">Add Rehearsal or Event</a>
+      </div>
+      <div id="schedule-error" class="hidden text-center text-sm text-red-400 py-4">Failed to load schedule.</div>
+    </section>
+
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active">
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
         <span class="text-xs font-medium">Home</span>
       </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link">
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         <span class="text-xs font-medium">Gigs</span>
       </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link">
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
          <span class="text-xs font-medium">Applied</span>
       </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link">
+      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
         <span class="text-xs font-medium">Inbox</span>
       </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link">
+      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         <span class="text-xs font-medium">Account</span>
       </a>
@@ -138,7 +184,7 @@
 <script src="nav.js"></script>
 
 <script type="module">
-  import { onAuthState, fetchCalendarEvents, gracefulGet, getUserData, fetchGigs, escapeHTML, isOnline } from './api.js';
+  import { onAuthState, fetchCalendarEvents, gracefulGet, getUserData, fetchGigs, fetchCompletedGigsForUser, escapeHTML, isOnline } from './api.js';
 
   const offlineBanner = document.getElementById('offline-banner');
   if (!isOnline()) offlineBanner.style.display = 'block';
@@ -146,73 +192,131 @@
   const welcomeHeader = document.getElementById('welcome-header');
   const scheduleList = document.getElementById('schedule-list');
   const scheduleLoading = document.getElementById('schedule-loading');
-  const gigsList = document.getElementById('gigs-list');
+  const scheduleEmpty = document.getElementById('schedule-empty');
+  const scheduleError = document.getElementById('schedule-error');
+  
+  const hotGigsContainer = document.getElementById('hot-gigs-container');
   const gigsLoading = document.getElementById('gigs-loading');
+  const gigsEmpty = document.getElementById('gigs-empty');
+  const gigsError = document.getElementById('gigs-error');
 
-  function updateProfileStrengthUI(userData) {
-    let score = 10;
-    if (userData.bio && userData.bio.length > 10) score += 30; 
-    if (userData.location) score += 20;
-    if (userData.website || userData.spotify) score += 20;
-    if (userData.profileImageUrl) score += 20;
-    
-    document.getElementById('profile-strength-bar').style.width = `${score}%`;
-    document.getElementById('profile-strength-percent').textContent = `${score}%`;
-    if(score >= 90) document.getElementById('profile-strength-prompt').textContent = 'Profile looking great!';
+  // HUD Elements
+  const hudEarnings = document.getElementById('hud-earnings');
+  const hudGigsCount = document.getElementById('hud-gigs-count');
+  const hudViewsCount = document.getElementById('hud-views-count');
+  const hudNextShow = document.getElementById('hud-next-show');
+
+  let currentUserId = null;
+  let currentUserData = null;
+
+  onAuthState(async (user) => {
+    if (user) {
+      currentUserId = user.uid;
+      
+      try {
+        currentUserData = await gracefulGet(getUserData(user.uid), null);
+
+        if (currentUserData && currentUserData.name) {
+          welcomeHeader.textContent = `Hello, ${currentUserData.name.split(' ')[0]}`;
+        }
+
+        // Update HUD Mock Data for now (would be real analytics)
+        hudViewsCount.textContent = Math.floor(Math.random() * 50) + 100; // Random mock view count
+
+        // Run fetches in parallel
+        await Promise.all([
+            loadSchedule(user.uid),
+            loadEarnings(user.uid),
+            loadHotGigs()
+        ]);
+
+        // --- NAV CONSISTENCY FIX ---
+        if (window.renderBottomNav) {
+             window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
+        }
+
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+        if(scheduleLoading) scheduleLoading.style.display = 'none';
+        if(gigsLoading) gigsLoading.style.display = 'none';
+      }
+    } else {
+      window.location.href = 'setflow-login-page.html';
+    }
+  });
+
+  async function loadEarnings(userId) {
+      const completed = await gracefulGet(fetchCompletedGigsForUser(userId));
+      if (completed) {
+          const total = completed.reduce((sum, gig) => sum + (Number(gig.payout) || 0), 0);
+          hudEarnings.textContent = `$${total.toLocaleString()}`;
+          hudGigsCount.textContent = completed.length;
+      }
   }
 
   async function loadSchedule(userId) {
     const events = await gracefulGet(fetchCalendarEvents(userId));
-    scheduleLoading.style.display = 'none';
+    if (scheduleLoading) scheduleLoading.style.display = 'none';
     
     if(!events || events.length === 0) {
-        document.getElementById('schedule-empty').classList.remove('hidden');
+        scheduleEmpty.style.display = 'block';
+        hudNextShow.textContent = "None";
         return;
     }
 
-    events.slice(0, 3).forEach(evt => {
+    const nextEvent = events[0]; // Already sorted by API
+    hudNextShow.textContent = nextEvent.dateObject ? 
+        nextEvent.dateObject.toLocaleDateString('en-US', { weekday: 'short' }) : 'TBD';
+
+    // Show only top 2 events to save space
+    events.slice(0, 2).forEach(evt => {
         const div = document.createElement('div');
-        div.className = 'rounded-xl border border-neutral-700 bg-neutral-800 p-4 border-l-4 border-emerald-500';
-        div.innerHTML = `<p class="font-semibold text-white">${escapeHTML(evt.title)}</p><p class="text-sm text-neutral-400">${evt.formattedDate}</p>`;
+        const borderColor = evt.type === 'gig' ? 'border-emerald-500' : 'border-neutral-600';
+        const icon = evt.type === 'gig' ? '🎤' : '📅';
+        
+        div.className = `flex items-center space-x-3 rounded-xl border bg-neutral-800 p-3 border-l-4 ${borderColor}`;
+        div.innerHTML = `
+            <div class="text-lg">${icon}</div>
+            <div class="min-w-0 flex-1">
+                <p class="truncate font-semibold text-white text-sm">${escapeHTML(evt.title)}</p>
+                <p class="text-xs text-neutral-400">${evt.formattedDate} • ${evt.formattedTime}</p>
+            </div>
+        `;
         scheduleList.appendChild(div);
     });
   }
 
-  async function loadOpenGigs() {
+  async function loadHotGigs() {
     const gigs = await gracefulGet(fetchGigs());
-    gigsLoading.style.display = 'none';
+    if(gigsLoading) gigsLoading.style.display = 'none';
     
-    if(gigs && gigs.length > 0) {
-        gigs.slice(0, 3).forEach(gig => {
-            const div = document.createElement('a');
-            div.href = `setflow-gig-detail-view.html?id=${gig.id}`;
-            div.className = 'block rounded-xl border border-neutral-700 bg-neutral-800 p-4 hover:bg-neutral-700 transition';
-            div.innerHTML = `
-                <div class="flex justify-between"><p class="font-semibold text-white truncate">${escapeHTML(gig.venueName)}</p><span class="text-emerald-400 font-bold">$${gig.payout}</span></div>
-                <p class="text-sm text-neutral-400">${gig.formattedDate} • ${escapeHTML(gig.location)}</p>
-            `;
-            gigsList.appendChild(div);
-        });
-    } else {
-        gigsList.innerHTML = '<p class="text-center text-neutral-500">No open gigs right now.</p>';
+    if(!gigs || gigs.length === 0) {
+        gigsEmpty.style.display = 'block';
+        return;
     }
-  }
 
-  onAuthState(async (user) => {
-    if (user) {
-        const userData = await gracefulGet(getUserData(user.uid));
-        if(userData) {
-            welcomeHeader.textContent = `Welcome, ${escapeHTML(userData.name.split(' ')[0])}!`;
-            updateProfileStrengthUI(userData);
-            // Ensure standard nav is rendered
-            if(window.renderBottomNav) window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
-        }
-        loadSchedule(user.uid);
-        loadOpenGigs();
-    } else {
-        window.location.href = 'setflow-login-page.html';
-    }
-  });
+    // Filter high paying gigs or random for "Hot" logic
+    const hotGigs = gigs.sort((a, b) => b.payout - a.payout).slice(0, 5);
+
+    hotGigs.forEach(gig => {
+        const div = document.createElement('a');
+        div.href = `setflow-gig-detail-view.html?id=${gig.id}`;
+        // Canonical Card Style + Snap Scroll
+        div.className = 'flex-shrink-0 w-64 snap-start rounded-xl border border-neutral-700 bg-neutral-800 p-4 hover:bg-neutral-700 transition group';
+        div.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <span class="inline-flex items-center rounded-full bg-emerald-900/50 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                  $${gig.payout}
+                </span>
+                <span class="text-[10px] text-neutral-400">${gig.formattedDate}</span>
+            </div>
+            <h3 class="font-bold text-white truncate group-hover:text-emerald-400 transition">${escapeHTML(gig.venueName)}</h3>
+            <p class="text-xs text-neutral-400 truncate">${escapeHTML(gig.location)}</p>
+            <div class="mt-3 text-xs text-neutral-500 uppercase tracking-wider font-semibold">${escapeHTML(gig.genre || 'Open')}</div>
+        `;
+        hotGigsContainer.appendChild(div);
+    });
+  }
 </script>
 </body>
 </html>
