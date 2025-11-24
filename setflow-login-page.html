@@ -10,7 +10,13 @@
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
     #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
-    .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: fixed; top: -20%; left: -20%; width: 140%; height: 140%; background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1), transparent 60%); pointer-events: none; z-index: 0; animation: pulse 8s ease-in-out infinite alternate; }
+    @keyframes pulse { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 0.8; transform: scale(1.1); } }
+    .animate-enter { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="text-white antialiased">
@@ -18,38 +24,44 @@
   <div class="ambient-light"></div>
 
   <div class="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
-    <div class="text-center animate-enter">
-      <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-500/20">
-        <img src="logo.png" alt="Setflow Logo" class="h-8 w-8">
+    
+    <div class="text-center mb-8 animate-enter">
+      <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-900 shadow-2xl shadow-emerald-500/30">
+        <img src="logo.png" alt="Setflow Logo" class="h-10 w-10">
       </div>
-      <h1 class="text-3xl font-bold tracking-tight">Welcome Back</h1>
-      <p class="mt-2 text-neutral-400">Sign in to your account.</p>
+      <h1 class="text-4xl font-black tracking-tight text-white">Setflow</h1>
+      <p class="mt-2 text-base text-neutral-400 font-medium">The Stage is Calling.</p>
     </div>
 
-    <main class="mt-10 animate-enter" style="animation-delay: 0.1s;">
+    <div class="glass-card rounded-2xl p-8 animate-enter" style="animation-delay: 0.1s;">
       <form id="login-form" class="space-y-6">
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-neutral-300">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-xl border-0 bg-neutral-900/50 py-3 text-white shadow-sm ring-1 ring-inset ring-neutral-700 placeholder:text-neutral-500 focus:ring-2 focus:ring-inset focus:ring-emerald-500 sm:text-sm sm:leading-6 transition-all">
+          <label for="email" class="block text-xs font-bold uppercase text-neutral-500 tracking-wider mb-1">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" class="block w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white shadow-inner ring-1 ring-inset ring-white/10 placeholder:text-neutral-600 focus:ring-2 focus:ring-inset focus:ring-emerald-500 transition-all outline-none" required>
         </div>
+
         <div>
-          <div class="flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium leading-6 text-neutral-300">Password</label>
-            <a href="setflow-password-reset-flow.html" class="text-sm font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">Forgot password?</a>
+          <div class="flex items-center justify-between mb-1">
+            <label for="password" class="block text-xs font-bold uppercase text-neutral-500 tracking-wider">Password</label>
+            <a href="setflow-password-reset-flow.html" class="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors">Forgot?</a>
           </div>
-          <input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-xl border-0 bg-neutral-900/50 py-3 text-white shadow-sm ring-1 ring-inset ring-neutral-700 placeholder:text-neutral-500 focus:ring-2 focus:ring-inset focus:ring-emerald-500 sm:text-sm sm:leading-6 transition-all">
+          <input id="password" name="password" type="password" placeholder="••••••••" class="block w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white shadow-inner ring-1 ring-inset ring-white/10 placeholder:text-neutral-600 focus:ring-2 focus:ring-inset focus:ring-emerald-500 transition-all outline-none" required>
         </div>
-        <button type="submit" class="btn-press flex w-full justify-center rounded-xl bg-emerald-600 px-3 py-3 text-sm font-semibold leading-6 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 transition-all">Sign in</button>
+
+        <button type="submit" class="btn-press w-full rounded-xl bg-emerald-500 px-4 py-3.5 text-sm font-bold text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors">
+            Sign In
+        </button>
       </form>
-      <p class="mt-10 text-center text-sm text-neutral-400">
-        Not a member?
-        <a href="setflow-signup-page.html" class="font-semibold leading-6 text-emerald-500 hover:text-emerald-400 transition-colors">Create an account</a>
-      </p>
-    </main>
+    </div>
+
+    <p class="mt-8 text-center text-sm text-neutral-400 animate-enter" style="animation-delay: 0.2s;">
+      New here?
+      <a href="setflow-signup-page.html" class="font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">Create an account</a>
+    </p>
   </div>
 
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-    <span id="toast-message">Placeholder message</span>
+  <div id="toast-notification" class="fixed bottom-10 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+    <span id="toast-message"></span>
   </div>
   <script src="toast.js"></script>
 
@@ -57,6 +69,9 @@
     import { signInUser, getUserData, isOnline } from './api.js';
 
     const loginForm = document.getElementById('login-form');
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrlParam = urlParams.get('redirect');
+    
     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
     const roleRedirectMap = {
@@ -71,30 +86,30 @@
       const password = document.getElementById('password').value;
       const submitButton = loginForm.querySelector('button[type="submit"]');
 
-      if (!isOnline()) { window.toast.show('Login requires internet.', 'error'); return; }
+      if (!isOnline()) { window.toast.show('Internet required.', 'error'); return; }
 
       submitButton.disabled = true;
-      submitButton.innerText = 'Signing In...';
+      submitButton.innerHTML = '<span class="loading-spinner-inline"></span> Signing In...';
 
       try {
         const userCredential = await signInUser(email, password);
         const userData = await getUserData(userCredential.user.uid);
 
         if (userData && userData.roles && userData.roles.length > 0) {
-            const primaryRole = userData.roles[0];
-            // If profile not set up, go there first
-            if (!userData.profileSetupComplete) {
-                 window.location.href = `setflow-profile-setup.html?role=${primaryRole}`;
-            } else {
-                 window.location.href = roleRedirectMap[primaryRole] || roleRedirectMap['musician'];
-            }
+          const primaryRole = userData.roles[0];
+          if (!userData.profileSetupComplete) {
+              window.toast.show('Completing setup...', 'success');
+              setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${primaryRole}`, 1000);
+              return;
+          }
+          window.location.href = redirectUrlParam || roleRedirectMap[primaryRole] || roleRedirectMap['musician'];
         } else {
-            // Fallback
-            window.location.href = `setflow-profile-setup.html?role=musician`;
+          window.location.href = `setflow-profile-setup.html?role=musician`;
         }
+
       } catch (error) {
-        console.error(error);
-        window.toast.show('Login failed.', 'error');
+        console.error('Login Error:', error);
+        window.toast.show('Invalid email or password.', 'error');
         submitButton.disabled = false;
         submitButton.innerText = 'Sign In';
       }

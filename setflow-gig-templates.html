@@ -9,16 +9,19 @@
   <link rel="stylesheet" href="toast.css">
   <style>
     body{font-family:'Inter',sans-serif; background-color:#000;}
-    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
     .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
     .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    /* Nav */
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body class="text-white antialiased">
 <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
-  <div id="offline-banner">You are currently offline.</div>
   <div class="ambient-light"></div>
 
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
@@ -37,32 +40,34 @@
     </div>
     <div class="hidden py-10 text-center glass-card rounded-xl" id="empty-state">
       <h3 class="text-lg font-bold text-white">No Templates</h3>
-      <p class="mt-1 text-sm text-neutral-400">Create a gig to save it as a template.</p>
+      <p class="mt-1 text-sm text-neutral-400">Save time by creating reusable templates.</p>
     </div>
   </main>
 
-  <a href="setflow-post-event-page.html" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 btn-press hover:bg-emerald-400 border-2 border-neutral-900">
+  <a href="setflow-post-event-page.html" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 btn-press hover:bg-emerald-400 border-2 border-neutral-900">
       <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
   </a>
 
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
+  </nav>
 </div> 
 
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+<div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
  <span id="toast-message">Placeholder</span>
 </div>
 <script src="toast.js"></script>
+<script src="nav.js"></script>
 
 <script type="module">
-     import { onAuthState, gracefulGet, isOnline, getUserData, fetchGigTemplates, escapeHTML } from './api.js';
+     import { onAuthState, gracefulGet, getUserData, fetchGigTemplates, escapeHTML } from './api.js';
 
      const templateContainer = document.getElementById('template-list');
      const loadingState = document.getElementById('loading-state');
      const emptyState = document.getElementById('empty-state');
-     
-     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
      function renderTemplates(templates) {
-         loadingState.style.display = 'none';
+         loading.style.display = 'none';
          if (!templates || templates.length === 0) {
              emptyState.style.display = 'block';
              return;
@@ -71,7 +76,7 @@
 
          templates.forEach((template, index) => {
              const div = document.createElement('div');
-             div.className = 'glass-card flex items-center justify-between rounded-xl p-4 mb-3 animate-enter btn-press hover:bg-white/5 transition';
+             div.className = 'glass-card flex items-center justify-between rounded-xl p-4 mb-3 animate-enter btn-press hover:bg-white/5 transition border border-transparent hover:border-white/10';
              div.style.animationDelay = `${index * 0.05}s`;
              
              const payout = template.payout ? `$${template.payout}` : 'Neg.';
@@ -95,6 +100,11 @@
      onAuthState(async (user) => {
          if (user) { 
              try {
+                 const userData = await gracefulGet(getUserData(user.uid));
+                 let role = 'promoter';
+                 if(userData?.roles?.includes('venue')) role = 'venue';
+                 if(window.renderBottomNav) window.renderBottomNav(role, 'free', 'setflow-gig-templates.html');
+
                  const templates = await gracefulGet(fetchGigTemplates(user.uid));
                  renderTemplates(templates);
              } catch (error) {

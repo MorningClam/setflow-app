@@ -11,8 +11,6 @@
     body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
     #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
     .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #818cf8; animation: spin 0.8s linear infinite; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: fixed; top: -20%; right: -20%; width: 80%; height: 80%; background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), transparent 60%); pointer-events: none; z-index: 0; }
@@ -20,8 +18,11 @@
     /* Nav Fix */
     .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
-    .bottom-nav-link.active { color: #34D399; }
+    .bottom-nav-link.active { color: #818cf8; }
     .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
+    
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="text-white antialiased">
@@ -31,7 +32,7 @@
 
   <header class="border-b border-white/10 bg-black/20 backdrop-blur-md px-5 py-4 sticky top-0 z-20">
     <div class="flex items-center justify-between">
-      <a href="#" onclick="window.location.href='setflow-venue-dashboard.html'; return false;" class="p-2 rounded-full text-neutral-400 hover:text-white transition-colors btn-press">
+      <a href="#" onclick="goBackOr('setflow-venue-dashboard.html'); return false;" class="p-2 rounded-full text-neutral-400 hover:text-white transition-colors btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-indigo-400">Scout Radar</h1>
@@ -39,23 +40,23 @@
     </div>
     <div class="mt-2 flex space-x-2 overflow-x-auto no-scrollbar pb-2">
         <button class="genre-filter active px-4 py-1.5 rounded-full bg-indigo-600 text-xs font-bold text-white shadow-lg shadow-indigo-500/20 btn-press">All</button>
-        <button class="genre-filter px-4 py-1.5 rounded-full glass-card text-xs font-medium text-neutral-300 hover:text-white btn-press">Rock</button>
-        <button class="genre-filter px-4 py-1.5 rounded-full glass-card text-xs font-medium text-neutral-300 hover:text-white btn-press">Indie</button>
-        <button class="genre-filter px-4 py-1.5 rounded-full glass-card text-xs font-medium text-neutral-300 hover:text-white btn-press">Jazz</button>
+        <button class="genre-filter px-4 py-1.5 rounded-full glass-card text-xs font-medium text-neutral-300 hover:text-white btn-press border border-transparent hover:border-indigo-500/30 transition">Rock</button>
+        <button class="genre-filter px-4 py-1.5 rounded-full glass-card text-xs font-medium text-neutral-300 hover:text-white btn-press border border-transparent hover:border-indigo-500/30 transition">Indie</button>
+        <button class="genre-filter px-4 py-1.5 rounded-full glass-card text-xs font-medium text-neutral-300 hover:text-white btn-press border border-transparent hover:border-indigo-500/30 transition">Jazz</button>
     </div>
   </header>
 
   <main class="flex-grow p-5 pb-24 space-y-8 relative z-10"> 
     
     <section class="animate-enter">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-neutral-500 mb-3">Trending Now</h2>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Trending Now</h2>
         <div id="highest-rated-list" class="flex space-x-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory">
             <div class="flex justify-center items-center w-full py-5"><div class="loading-spinner"></div></div>
         </div>
     </section>
 
     <section class="animate-enter" style="animation-delay: 0.1s;">
-         <h2 class="text-sm font-semibold uppercase tracking-wider text-neutral-500 mb-3">Most Booked</h2>
+         <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-3">Most Booked</h2>
          <div id="most-booked-list" class="space-y-3">
              <div class="flex justify-center items-center py-5"><div class="loading-spinner"></div></div>
          </div>
@@ -73,7 +74,7 @@
                 <span class="text-xs font-medium">Post</span>
             </a>
             <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-500 hover:text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="text-xs font-medium">Inbox</span>
             </a>
             <a href="setflow-venue-settings.html" class="bottom-nav-link text-neutral-500 hover:text-white">
@@ -88,9 +89,11 @@
  <span id="toast-message">Placeholder</span>
 </div>
 <script src="toast.js"></script>
+<script src="nav.js"></script>
 
  <script type="module">
-     import { onAuthState, getAllPlayers, gracefulGet, isOnline, escapeHTML } from './api.js';
+     import { onAuthState, getAllPlayers, gracefulGet, isOnline, escapeHTML, getUserData, navigation } from './api.js';
+     window.goBackOr = navigation.goBackOr;
 
      const highestRatedList = document.getElementById('highest-rated-list');
      const mostBookedList = document.getElementById('most-booked-list');
@@ -98,40 +101,59 @@
 
      if(!isOnline()) offlineBanner.style.display = 'block';
 
+     // Filter Logic (Mock)
+     document.querySelectorAll('.genre-filter').forEach(btn => {
+         btn.addEventListener('click', (e) => {
+             document.querySelectorAll('.genre-filter').forEach(b => {
+                 b.classList.remove('active', 'bg-indigo-600', 'shadow-lg', 'text-white');
+                 b.classList.add('glass-card', 'text-neutral-300');
+             });
+             e.target.classList.add('active', 'bg-indigo-600', 'shadow-lg', 'text-white');
+             e.target.classList.remove('glass-card', 'text-neutral-300');
+             window.toast.show(`Filtering by ${e.target.innerText}...`, 'success');
+         });
+     });
+
      function renderTrendingCard(container, artist) {
          const card = document.createElement('div');
-         card.className = 'glass-card flex-shrink-0 w-48 p-3 rounded-2xl snap-start hover:bg-white/5 transition group relative overflow-hidden';
+         card.className = 'glass-card flex-shrink-0 w-40 p-4 rounded-2xl snap-start hover:bg-white/5 transition group relative overflow-hidden btn-press';
          const profileLink = `setflow-public-profile.html?userId=${artist.id}`;
          const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
 
          card.innerHTML = `
             <a href="${profileLink}" class="block text-center">
-                <div class="relative w-24 h-24 mx-auto mb-3">
-                    <img class="w-full h-full rounded-full object-cover border-2 border-white/10 group-hover:border-indigo-400 transition" src="${artist.profileImageUrl || placeholderImg}">
+                <div class="relative w-20 h-20 mx-auto mb-3">
+                    <img class="w-full h-full rounded-full object-cover border-2 border-white/10 group-hover:border-indigo-400 transition" src="${artist.profileImageUrl || placeholderImg}" alt="Photo">
+                    <div class="absolute bottom-0 right-0 bg-neutral-900 rounded-full p-1 border border-neutral-700">
+                        <span class="block text-[10px] font-bold text-yellow-400">★ ${artist.rating ? artist.rating.toFixed(1) : '5.0'}</span>
+                    </div>
                 </div>
-                <p class="truncate font-bold text-white">${escapeHTML(artist.name)}</p>
-                <p class="truncate text-xs text-neutral-400">${escapeHTML(artist.genres ? artist.genres[0] : 'Music')}</p>
+                <p class="truncate font-bold text-white text-sm">${escapeHTML(artist.name)}</p>
+                <p class="truncate text-[10px] text-neutral-400 uppercase tracking-wide mt-1">${escapeHTML(artist.genres ? artist.genres[0] : 'Music')}</p>
             </a>
-            <button data-artist-id="${artist.id}" class="scout-btn mt-3 w-full rounded-lg bg-indigo-600/80 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 btn-press">Scout</button>
+            <button data-artist-id="${artist.id}" class="scout-btn mt-3 w-full rounded-lg bg-indigo-600/20 border border-indigo-500/30 py-1.5 text-[10px] font-bold text-indigo-300 hover:bg-indigo-600 hover:text-white transition">SCOUT</button>
          `;
          container.appendChild(card);
      }
 
      function renderLeaderboardRow(container, artist, rank) {
          const row = document.createElement('div');
-         row.className = 'glass-card flex items-center p-3 rounded-xl hover:bg-white/5 transition btn-press';
+         row.className = 'glass-card flex items-center p-3 rounded-xl hover:bg-white/5 transition btn-press border border-transparent hover:border-indigo-500/30';
          const profileLink = `setflow-public-profile.html?userId=${artist.id}`;
          const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
 
          row.innerHTML = `
-            <span class="w-6 text-center font-bold text-neutral-500 text-sm mr-2">#${rank}</span>
+            <span class="w-8 text-center font-black text-neutral-600 text-lg italic mr-2">#${rank}</span>
             <a href="${profileLink}" class="flex items-center flex-1 min-w-0">
-                <img class="h-10 w-10 rounded-lg object-cover bg-neutral-800" src="${artist.profileImageUrl || placeholderImg}">
+                <img class="h-10 w-10 rounded-lg object-cover bg-neutral-800 border border-white/10" src="${artist.profileImageUrl || placeholderImg}">
                 <div class="ml-3 min-w-0">
-                    <p class="truncate font-semibold text-white text-sm">${escapeHTML(artist.name)}</p>
+                    <p class="truncate font-bold text-white text-sm">${escapeHTML(artist.name)}</p>
                     <p class="truncate text-xs text-neutral-400">${escapeHTML(artist.location || 'USA')}</p>
                 </div>
             </a>
+            <button data-artist-id="${artist.id}" class="scout-btn ml-2 p-2 rounded-lg bg-white/5 hover:bg-white/10 text-indigo-300 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </button>
          `;
          container.appendChild(row);
      }
@@ -141,7 +163,7 @@
          mostBookedList.innerHTML = '';
 
          if (!artists || artists.length === 0) {
-             highestRatedList.innerHTML = '<p class="w-full text-center text-neutral-500">No artists found.</p>';
+             highestRatedList.innerHTML = '<p class="w-full text-center text-neutral-500 py-4">No artists found.</p>';
              return;
          }
 
@@ -150,10 +172,23 @@
 
          ratedArtists.forEach(a => renderTrendingCard(highestRatedList, a));
          bookedArtists.forEach((a, index) => renderLeaderboardRow(mostBookedList, a, index + 1));
+
+         document.querySelectorAll('.scout-btn').forEach(button => {
+             button.addEventListener('click', (e) => {
+                 e.target.disabled = true;
+                 e.target.innerHTML = '✓';
+                 e.target.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+                 window.toast.show('Added to your roster.', 'success');
+             });
+         });
      }
 
      onAuthState(async (user) => {
          if (user) {
+             const userData = await gracefulGet(getUserData(user.uid));
+             // Swap nav if needed
+             if(window.renderBottomNav) window.renderBottomNav(userData?.roles?.[0] || 'venue', 'free', 'setflow-artist-discovery.html');
+             
              const artists = await gracefulGet(getAllPlayers());
              renderArtists(artists);
          } else {
