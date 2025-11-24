@@ -1,0 +1,19 @@
+[debug] [2025-11-24T23:40:19.381Z] ----------------------------------------------------------------------
+[debug] [2025-11-24T23:40:19.383Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\georg\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-11-24T23:40:19.384Z] CLI Version:   14.26.0
+[debug] [2025-11-24T23:40:19.384Z] Platform:      win32
+[debug] [2025-11-24T23:40:19.384Z] Node Version:  v22.17.0
+[debug] [2025-11-24T23:40:19.384Z] Time:          Mon Nov 24 2025 18:40:19 GMT-0500 (Eastern Standard Time)
+[debug] [2025-11-24T23:40:19.384Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\georg\OneDrive\Desktop\setflow-app
+

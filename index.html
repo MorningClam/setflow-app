@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setflow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #000; display: flex; align-items: center; justify-content: center; height: 100vh; color: white; }
+    .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: #10B981; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+    @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="text-center">
+      <span class="loader"></span>
+      <p class="mt-4 text-sm text-neutral-500 font-mono">Loading Command Center...</p>
+  </div>
+
+  <script type="module">
+    import { onAuthState, getUserData, gracefulGet } from './api.js';
+
+    onAuthState(async (user) => {
+      if (user) {
+        // User is signed in, check role to determine dashboard
+        try {
+            const userData = await gracefulGet(getUserData(user.uid));
+            const role = userData?.roles?.[0] || 'musician';
+            
+            if (role === 'venue') window.location.href = 'setflow-venue-dashboard.html';
+            else if (role === 'promoter') window.location.href = 'setflow-promoter-dashboard.html';
+            else window.location.href = 'setflow-musician-dashboard.html';
+            
+        } catch (e) {
+            console.error("Routing error", e);
+            // Safe fallback
+            window.location.href = 'setflow-musician-dashboard.html';
+        }
+      } else {
+        // No user is signed in, go to login
+        window.location.href = 'setflow-login-page.html';
+      }
+    });
+  </script>
+</body>
+</html>
