@@ -8,112 +8,77 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner-inline {
-        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem;
-        border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
-    }
-    /* Custom Checkbox Style */
-    .custom-checkbox:checked {
-        background-color: #10B981; /* emerald-500 */
-        border-color: #10B981;
-        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #10B981; animation: spin 1s ease-in-out infinite; margin-right: 0.5rem; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .ambient-light { position: fixed; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    /* Custom Checkbox */
+    .custom-checkbox:checked { background-color: #10B981; border-color: #10B981; background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e"); }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Setup requires connection.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto max-w-md border-b border-neutral-700 bg-neutral-900 px-5 py-4">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-5 py-4">
     <div class="mb-3 flex items-center justify-between">
-      <h1 class="text-lg font-semibold">Complete Your Profile</h1>
-      <span class="text-sm text-neutral-400">Step 1 of 1</span>
+      <h1 class="text-lg font-bold tracking-tight text-white">Setup Profile</h1>
+      <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Step 1 of 1</span>
     </div>
-    <div class="h-1.5 w-full rounded-full bg-neutral-700">
-        <div class="h-1.5 rounded-full bg-emerald-500" style="width: 50%"></div>
+    <div class="h-1 w-full rounded-full bg-neutral-800 overflow-hidden">
+        <div class="h-full bg-emerald-500" style="width: 50%"></div>
     </div>
   </header>
 
-  <main class="flex-grow p-5 pt-28 pb-24"> 
-    <section class="mb-6">
-      <h2 class="mb-2 text-2xl font-bold text-white">Let's get started</h2>
-      <p class="text-base text-neutral-400">Tell us about yourself to get discovered.</p>
+  <main class="flex-grow p-5 pt-28 pb-24 relative z-10"> 
+    <section class="mb-8 text-center">
+      <h2 class="text-2xl font-bold text-white">Welcome Aboard</h2>
+      <p class="text-sm text-neutral-400 mt-1">Let's build your artist identity.</p>
     </section>
 
     <form id="profile-form" class="space-y-6">
       <div class="text-center">
-        <div class="relative mx-auto inline-block h-24 w-24">
-            <img id="profile-preview" class="h-full w-full rounded-full border-4 border-neutral-700 bg-neutral-800 object-cover" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop" alt="Profile Preview">
+        <div class="relative mx-auto inline-block h-28 w-28">
+            <img id="profile-preview" class="h-full w-full rounded-full border-4 border-neutral-800 bg-neutral-800 object-cover shadow-xl" src="https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop" alt="Profile Preview">
             
-            <label for="image-upload" class="absolute -bottom-1 -right-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-emerald-600 text-white transition-colors hover:bg-emerald-500 ring-4 ring-neutral-900">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            <label for="image-upload" class="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-emerald-500 text-white transition-colors hover:bg-emerald-400 ring-4 ring-neutral-900 shadow-lg">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
             </label>
             <input type="file" id="image-upload" accept="image/*" class="hidden">
         </div>
-        <p class="mt-2 text-xs text-neutral-500">Tap to upload photo</p>
       </div>
 
       <div>
-        <label for="bio" class="mb-2 block text-sm font-semibold text-neutral-300">Your Bio</label>
-        <textarea id="bio" rows="3" placeholder="Describe your style, experience, and vibe..." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+        <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Bio</label>
+        <textarea id="bio" rows="3" placeholder="Describe your vibe..." class="w-full resize-none rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600"></textarea>
       </div>
 
       <div>
-        <label for="location" class="mb-2 block text-sm font-semibold text-neutral-300">Location</label>
-        <input id="location" type="text" placeholder="e.g., Raleigh, NC" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white placeholder-neutral-500 transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+        <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location</label>
+        <input id="location" type="text" placeholder="City, State" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600">
       </div>
 
       <div>
-          <label class="mb-3 block text-sm font-semibold text-neutral-300">My Instruments</label>
+          <label class="mb-3 block text-xs font-bold uppercase text-neutral-500 tracking-wider">My Instruments</label>
           <div class="grid grid-cols-2 gap-3">
-              <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Guitar" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Guitar</span>
-              </label>
-              <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Bass" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Bass</span>
-              </label>
-              <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Drums" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Drums</span>
-              </label>
-              <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Vocals" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Vocals</span>
-              </label>
-              <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Keys" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Keys/Piano</span>
-              </label>
-               <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="DJ/Producer" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">DJ/Producer</span>
-              </label>
-               <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Strings" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Strings</span>
-              </label>
-              <label class="flex items-center space-x-3 rounded-xl border border-neutral-700 bg-neutral-800 p-3 transition hover:bg-neutral-700">
-                  <input type="checkbox" name="instrument" value="Other" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600 focus:ring-emerald-600 focus:ring-offset-neutral-900">
-                  <span class="text-sm text-white">Other</span>
-              </label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Guitar" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Guitar</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Bass" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Bass</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Drums" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Drums</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Vocals" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Vocals</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Keys" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Keys/Piano</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="DJ/Producer" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">DJ/Producer</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Strings" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Strings</span></label>
+              <label class="flex items-center space-x-3 rounded-xl bg-white/5 border border-white/5 p-3 transition hover:bg-white/10"><input type="checkbox" name="instrument" value="Other" class="custom-checkbox h-5 w-5 rounded border-gray-600 bg-neutral-700 text-emerald-600"><span class="text-sm text-white">Other</span></label>
           </div>
       </div>
 
     </form>
   </main>
 
-  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto flex max-w-md items-center justify-between border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-    <button class="w-auto cursor-not-allowed rounded-xl px-6 py-3 text-base font-semibold text-neutral-500 opacity-50" disabled>Back</button>
-    <button id="finish-btn" type="submit" form="profile-form" class="w-auto rounded-xl bg-emerald-600 px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50">Finish</button>
+  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto flex max-w-md items-center justify-between border-t border-white/10 bg-black/90 p-4 backdrop-blur-xl pb-safe">
+    <button id="finish-btn" type="submit" form="profile-form" class="w-full rounded-xl bg-emerald-500 px-8 py-3.5 text-base font-bold text-black transition-colors hover:bg-emerald-400 shadow-lg shadow-emerald-500/20">Complete Profile</button>
   </footer>
 </div>
 
@@ -132,18 +97,11 @@
     const profilePreview = document.getElementById('profile-preview');
     const offlineBanner = document.getElementById('offline-banner');
 
-    const roleRedirectMap = {
-        'musician': 'setflow-musician-dashboard.html',
-        'venue': 'setflow-venue-dashboard.html',
-        'promoter': 'setflow-promoter-dashboard.html'
-    };
-
     let currentUserId = null;
     let selectedImageBase64 = null;
     
     if(!isOnline()) offlineBanner.style.display = 'block';
 
-    // --- Image Resizer Utility (Fixes 1MB Limit) ---
     function resizeImage(file, maxWidth, quality, callback) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -154,112 +112,78 @@
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-
-                if (width > maxWidth) {
-                    height *= maxWidth / width;
-                    width = maxWidth;
-                }
-
-                canvas.width = width;
-                canvas.height = height;
+                if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                canvas.width = width; canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                
-                // Compress to JPEG
-                const dataUrl = canvas.toDataURL('image/jpeg', quality);
-                callback(dataUrl);
+                callback(canvas.toDataURL('image/jpeg', quality));
             };
         };
     }
 
-    // --- Handle Image Selection ---
     imageUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Resize to max 500px width, 70% quality
-            resizeImage(file, 500, 0.7, (resizedDataUrl) => {
-                profilePreview.src = resizedDataUrl;
-                selectedImageBase64 = resizedDataUrl;
-                window.toast.show("Photo processed!", "success");
+            resizeImage(file, 500, 0.7, (url) => {
+                profilePreview.src = url;
+                selectedImageBase64 = url;
+                window.toast.show("Photo ready!", "success");
             });
         }
     });
 
-    // 2. Load Existing Data
     onAuthState(async (user) => {
-        if (!user) {
-            window.location.href = 'setflow-login-page.html';
-        } else {
+        if (!user) { window.location.href = 'setflow-login-page.html'; } 
+        else {
             currentUserId = user.uid;
-            finishButton.disabled = true;
-            try {
-                const userData = await gracefulGet(getUserData(currentUserId));
-                if (userData) {
-                    bioTextarea.value = userData.bio || '';
-                    locationInput.value = userData.location || '';
-                    if(userData.profileImageUrl) profilePreview.src = userData.profileImageUrl;
-                    if(userData.instruments) {
-                        const checkboxes = document.querySelectorAll('input[name="instrument"]');
-                        checkboxes.forEach(cb => {
-                             if(userData.instruments.includes(cb.value)) cb.checked = true;
-                        });
-                    }
+            const data = await gracefulGet(getUserData(currentUserId));
+            if (data) {
+                bioTextarea.value = data.bio || '';
+                locationInput.value = data.location || '';
+                if(data.profileImageUrl) profilePreview.src = data.profileImageUrl;
+                if(data.instruments) {
+                    document.querySelectorAll('input[name="instrument"]').forEach(cb => {
+                        if(data.instruments.includes(cb.value)) cb.checked = true;
+                    });
                 }
-            } catch (error) {
-                 console.error("Error pre-filling profile:", error);
-            } finally {
-                 finishButton.disabled = false;
             }
         }
     });
 
-    // 3. Save Profile
-    async function handleProfileSave(event) {
+    document.getElementById('profile-form').addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!currentUserId) return;
         
-        if (!isOnline()) {
-             window.toast.show("Internet required for setup.", 'error');
-             return;
-        }
-
         finishButton.disabled = true;
         finishButton.innerHTML = '<span class="loading-spinner-inline"></span>Saving...';
 
-        // Gather Instruments
-        const checkedInstruments = Array.from(document.querySelectorAll('input[name="instrument"]:checked'))
-                                        .map(cb => cb.value);
+        const instruments = Array.from(document.querySelectorAll('input[name="instrument"]:checked')).map(cb => cb.value);
 
         try {
             const updates = {
                 bio: bioTextarea.value.trim(),
                 location: locationInput.value.trim(),
-                instruments: checkedInstruments, // New field
+                instruments: instruments,
                 profileSetupComplete: true
             };
-
-            if (selectedImageBase64) {
-                updates.profileImageUrl = selectedImageBase64;
-            }
+            if (selectedImageBase64) updates.profileImageUrl = selectedImageBase64;
 
             await updateUserProfile(currentUserId, updates);
-
+            
             const userData = await getUserData(currentUserId);
-            const userRole = (userData?.roles?.[0]) || 'musician';
-            const redirectUrl = roleRedirectMap[userRole] || roleRedirectMap['musician'];
-
-            window.location.href = redirectUrl;
+            const role = (userData?.roles?.[0]) || 'musician';
+            const redirect = role === 'musician' ? 'setflow-musician-dashboard.html' : 
+                             role === 'venue' ? 'setflow-venue-dashboard.html' : 
+                             'setflow-promoter-dashboard.html';
+            
+            window.location.href = redirect;
 
         } catch (error) {
-            console.error("Profile Setup Error:", error);
             window.toast.show(`Save failed: ${error.message}`, 'error');
             finishButton.disabled = false;
-            finishButton.innerText = 'Finish';
+            finishButton.innerText = 'Complete Profile';
         }
-    }
-
-    finishButton.addEventListener('click', handleProfileSave);
-    document.getElementById('profile-form').addEventListener('submit', handleProfileSave);
+    });
 </script>
 </body>
 </html>

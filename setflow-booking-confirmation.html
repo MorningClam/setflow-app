@@ -8,139 +8,93 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Booking requires connection.</div>
+<body class="text-white antialiased">
   
-  <div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <div class="flex-grow blur-sm pointer-events-none opacity-50">
-        <header class="flex h-16 items-center justify-between px-4 border-b border-neutral-800">
-            <span class="p-2"> <svg class="h-6 w-6 text-neutral-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></span>
-            <h1 class="text-lg font-semibold">Applicant Profile</h1>
-            <span class="w-10 h-10"></span> 
-        </header>
-        <main class="pt-16 p-5 text-center">
-            <div class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 bg-neutral-800"></div>
-            <h2 id="blurred-artist-name" class="mt-4 text-2xl font-bold">Loading...</h2>
-        </main>
-    </div>
+  <div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900">
+    <div class="flex-grow opacity-30 blur-md pointer-events-none p-5 bg-[url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
 
-    <div id="modal-container" class="absolute inset-0 z-30 flex items-center justify-center bg-black/70 p-4"> 
-        <div id="modal-loading" class="flex justify-center items-center">
-            <div class="animate-spin border-4 border-neutral-500/30 border-t-emerald-500 rounded-full w-8 h-8"></div>
-        </div>
+    <div id="modal-container" class="absolute inset-0 z-30 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"> 
         
-        <div id="modal-card" class="hidden w-full max-w-sm rounded-xl bg-neutral-800 shadow-xl transition-all opacity-0 scale-95 border border-neutral-700">
+        <div class="w-full max-w-sm rounded-3xl bg-[#121212] border border-white/10 shadow-2xl shadow-black overflow-hidden transform transition-all">
+            
+            <div class="p-6 text-center border-b border-white/5 bg-white/5">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 mb-4 border border-indigo-500/20">
+                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-white">Confirm Booking</h3>
+                <p class="mt-1 text-sm text-neutral-400">Lock in <strong class="text-white" id="modal-artist-name">Artist</strong> for this show?</p>
             </div>
+
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between text-sm items-center">
+                    <span class="text-neutral-500 font-medium">Gig</span>
+                    <span class="font-bold text-white text-right truncate w-40" id="modal-gig-name">...</span>
+                </div>
+                <div class="flex justify-between text-sm items-center">
+                    <span class="text-neutral-500 font-medium">Date</span>
+                    <span class="font-bold text-white" id="modal-date">...</span>
+                </div>
+                <div class="flex justify-between text-sm items-center pt-4 border-t border-white/5">
+                    <span class="text-neutral-500 font-medium">Payout</span>
+                    <span class="font-bold text-emerald-400 text-lg" id="modal-payout">...</span>
+                </div>
+
+                <div class="pt-6 space-y-3">
+                    <button id="confirm-btn" class="w-full rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-bold text-white hover:bg-indigo-500 transition btn-press shadow-lg shadow-indigo-500/20">Confirm Booking</button>
+                    <button onclick="window.history.back()" class="w-full rounded-xl bg-transparent px-6 py-3.5 text-sm font-bold text-neutral-500 hover:text-white transition btn-press">Cancel</button>
+                </div>
+                <p class="text-center text-[10px] text-neutral-600 mt-2">By confirming, you agree to the <a href="setflow-booking-terms.html" class="underline hover:text-indigo-400">Terms of Service</a>.</p>
+            </div>
+        </div>
     </div>
   </div> 
-  
-  <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder</span>
-   </div>
-   <script src="toast.js"></script>
+  <script src="toast.js"></script>
 
   <script type="module">
-    import { onAuthState, getUserData, getGigDetails, confirmBooking, gracefulGet, isOnline, escapeHTML } from './api.js';
+    import { onAuthState, confirmBooking, isOnline, gracefulGet, getGigDetails } from './api.js';
 
-    const modalLoading = document.getElementById('modal-loading');
-    const modalCard = document.getElementById('modal-card');
-    const blurredName = document.getElementById('blurred-artist-name');
-    const offline = document.getElementById('offline-banner');
-
-    if(!isOnline()) offline.style.display = 'block';
+    const artistNameEl = document.getElementById('modal-artist-name');
+    const gigNameEl = document.getElementById('modal-gig-name');
+    const dateEl = document.getElementById('modal-date');
+    const payoutEl = document.getElementById('modal-payout');
+    const confirmBtn = document.getElementById('confirm-btn');
 
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
     const gigId = urlParams.get('gigId');
-    const artistNameParam = urlParams.get('artistName');
+    const artistName = decodeURIComponent(urlParams.get('artistName'));
 
-    if (artistNameParam) blurredName.textContent = decodeURIComponent(artistNameParam);
-
-    function renderModal(artist, gig) {
-        modalLoading.style.display = 'none';
-        modalCard.classList.remove('hidden');
-        
-        requestAnimationFrame(() => {
-            modalCard.style.opacity = '1';
-            modalCard.style.transform = 'scale(1)';
-        });
-
-        if (!artist || !gig) {
-            modalCard.innerHTML = `
-                <div class="p-6 text-center text-red-400">
-                    <p>Error loading details.</p>
-                    <a href="javascript:history.back()" class="mt-4 inline-block bg-neutral-700 px-4 py-2 rounded-lg text-white">Go Back</a>
-                </div>`;
-            return;
-        }
-
-        const date = gig.date?.toDate ? gig.date.toDate().toLocaleDateString() : 'TBD';
-
-        modalCard.innerHTML = `
-            <div class="p-6 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border-4 border-emerald-500/30 bg-emerald-900/50">
-                    <svg class="h-6 w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-white">Confirm Booking</h3>
-                <p class="mt-1 text-sm text-neutral-400">You are about to book this artist.</p>
-            </div>
-            <div class="mx-4 mb-6 space-y-2 rounded-lg bg-neutral-900/50 p-4 text-sm">
-                <div class="flex justify-between"><span class="text-neutral-400">Artist</span><span class="font-semibold text-white">${escapeHTML(artist.name)}</span></div>
-                <div class="flex justify-between"><span class="text-neutral-400">Gig</span><span class="font-semibold text-white text-right truncate w-32">${escapeHTML(gig.venueName)}</span></div>
-                <div class="flex justify-between"><span class="text-neutral-400">Date</span><span class="font-semibold text-white">${date}</span></div>
-                <div class="flex justify-between"><span class="text-neutral-400">Payout</span><span class="font-bold text-emerald-400">$${gig.payout}</span></div>
-            </div>
-            <div class="space-y-3 px-4 pb-4">
-                <p class="text-center text-xs text-neutral-500">By confirming, you agree to the <a href="setflow-booking-terms.html" target="_blank" class="underline hover:text-emerald-400">Booking Agreement</a>.</p>
-                <button id="confirm-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition">Confirm & Send Show Sheet</button>
-                <a href="javascript:history.back()" class="block w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white hover:bg-neutral-600 transition">Cancel</a>
-            </div>
-        `;
-
-        document.getElementById('confirm-btn').addEventListener('click', async (e) => {
-            if(!isOnline()) { window.toast.show("Connection required.", "error"); return; }
-            
-            e.target.innerText = "Booking...";
-            e.target.disabled = true;
-
-            try {
-                await confirmBooking(gig.id, artist.id, artist.name);
-                window.toast.show("Booking Confirmed!", "success");
-                setTimeout(() => window.location.href = 'setflow-venue-dashboard.html', 1500);
-            } catch(err) {
-                console.error(err);
-                window.toast.show("Booking failed.", "error");
-                e.target.innerText = "Confirm";
-                e.target.disabled = false;
-            }
-        });
-    }
+    artistNameEl.textContent = artistName;
 
     onAuthState(async (user) => {
         if(user) {
-            if(!userId || !gigId) { renderModal(null, null); return; }
-            
-            try {
-                const [artist, gigSnap] = await Promise.all([
-                    gracefulGet(getUserData(userId)),
-                    gracefulGet(getGigDetails(gigId))
-                ]);
-                const gig = gigSnap?.exists() ? { id: gigSnap.id, ...gigSnap.data() } : null;
-                renderModal(artist, gig);
-            } catch(e) {
-                renderModal(null, null);
+            const gigSnap = await gracefulGet(getGigDetails(gigId));
+            if(gigSnap.exists()) {
+                const g = gigSnap.data();
+                gigNameEl.textContent = g.venueName;
+                dateEl.textContent = g.date?.toDate ? g.date.toDate().toLocaleDateString() : 'TBD';
+                payoutEl.textContent = `$${g.payout}`;
             }
         } else {
             window.location.href = 'setflow-login-page.html';
+        }
+    });
+
+    confirmBtn.addEventListener('click', async () => {
+        confirmBtn.innerText = "Processing...";
+        confirmBtn.disabled = true;
+        try {
+            await confirmBooking(gigId, userId, artistName);
+            window.toast.show("Booking Confirmed!", "success");
+            setTimeout(() => window.location.href = 'setflow-venue-dashboard.html', 1500);
+        } catch(err) {
+            window.toast.show("Error booking.", "error");
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = "Confirm Booking";
         }
     });
   </script>

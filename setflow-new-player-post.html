@@ -8,74 +8,66 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .post-type-btn.active { background-color: #059669; color: white; }
-    .post-type-btn { background-color: transparent; color: #D4D4D4; transition: all 0.2s; }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    .loading-spinner-inline { display: inline-block; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
+    .toggle-btn.active { background-color: #38bdf8; color: #0c4a6e; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); border-color: #38bdf8; }
+    .toggle-btn { background-color: rgba(255,255,255,0.05); color: #a3a3a3; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline.</div>
-
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+<body class="text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+        <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Create Post</h1>
-        <div class="w-10 h-10"></div>
+        <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-sky-400">Create Post</h1>
+        <div class="w-10"></div>
       </div>
     </header>
 
-    <main class="flex-grow p-5 pt-20 pb-24">
+    <main class="flex-grow p-5 pt-24 pb-24">
       <form id="player-post-form" class="space-y-6">
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-neutral-300">Post Type</label>
-            <div class="grid grid-cols-2 gap-1 rounded-xl bg-neutral-800 p-1">
-                <button type="button" data-type="looking" class="post-type-btn active rounded-lg px-3 py-2 text-sm font-semibold">Looking for Player</button>
-                <button type="button" data-type="available" class="post-type-btn rounded-lg px-3 py-2 text-sm font-semibold">Available for Gigs</button>
-            </div>
+        
+        <div class="glass-card p-1.5 rounded-xl flex space-x-1">
+            <button type="button" data-type="looking" class="toggle-btn active flex-1 py-2.5 rounded-lg text-sm font-bold text-center">Looking for Player</button>
+            <button type="button" data-type="available" class="toggle-btn flex-1 py-2.5 rounded-lg text-sm font-bold text-center">Available for Gigs</button>
         </div>
 
-        <div id="looking-for-fields" class="space-y-4">
+        <div id="looking-for-fields" class="space-y-4 animate-enter">
             <div>
-                <label class="mb-2 block text-sm font-semibold text-neutral-300">Instrument Needed</label>
-                <input id="instrument-needed" type="text" placeholder="e.g., Bassist" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Instrument Needed</label>
+                <input id="instrument-needed" type="text" placeholder="e.g., Bassist" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition placeholder-neutral-600">
             </div>
             <div>
-                <label class="mb-2 block text-sm font-semibold text-neutral-300">Date & Time</label>
-                <input id="date-details" type="datetime-local" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" style="color-scheme: dark;">
+                <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Date</label>
+                <input id="date-details" type="date" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition appearance-none" style="color-scheme: dark;">
             </div>
              <div>
-                <label class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
-                <textarea id="description-looking" rows="3" placeholder="Gig details..." class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
+                <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Description</label>
+                <textarea id="description-looking" rows="3" placeholder="Gig details, pay, vibe..." class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition resize-none"></textarea>
             </div>
         </div>
 
-        <div id="available-for-fields" class="hidden space-y-4">
+        <div id="available-for-fields" class="hidden space-y-4 animate-enter">
             <div>
-                <label class="mb-2 block text-sm font-semibold text-neutral-300">I Play</label>
-                <input id="instrument-available" type="text" placeholder="e.g., Drums" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">I Play</label>
+                <input id="instrument-available" type="text" placeholder="e.g., Drums" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition placeholder-neutral-600">
             </div>
             <div>
-                <label class="mb-2 block text-sm font-semibold text-neutral-300">Location</label>
-                <input id="location" type="text" placeholder="e.g., Raleigh" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location</label>
+                <input id="location" type="text" placeholder="e.g., Raleigh" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition placeholder-neutral-600">
             </div>
             <div>
-                <label class="mb-2 block text-sm font-semibold text-neutral-300">Description</label>
-                <textarea id="description-available" rows="3" placeholder="Experience, gear, etc..." class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
+                <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Description</label>
+                <textarea id="description-available" rows="3" placeholder="Experience, gear, style..." class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 transition resize-none"></textarea>
             </div>
         </div>
       </form>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-        <button form="player-post-form" type="submit" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition-colors">Submit Post</button>
+    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md">
+        <button form="player-post-form" type="submit" id="submit-btn" class="w-full rounded-xl bg-sky-500 px-6 py-3 text-base font-bold text-black hover:bg-sky-400 transition-colors btn-press shadow-lg shadow-sky-500/20">Post It</button>
     </footer>
   </div>
 
@@ -89,12 +81,10 @@
 
     const form = document.getElementById('player-post-form');
     const submitBtn = document.getElementById('submit-btn');
-    const btns = document.querySelectorAll('.post-type-btn');
+    const btns = document.querySelectorAll('.toggle-btn');
     const lookingFields = document.getElementById('looking-for-fields');
     const availableFields = document.getElementById('available-for-fields');
-    const offlineBanner = document.getElementById('offline-banner');
 
-    if(!isOnline()) offlineBanner.style.display = 'block';
     let currentUserId = null;
     let postType = 'looking';
 
@@ -103,8 +93,14 @@
             btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             postType = btn.dataset.type;
-            lookingFields.classList.toggle('hidden', postType !== 'looking');
-            availableFields.classList.toggle('hidden', postType !== 'available');
+            
+            if (postType === 'looking') {
+                lookingFields.classList.remove('hidden');
+                availableFields.classList.add('hidden');
+            } else {
+                lookingFields.classList.add('hidden');
+                availableFields.classList.remove('hidden');
+            }
         });
     });
 
@@ -118,7 +114,7 @@
         if(!currentUserId) return;
 
         submitBtn.disabled = true;
-        submitBtn.innerText = 'Posting...';
+        submitBtn.innerHTML = '<span class="loading-spinner-inline"></span> Posting...';
 
         let data = { userId: currentUserId, type: postType };
 
@@ -126,17 +122,17 @@
             data.instrument = document.getElementById('instrument-needed').value.trim();
             data.date = document.getElementById('date-details').value;
             data.description = document.getElementById('description-looking').value.trim();
-            if (!data.instrument || !data.date) {
-                window.toast.show("Missing required fields", "error");
-                submitBtn.disabled = false; return;
+            if (!data.instrument) {
+                window.toast.show("Instrument is required", "error");
+                submitBtn.disabled = false; submitBtn.innerText = 'Post It'; return;
             }
         } else {
             data.instrument = document.getElementById('instrument-available').value.trim();
             data.location = document.getElementById('location').value.trim();
             data.description = document.getElementById('description-available').value.trim();
             if (!data.instrument) {
-                window.toast.show("Missing instrument", "error");
-                submitBtn.disabled = false; return;
+                window.toast.show("Instrument is required", "error");
+                submitBtn.disabled = false; submitBtn.innerText = 'Post It'; return;
             }
         }
 
@@ -148,7 +144,7 @@
             console.error(err);
             window.toast.show("Error posting.", "error");
             submitBtn.disabled = false;
-            submitBtn.innerText = 'Submit Post';
+            submitBtn.innerText = 'Post It';
         }
     });
   </script>

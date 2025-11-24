@@ -3,79 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.functions.cloud.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Setflow - Profile</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
-     .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
-        color: #A3A3A3; transition: color 0.15s ease-in-out;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: fixed; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+<body class="text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+    <div id="offline-banner">You are currently offline. Profile data may be cached.</div>
+    <div class="ambient-light"></div>
+
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="#" onclick="goBackOr('setflow-musician-dashboard.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+        <a href="#" onclick="goBackOr('setflow-musician-dashboard.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-white/10 hover:text-white btn-press">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h1 id="profile-header-name" class="flex-grow text-center text-lg font-semibold tracking-tight">Profile</h1>
-        <div class="w-10 h-10"></div> </div>
+        <h1 id="profile-header-name" class="flex-grow text-center text-lg font-bold tracking-tight">Profile</h1>
+        <div class="w-10 h-10"></div> 
+      </div>
     </header>
 
-    <main id="profile-container" class="flex-grow pt-16 pb-32"> 
+    <main id="profile-container" class="flex-grow pt-16 pb-24 p-5 relative z-10"> 
         <div class="flex justify-center items-center py-10" id="loading-state">
           <div class="loading-spinner"></div>
         </div>
-        <div class="hidden p-5 text-center text-red-400" id="error-state">
+        <div class="hidden p-5 text-center text-red-400 glass-card rounded-xl" id="error-state">
             <p>Could not load profile.</p>
         </div>
     </main>
-
-    <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-        <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
-          <span class="text-xs font-medium">Home</span>
-        </a>
-        <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <span class="text-xs font-medium">Gigs</span>
-        </a>
-        <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-           <span class="text-xs font-medium">Applied</span>
-        </a>
-        <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
-          <span class="text-xs font-medium">Inbox</span>
-        </a>
-        <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-          <span class="text-xs font-medium">Account</span>
-        </a>
-      </div>
+    
+    <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
     </nav>
   </div>
 
-  <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
      <span id="toast-message">Placeholder</span>
    </div>
    <script src="toast.js"></script>
@@ -83,7 +57,6 @@
 
   <script type="module">
     import { onAuthState, getUserData, getBandsForUser, reportContent, gracefulGet, isOnline, escapeHTML, navigation } from './api.js';
-
     window.goBackOr = navigation.goBackOr;
     
     const container = document.getElementById('profile-container');
@@ -105,66 +78,60 @@
       headerName.textContent = userData.name || 'Profile';
       const placeholderImg = 'https://images.unsplash.com/photo-1521402321589-6689539a-9557?q=80&w=2187&auto=format=fit=crop';
 
-      // --- Action Button Logic ---
+      // Action Buttons (Message / Edit)
       let actionButtonsHtml = '';
       if (currentUserId && currentUserId !== userId) {
           actionButtonsHtml = `
-            <div class="mt-4 flex space-x-3 justify-center">
-                <a href="setflow-conversation-view.html?recipientId=${userId}" class="rounded-xl bg-emerald-600 px-6 py-2 text-base font-semibold text-white hover:bg-emerald-500 transition">
-                    Message
-                </a>
-                <button id="report-btn" class="rounded-xl border border-red-900/50 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-900/20 transition">
-                    Report
+            <div class="mt-6 flex space-x-3">
+                <a href="setflow-conversation-view.html?recipientId=${userId}" class="flex-1 rounded-xl bg-emerald-500 px-6 py-3 text-center text-sm font-bold text-black hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 btn-press">Message</a>
+                <button id="report-btn" class="flex-none w-12 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition flex items-center justify-center">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </button>
             </div>
           `;
       } else if (currentUserId === userId) {
           actionButtonsHtml = `
-             <div class="mt-4 text-center">
-                <a href="setflow-edit-profile.html" class="inline-block rounded-xl bg-neutral-700 px-6 py-2 text-base font-semibold text-white hover:bg-neutral-600 transition">
-                    Edit Profile
-                </a>
+             <div class="mt-6 text-center">
+                <a href="setflow-edit-profile.html" class="block w-full rounded-xl bg-white/10 px-6 py-3 text-center text-sm font-bold text-white hover:bg-white/20 transition border border-white/10">Edit Profile</a>
              </div>
           `;
       }
 
-      // --- Bands Section ---
       let bandsHtml = '';
       if (bands && bands.length > 0) {
         bandsHtml = `
-          <section class="border-b border-neutral-700 p-5">
-            <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Bands</h3>
+          <section class="mt-6">
+            <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Bands</h3>
             <div class="space-y-3">
               ${bands.map(band => `
-                <div class="flex items-center rounded-lg bg-neutral-800 p-4">
-                  <div class="h-12 w-12 rounded-lg bg-neutral-700 overflow-hidden flex-shrink-0">
-                    <img class="h-full w-full object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}">
-                  </div>
-                  <div class="ml-4 min-w-0 flex-1">
-                    <p class="truncate font-semibold text-white">${escapeHTML(band.name)}</p>
-                    <p class="truncate text-xs text-neutral-400">${escapeHTML(band.genre || 'Music')}</p>
+                <div class="glass-card flex items-center rounded-xl p-3 transition hover:bg-white/5">
+                  <img class="mr-4 h-12 w-12 rounded-lg bg-neutral-800 object-cover" src="${band.photoURL || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop'}">
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate font-bold text-white">${escapeHTML(band.name)}</p>
+                    <p class="truncate text-xs text-neutral-400 uppercase tracking-wide">${escapeHTML(band.genre || 'Music')}</p>
                   </div>
                 </div>
               `).join('')}
             </div>
-          </section>`;
+          </section>
+        `;
       }
 
       container.innerHTML = `
-        <section class="border-b border-neutral-700 p-5 text-center">
-          <div class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 overflow-hidden">
-            <img class="h-full w-full object-cover" src="${userData.profileImageUrl || placeholderImg}">
+        <section class="text-center mb-8 animate-enter">
+          <div class="relative mx-auto h-28 w-28 mb-4">
+            <img class="h-full w-full rounded-full border-4 border-neutral-800 object-cover shadow-2xl" src="${userData.profileImageUrl || placeholderImg}">
           </div>
-          <h2 class="mt-4 text-2xl font-bold text-white">${escapeHTML(userData.name)}</h2>
-          <p class="text-base text-neutral-400">${escapeHTML(userData.location || 'Location not set')}</p>
+          <h2 class="text-2xl font-black text-white">${escapeHTML(userData.name)}</h2>
+          <p class="text-sm text-neutral-400 font-medium mt-1 flex items-center justify-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>${escapeHTML(userData.location || 'Location not set')}</p>
           ${actionButtonsHtml}
         </section>
-
-        <section class="border-b border-neutral-700 p-5">
-          <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Bio</h3>
+        
+        <section class="glass-card rounded-xl p-5 animate-enter" style="animation-delay: 0.1s;">
+          <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-emerald-500">Bio</h3>
           <p class="text-sm leading-relaxed text-neutral-300">${escapeHTML(userData.bio || 'No bio provided.')}</p>
         </section>
-
+        
         ${bandsHtml}
       `;
 
@@ -180,37 +147,31 @@
     }
 
     onAuthState(async (user) => {
-      if (user) currentUserId = user.uid;
-      
-      // --- NAV FIX: Update nav based on logged-in user role ---
-      try {
-        if (currentUserId) {
-            const currentUserData = await gracefulGet(getUserData(currentUserId));
-            const role = currentUserData?.roles?.[0] || 'musician';
-            const tier = currentUserData?.subscriptionTier || 'free';
-            if (window.renderBottomNav && role !== 'musician') { // Musician is default, only render if different
-                window.renderBottomNav(role, tier, 'setflow-public-profile.html'); // Pass 'public-profile' as active page (none will match, defaults to home or none)
-            }
+      if (user) {
+        currentUserId = user.uid;
+        // Nav Logic for Viewer
+        const viewerData = await gracefulGet(getUserData(user.uid));
+        if (window.renderBottomNav) window.renderBottomNav(viewerData?.roles?.[0] || 'musician', 'free', 'setflow-public-profile.html');
+
+        if (!userId) {
+            error.textContent = 'Error: No user ID.';
+            error.style.display = 'block';
+            loading.style.display = 'none';
+            return;
         }
-      } catch (e) { console.error("Nav update failed", e); }
-      // --- END NAV FIX ---
 
-      if (!userId) {
-        loading.style.display = 'none';
-        error.textContent = 'Error: No user ID.';
-        error.style.display = 'block';
-        return;
-      }
-
-      try {
-        const [userData, bands] = await Promise.all([
-             gracefulGet(getUserData(userId)),
-             gracefulGet(getBandsForUser(userId))
-        ]);
-        renderProfile(userData, bands);
-      } catch (e) {
-        console.error(e);
-        renderProfile(null, null);
+        try {
+            const [userData, bands] = await Promise.all([
+                gracefulGet(getUserData(userId)),
+                gracefulGet(getBandsForUser(userId))
+            ]);
+            renderProfile(userData, bands);
+        } catch (e) {
+            console.error(e);
+            renderProfile(null, null);
+        }
+      } else {
+        window.location.href = 'setflow-login-page.html';
       }
     });
   </script>

@@ -3,66 +3,60 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Setflow - Conversation</title>
+  <title>Setflow - Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
+    /* Chat Bubbles */
+    .bubble-me { background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.8)); backdrop-filter: blur(4px); border: 1px solid rgba(16, 185, 129, 0.5); color: white; border-radius: 1.25rem 1.25rem 0 1.25rem; }
+    .bubble-them { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.05); color: #e5e5e5; border-radius: 1.25rem 1.25rem 1.25rem 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline.</div>
-  
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+<body class="text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl">
+    <div id="offline-banner">You are currently offline.</div>
+
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="setflow-inbox.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+        <a href="setflow-inbox.html" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
         <div class="flex-grow text-center">
-            <h1 id="recipient-name" class="text-lg font-semibold tracking-tight">Loading...</h1>
+            <h1 id="recipient-name" class="text-lg font-bold tracking-tight text-white">Loading...</h1>
         </div>
         <div class="w-10 h-10"></div> 
       </div>
     </header>
 
-    <main id="messages-container" class="flex-1 space-y-4 overflow-y-auto px-4 pt-20 pb-40"> 
+    <main id="messages-container" class="flex-1 space-y-2 overflow-y-auto px-4 pt-20 pb-44 bg-gradient-to-b from-neutral-900 to-black"> 
       <div class="flex justify-center items-center py-10" id="loading-state">
         <div class="loading-spinner"></div>
       </div>
-      <div class="hidden py-10 text-center" id="empty-state">
-          <p class="text-sm text-neutral-500">No messages yet. Say hello!</p>
-      </div>
-       <div class="hidden p-5 text-center text-red-400" id="error-state">
-          <p>Could not load messages.</p>
+      <div class="hidden py-10 text-center opacity-50" id="empty-state">
+          <p class="text-sm text-neutral-400">Start the conversation.</p>
       </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-      <div class="mb-2 flex flex-wrap items-center gap-2">
-        <button onclick="quickReply('On my way!')" class="rounded-full bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 transition">On my way!</button>
-        <button onclick="quickReply('Thanks!')" class="rounded-full bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 transition">Thanks!</button>
-        <button onclick="quickReply('Sounds good 👍')" class="rounded-full bg-neutral-700 px-3 py-1 text-xs font-medium text-neutral-200 hover:bg-neutral-600 transition">Sounds good 👍</button>
+    <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-xl pb-safe">
+      <div class="mb-3 flex flex-wrap items-center gap-2 overflow-x-auto no-scrollbar">
+        <button onclick="quickReply('On my way!')" class="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-medium text-neutral-300 hover:bg-white/10 transition btn-press">On my way!</button>
+        <button onclick="quickReply('Thanks!')" class="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-medium text-neutral-300 hover:bg-white/10 transition btn-press">Thanks!</button>
+        <button onclick="quickReply('Sounds good 👍')" class="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-medium text-neutral-300 hover:bg-white/10 transition btn-press">Sounds good 👍</button>
       </div>
-      <form id="message-form" class="flex items-center space-x-2 rounded-xl border border-neutral-700 bg-neutral-800 p-2">
-        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border-0 bg-transparent px-2 py-1 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
-        <button id="send-btn" type="submit" class="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-500 transition">Send</button>
+      <form id="message-form" class="flex items-center space-x-2 rounded-2xl border border-white/10 bg-white/5 p-1.5 focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/50 transition">
+        <input id="message-input" type="text" placeholder="Type a message..." class="flex-1 border-0 bg-transparent px-3 py-2 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
+        <button id="send-btn" type="submit" class="rounded-xl bg-emerald-500 p-2 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition btn-press">
+             <svg class="h-5 w-5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+        </button>
       </form>
     </footer>
   </div>
 
-  <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+  <div id="toast-notification" class="fixed bottom-32 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
     <span id="toast-message">Placeholder</span>
   </div>
   <script src="toast.js"></script>
@@ -73,7 +67,6 @@
     const nameHeader = document.getElementById('recipient-name');
     const container = document.getElementById('messages-container');
     const input = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
     const loading = document.getElementById('loading-state');
     const empty = document.getElementById('empty-state');
     
@@ -88,20 +81,19 @@
         container.innerHTML = ''; 
         
         if(msgs.length === 0) {
-            empty.style.display = 'block';
             container.appendChild(empty);
+            empty.style.display = 'block';
             return;
         }
+        empty.style.display = 'none';
 
         msgs.forEach(msg => {
             const isMe = msg.senderId === currentUserId;
             const div = document.createElement('div');
-            div.className = `mb-2 flex ${isMe ? 'justify-end' : 'justify-start'}`;
+            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} animate-enter`;
             div.innerHTML = `
-                <div class="max-w-[80%]">
-                    <div class="inline-block rounded-2xl border px-3 py-2 text-sm ${isMe ? 'bg-emerald-700/30 border-emerald-600/40 text-emerald-100' : 'bg-neutral-800/60 border-neutral-700/70 text-neutral-100'}">
-                        ${escapeHTML(msg.text)}
-                    </div>
+                <div class="max-w-[80%] px-4 py-2.5 text-sm ${isMe ? 'bubble-me' : 'bubble-them'}">
+                    ${escapeHTML(msg.text)}
                 </div>
             `;
             container.appendChild(div);
@@ -115,10 +107,20 @@
         if(!text || !convoId) return;
         
         input.value = '';
+        input.focus();
+        
+        // Optimistic Render
+        const fakeMsg = document.createElement('div');
+        fakeMsg.className = 'flex justify-end animate-enter';
+        fakeMsg.innerHTML = `<div class="max-w-[80%] px-4 py-2.5 text-sm bubble-me opacity-70">${escapeHTML(text)}</div>`;
+        container.appendChild(fakeMsg);
+        container.scrollTop = container.scrollHeight;
+
         try {
             await sendMessage(convoId, { text, senderId: currentUserId });
         } catch(err) {
             window.toast.show("Failed to send", "error");
+            fakeMsg.remove();
             input.value = text;
         }
     });

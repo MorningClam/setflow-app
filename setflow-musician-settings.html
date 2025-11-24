@@ -8,115 +8,112 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner-inline {
-        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem;
-        border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
-    }
-    .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
-        color: #A3A3A3; transition: color 0.15s ease-in-out;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
-         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Account Settings</h1>
-      <div class="w-10 h-10"></div>
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-center relative">
+      <h1 class="text-lg font-bold tracking-tight text-white">Account & Settings</h1>
     </div>
   </header>
 
-  <main class="flex-1 space-y-8 p-5 pt-20 pb-20">
-    <section>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Personal Info</h2>
-      <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
-        <div class="flex items-center justify-between p-4">
-          <div>
-            <p class="text-sm text-neutral-400">Name</p>
-            <p class="text-white" id="user-name">...</p>
-          </div>
-          <a href="setflow-edit-profile.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Edit</a>
-        </div>
-        <div class="flex items-center justify-between p-4">
-          <div>
-            <p class="text-sm text-neutral-400">Email</p>
-            <p class="text-white" id="user-email">...</p>
-          </div>
-        </div>
-        <div class="flex items-center justify-between p-4">
-          <div>
-            <p class="text-sm text-neutral-400">Password</p>
-            <p class="text-white">••••••••</p>
-          </div>
-          <a href="setflow-password-reset-flow.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Change</a>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Billing & Subscription</h2>
-      <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <p class="font-semibold text-white">Current Plan</p>
-            <p class="text-sm text-neutral-400" id="subscription-tier-display">Free</p>
-          </div>
-          <a href="setflow-pricing-page.html" class="text-sm font-semibold text-emerald-400 hover:text-emerald-300">Change</a>
-        </div>
-        <div class="border-t border-neutral-700 pt-4">
-            <p class="font-semibold text-white mb-1">Payment Method</p>
-            <div class="flex items-center justify-between">
-                <p class="text-sm text-neutral-400" id="payment-method-display">No card on file</p>
-                <a href="setflow-pricing-page.html" class="text-sm text-neutral-500 hover:text-white">Update</a>
+  <main class="flex-1 space-y-6 p-5 pt-20 pb-24 relative z-10">
+    
+    <section class="glass-card rounded-2xl p-5 flex items-center space-x-4 animate-enter">
+        <div class="relative">
+            <div class="h-16 w-16 rounded-full bg-neutral-800 border-2 border-emerald-500/50 flex items-center justify-center text-2xl overflow-hidden">
+                <span id="profile-initials" class="font-bold text-emerald-400">ME</span>
+                <img id="profile-img" class="absolute inset-0 h-full w-full object-cover hidden">
             </div>
+            <div class="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-emerald-500 border-2 border-black"></div>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h2 class="text-lg font-bold text-white truncate" id="user-name">Loading...</h2>
+            <p class="text-sm text-neutral-400 truncate" id="user-email">...</p>
+        </div>
+        <a href="setflow-edit-profile.html" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-semibold transition btn-press">Edit</a>
+    </section>
+
+    <section class="animate-enter" style="animation-delay: 0.1s;">
+      <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Membership</h2>
+      <div class="glass-card rounded-xl p-4 border-l-4 border-emerald-500">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-bold text-white">Current Plan</span>
+          <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase" id="subscription-tier-display">Free</span>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-neutral-400" id="payment-method-display">No card on file</span>
+            <a href="setflow-pricing-page.html" class="text-emerald-400 hover:text-white font-medium">Manage</a>
         </div>
       </div>
     </section>
 
-    <section>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Your Profile</h2>
-      <div class="rounded-xl border border-neutral-700 bg-neutral-800 p-4">
-        <p class="font-semibold text-white">Musician Profile</p>
-        <p class="text-sm text-neutral-400">Manage your artist page and availability.</p>
-        <a href="setflow-musician-profile.html" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:text-emerald-300">View Profile →</a>
+    <section class="animate-enter" style="animation-delay: 0.2s;">
+      <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Tools</h2>
+      <div class="glass-card rounded-xl overflow-hidden divide-y divide-white/5">
+        <a href="setflow-musician-profile.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
+            <span class="font-medium text-white">View Public Profile</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </a>
+        <a href="setflow-band-management.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
+            <span class="font-medium text-white">Band Management</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg>
+        </a>
+        <a href="setflow-routing-availability.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
+            <span class="font-medium text-white">Routing & Availability</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+        </a>
+         <a href="setflow-earnings-report.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
+            <span class="font-medium text-white">Earnings Report</span>
+            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </a>
       </div>
     </section>
 
-    <section>
-      <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Tools</h2>
-      <div class="divide-y divide-neutral-700 rounded-xl border border-neutral-700 bg-neutral-800">
-        <a href="setflow-band-management.html" class="block p-4 hover:bg-neutral-700 transition">Band Management</a>
-        <a href="setflow-routing-availability.html" class="block p-4 hover:bg-neutral-700 transition">Routing & Availability</a>
-      </div>
-    </section>
-
-    <section>
-        <button id="logout-btn" class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-base font-semibold text-red-400 hover:bg-neutral-600 transition">
-            Log Out
-        </button>
+    <section class="animate-enter" style="animation-delay: 0.3s;">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">System</h2>
+        <div class="glass-card rounded-xl divide-y divide-white/5">
+            <a href="setflow-password-reset-flow.html" class="block p-4 text-sm font-medium text-white hover:bg-white/5">Change Password</a>
+            <button id="logout-btn" class="w-full text-left p-4 text-sm font-bold text-red-400 hover:bg-red-500/10 transition">Log Out</button>
+        </div>
+        <p class="mt-6 text-center text-[10px] text-neutral-600 font-mono">Setflow v2.0.1 (Beta)</p>
     </section>
   </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
     <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-      </div>
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+        <span class="text-xs font-medium">Home</span>
+      </a>
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <span class="text-xs font-medium">Gigs</span>
+      </a>
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+         <span class="text-xs font-medium">Applied</span>
+      </a>
+      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
+        <span class="text-xs font-medium">Inbox</span>
+      </a>
+      <a href="setflow-musician-settings.html" class="bottom-nav-link active text-emerald-400">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <span class="text-xs font-medium">Account</span>
+      </a>
+    </div>
   </nav>
 </div>
 
@@ -127,10 +124,12 @@
 <script src="nav.js"></script>
 
 <script type="module">
-    import { signOutUser, onAuthState, getUserData, gracefulGet, isOnline, escapeHTML } from './api.js';
-
+    import { signOutUser, onAuthState, getUserData, gracefulGet, isOnline, escapeHTML, navigation } from './api.js';
+    
     const nameEl = document.getElementById('user-name');
     const emailEl = document.getElementById('user-email');
+    const initialsEl = document.getElementById('profile-initials');
+    const imgEl = document.getElementById('profile-img');
     const subDisplay = document.getElementById('subscription-tier-display');
     const paymentDisplay = document.getElementById('payment-method-display');
 
@@ -149,22 +148,25 @@
         if(user) {
             const userData = await gracefulGet(getUserData(user.uid));
             if(userData) {
-                // Basic Info
-                nameEl.textContent = userData.name || 'N/A';
-                emailEl.textContent = userData.email || 'N/A';
-
-                // Subscription Info
-                const tier = userData.subscriptionTier || 'free';
-                subDisplay.textContent = tier === 'pro' ? 'Setflow Pro' : 'Setflow Free';
-                subDisplay.className = tier === 'pro' ? 'text-sm font-bold text-emerald-400' : 'text-sm text-neutral-400';
+                nameEl.textContent = userData.name || 'User';
+                emailEl.textContent = userData.email || '';
+                initialsEl.textContent = (userData.name || 'U').charAt(0).toUpperCase();
                 
-                // Payment Info
+                if (userData.profileImageUrl) {
+                    imgEl.src = userData.profileImageUrl;
+                    imgEl.classList.remove('hidden');
+                    initialsEl.classList.add('hidden');
+                }
+
+                const tier = userData.subscriptionTier || 'free';
+                subDisplay.textContent = tier === 'pro' ? 'PRO' : 'FREE';
+                subDisplay.className = tier === 'pro' ? 'px-2 py-1 rounded bg-emerald-500 text-black text-xs font-bold uppercase' : 'px-2 py-1 rounded bg-white/10 text-neutral-400 text-xs font-bold uppercase';
+                
                 if (userData.paymentMethodLast4) {
                     paymentDisplay.textContent = `•••• ${userData.paymentMethodLast4}`;
                     paymentDisplay.className = 'text-sm text-white font-mono';
                 }
 
-                // Nav
                 if(window.renderBottomNav) {
                     window.renderBottomNav('musician', tier, 'setflow-musician-settings.html');
                 }

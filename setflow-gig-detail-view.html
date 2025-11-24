@@ -3,65 +3,48 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Setflow - Gig Details</title>
+  <title>Setflow - Gig</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
-    .loading-spinner-inline {
-        display: inline-block; vertical-align: middle; width: 1rem; height: 1rem;
-        border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite; margin-right: 0.5rem;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
+    .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.2), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="#" onclick="goBackOr('setflow-browse-gigs.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md px-4 py-3">
+    <a href="#" onclick="goBackOr('setflow-browse-gigs.html'); return false;" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gig Details</h1>
-      <div class="w-10 h-10"></div> 
-    </div>
+    </a>
   </header>
 
-  <main id="gig-detail-container" class="flex-grow pt-16 pb-32">
-    <div class="flex justify-center items-center py-10" id="loading-state">
+  <main id="gig-detail-container" class="flex-grow pb-32">
+    <div class="flex justify-center items-center py-20" id="loading-state">
       <div class="loading-spinner"></div>
     </div>
     <div class="hidden p-5 text-center text-red-400" id="error-state">
-        <p>Could not load gig details.</p>
+        <p>Gig not found.</p>
     </div>
   </main>
 
-  <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm hidden">
+  <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-xl pb-safe hidden">
      <div id="footer-button-container"></div>
   </footer>
 </div>
 
 <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message">Placeholder</span>
+  <span id="toast-message"></span>
 </div>
 <script src="toast.js"></script>
 
 <script type="module">
   import { onAuthState, getGigDetails, getUserData, applyForGig, gracefulGet, isOnline, escapeHTML, navigation } from './api.js';
-
   window.goBackOr = navigation.goBackOr;
 
   const container = document.getElementById('gig-detail-container');
@@ -69,9 +52,6 @@
   const errorState = document.getElementById('error-state');
   const footerContainer = document.getElementById('footer-container');
   const footerButtonContainer = document.getElementById('footer-button-container');
-  const offlineBanner = document.getElementById('offline-banner');
-
-  if(!isOnline()) offlineBanner.style.display = 'block';
 
   const urlParams = new URLSearchParams(window.location.search);
   const gigId = urlParams.get('id');
@@ -81,52 +61,64 @@
 
   function renderGigDetails(gig, venue) {
     loadingState.style.display = 'none';
-    errorState.style.display = 'none';
-
-    const dateFormatted = gig.dateObject ? gig.dateObject.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : 'Date TBD';
+    const dateFormatted = gig.dateObject ? gig.dateObject.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Date TBD';
     const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
     
     container.innerHTML = `
-        <section class="border-b border-neutral-700 p-5">
-            <span class="inline-flex items-center rounded-full bg-emerald-900 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
-              ${escapeHTML(gig.genre || 'Open Genre')}
-            </span>
-            <h2 class="mt-3 text-2xl font-bold text-white">${escapeHTML(gig.venueName)}</h2>
-            <p class="mt-1 text-lg font-medium text-neutral-300">${escapeHTML(gig.location)}</p>
-            <p class="mt-1 text-base text-amber-400">${dateFormatted}</p>
-            <p class="mt-4 text-4xl font-bold text-emerald-400">$${escapeHTML(String(gig.payout))}</p>
-        </section>
+        <div class="relative h-64 w-full">
+            <img class="h-full w-full object-cover" src="${venue.profileImageUrl || placeholderImg}">
+            <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 p-5">
+                 <h1 class="text-3xl font-bold text-white leading-tight">${escapeHTML(gig.venueName)}</h1>
+                 <p class="text-neutral-300 flex items-center mt-1"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>${escapeHTML(gig.location)}</p>
+            </div>
+        </div>
 
-        <section class="border-b border-neutral-700 p-5">
-            <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Description & Requirements</h3>
-            <p class="text-sm leading-relaxed text-neutral-300 whitespace-pre-wrap">${escapeHTML(gig.description || 'No description provided.')}</p>
-        </section>
+        <div class="p-5 space-y-6">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="glass-card rounded-xl p-3 text-center">
+                    <p class="text-xs text-neutral-400 uppercase font-bold">Payout</p>
+                    <p class="text-xl font-bold text-emerald-400">$${escapeHTML(String(gig.payout))}</p>
+                </div>
+                <div class="glass-card rounded-xl p-3 text-center">
+                    <p class="text-xs text-neutral-400 uppercase font-bold">Date</p>
+                    <p class="text-sm font-bold text-white mt-1">${dateFormatted}</p>
+                </div>
+            </div>
 
-        <section class="p-5">
-            <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">About the Venue</h3>
-            <a href="setflow-venue-profile.html?venueId=${venue.id}" class="flex items-center space-x-4 rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700 transition">
-                <img class="h-12 w-12 flex-shrink-0 rounded-lg object-cover bg-neutral-700" src="${venue.profileImageUrl || placeholderImg}" alt="${venue.name} photo">
-                <div class="flex-1 min-w-0">
-                    <p class="truncate font-semibold text-white">${escapeHTML(venue.name)}</p>
-                    <p class="truncate text-xs text-neutral-400">${escapeHTML(venue.location || 'Location N/A')}</p>
+            <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 rounded-full bg-white/10 text-xs font-medium text-white border border-white/10">${escapeHTML(gig.genre || 'Open Genre')}</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 text-xs font-medium text-white border border-white/10">Live Music</span>
+            </div>
+
+            <div class="glass-card rounded-xl p-5">
+                <h3 class="text-sm font-bold text-white mb-2">THE GIG</h3>
+                <p class="text-sm leading-relaxed text-neutral-300 whitespace-pre-wrap">${escapeHTML(gig.description || 'No description provided.')}</p>
+            </div>
+
+            <a href="setflow-venue-profile.html?venueId=${venue.id}" class="flex items-center space-x-4 glass-card rounded-xl p-4 hover:bg-white/5 transition">
+                <img class="h-10 w-10 rounded-full object-cover" src="${venue.profileImageUrl || placeholderImg}">
+                <div class="flex-1">
+                    <p class="font-semibold text-white text-sm">View Venue Profile</p>
+                    <p class="text-xs text-neutral-400">See past shows & ratings</p>
                 </div>
                 <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </a>
-        </section>
+        </div>
     `;
   }
 
   function renderFooterButton() {
       footerContainer.classList.remove('hidden');
       let buttonHTML = `
-          <button id="apply-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500 transition-colors">
-              Apply Now
+          <button id="apply-btn" class="w-full rounded-xl bg-emerald-500 px-6 py-3.5 text-center text-base font-bold text-black hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20 btn-press">
+              Apply For Gig
           </button>`;
 
       if (!gigData || gigData.status !== 'open') {
-          buttonHTML = `<button disabled class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-neutral-400 disabled:cursor-not-allowed">Booking Closed</button>`;
+          buttonHTML = `<button disabled class="w-full rounded-xl bg-neutral-800 border border-white/10 px-6 py-3.5 text-center text-base font-semibold text-neutral-500">Booking Closed</button>`;
       } else if (currentUserData?.appliedGigs && currentUserData.appliedGigs[gigId]) {
-          buttonHTML = `<button disabled class="w-full rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white disabled:cursor-not-allowed">✓ Applied</button>`;
+          buttonHTML = `<button disabled class="w-full rounded-xl bg-emerald-900/50 border border-emerald-500/30 px-6 py-3.5 text-center text-base font-semibold text-emerald-400">✓ Applied</button>`;
       }
 
       footerButtonContainer.innerHTML = buttonHTML;
@@ -136,18 +128,11 @@
   }
 
   async function handleApplyForGig() {
-      if (!currentUserId || !gigId) {
-          window.toast.show("Please log in to apply.", 'error');
-          return;
-      }
-      if (!isOnline()) {
-          window.toast.show("Internet connection required.", 'error');
-          return;
-      }
-
+      if (!currentUserId || !gigId) { window.toast.show("Please log in.", 'error'); return; }
+      
       const applyBtn = document.getElementById('apply-btn');
       applyBtn.disabled = true;
-      applyBtn.innerHTML = `<span class="loading-spinner-inline"></span>Applying...`;
+      applyBtn.innerHTML = `<span class="loading-spinner-inline"></span> Sending...`;
 
       try {
           await applyForGig(gigId, currentUserId);
@@ -159,18 +144,13 @@
           console.error(error);
           window.toast.show("Error applying.", 'error');
           applyBtn.disabled = false;
-          applyBtn.innerHTML = `Apply Now`;
+          applyBtn.innerHTML = `Apply For Gig`;
       }
   }
 
   onAuthState(async (user) => {
     if (user) currentUserId = user.uid;
-    
-    if (!gigId) {
-        loadingState.style.display = 'none';
-        errorState.style.display = 'block';
-        return;
-    }
+    if (!gigId) return;
     
     try {
         const gigSnap = await gracefulGet(getGigDetails(gigId));
@@ -185,9 +165,7 @@
         
         renderGigDetails(gigData, venueData || { name: 'Unknown Venue', id: gigData.ownerId });
         renderFooterButton();
-
     } catch (error) {
-        console.error(error);
         loadingState.style.display = 'none';
         errorState.style.display = 'block';
     }

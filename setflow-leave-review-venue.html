@@ -8,122 +8,128 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .star-rating button { transition: color 0.15s ease-in-out; }
-    .star-rating button.selected { color: #FBBF24; }
-    .star-rating button:not(.selected) { color: #525252; }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .star-rating button { transition: all 0.2s ease-in-out; transform-origin: center; }
+    .star-rating button.selected { color: #818cf8; transform: scale(1.1); } /* Indigo-400 */
+    .star-rating button:not(.selected) { color: #404040; }
+    .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
   <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
 
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <main class="flex-grow p-5 pt-20 pb-24"> 
-      <div class="text-center">
-        <h2 class="text-xl font-semibold text-white">How was your experience at</h2>
-        <h3 id="venue-name" class="mt-1 text-2xl font-bold text-amber-400">...</h3>
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
+    <div class="flex h-full items-center justify-between">
+      <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-indigo-400">Review Venue</h1>
+      <div class="w-10 h-10"></div> 
+    </div>
+  </header>
+
+  <main class="flex-grow p-5 pt-24 pb-24 relative z-10"> 
+    <div class="text-center mb-8">
+      <h2 class="text-sm font-medium text-neutral-400 uppercase tracking-wide">How was</h2>
+      <h3 id="venue-name" class="mt-2 text-3xl font-black text-white tracking-tight">...</h3>
+    </div>
+
+    <div class="glass-card rounded-2xl p-6 mb-6 text-center">
+      <p class="mb-4 text-xs font-bold text-neutral-500 uppercase tracking-wider">Overall Rating</p>
+      <div id="star-rating-container" class="star-rating flex justify-center space-x-3 text-5xl">
+          <button type="button" data-value="1" class="focus:outline-none">★</button>
+          <button type="button" data-value="2" class="focus:outline-none">★</button>
+          <button type="button" data-value="3" class="focus:outline-none">★</button>
+          <button type="button" data-value="4" class="focus:outline-none">★</button>
+          <button type="button" data-value="5" class="focus:outline-none">★</button>
       </div>
+    </div>
 
-      <div class="mt-8">
-        <p class="mb-2 text-center text-sm font-semibold text-neutral-300">Overall Rating</p>
-        <div id="star-rating-container" class="star-rating flex justify-center space-x-2 text-4xl">
-            <button data-value="1" class="rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-emerald-500">★</button>
-            <button data-value="2" class="rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-emerald-500">★</button>
-            <button data-value="3" class="rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-emerald-500">★</button>
-            <button data-value="4" class="rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-emerald-500">★</button>
-            <button data-value="5" class="rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-emerald-500">★</button>
-        </div>
-      </div>
+    <div>
+       <label for="review-text" class="mb-2 block text-xs font-bold text-neutral-500 uppercase tracking-wider">Public Review</label>
+      <textarea id="review-text" rows="5" placeholder="e.g., Professional sound engineer, paid on time..." class="w-full resize-none rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 transition placeholder-neutral-600"></textarea>
+    </div>
+  </main>
 
-      <div class="mt-8">
-         <label for="review-text" class="mb-2 block text-sm font-semibold text-neutral-300">Public Review</label>
-        <textarea id="review-text" rows="5" placeholder="e.g., Professional sound engineer, paid on time..." class="w-full resize-none rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"></textarea>
-      </div>
-    </main>
+   <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md">
+      <button id="submit-review-btn" class="w-full rounded-xl bg-indigo-600 px-6 py-3 text-base font-bold text-white hover:bg-indigo-500 transition-colors btn-press shadow-lg shadow-indigo-500/20">Submit Review</button>
+  </footer>
+</div>
 
-     <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-        <button id="submit-review-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition-colors">Submit Review</button>
-    </footer>
-  </div>
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+  <span id="toast-message">Placeholder</span>
+</div>
+<script src="toast.js"></script>
 
-  <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-    <span id="toast-message">Placeholder</span>
-  </div>
-  <script src="toast.js"></script>
+<script type="module">
+  import { onAuthState, createReview, isOnline, escapeHTML } from './api.js';
 
-  <script type="module">
-    import { renderHeader } from './components.js';
-    import { onAuthState, createReview, isOnline, escapeHTML, navigation } from './api.js';
+  if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
-    renderHeader("Review Venue", "history");
-    window.goBackOr = navigation.goBackOr;
+  const stars = document.querySelectorAll('#star-rating-container button');
+  const reviewText = document.getElementById('review-text');
+  const submitBtn = document.getElementById('submit-review-btn');
+  const venueNameEl = document.getElementById('venue-name');
+  
+  const params = new URLSearchParams(window.location.search);
+  const subjectId = params.get('venueId') || params.get('artistId'); 
+  const gigId = params.get('gigId');
+  venueNameEl.textContent = escapeHTML(decodeURIComponent(params.get('artistName') || params.get('venueName') || 'Venue'));
 
-    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
+  let rating = 0;
+  let currentUserId = null;
 
-    const stars = document.querySelectorAll('#star-rating-container button');
-    const reviewText = document.getElementById('review-text');
-    const submitBtn = document.getElementById('submit-review-btn');
-    const venueNameEl = document.getElementById('venue-name');
-    
-    const params = new URLSearchParams(window.location.search);
-    // 'artistId' in params usually holds the subject ID in this flow based on previous links
-    const subjectId = params.get('venueId') || params.get('artistId'); 
-    const gigId = params.get('gigId');
-    venueNameEl.textContent = escapeHTML(decodeURIComponent(params.get('artistName') || params.get('venueName') || 'Venue'));
+  stars.forEach(btn => {
+      btn.addEventListener('click', () => {
+          rating = parseInt(btn.dataset.value);
+          stars.forEach((s, i) => {
+              s.classList.toggle('selected', i < rating);
+          });
+      });
+  });
 
-    let rating = 0;
-    let currentUserId = null;
+  onAuthState(user => {
+      if(user) currentUserId = user.uid;
+      else window.location.href = 'setflow-login-page.html';
+  });
 
-    stars.forEach(btn => {
-        btn.addEventListener('click', () => {
-            rating = parseInt(btn.dataset.value);
-            stars.forEach((s, i) => {
-                s.classList.toggle('selected', i < rating);
-            });
-        });
-    });
+  submitBtn.addEventListener('click', async () => {
+      if (!currentUserId || !subjectId || !gigId) {
+          window.toast.show("Error: Missing information.", "error");
+          return;
+      }
+      if (rating === 0) {
+          window.toast.show("Please select a rating.", "error");
+          return;
+      }
 
-    onAuthState(user => {
-        if(user) currentUserId = user.uid;
-        else window.location.href = 'setflow-login-page.html';
-    });
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loading-spinner-inline"></span> Sending...';
 
-    submitBtn.addEventListener('click', async () => {
-        if (!currentUserId || !subjectId || !gigId) {
-            window.toast.show("Error: Missing information.", "error");
-            return;
-        }
-        if (rating === 0) {
-            window.toast.show("Please select a rating.", "error");
-            return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Submitting...";
-
-        try {
-            await createReview({
-                reviewerId: currentUserId,
-                subjectId: subjectId,
-                gigId: gigId,
-                rating: rating,
-                comment: reviewText.value.trim(),
-                type: 'musician_review_of_venue'
-            });
-            window.toast.show("Review submitted!", "success");
-            setTimeout(() => window.location.href = 'setflow-musician-dashboard.html', 1500);
-        } catch (e) {
-            console.error(e);
-            window.toast.show("Submission failed.", "error");
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Submit Review";
-        }
-    });
-  </script>
+      try {
+          await createReview({
+              reviewerId: currentUserId,
+              subjectId: subjectId,
+              gigId: gigId,
+              rating: rating,
+              comment: reviewText.value.trim(),
+              type: 'musician_review_of_venue'
+          });
+          window.toast.show("Review submitted!", "success");
+          setTimeout(() => window.location.href = 'setflow-musician-dashboard.html', 1500);
+      } catch (e) {
+          console.error(e);
+          window.toast.show("Submission failed.", "error");
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Submit Review";
+      }
+  });
+</script>
 </body>
 </html>

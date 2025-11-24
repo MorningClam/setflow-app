@@ -8,79 +8,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
-    .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
-        color: #A3A3A3; transition: color 0.15s ease-in-out;
-    }
-    .bottom-nav-link:hover { color: white; }
-    .bottom-nav-link.active { color: #34D399; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.1), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900">
+  <div id="offline-banner" style="display:none" class="bg-red-600 text-white text-center text-sm p-2">Offline Mode</div>
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Calendar</h1>
-      <a href="setflow-new-calendar-event.html" class="rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white hover:bg-emerald-500 transition">New Event</a>
-    </div>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-emerald-400">Calendar</h1>
+      <div class="w-10"></div> </div>
   </header>
 
-  <main class="flex-grow p-5 pt-20 pb-20"> 
+  <main class="flex-grow p-5 pt-20 pb-24 relative z-10"> 
     <section>
-        <h2 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Upcoming Events</h2>
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Upcoming Events</h2>
         <div id="upcoming-events-container" class="space-y-3">
             <div class="flex justify-center items-center py-10" id="loading-state">
                 <div class="loading-spinner"></div>
             </div>
-             <div class="hidden py-10 text-center" id="empty-state">
-                <h3 class="mt-2 text-lg font-semibold text-white">No Upcoming Events</h3>
-                <p class="mt-1 text-sm text-neutral-400">Add gigs or personal events to your calendar.</p>
+             <div class="hidden py-10 text-center glass-card rounded-xl" id="empty-state">
+                <h3 class="mt-2 text-lg font-semibold text-white">No Events</h3>
+                <p class="mt-1 text-sm text-neutral-400">Your schedule is clear.</p>
             </div>
         </div>
     </section>
   </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 001-1v-4a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
-        Home
-      </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        Gigs
-      </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link">
-         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        Applied
-      </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
-        Inbox
-      </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        Account
-      </a>
-    </div>
+  <a href="setflow-new-calendar-event.html" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 btn-press hover:bg-emerald-400 border-2 border-neutral-900">
+      <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+  </a>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around"></div>
   </nav>
 </div> 
 
@@ -88,16 +55,17 @@
   <span id="toast-message"></span>
 </div>
 <script src="toast.js"></script>
+<script src="nav.js"></script>
 
 <script type="module">
-    import { onAuthState, fetchCalendarEvents, gracefulGet, isOnline, escapeHTML } from './api.js';
-
+    import { onAuthState, fetchCalendarEvents, gracefulGet, isOnline, escapeHTML, getUserData, navigation } from './api.js';
+    
+    window.goBackOr = navigation.goBackOr;
     const container = document.getElementById('upcoming-events-container');
     const loading = document.getElementById('loading-state');
     const empty = document.getElementById('empty-state');
-    const banner = document.getElementById('offline-banner');
 
-    if(!isOnline()) banner.style.display = 'block';
+    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
     function renderEvents(events) {
         loading.style.display = 'none';
@@ -106,11 +74,12 @@
             return;
         }
 
-        events.forEach(event => {
+        events.forEach((event, index) => {
             const div = document.createElement('div');
-            div.className = 'flex items-center justify-between rounded-lg bg-neutral-800 p-4 border border-neutral-700';
+            // Glass Card Style
+            div.className = 'glass-card flex items-center justify-between rounded-xl p-4 mb-3 animate-enter hover:bg-white/5 transition';
+            div.style.animationDelay = `${index * 0.05}s`;
             
-            // Color coding
             let colorClass = 'text-neutral-400';
             if (event.type === 'gig') colorClass = 'text-emerald-400';
             else if (event.type?.includes('Blocked')) colorClass = 'text-amber-400';
@@ -118,9 +87,9 @@
             div.innerHTML = `
                 <div class="flex-1 min-w-0">
                     <p class="truncate text-sm font-semibold text-white">${escapeHTML(event.title)}</p>
-                    <p class="mt-1 truncate text-xs ${colorClass}">${event.formattedDate} • ${event.formattedTime} • ${escapeHTML(event.type)}</p>
+                    <p class="mt-1 truncate text-xs ${colorClass}">${event.formattedDate} • ${event.formattedTime}</p>
                 </div>
-                ${event.type === 'gig' ? `<a href="setflow-show-sheet.html?gigId=${event.id}" class="ml-2 text-xs bg-neutral-700 px-2 py-1 rounded hover:bg-neutral-600">Sheet</a>` : ''}
+                ${event.type === 'gig' ? `<a href="setflow-show-sheet.html?gigId=${event.id}" class="ml-2 text-xs bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 text-white">Sheet</a>` : ''}
             `;
             container.appendChild(div);
         });
@@ -128,6 +97,8 @@
 
     onAuthState(async (user) => {
         if (user) {
+            const userData = await gracefulGet(getUserData(user.uid));
+            if(window.renderBottomNav) window.renderBottomNav('musician', userData?.subscriptionTier, 'setflow-calendar.html');
             const events = await gracefulGet(fetchCalendarEvents(user.uid));
             renderEvents(events);
         } else {

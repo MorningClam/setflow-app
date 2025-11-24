@@ -1,68 +1,96 @@
 /* =========================================================================
- * Setflow Toast Notification Styles
+ * Setflow Global Styles & Toast
  * ========================================================================= */
 
+/* Toast Notification */
 #toast-notification {
   position: fixed;
-  bottom: 5rem; /* Adjust as needed, ensure it's above bottom nav */
+  bottom: 5rem;
   left: 50%;
   transform: translateX(-50%);
-  padding: 0.75rem 1.25rem; /* py-3 px-5 */
-  border-radius: 0.5rem; /* rounded-lg */
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
   color: white;
-  font-size: 0.875rem; /* text-sm */
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-lg */
-  transition: opacity 300ms ease-in-out;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
-  z-index: 9999; /* Ensure it's above other content */
+  z-index: 9999;
   max-width: 90%;
   text-align: center;
-}
-
-#toast-notification.toast-success {
-  background-color: #10B981; /* bg-emerald-500 */
-}
-
-#toast-notification.toast-error {
-  background-color: #EF4444; /* bg-red-500 */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* CRITICAL FIX: Allows clicking through the invisible toast container */
+  pointer-events: none; 
 }
 
 #toast-notification.opacity-100 {
   opacity: 1;
+  transform: translateX(-50%) translateY(-10px);
+  /* Re-enable clicks only when visible */
+  pointer-events: auto; 
 }
 
-/* =========================================================================
- * Loading Spinner Styles
- * ========================================================================= */
-
-.loading-spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1.25rem; /* p-5 */
-  min-height: 80px; /* Give it some space */
+#toast-notification.toast-success {
+  background-color: rgba(16, 185, 129, 0.9); /* Emerald-500 */
 }
+
+#toast-notification.toast-error {
+  background-color: rgba(239, 68, 68, 0.9); /* Red-500 */
+}
+
+/* Loading Spinner */
 .loading-spinner {
   display: inline-block;
-  width: 24px; /* w-6 */
-  height: 24px; /* h-6 */
-  border: 3px solid rgba(115, 115, 115, 0.3); /* border-neutral-500/30 */
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  border-top-color: #10B981; /* border-top-emerald-500 */
-  animation: spin 1s ease-in-out infinite;
+  border-top-color: #10B981;
+  animation: spin 0.8s linear infinite;
 }
+
 .loading-spinner-inline {
   display: inline-block;
-  vertical-align: middle; /* Align better with text */
-  width: 16px; /* Smaller for inline use */
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3); /* Lighter border for contrast on dark bg */
+  vertical-align: middle;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  border-top-color: #10B981; /* border-top-emerald-500 */
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 8px; /* Space between spinner and text */
-  flex-shrink: 0; /* Prevent shrinking in flex containers */
+  border-top-color: currentColor;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.5rem;
 }
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* High-End UI Utilities */
+.glass-card {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-press {
+    transition: transform 0.1s ease-in-out;
+}
+.btn-press:active {
+    transform: scale(0.95);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-enter {
+    animation: fadeUp 0.4s ease-out forwards;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

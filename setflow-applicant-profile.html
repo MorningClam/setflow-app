@@ -3,53 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setflow - Applicant Profile</title>
+  <title>Setflow - Applicant</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #818cf8; animation: spin 0.8s linear infinite; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+    <div id="offline-banner" style="display:none" class="bg-red-600 text-white text-center text-sm p-2 font-medium">Offline Mode</div>
+    <div class="ambient-light"></div>
 
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-      <div class="flex h-full items-center justify-between">
-        <a href="#" id="back-link" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm flex items-center justify-between">
+        <a href="#" id="back-link" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Applicant Profile</h1>
-        <div class="w-10 h-10"></div>
-      </div>
+        <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-white">Applicant Profile</h1>
+        <div class="w-10"></div>
     </header>
 
-    <main id="profile-container" class="flex-grow pt-16 pb-32"> 
+    <main id="profile-container" class="flex-grow pt-16 pb-32 p-5 relative z-10"> 
         <div class="flex justify-center items-center py-10" id="loading-state">
           <div class="loading-spinner"></div>
         </div>
-        <div class="hidden p-5 text-center text-red-400" id="error-state">
-            <p>Could not load applicant profile.</p>
-        </div>
     </main>
 
-    <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm hidden">
+    <footer id="footer-actions" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md hidden pb-safe">
        <div class="flex space-x-3" id="footer-buttons"></div>
     </footer>
   </div>
 
-   <div id="toast-notification" class="fixed bottom-28 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+   <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
      <span id="toast-message">Placeholder</span>
    </div>
    <script src="toast.js"></script>
@@ -59,7 +49,6 @@
 
     const container = document.getElementById('profile-container');
     const loading = document.getElementById('loading-state');
-    const error = document.getElementById('error-state');
     const footer = document.getElementById('footer-actions');
     const btns = document.getElementById('footer-buttons');
     const backLink = document.getElementById('back-link');
@@ -71,55 +60,62 @@
     const gigId = urlParams.get('gigId');
     const artistName = urlParams.get('artistName');
 
-    // Dynamic Back Link
+    // Context-Aware Back Button
     backLink.onclick = (e) => {
         e.preventDefault();
-        if (gigId) window.location.href = `setflow-review-applicants.html?gigId=${gigId}&gigName=Gig`; // Add gigName logic if possible
+        if (gigId) window.location.href = `setflow-review-applicants.html?gigId=${gigId}`; 
         else window.history.back();
     };
 
     function renderProfile(user) {
       loading.style.display = 'none';
-      if (!user) { error.style.display = 'block'; return; }
-
       const placeholderImg = 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
 
       container.innerHTML = `
-        <section class="border-b border-neutral-700 p-5 text-center">
-          <img class="mx-auto h-24 w-24 rounded-full border-4 border-neutral-700 object-cover" src="${user.profileImageUrl || placeholderImg}">
-          <h2 class="mt-4 text-2xl font-bold text-white">${escapeHTML(user.name)}</h2>
-          <p class="text-base text-neutral-400">${escapeHTML(user.location || 'Location not set')}</p>
+        <section class="text-center mb-8 animate-enter">
+          <div class="relative mx-auto h-28 w-28 mb-4">
+            <img class="h-full w-full rounded-full border-4 border-indigo-500/30 object-cover shadow-2xl" src="${user.profileImageUrl || placeholderImg}">
+            <div class="absolute bottom-1 right-1 h-6 w-6 rounded-full bg-emerald-500 border-4 border-black"></div>
+          </div>
+          <h2 class="text-2xl font-bold text-white">${escapeHTML(user.name)}</h2>
+          <p class="text-sm text-neutral-400 font-medium">${escapeHTML(user.location || 'Location not set')}</p>
+          
+          <div class="flex justify-center space-x-6 mt-6">
+              <div class="text-center">
+                  <span class="block text-lg font-bold text-white">12</span>
+                  <span class="text-[10px] uppercase text-neutral-500 font-bold tracking-wider">Gigs</span>
+              </div>
+              <div class="text-center">
+                  <span class="block text-lg font-bold text-white">4.9</span>
+                  <span class="text-[10px] uppercase text-neutral-500 font-bold tracking-wider">Rating</span>
+              </div>
+          </div>
         </section>
-        <section class="border-b border-neutral-700 p-5">
-          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-400">Bio</h3>
+        
+        <section class="glass-card rounded-2xl p-5 animate-enter" style="animation-delay: 0.1s;">
+          <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-indigo-400">Bio</h3>
           <p class="text-sm leading-relaxed text-neutral-300">${escapeHTML(user.bio || 'No bio provided.')}</p>
         </section>
-        <section class="p-5">
-           <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-400">Links</h3>
+        
+        <section class="mt-4 glass-card rounded-2xl p-5 animate-enter" style="animation-delay: 0.2s;">
+           <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-indigo-400">Media</h3>
            <div class="space-y-3">
-              ${user.website ? `<a href="${user.website}" target="_blank" class="block p-3 rounded bg-neutral-800 hover:bg-neutral-700 truncate text-emerald-400">${escapeHTML(user.website)}</a>` : '<p class="text-neutral-500 text-sm">No links.</p>'}
+              ${user.website ? `<a href="${user.website}" target="_blank" class="flex items-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition"><span class="text-sm text-white font-medium flex-1 truncate">${escapeHTML(user.website)}</span><svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : '<p class="text-xs text-neutral-600">No links available.</p>'}
            </div>
         </section>
       `;
 
       footer.classList.remove('hidden');
-      // Encode name for the next URL
       const bookingLink = `setflow-booking-confirmation.html?userId=${userId}&gigId=${gigId}&artistName=${encodeURIComponent(artistName || user.name)}`;
       
       btns.innerHTML = `
-        <a href="setflow-conversation-view.html?recipientId=${userId}" class="flex-1 rounded-xl bg-neutral-700 px-6 py-3 text-center text-base font-semibold text-white hover:bg-neutral-600 transition">Message</a>
-        <a href="${bookingLink}" class="flex-1 rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500 transition">Book Gig</a>
+        <a href="setflow-conversation-view.html?recipientId=${userId}" class="flex-1 rounded-xl bg-white/10 border border-white/10 px-4 py-3 text-center text-sm font-bold text-white hover:bg-white/20 transition btn-press">Chat</a>
+        <a href="${bookingLink}" class="flex-[2] rounded-xl bg-indigo-600 px-6 py-3 text-center text-sm font-bold text-white hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/30 btn-press">Book For Gig</a>
       `;
     }
 
     onAuthState(async (user) => {
       if (user) {
-        if (!userId) {
-          loading.style.display = 'none';
-          error.innerText = 'Error: No User ID';
-          error.style.display = 'block';
-          return;
-        }
         const data = await gracefulGet(getUserData(userId));
         renderProfile(data);
       } else {

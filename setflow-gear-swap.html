@@ -3,189 +3,132 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Setflow - Gear Swap</title>
+  <title>Setflow - Gear Market</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; /* Hidden by default */
-      position: fixed; top: 0; left: 0; right: 0;
-      padding: 0.5rem; /* p-2 */
-      background-color: theme('colors.red.600'); /* bg-red-600 */
-      color: white; text-align: center;
-      font-size: 0.875rem; /* text-sm */ font-weight: 500; /* font-medium */
-      z-index: 9999;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
-    .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
-        color: #A3A3A3; transition: color 0.15s ease-in-out;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #fbbf24; animation: spin 0.8s linear infinite; }
+    .ambient-light { position: absolute; bottom: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 100%, rgba(251, 191, 36, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    
+    /* Nav Alignment */
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Showing cached gear listings.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 py-3">
     <div class="flex h-10 items-center justify-between">
-      <a href="#" onclick="goBackOr('setflow-musician-dashboard.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+      <a href="#" onclick="window.location.href='setflow-musician-dashboard.html'; return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gear Swap</h1>
-      <a href="setflow-sell-item.html" class="w-auto flex-shrink-0 rounded-xl bg-emerald-600 px-4 py-1 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sell</a>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-amber-400">Gear Market</h1>
+      <div class="w-10"></div>
     </div>
     <div class="mt-3">
-      <div class="flex items-center rounded-xl border border-neutral-700 bg-neutral-800 px-3 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-        <svg class="mr-2 h-4 w-4 flex-shrink-0 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        <input id="search-input" type="search" aria-label="Search gear" placeholder="Search for pedals, guitars, amps..." class="w-full border-0 bg-transparent py-2 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0">
+      <div class="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 focus-within:border-amber-500 focus-within:ring-1 focus-within:ring-amber-500 transition">
+        <svg class="mr-2 h-4 w-4 flex-shrink-0 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <input id="search-input" type="search" placeholder="Search pedals, guitars..." class="w-full border-0 bg-transparent py-2 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0">
       </div>
     </div>
   </header>
 
-  <main id="gear-container" class="grid flex-1 grid-cols-2 gap-4 p-5 pt-36 pb-20"> 
+  <main id="gear-container" class="grid flex-1 grid-cols-2 gap-3 p-4 pt-36 pb-24 relative z-10"> 
     <div class="col-span-2 flex justify-center items-center py-10" id="loading-state">
         <div class="loading-spinner"></div>
     </div>
-    <div class="hidden col-span-2 py-10 text-center" id="empty-state">
-      <svg class="mx-auto h-12 w-12 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.388m1.622 3.388l2.87-2.87a3 3 0 00-4.242-4.242l-2.87 2.87c-.18.18-.335.378-.464.592m2.87-2.87l-1.622-3.388a15.994 15.994 0 00-3.388 1.622m-1.622 3.388l-2.87 2.87a3 3 0 004.242 4.242l2.87-2.87c.18.18.335-.378.464-.592m-2.87 2.87l1.622 3.388a15.994 15.994 0 003.388-1.622m3.388 1.622l2.87 2.87a3 3 0 004.242-4.242l-2.87-2.87c-.18-.18-.335-.378-.464-.592m-2.87-2.87l1.622-3.388a15.994 15.994 0 00-3.388-1.622m-3.388-1.622l-2.87-2.87a3 3 0 00-4.242 4.242l2.87 2.87c.18.18.335-.378.464-.592z" />
-      </svg>
-      <h3 class="mt-2 text-lg font-semibold text-white">No Gear Listed</h3>
-      <p class="mt-1 text-sm text-neutral-400">Be the first to list an item for sale!</p>
-       <div class="mt-6">
-            <a href="setflow-sell-item.html" class="w-auto rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">Sell Your Gear</a>
-       </div>
-    </div>
-     <div class="hidden col-span-2 py-10 text-center text-red-400" id="error-state">
-        <p>Could not load gear listings.</p>
+    <div class="hidden col-span-2 py-10 text-center glass-card rounded-xl" id="empty-state">
+      <p class="text-sm text-neutral-400">The market is quiet.</p>
     </div>
   </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-          </div>
+  <a href="setflow-sell-item.html" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-black shadow-lg shadow-amber-500/40 btn-press hover:bg-amber-400 border-2 border-neutral-900">
+      <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+  </a>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
   </nav>
 </div> 
 
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out"> <span id="toast-message">Placeholder message</span>
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+ <span id="toast-message">Placeholder message</span>
 </div>
 <script src="toast.js"></script>
 <script src="nav.js"></script> 
 
 <script type="module">
-  import { onAuthState, fetchGearListings, gracefulGet, isOnline, getUserData, navigation } from './api.js'; 
-
-  // Bind global navigation
+  import { onAuthState, fetchGearListings, gracefulGet, isOnline, getUserData, navigation, escapeHTML } from './api.js'; 
   window.goBackOr = navigation.goBackOr;
 
   const gearContainer = document.getElementById('gear-container');
   const loadingState = document.getElementById('loading-state');
   const emptyState = document.getElementById('empty-state');
-  const errorState = document.getElementById('error-state');
   const searchInput = document.getElementById('search-input');
   const offlineBanner = document.getElementById('offline-banner');
-  const placeholderImg = 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop';
   
   let allItems = [];
-
-  // Update offline banner based on initial status
-  offlineBanner.style.display = isOnline() ? 'none' : 'block';
-  // Listen for network changes
-  document.body.addEventListener('app:network-change', (event) => {
-      offlineBanner.style.display = event.detail.online ? 'none' : 'block';
-  });
-
+  if(!isOnline()) offlineBanner.style.display = 'block';
 
   function renderListings(listings) {
-    // Clear previous items
     const existingItems = gearContainer.querySelectorAll('a.gear-card');
     existingItems.forEach(item => item.remove());
+    loadingState.style.display = 'none';
 
-    if (!listings) { // Error case
-        loadingState.style.display = 'none';
-        emptyState.style.display = 'none';
-        errorState.style.display = 'block';
-        return;
-    }
-
-    if (listings.length === 0) {
-      loadingState.style.display = 'none';
-      errorState.style.display = 'none';
+    if (!listings || listings.length === 0) {
       emptyState.style.display = 'block';
       return;
     }
-
-    loadingState.style.display = 'none'; // Hide states
     emptyState.style.display = 'none';
-    errorState.style.display = 'none';
-
 
     listings.forEach(item => {
       const itemCard = document.createElement('a');
       itemCard.href = `setflow-gear-detail.html?id=${item.id}`;
-      // Apply Canonical Card Style (Grid item variant)
-      itemCard.className = 'gear-card group block overflow-hidden rounded-xl border border-neutral-700 bg-neutral-800 transition-colors duration-150 ease-in-out hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900';
-      const imageUrl = item.imageUrl || placeholderImg;
+      itemCard.className = 'gear-card group block overflow-hidden rounded-xl glass-card transition hover:bg-white/5 btn-press border border-transparent hover:border-amber-500/30';
+      const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=500&auto=format=fit=crop';
+      
       itemCard.innerHTML = `
-        <img class="h-32 w-full object-cover transition-opacity group-hover:opacity-80" src="${imageUrl}" alt="${item.name}">
+        <div class="relative h-32 w-full overflow-hidden">
+            <img class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" src="${imageUrl}" alt="${escapeHTML(item.name)}">
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-2 pt-6">
+                 <p class="text-lg font-bold text-white">$${item.price}</p>
+            </div>
+        </div>
         <div class="p-3">
-            <h3 class="truncate font-semibold text-white">${item.name}</h3>
-            <p class="text-sm text-neutral-400">${item.location || 'USA'}</p>
-            <p class="mt-1 text-lg font-bold text-emerald-400">$${item.price}</p>
+            <h3 class="truncate text-sm font-semibold text-neutral-200">${escapeHTML(item.name)}</h3>
+            <p class="text-xs text-neutral-500 mt-0.5">${item.location || 'USA'}</p>
         </div>
       `;
-       // Insert before the state divs
        gearContainer.insertBefore(itemCard, loadingState);
     });
   }
 
   searchInput.addEventListener('input', (e) => {
       const term = e.target.value.toLowerCase();
-      const filtered = allItems.filter(i => i.name.toLowerCase().includes(term));
-      renderListings(filtered);
+      renderListings(allItems.filter(i => i.name.toLowerCase().includes(term)));
   });
 
   onAuthState(async (user) => {
     if (user) {
-      loadingState.style.display = 'flex'; // Show loading
-      emptyState.style.display = 'none';
-      errorState.style.display = 'none';
-      
-      try {
-        // --- ADDED: Fetch user data for nav ---
-        const userData = await gracefulGet(getUserData(user.uid), null);
-        const userRole = (userData?.roles && userData.roles.includes('musician')) ? 'musician' : 'unknown';
-        const userTier = userData?.subscriptionTier || 'free';
-        renderBottomNav(userRole, userTier, 'setflow-gear-swap.html');
-        // --- END NAV LOGIC ---
-        
-        // Use gracefulGet, manage states manually
-        const listings = await gracefulGet(fetchGearListings(), null, "Could not load gear listings while offline.");
-        allItems = listings || []; // Cache for filtering
-        renderListings(listings); // Handles null/empty response
-      } catch (error) {
-        console.error("Failed to fetch gear listings:", error);
-        renderListings(null); // Show error state
-        // --- ADDED: Fallback nav render ---
-        renderBottomNav('musician', 'free', 'setflow-gear-swap.html');
-      }
+        const userData = await gracefulGet(getUserData(user.uid));
+        if(window.renderBottomNav) window.renderBottomNav('musician', userData?.subscriptionTier || 'free', 'setflow-gear-swap.html');
+        const listings = await gracefulGet(fetchGearListings());
+        allItems = listings || [];
+        renderListings(listings);
     } else {
       window.location.href = 'setflow-login-page.html';
     }
   });
 </script>
-
- <script type="module" src="./api.js"></script>
 </body>
 </html>

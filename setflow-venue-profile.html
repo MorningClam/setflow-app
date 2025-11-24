@@ -8,97 +8,74 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="toast.css">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: fixed; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div id="offline-banner">You are currently offline.</div>
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+<body class="text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl">
+    <div id="offline-banner">You are currently offline.</div>
+    <div class="ambient-light"></div>
+
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
       <div class="flex h-full items-center justify-between">
-        <a href="#" onclick="goBackOr('setflow-browse-gigs.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+        <a href="#" onclick="goBackOr('setflow-browse-gigs.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-white/10 hover:text-white transition btn-press">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Venue Profile</h1>
+        <h1 class="flex-grow text-center text-lg font-bold tracking-tight">Venue Profile</h1>
         <div class="w-10 h-10"></div> 
       </div>
     </header>
 
-    <main class="flex-grow pt-16 pb-5"> 
+    <main class="flex-grow pt-16 pb-5 p-5 relative z-10"> 
         <div id="venue-profile-content">
-          <div class="flex justify-center items-center py-10" id="loading-state">
-            <div class="loading-spinner"></div>
-          </div>
-          <div class="hidden p-5 text-center text-red-400" id="error-state">
-              <p>Could not load venue profile.</p>
-          </div>
+          <div class="flex justify-center items-center py-10" id="loading-state"><div class="loading-spinner"></div></div>
+          <div class="hidden p-5 text-center text-red-400 glass-card rounded-xl" id="error-state"><p>Could not load venue profile.</p></div>
         </div>
     </main>
   </div> 
   
-  <div id="toast-notification" class="fixed bottom-5 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-     <span id="toast-message">Placeholder</span>
-  </div>
   <script src="toast.js"></script>
-  
   <script type="module">
      import { gracefulGet, onAuthState, getUserData, isOnline, fetchGigsForOwner, escapeHTML, navigation } from './api.js';
-     
-     // Bind goBackOr to window for inline onclick
      window.goBackOr = navigation.goBackOr;
 
      const profileContainer = document.getElementById('venue-profile-content');
      const loadingState = document.getElementById('loading-state');
      const errorState = document.getElementById('error-state');
-     const offlineBanner = document.getElementById('offline-banner');
+     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
      const urlParams = new URLSearchParams(window.location.search);
      const venueUserId = urlParams.get('venueId') || urlParams.get('userId');
 
-     if(!isOnline()) offlineBanner.style.display = 'block';
-
      function renderVenueProfile(venueData, upcomingShows) {
          loadingState.style.display = 'none';
-
-         if (!venueData) {
-             errorState.style.display = 'block';
-             return;
-         }
+         if (!venueData) { errorState.style.display = 'block'; return; }
          errorState.style.display = 'none';
-         profileContainer.innerHTML = ''; // Clear loader
+         profileContainer.innerHTML = ''; 
 
          let showsSectionHtml = '';
-         if (upcomingShows) {
+         if (upcomingShows && upcomingShows.length > 0) {
              showsSectionHtml = `
-                <section class="p-5">
-                    <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Upcoming Shows</h3>
+                <section class="mt-6">
+                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Upcoming Shows</h3>
                     <div class="space-y-3">
              `;
-             if (upcomingShows.length > 0) {
-                 upcomingShows.slice(0, 3).forEach(show => {
-                    showsSectionHtml += `
-                        <a href="setflow-gig-detail-view.html?id=${show.id}" class="flex items-center justify-between rounded-lg bg-neutral-800 p-4 hover:bg-neutral-700">
-                            <div>
-                                <p class="font-semibold text-white">${escapeHTML(show.bookedArtistName || show.eventName || 'Open Slot')}</p>
-                                <p class="text-xs text-neutral-400">${show.formattedDate}</p>
-                            </div>
-                            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    `;
-                 });
-             } else {
-                 showsSectionHtml += `<p class="text-sm text-neutral-500">No upcoming shows posted yet.</p>`;
-             }
+             upcomingShows.slice(0, 3).forEach(show => {
+                showsSectionHtml += `
+                    <a href="setflow-gig-detail-view.html?id=${show.id}" class="flex items-center justify-between rounded-xl glass-card p-4 hover:bg-white/5 transition btn-press">
+                        <div>
+                            <p class="font-bold text-white">${escapeHTML(show.venueName)}</p>
+                            <p class="text-xs text-neutral-400">${show.formattedDate}</p>
+                        </div>
+                        <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                `;
+             });
              showsSectionHtml += `</div></section>`;
          }
 
@@ -108,17 +85,17 @@
          const profileImg = venueData.profileImageUrl || ''; 
 
          profileContainer.innerHTML = `
-            <section class="border-b border-neutral-700 p-5 text-center">
-                 <div aria-hidden="true" class="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-neutral-700 bg-sky-800 overflow-hidden">
+            <section class="text-center mb-8 animate-enter">
+                 <div aria-hidden="true" class="mx-auto flex h-24 w-24 items-center justify-center rounded-full border-2 border-emerald-500/50 bg-neutral-800 overflow-hidden mb-4">
                     ${profileImg 
                         ? `<img src="${profileImg}" class="w-full h-full object-cover">` 
-                        : `<svg class="h-12 w-12 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>`}
+                        : `<span class="text-4xl">🏟️</span>`}
                  </div>
-                 <h2 class="mt-4 text-2xl font-bold text-white">${name}</h2>
-                 <p class="text-base text-neutral-400">${location}</p>
+                 <h2 class="text-2xl font-bold text-white">${name}</h2>
+                 <p class="text-sm text-neutral-400">${location}</p>
             </section>
-            <section class="border-b border-neutral-700 p-5">
-                <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">About</h3>
+            <section class="glass-card rounded-xl p-4 animate-enter" style="animation-delay: 0.1s;">
+                <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">About</h3>
                 <p class="text-sm leading-relaxed text-neutral-300">${bio}</p>
             </section>
             ${showsSectionHtml}
@@ -126,23 +103,14 @@
      }
 
      document.addEventListener('DOMContentLoaded', async () => {
-         if (!venueUserId) {
-             loadingState.style.display = 'none';
-             errorState.textContent = 'Error: No venue specified.';
-             errorState.style.display = 'block';
-             return;
-         }
+         if (!venueUserId) { loadingState.style.display = 'none'; errorState.style.display = 'block'; return; }
          try {
-             // Parallel fetch
              const [venueData, upcomingShows] = await Promise.all([
                  gracefulGet(getUserData(venueUserId)),
                  gracefulGet(fetchGigsForOwner(venueUserId))
              ]);
-
              renderVenueProfile(venueData, upcomingShows);
-
          } catch (error) {
-              console.error("Error loading venue profile:", error);
               renderVenueProfile(null, null);
          }
      });

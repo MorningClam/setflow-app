@@ -3,45 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setflow - Privacy Policy</title>
+  <title>Setflow - Privacy</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: 'Inter', sans-serif; background-color: #000; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-  <div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-      <div class="flex h-full items-center justify-between">
-        <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+<body class="text-white antialiased">
+  <div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl">
+    <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 flex items-center justify-between">
+        <a href="#" onclick="window.history.back(); return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Privacy Policy</h1>
-        <div class="w-10 h-10"></div> 
-      </div>
+        <h1 class="text-lg font-bold">Privacy Policy</h1>
+        <div class="w-10 h-10"></div>
     </header>
 
-    <main class="flex-grow p-5 pt-20 text-sm leading-relaxed text-neutral-300"> 
-        <h2 class="text-xl font-semibold text-white mb-4">Privacy Policy</h2>
-        <p class="mb-4"><strong>Last Updated: October 25, 2025</strong></p>
-        <p class="mb-4">Welcome to Setflow! Your privacy is critically important to us.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Information We Collect</h3>
-        <ul class="list-disc list-inside space-y-2 pl-4 mb-4"> 
-            <li>Registration data (name, email).</li>
-            <li>Profile data (location, bio, links).</li>
-            <li>User content (gigs, posts, messages).</li>
-        </ul>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">How We Use It</h3>
-        <p class="mb-4">To operate the service, connect musicians with venues, and facilitate bookings.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Data Security</h3>
-        <p class="mb-4">We use industry-standard encryption via Google Cloud Platform.</p>
-
-        <h3 class="mt-6 mb-2 text-lg font-semibold text-white">Contact</h3>
-        <p class="mb-4">Questions? Contact support@setflow.app</p>
+    <main class="flex-grow p-5 pt-24 pb-10"> 
+        <div class="glass-card rounded-2xl p-6 space-y-6 text-sm leading-relaxed text-neutral-300">
+            <div>
+                <h2 class="text-lg font-bold text-white mb-2">1. Data Collection</h2>
+                <p>We collect information you provide directly to us, such as when you create an account, post a gig, or communicate with other users.</p>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-white mb-2">2. Usage</h2>
+                <p>We use your information to provide, maintain, and improve our services, including processing transactions and facilitating connections.</p>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-white mb-2">3. Sharing</h2>
+                <p>We do not sell your personal data. We may share information with vendors/partners only as necessary to provide the Setflow service (e.g., payment processing).</p>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-white mb-2">4. Security</h2>
+                <p>We implement standard security measures including encryption to protect your data stored on Google Cloud Platform.</p>
+            </div>
+            
+            <div class="pt-4 border-t border-white/10">
+                <p class="text-xs text-neutral-500 text-center">Last Updated: October 2025</p>
+            </div>
+        </div>
     </main>
   </div>
 </body>

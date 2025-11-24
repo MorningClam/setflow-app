@@ -8,39 +8,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif;}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-settings.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+      <a href="#" onclick="window.location.href='setflow-musician-settings.html'; return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Create Band</h1>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-emerald-400">Create Band</h1>
       <div class="w-10 h-10"></div> 
     </div>
   </header>
 
-  <main class="flex-1 p-5 pt-20 pb-24"> 
+  <main class="flex-1 p-5 pt-24 pb-24 relative z-10"> 
     <form id="create-band-form" class="space-y-6">
         <div>
-            <label for="band-name" class="mb-2 block text-sm font-semibold text-neutral-300">Band Name</label>
-            <input id="band-name" type="text" placeholder="e.g., George & The Vibe" class="w-full rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none" required>
+            <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Band Name</label>
+            <input id="band-name" type="text" placeholder="e.g., The Night Owls" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600">
+        </div>
+        <div>
+             <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Genre</label>
+             <input id="band-genre" type="text" placeholder="e.g., Funk" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600">
         </div>
     </form>
   </main>
 
-  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-    <button type="submit" form="create-band-form" id="submit-btn" class="w-full rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition-colors">Create Band</button>
+  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-sm">
+    <button type="submit" form="create-band-form" id="submit-btn" class="w-full rounded-xl bg-emerald-500 px-6 py-3 text-base font-bold text-white hover:bg-emerald-400 transition-colors btn-press shadow-lg shadow-emerald-500/20">Create Band</button>
   </footer>
 </div>
 
@@ -50,11 +55,7 @@
 <script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, createBand, isOnline } from './api.js'; // Assuming createBand logic is in api.js (was in your original files) or needs to be added to api.js
-
-  // NOTE: The original api.js provided in prompt did contain createBand. 
-  // If it's missing in my restoration, I should ensure it's there. 
-  // (Checking... yes, I included it in Batch 1 api.js).
+  import { onAuthState, createBand, isOnline } from './api.js'; 
 
   const form = document.getElementById('create-band-form');
   const btn = document.getElementById('submit-btn');
@@ -70,14 +71,18 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('band-name').value.trim();
-    if (!name) return;
+    const genre = document.getElementById('band-genre').value.trim();
+    
+    if (!name) {
+        window.toast.show("Band name required.", "error");
+        return;
+    }
 
     btn.disabled = true;
-    btn.innerText = "Creating...";
+    btn.innerHTML = '<span class="loading-spinner-inline"></span> Creating...';
 
     try {
-        // Use standard firebase user object props
-        await createBand(name, { uid: currentUser.uid, displayName: currentUser.displayName, email: currentUser.email });
+        await createBand(name, { uid: currentUser.uid, displayName: currentUser.displayName || 'User', email: currentUser.email, genre: genre });
         window.toast.show("Band created!", "success");
         setTimeout(() => window.location.href = 'setflow-musician-settings.html', 1500);
     } catch (err) {

@@ -5,46 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Setflow - Gear Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #fbbf24; animation: spin 0.8s linear infinite; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline. Item details may be cached.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 shadow-2xl relative z-10">
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-between">
-      <a href="setflow-gear-swap.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md px-4 py-3">
+    <a href="#" onclick="goBackOr('setflow-gear-swap.html'); return false;" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">Gear Details</h1>
-      <div class="w-10 h-10"></div> 
-    </div>
+    </a>
   </header>
 
-  <main id="gear-detail-container" class="flex-grow pt-16 pb-24"> 
-    <div class="flex justify-center items-center py-10" id="loading-state">
+  <main id="gear-detail-container" class="flex-grow pb-24 relative z-10"> 
+    <div class="flex justify-center items-center py-20" id="loading-state">
       <div class="loading-spinner"></div>
     </div>
-    <div class="hidden p-5 text-center text-red-400" id="error-state">
+    <div class="hidden p-5 text-center text-red-400 glass-card rounded-xl" id="error-state">
         <p>Could not load item details.</p>
     </div>
   </main>
 
-  <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm hidden">
+  <footer id="footer-container" class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-xl pb-safe hidden">
      <div id="footer-buttons"></div>
   </footer>
 </div> 
@@ -55,7 +47,8 @@
 <script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, getGearListing, reportContent, gracefulGet, isOnline, escapeHTML } from './api.js';
+  import { onAuthState, getGearListing, reportContent, gracefulGet, isOnline, escapeHTML, navigation } from './api.js';
+  window.goBackOr = navigation.goBackOr;
 
   const container = document.getElementById('gear-detail-container');
   const loading = document.getElementById('loading-state');
@@ -72,56 +65,56 @@
 
   function renderListing(item) {
     loading.style.display = 'none';
-    if (!item) {
-        error.style.display = 'block';
-        return;
-    }
+    if (!item) { error.style.display = 'block'; return; }
     error.style.display = 'none';
 
     const imageUrl = item.imageUrl || 'https://images.unsplash.com/photo-1598387993441-3cf0b5354d24?q=80&w=2187&auto=format=fit=crop';
     const sellerImage = item.sellerProfileImageUrl || 'https://images.unsplash.com/photo-1516280440614-376394488883?q=80&w=2187&auto=format=fit=crop';
 
     container.innerHTML = `
-      <img class="h-64 w-full object-cover" src="${imageUrl}" alt="${escapeHTML(item.name)}">
-      <section class="border-b border-neutral-700 p-5">
-        <div class="flex items-start justify-between">
-            <div>
-                <h2 class="text-2xl font-bold text-white">${escapeHTML(item.name)}</h2>
-                <p class="mt-1 text-base text-neutral-400">${escapeHTML(item.location || 'USA')}</p>
-            </div>
-            <p class="flex-shrink-0 pl-4 text-3xl font-bold text-emerald-400">$${item.price}</p>
+      <div class="relative h-96 w-full">
+        <img class="h-full w-full object-cover" src="${imageUrl}" alt="${escapeHTML(item.name)}">
+        <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
+        <div class="absolute bottom-0 left-0 p-6">
+            <h2 class="text-3xl font-extrabold text-white leading-tight drop-shadow-lg">${escapeHTML(item.name)}</h2>
+            <p class="text-lg text-amber-400 font-bold mt-1 drop-shadow-md">$${item.price}</p>
         </div>
-      </section>
-      <section class="border-b border-neutral-700 p-5">
-            <h3 class="mb-2 text-sm font-medium uppercase tracking-wider text-neutral-400">Description</h3>
-            <p class="text-sm leading-relaxed text-neutral-300">${escapeHTML(item.description || 'No description.')}</p>
-      </section>
-      <section class="p-5">
-            <h3 class="mb-3 text-sm font-medium uppercase tracking-wider text-neutral-400">Seller</h3>
-            <div class="flex items-center justify-between rounded-lg bg-neutral-800 p-4">
-                <a href="setflow-public-profile.html?userId=${item.sellerId}" class="flex flex-1 items-center space-x-4 min-w-0 group">
-                    <img class="h-12 w-12 flex-shrink-0 rounded-full object-cover bg-neutral-700" src="${sellerImage}">
-                    <div class="min-w-0">
-                        <p class="truncate font-semibold text-white group-hover:text-emerald-400">${escapeHTML(item.sellerName)}</p>
+      </div>
+
+      <div class="p-5 space-y-4 -mt-4 relative z-10">
+          <div class="glass-card rounded-xl p-4">
+             <div class="flex items-center justify-between mb-2">
+                 <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">Location</span>
+                 <span class="text-sm text-white font-medium">${escapeHTML(item.location || 'USA')}</span>
+             </div>
+             <div class="border-t border-white/10 my-2"></div>
+             <p class="text-sm leading-relaxed text-neutral-300 whitespace-pre-wrap">${escapeHTML(item.description || 'No description.')}</p>
+          </div>
+
+          <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+               <div class="flex items-center space-x-3">
+                    <img class="h-10 w-10 rounded-full object-cover bg-neutral-700 border border-white/10" src="${sellerImage}">
+                    <div>
+                        <p class="text-xs text-neutral-500 uppercase font-bold">Seller</p>
+                        <p class="text-sm font-bold text-white">${escapeHTML(item.sellerName || 'User')}</p>
                     </div>
-                </a>
-            </div>
-            ${currentUserId && currentUserId !== item.sellerId ? 
-              `<div class="mt-4 text-right"><button id="report-btn" class="text-xs text-neutral-500 hover:text-red-400">Report Item</button></div>` 
+               </div>
+               ${currentUserId && currentUserId !== item.sellerId ? 
+              `<button id="report-btn" class="text-xs text-red-400 hover:text-red-300 border border-red-900/30 px-3 py-1 rounded bg-red-900/10 transition">Report</button>` 
               : ''}
-      </section>
+          </div>
+      </div>
     `;
 
-    // Footer Logic
     footer.classList.remove('hidden');
     if (currentUserId && currentUserId !== item.sellerId) {
         footerBtns.innerHTML = `
-            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500">Message Seller</a>
+            <a href="setflow-conversation-view.html?recipientId=${item.sellerId}" class="block w-full rounded-xl bg-amber-500 px-6 py-3.5 text-center text-base font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20 btn-press">Message Seller</a>
         `;
     } else if (currentUserId === item.sellerId) {
-         footerBtns.innerHTML = `<p class="text-center text-sm text-neutral-500">This is your listing.</p>`;
+         footerBtns.innerHTML = `<button disabled class="block w-full rounded-xl bg-white/10 border border-white/10 px-6 py-3 text-center text-base font-semibold text-neutral-400">Your Listing</button>`;
     } else {
-         footerBtns.innerHTML = `<a href="setflow-login-page.html" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-semibold text-white hover:bg-emerald-500">Log in to Message</a>`;
+         footerBtns.innerHTML = `<a href="setflow-login-page.html" class="block w-full rounded-xl bg-amber-500 px-6 py-3.5 text-center text-base font-bold text-black hover:bg-amber-400 transition">Log in to Buy</a>`;
     }
 
     const reportBtn = document.getElementById('report-btn');

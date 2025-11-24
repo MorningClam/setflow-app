@@ -8,77 +8,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
-    .loading-spinner {
-        display: inline-block; width: 1.5rem; height: 1.5rem;
-        border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%;
-        border-top-color: #10B981; animation: spin 1s ease-in-out infinite;
-    }
-    .bottom-nav-link {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500;
-        color: #A3A3A3; transition: color 0.15s ease-in-out;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
+    
+    /* Fixed Nav Alignment */
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div id="offline-banner">You are currently offline.</div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 backdrop-blur-sm">
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+      <a href="#" onclick="goBackOr('setflow-musician-dashboard.html'); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-white/10 hover:text-white transition">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
-      <h1 class="flex-grow text-center text-lg font-semibold tracking-tight">My Applications</h1>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight">My Applications</h1>
       <div class="w-10 h-10"></div> 
     </div>
   </header>
 
-  <main id="applications-container" class="flex-1 space-y-4 p-5 pt-20 pb-20"> 
+  <main id="applications-container" class="flex-1 space-y-4 p-5 pt-20 pb-20 relative z-10"> 
     <div class="flex justify-center items-center py-10" id="loading-state">
       <div class="loading-spinner"></div>
     </div>
-    <div class="hidden py-10 text-center" id="empty-state">
+    <div class="hidden py-10 text-center glass-card rounded-xl" id="empty-state">
       <h3 class="mt-2 text-lg font-semibold text-white">No Applications Yet</h3>
       <p class="mt-1 text-sm text-neutral-400">Browse gigs and apply to see your status here.</p>
       <div class="mt-6">
-        <a href="setflow-browse-gigs.html" class="inline-block rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition">Browse Gigs</a>
+        <a href="setflow-browse-gigs.html" class="inline-block rounded-xl bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-500 transition btn-press">Browse Gigs</a>
       </div>
     </div>
   </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-800/90 backdrop-blur-sm">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
-        <span class="text-xs font-medium">Home</span>
-      </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <span class="text-xs font-medium">Gigs</span>
-      </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link active text-emerald-400">
-         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <span class="text-xs font-medium">Applied</span>
-      </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
-        <span class="text-xs font-medium">Inbox</span>
-      </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        <span class="text-xs font-medium">Account</span>
-      </a>
-    </div>
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
   </nav>
 </div>
 
@@ -86,7 +55,8 @@
 <script src="nav.js"></script>
 
 <script type="module">
-    import { onAuthState, fetchMyApplications, gracefulGet, isOnline, getUserData } from './api.js';
+    import { onAuthState, fetchMyApplications, gracefulGet, isOnline, getUserData, navigation, escapeHTML } from './api.js';
+    window.goBackOr = navigation.goBackOr;
 
     const container = document.getElementById('applications-container');
     const loading = document.getElementById('loading-state');
@@ -95,10 +65,10 @@
     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
     const statusColors = {
-        'applied': 'bg-amber-900 text-amber-300',
-        'viewed': 'bg-sky-900 text-sky-300',
-        'booked': 'bg-emerald-900 text-emerald-300',
-        'rejected': 'bg-red-900/50 text-red-300'
+        'applied': 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        'viewed': 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+        'booked': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        'rejected': 'bg-red-500/20 text-red-300 border-red-500/30'
     };
 
     function renderApplications(apps) {
@@ -108,17 +78,18 @@
             return;
         }
 
-        apps.forEach(app => {
+        apps.forEach((app, index) => {
             const statusStyle = statusColors[app.status] || 'bg-neutral-700 text-neutral-300';
             const div = document.createElement('a');
             div.href = `setflow-gig-detail-view.html?id=${app.gigId}`;
-            div.className = 'block rounded-xl border border-neutral-700 bg-neutral-800 p-4 hover:bg-neutral-700 transition mb-3';
+            div.className = 'glass-card block rounded-xl p-4 hover:bg-white/5 transition mb-3 animate-enter btn-press';
+            div.style.animationDelay = `${index * 0.05}s`;
             
             div.innerHTML = `
                 <h3 class="font-semibold text-white truncate">${escapeHTML(app.gigVenue)}</h3>
                 <p class="text-sm text-neutral-400">${escapeHTML(app.gigGenre)} • ${app.gigDate}</p>
-                <div class="mt-3 border-t border-neutral-700 pt-3">
-                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyle}">
+                <div class="mt-3 border-t border-white/10 pt-3">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border ${statusStyle}">
                         ${escapeHTML(app.status.toUpperCase())}
                     </span>
                 </div>
@@ -129,20 +100,9 @@
 
     onAuthState(async (user) => {
         if(user) {
-            // --- NAV FIX: Correct role and tier passing ---
-            let userTier = 'free';
-            try {
-                const userData = await gracefulGet(getUserData(user.uid), null);
-                if (userData && userData.subscriptionTier) {
-                    userTier = userData.subscriptionTier;
-                }
-            } catch (e) {
-                console.error("Could not fetch user info for nav", e);
-            }
-            
-            // IMPORTANT: Pass 'musician' as the role, not the tier variable
+            const userData = await gracefulGet(getUserData(user.uid));
             if(window.renderBottomNav) {
-                 window.renderBottomNav('musician', userTier, 'setflow-applied-gigs.html');
+                 window.renderBottomNav('musician', userData?.subscriptionTier || 'free', 'setflow-applied-gigs.html');
             }
             
             const apps = await gracefulGet(fetchMyApplications(user.uid));

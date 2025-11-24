@@ -9,46 +9,42 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
-    body{font-family:'Inter',sans-serif;}
-    #offline-banner {
-      display: none; position: sticky; top: 0; left: 0; right: 0;
-      padding: 0.5rem; background-color: #DC2626; color: white;
-      text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998;
-    }
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
     .sortable-ghost { opacity: 0.4; background-color: #404040; }
     .drag-handle { cursor: grab; }
-    .drag-handle:active { cursor: grabbing; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
   </style>
 </head>
-<body class="bg-neutral-900 text-white antialiased">
-<div id="offline-banner">You are currently offline.</div>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl">
+  <div id="offline-banner">You are currently offline.</div>
 
-<div class="mx-auto flex min-h-screen max-w-md flex-col bg-neutral-900 text-white">
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-neutral-700 bg-neutral-800/90 px-4 py-3 backdrop-blur-sm"> 
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-sm"> 
     <div class="flex h-10 items-center justify-between"> 
-      <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white">
+      <a href="#" onclick="window.history.back(); return false;" class="p-2 rounded-full text-neutral-300 hover:bg-white/10 hover:text-white transition">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <div class="flex-grow text-center">
-        <h1 class="text-lg font-semibold tracking-tight">Setlist Editor</h1>
-        <p id="event-context" class="text-sm text-neutral-400">Loading...</p>
+        <h1 class="text-lg font-bold tracking-tight text-white">Setlist</h1>
+        <p id="event-context" class="text-xs text-neutral-400 font-medium">Loading...</p>
       </div>
-       <button id="save-btn" class="rounded-xl px-4 py-1 text-base font-semibold text-emerald-400 hover:text-emerald-300 disabled:opacity-50">Save</button>
+       <button id="save-btn" class="rounded-lg px-3 py-1.5 text-sm font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition">Save</button>
     </div>
   </header>
 
-   <main id="setlist-container" class="flex-1 divide-y divide-neutral-700 pt-24 pb-24"> 
-     <div class="hidden py-10 text-center" id="empty-state">
-      <h3 class="mt-2 text-lg font-semibold text-white">Empty Setlist</h3>
-      <p class="mt-1 text-sm text-neutral-400">Add songs below.</p>
+   <main id="setlist-container" class="flex-1 pt-24 pb-24 px-4"> 
+     <div class="hidden py-10 text-center glass-card rounded-xl" id="empty-state">
+      <h3 class="text-lg font-bold text-white">Empty Setlist</h3>
+      <p class="mt-1 text-sm text-neutral-400">Add songs below to build your set.</p>
     </div>
-    <div id="sortable-list"></div>
+    <div id="sortable-list" class="space-y-2"></div>
   </main>
 
-   <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-neutral-700 bg-neutral-900/90 p-4 backdrop-blur-sm">
-     <form id="add-song-form" class="flex items-center space-x-2 rounded-xl border border-neutral-700 bg-neutral-800 p-2 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-        <input id="add-song-input" type="text" placeholder="Song Title - Artist" class="flex-1 border-0 bg-transparent px-2 py-1 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
-        <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-500">Add</button>
+   <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-sm pb-safe">
+     <form id="add-song-form" class="flex items-center space-x-2 rounded-xl border border-white/10 bg-white/5 p-1.5 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition">
+        <input id="add-song-input" type="text" placeholder="Song Title - Artist" class="flex-1 border-0 bg-transparent px-3 py-2 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
+        <button type="submit" class="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-bold text-black hover:bg-emerald-400 transition">Add</button>
       </form>
     </footer>
 </div>
@@ -82,15 +78,18 @@
 
          songs.forEach((song, i) => {
              const div = document.createElement('div');
-             div.className = 'flex items-center justify-between p-4 border-b border-neutral-700 bg-neutral-900';
+             div.className = 'glass-card flex items-center justify-between p-3 rounded-lg group';
              div.innerHTML = `
-                <div class="flex-1">
-                    <p class="font-semibold text-white">${escapeHTML(song.title)}</p>
-                    <p class="text-xs text-neutral-400">${escapeHTML(song.artist || '')}</p>
+                <div class="flex items-center space-x-3 flex-1">
+                    <span class="text-xs font-mono text-neutral-600 w-4 text-center">${i + 1}</span>
+                    <div>
+                        <p class="font-bold text-white text-sm">${escapeHTML(song.title)}</p>
+                        <p class="text-xs text-neutral-400">${escapeHTML(song.artist || '')}</p>
+                    </div>
                 </div>
                 <div class="flex items-center">
-                    <button class="delete-btn text-red-500 mr-4 hover:text-red-400" data-index="${i}">✕</button>
-                    <span class="drag-handle text-neutral-500 cursor-grab">☰</span>
+                    <button class="delete-btn text-red-500/50 hover:text-red-400 mr-4 transition" data-index="${i}">✕</button>
+                    <span class="drag-handle text-neutral-600 cursor-grab hover:text-white transition">☰</span>
                 </div>
              `;
              list.appendChild(div);
@@ -106,6 +105,7 @@
          input.value = '';
          render();
          saveBtn.textContent = 'Save *';
+         saveBtn.classList.add('text-yellow-400', 'border-yellow-500/30', 'bg-yellow-500/10');
      });
 
      list.addEventListener('click', (e) => {
@@ -113,17 +113,20 @@
              songs.splice(e.target.dataset.index, 1);
              render();
              saveBtn.textContent = 'Save *';
+             saveBtn.classList.add('text-yellow-400', 'border-yellow-500/30', 'bg-yellow-500/10');
          }
      });
 
      saveBtn.addEventListener('click', async () => {
          if(!gigId) return;
-         saveBtn.textContent = 'Saving...';
+         saveBtn.textContent = '...';
          saveBtn.disabled = true;
          try {
              await updateDoc(doc(db, "gigs", gigId), { setlist: songs });
              window.toast.show("Setlist saved!", "success");
              saveBtn.textContent = "Save";
+             saveBtn.classList.remove('text-yellow-400', 'border-yellow-500/30', 'bg-yellow-500/10');
+             saveBtn.classList.add('text-emerald-400', 'border-emerald-500/20', 'bg-emerald-500/10');
          } catch(err) {
              window.toast.show("Error saving.", "error");
              saveBtn.textContent = "Save *";
@@ -136,7 +139,9 @@
      new Sortable(list, { handle: '.drag-handle', animation: 150, onEnd: (evt) => {
          const item = songs.splice(evt.oldIndex, 1)[0];
          songs.splice(evt.newIndex, 0, item);
+         render(); // Re-render numbers
          saveBtn.textContent = 'Save *';
+         saveBtn.classList.add('text-yellow-400', 'border-yellow-500/30', 'bg-yellow-500/10');
      }});
 
      onAuthState(async (user) => {
