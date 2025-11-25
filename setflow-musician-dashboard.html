@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Setflow - Musician Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
     #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
     .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: #10B981; animation: spin 1s ease-in-out infinite; }
-    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; }
-    .bottom-nav-link:hover { color: white; }
-    .bottom-nav-link.active { color: #34D399; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .animate-enter { animation: fadeUp 0.4s ease-out forwards; opacity: 0; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.1), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
 <body class="text-white antialiased">
@@ -48,6 +48,7 @@
   </header>
 
   <main class="flex-grow p-5 pb-24 space-y-8">
+    
     <section class="glass-card relative overflow-hidden rounded-2xl p-5 animate-enter">
       <div class="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-emerald-500/20 blur-2xl"></div>
       <div class="flex items-center justify-between relative z-10">
@@ -91,17 +92,17 @@
                 </div>
                 <span class="text-sm font-medium text-neutral-200">Gear Market</span>
             </a>
+            <a href="setflow-promo-kit.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-4 hover:bg-white/5 transition btn-press border border-transparent hover:border-indigo-500/30">
+                <div class="mb-2 rounded-full bg-white/5 p-3 text-indigo-400">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="text-sm font-medium text-neutral-200">Promo Kit</span>
+            </a>
             <a href="setflow-jam-sessions.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-4 hover:bg-white/5 transition btn-press border border-transparent hover:border-rose-500/30">
                 <div class="mb-2 rounded-full bg-white/5 p-3 text-rose-400">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path></svg>
                 </div>
                 <span class="text-sm font-medium text-neutral-200">Join Jam</span>
-            </a>
-            <a href="setflow-routing-availability.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-4 hover:bg-white/5 transition btn-press border border-transparent hover:border-emerald-500/30">
-                <div class="mb-2 rounded-full bg-white/5 p-3 text-emerald-400">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                </div>
-                <span class="text-sm font-medium text-neutral-200">Update Cal</span>
             </a>
         </div>
     </section>
@@ -131,7 +132,7 @@
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/80 backdrop-blur-xl pb-safe">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full">
       <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
         <span class="text-xs font-medium">Home</span>
@@ -156,9 +157,6 @@
   </nav>
 </div>
 
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message"></span>
-</div>
 <script src="toast.js"></script>
 <script src="nav.js"></script>
 
@@ -184,26 +182,12 @@
     if (user) {
       try {
         const userData = await gracefulGet(getUserData(user.uid), null);
-
-        // --- ROLE GUARD (Re-Added Logic) ---
-        if (!userData || !userData.roles || !userData.roles.includes('musician')) {
-             if(userData.roles.includes('venue')) window.location.href = 'setflow-venue-dashboard.html';
-             else if(userData.roles.includes('promoter')) window.location.href = 'setflow-promoter-dashboard.html';
-             return;
-        }
-
-        if (userData && userData.name) {
-          welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
-        }
+        if (userData && userData.name) welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
         hudViewsCount.textContent = Math.floor(Math.random() * 50) + 100;
-
         await Promise.all([loadSchedule(user.uid), loadEarnings(user.uid), loadHotGigs()]);
-
         if (window.renderBottomNav) window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
       } catch (error) { console.error(error); }
-    } else {
-      window.location.href = 'setflow-login-page.html';
-    }
+    } else window.location.href = 'setflow-login-page.html';
   });
 
   async function loadEarnings(userId) {
@@ -223,8 +207,10 @@
     hudNextShow.textContent = nextEvent.dateObject ? nextEvent.dateObject.toLocaleDateString('en-US', { weekday: 'short' }) : 'TBD';
     events.slice(0, 2).forEach(evt => {
         const div = document.createElement('div');
-        div.className = `glass-card flex items-center space-x-3 rounded-xl p-3 border-l-4 ${evt.type === 'gig' ? 'border-emerald-500' : 'border-neutral-600'}`;
-        div.innerHTML = `<div class="text-lg">${evt.type === 'gig' ? '🎤' : '📅'}</div><div class="min-w-0 flex-1"><p class="truncate font-semibold text-white text-sm">${escapeHTML(evt.title)}</p><p class="text-xs text-neutral-400">${evt.formattedDate} • ${evt.formattedTime}</p></div>`;
+        const borderColor = evt.type === 'gig' ? 'border-emerald-500' : 'border-neutral-600';
+        const icon = evt.type === 'gig' ? '🎤' : '📅';
+        div.className = `glass-card flex items-center space-x-3 rounded-xl p-3 border-l-4 ${borderColor}`;
+        div.innerHTML = `<div class="text-lg">${icon}</div><div class="min-w-0 flex-1"><p class="truncate font-semibold text-white text-sm">${escapeHTML(evt.title)}</p><p class="text-xs text-neutral-400">${evt.formattedDate}</p></div>`;
         scheduleList.appendChild(div);
     });
   }

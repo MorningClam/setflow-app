@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Setflow - Venue Directory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="toast.css">
+  <style>
+    body{font-family:'Inter',sans-serif; background-color:#000;}
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+  </style>
+</head>
+<body class="text-white antialiased">
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+  <div class="ambient-light"></div>
+
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm flex items-center justify-between">
+      <a href="#" onclick="window.history.back(); return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-white">Venue Directory</h1>
+      <div class="w-10"></div>
+  </header>
+
+  <main class="flex-1 p-5 pt-24 pb-10 space-y-4 relative z-10"> 
+      <div class="relative">
+        <input type="text" placeholder="Search by name or capacity..." class="w-full rounded-xl glass-card px-4 py-3 pl-10 text-sm text-white placeholder-neutral-500 focus:ring-2 focus:ring-emerald-500 outline-none transition">
+        <svg class="absolute left-3 top-3 h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+
+      <div id="venue-list" class="space-y-3">
+          
+          <div class="glass-card rounded-xl p-4 flex items-center space-x-4 hover:bg-white/5 transition">
+              <div class="h-14 w-14 rounded-lg bg-neutral-800 flex items-center justify-center text-2xl border border-white/10">🍺</div>
+              <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-white">The Pour House</h3>
+                  <p class="text-xs text-neutral-400">Raleigh • 300 Cap</p>
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded bg-white/10 text-[10px] font-bold text-neutral-300">Rock / Indie</span>
+              </div>
+              <button class="text-xs font-bold text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition btn-press">Follow</button>
+          </div>
+
+          <div class="glass-card rounded-xl p-4 flex items-center space-x-4 hover:bg-white/5 transition">
+              <div class="h-14 w-14 rounded-lg bg-neutral-800 flex items-center justify-center text-2xl border border-white/10">🎭</div>
+              <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-white">Lincoln Theatre</h3>
+                  <p class="text-xs text-neutral-400">Raleigh • 800 Cap</p>
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded bg-white/10 text-[10px] font-bold text-neutral-300">Touring / Alt</span>
+              </div>
+              <button class="text-xs font-bold text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition btn-press">Follow</button>
+          </div>
+
+           <div class="glass-card rounded-xl p-4 flex items-center space-x-4 hover:bg-white/5 transition">
+              <div class="h-14 w-14 rounded-lg bg-neutral-800 flex items-center justify-center text-2xl border border-white/10">🐈</div>
+              <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-white">Cat's Cradle</h3>
+                  <p class="text-xs text-neutral-400">Carrboro • 750 Cap</p>
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded bg-white/10 text-[10px] font-bold text-neutral-300">Indie / Rock</span>
+              </div>
+              <button class="text-xs font-bold text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg hover:bg-emerald-500/10 transition btn-press">Follow</button>
+          </div>
+      </div>
+  </main>
+</div>
+<script src="toast.js"></script>
+<script>
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if(this.innerText === 'Follow') {
+                this.innerText = 'Following';
+                this.classList.add('bg-emerald-500', 'text-black');
+                this.classList.remove('text-emerald-400', 'border');
+                window.toast.show("Following venue!", "success");
+            }
+        })
+    });
+</script>
+</body>
+</html>

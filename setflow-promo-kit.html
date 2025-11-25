@@ -3,151 +3,99 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Setflow - Venue Settings</title>
+  <title>Setflow - Promo Kit</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="toast.css">
   <style>
     body{font-family:'Inter',sans-serif; background-color:#000;}
-    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
-    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
-    .bottom-nav-link:hover { color: white; }
-    .bottom-nav-link.active { color: #34D399; }
-    /* Center Icons Fix */
-    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
-    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
-    .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
+    .ambient-light { position: fixed; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
 </head>
 <body class="text-white antialiased">
-<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
-  <div id="offline-banner">You are currently offline.</div>
+<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl">
   <div class="ambient-light"></div>
 
-  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
-    <div class="flex h-full items-center justify-center">
-      <h1 class="text-lg font-bold tracking-tight text-white">Account Settings</h1>
-    </div>
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm flex items-center justify-between">
+    <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:text-white btn-press">
+       <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </a>
+    <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-white">Promo Kit</h1>
+    <div class="w-10"></div>
   </header>
 
-  <main class="flex-1 space-y-6 p-5 pt-20 pb-24 relative z-10">
-    
-    <section class="glass-card rounded-2xl p-5 flex items-center space-x-4 animate-enter">
-        <div class="h-16 w-16 rounded-full bg-neutral-800 border-2 border-emerald-500/50 flex items-center justify-center text-2xl">🏟️</div>
-        <div class="flex-1 min-w-0">
-            <h2 class="text-lg font-bold text-white truncate" id="venue-name">Loading...</h2>
-            <p class="text-sm text-neutral-400 truncate" id="venue-email">...</p>
-        </div>
-        <a href="setflow-edit-profile.html" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-semibold transition btn-press">Edit</a>
+  <main class="flex-1 p-6 pt-24 pb-24 space-y-8 relative z-10"> 
+    <section class="text-center">
+       <h2 class="text-xl font-bold text-white">Instant Social Assets</h2>
+       <p class="text-sm text-neutral-400 mt-1">Generated from your next gig.</p>
     </section>
 
-    <section class="animate-enter" style="animation-delay: 0.1s;">
-      <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Membership</h2>
-      <div class="glass-card rounded-xl p-4 border-l-4 border-emerald-500">
-        <div class="flex items-center justify-between mb-2">
-          <span class="font-bold text-white">Current Plan</span>
-          <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase" id="subscription-tier-display">Free</span>
+    <section>
+        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative group">
+            <div class="aspect-[4/5] bg-gradient-to-br from-indigo-900 via-purple-900 to-black flex flex-col items-center justify-center p-6 text-center relative">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+                
+                <div class="relative z-10">
+                    <span class="inline-block px-3 py-1 bg-white text-black text-[10px] font-black tracking-widest uppercase rounded mb-6">Live Music</span>
+                    <h1 id="poster-artist" class="text-4xl font-black text-white leading-none mb-2 drop-shadow-lg">LOADING</h1>
+                    <p class="text-lg text-indigo-300 font-bold uppercase tracking-wider">Live At</p>
+                    <h2 id="poster-venue" class="text-2xl font-bold text-white mb-6">...</h2>
+                    <div class="inline-block border-2 border-white/20 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-sm">
+                        <p id="poster-date" class="text-sm font-mono text-white">...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-neutral-900 p-4 flex space-x-3">
+                 <button onclick="window.toast.show('Saved to Photos!', 'success')" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm btn-press hover:bg-indigo-500 transition">Download Story</button>
+                 <button onclick="window.toast.show('Saved to Photos!', 'success')" class="flex-1 bg-neutral-800 border border-white/10 text-white py-3 rounded-xl font-bold text-sm btn-press hover:bg-neutral-700 transition">Download Square</button>
+            </div>
         </div>
-        <div class="flex items-center justify-between text-sm">
-            <span class="text-neutral-400" id="payment-method-display">No card on file</span>
-            <a href="setflow-pricing-page.html" class="text-emerald-400 hover:text-white font-medium">Manage</a>
-        </div>
-      </div>
     </section>
 
-    <section class="animate-enter" style="animation-delay: 0.2s;">
-      <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Tools</h2>
-      <div class="glass-card rounded-xl overflow-hidden divide-y divide-white/5">
-        <a href="setflow-artist-discovery.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
-            <span class="font-medium text-white">Discover Artists</span>
-            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </a>
-         <a href="setflow-gig-templates.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
-            <span class="font-medium text-white">Gig Templates</span>
-            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </a>
-         <a href="setflow-venue-profile.html" class="flex items-center justify-between p-4 hover:bg-white/5 transition">
-            <span class="font-medium text-white">View Public Profile</span>
-            <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-        </a>
-      </div>
-    </section>
-
-    <section class="animate-enter" style="animation-delay: 0.3s;">
-        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Account</h2>
-        <div class="glass-card rounded-xl divide-y divide-white/5">
-             <a href="setflow-privacy-policy.html" class="block p-4 text-sm font-medium text-white hover:bg-white/5">Privacy Policy</a>
-             <a href="setflow-password-reset-flow.html" class="block p-4 text-sm font-medium text-white hover:bg-white/5">Reset Password</a>
-             <button id="logout-btn" class="w-full text-left p-4 text-sm font-bold text-red-400 hover:bg-red-500/10 transition">Log Out</button>
+    <section class="glass-card rounded-xl p-5">
+        <h3 class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Caption</h3>
+        <div class="bg-black/40 rounded-lg p-4 font-mono text-sm text-neutral-300 border border-white/5" id="caption-text">
+            Loading gig details...
         </div>
-         <p class="mt-6 text-center text-[10px] text-neutral-600 font-mono">Setflow v2.0.1 (Beta)</p>
+        <button onclick="copyCaption()" class="mt-3 w-full border border-white/10 hover:bg-white/5 text-white py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide transition btn-press">Copy to Clipboard</button>
     </section>
   </main>
-
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-      <div class="flex h-16 items-center justify-around w-full">
-            <a href="setflow-venue-dashboard.html" class="bottom-nav-link text-neutral-500 hover:text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-xs font-medium">Dashboard</span>
-            </a>
-            <a href="setflow-post-event-page.html" class="bottom-nav-link text-neutral-500 hover:text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-xs font-medium">Post</span>
-            </a>
-            <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-500 hover:text-white">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-xs font-medium">Inbox</span>
-            </a>
-            <a href="setflow-venue-settings.html" class="bottom-nav-link active text-emerald-400">
-               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="text-xs font-medium">Account</span>
-            </a>
-      </div>
-  </nav>
-</div>
-
-<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-  <span id="toast-message"></span>
 </div>
 <script src="toast.js"></script>
 <script type="module">
-    import { signOutUser, onAuthState, getUserData, gracefulGet, isOnline, navigation } from './api.js';
+     import { gracefulGet, fetchCompletedGigsForUser, getUserData, db, onAuthState } from './api.js';
+     import { collection, query, where, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const nameEl = document.getElementById('venue-name');
-    const emailEl = document.getElementById('venue-email');
-    const subDisplay = document.getElementById('subscription-tier-display');
-    const paymentDisplay = document.getElementById('payment-method-display');
+     window.copyCaption = () => {
+         const text = document.getElementById('caption-text').innerText;
+         navigator.clipboard.writeText(text).then(() => window.toast.show("Copied!", "success"));
+     };
 
-    if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
-
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-        try {
-            await signOutUser();
-            window.location.href = 'setflow-login-page.html';
-        } catch (e) {
-            window.toast.show("Failed to log out.", "error");
-        }
-    });
-
-    onAuthState(async (user) => {
-        if(user) {
-            const userData = await gracefulGet(getUserData(user.uid));
-            if(userData) {
-                nameEl.textContent = userData.name || 'Venue';
-                emailEl.textContent = userData.email || '';
-                const tier = userData.subscriptionTier || 'free';
-                subDisplay.textContent = tier === 'pro' ? 'PRO' : 'FREE';
-                subDisplay.className = tier === 'pro' ? 'px-2 py-1 rounded bg-emerald-500 text-black text-xs font-bold uppercase' : 'px-2 py-1 rounded bg-white/10 text-neutral-400 text-xs font-bold uppercase';
-                if (userData.paymentMethodLast4) {
-                    paymentDisplay.textContent = `•••• ${userData.paymentMethodLast4}`;
-                    paymentDisplay.className = 'text-sm text-white font-mono';
-                }
-            }
-        } else {
-            window.location.href = 'setflow-login-page.html';
-        }
-    });
-</script>
+     onAuthState(async (user) => {
+         if(user) {
+             // Fetch NEXT gig
+             const q = query(collection(db, "gigs"), where("bookedArtistId", "==", user.uid), orderBy("date", "desc"), limit(1));
+             const snap = await getDocs(q);
+             
+             if(!snap.empty) {
+                 const d = snap.docs[0].data();
+                 const date = d.date?.toDate ? d.date.toDate() : new Date();
+                 const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                 
+                 document.getElementById('poster-artist').textContent = d.bookedArtistName || 'YOU';
+                 document.getElementById('poster-venue').textContent = d.venueName || 'VENUE';
+                 document.getElementById('poster-date').textContent = dateStr;
+                 
+                 document.getElementById('caption-text').innerText = `Raleigh! Catch me live at ${d.venueName} on ${dateStr}. It's going to be a night of ${d.genre} you don't want to miss. 🎸✨\n\nDoors at 7PM. See you there!\n\n#LiveMusic #${d.venueName.replace(/\s/g,'')} #Setflow`;
+             } else {
+                 document.getElementById('poster-artist').textContent = "NO GIGS";
+                 document.getElementById('caption-text').innerText = "Book a gig to generate your promo kit!";
+             }
+         }
+     });
+ </script>
 </body>
 </html>
