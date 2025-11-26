@@ -11,26 +11,22 @@
     body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
     #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
     .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: #fb7185; animation: spin 1s ease-in-out infinite; }
-    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .glass-card { background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: fixed; top: -10%; right: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
     
-    /* Pulse for Action Items */
-    .live-pulse { animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-
-    /* Bottom Nav Styles */
     .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
-    .bottom-nav-link.active { color: #fb7185; }
+    /* REVERTED: Simple Text Color Active State */
+    .bottom-nav-link.active { color: #fb7185; } 
     .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
     
+    .live-pulse { animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .animate-enter { animation: fadeUp 0.4s ease-out forwards; opacity: 0; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Modal Transitions */
     .modal-container { transition: opacity 0.3s ease-out; }
     .modal-overlay { transition: opacity 0.3s ease-out; opacity: 0;}
     .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
@@ -71,7 +67,8 @@
              <p class="text-2xl font-bold text-rose-400" id="hud-active-count">0</p>
          </div>
        </div>
-       <div class="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-4 relative z-10">
+       
+       <div id="stats-container" class="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-4 relative z-10">
            <div class="text-center">
                <span class="block text-xl font-bold text-white" id="hud-roster">0</span>
                <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Talent Scouted</span>
@@ -79,6 +76,13 @@
            <div class="text-center border-l border-white/10">
                 <span class="block text-xl font-bold text-white truncate px-2" id="hud-next-show">--</span>
                 <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Next Event</span>
+           </div>
+       </div>
+
+       <div id="onboarding-container" class="hidden mt-4 pt-4 border-t border-white/10 relative z-10">
+           <div class="text-center">
+                <p class="text-sm font-medium text-white mb-3">Get started by launching your first campaign.</p>
+                <button onclick="document.getElementById('open-post-modal-btn').click()" class="bg-rose-500 hover:bg-rose-400 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition">Create Event</button>
            </div>
        </div>
     </section>
@@ -104,27 +108,27 @@
     <section class="animate-enter" style="animation-delay: 0.2s;">
       <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Command Center</h2>
       <div class="grid grid-cols-3 gap-3">
-          <a href="setflow-artist-discovery.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+          <a href="setflow-artist-discovery.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
               <div class="mb-1 text-indigo-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">Scout Radar</span>
           </a>
-          <a href="setflow-talent-pool.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+          <a href="setflow-talent-pool.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
               <div class="mb-1 text-rose-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">My Roster</span>
           </a>
-          <a href="setflow-inbox.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
-              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg></div>
+          <a href="setflow-inbox.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
+              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 01-2 2h14a2 2 0 012 2v10z"></path></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">Inbox</span>
           </a>
-          <a href="setflow-gig-templates.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+          <a href="setflow-gig-templates.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
               <div class="mb-1 text-amber-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">Templates</span>
           </a>
-           <a href="setflow-calendar.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+           <a href="setflow-calendar.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
               <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">Calendar</span>
           </a>
-          <a href="setflow-promoter-settings.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+          <a href="setflow-promoter-settings.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
               <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">Settings</span>
           </a>
@@ -150,7 +154,7 @@
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
       <div class="flex h-16 items-center justify-around w-full">
-          <a href="setflow-promoter-dashboard.html" class="bottom-nav-link active text-rose-400">
+          <a href="setflow-promoter-dashboard.html" class="bottom-nav-link active">
               <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg>
               <span class="text-xs font-medium">Dashboard</span>
           </a>
@@ -159,7 +163,7 @@
               <span class="text-xs font-medium">Post</span>
           </a>
           <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-500 hover:text-white">
-              <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
+              <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"></path></svg>
               <span class="text-xs font-medium">Inbox</span>
           </a>
           <a href="setflow-promoter-settings.html" class="bottom-nav-link text-neutral-500 hover:text-white">
@@ -195,6 +199,7 @@
   import { onAuthState, getUserData, gracefulGet, escapeHTML, isOnline, db, fetchTalentPool } from './api.js';
   import { collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  // ... Modal logic same ...
   document.addEventListener('DOMContentLoaded', () => {
       const modal = document.getElementById('post-modal');
       const openBtn = document.getElementById('open-post-modal-btn');
@@ -237,10 +242,11 @@
   const hudActiveCount = document.getElementById('hud-active-count');
   const hudRoster = document.getElementById('hud-roster');
   const hudNextShow = document.getElementById('hud-next-show');
+  const statsContainer = document.getElementById('stats-container');
+  const onboardingContainer = document.getElementById('onboarding-container');
 
   async function loadPromoterData(uid) {
     try {
-        // Parallel Fetch: Gigs & Talent Pool
         const gigsQ = query(collection(db, "gigs"), where("ownerId", "==", uid), orderBy("date", "desc"));
         const [gigsSnap, roster] = await Promise.all([
             getDocs(gigsQ),
@@ -250,13 +256,11 @@
         loadingState.style.display = 'none';
         gigsList.innerHTML = '';
 
-        // HUD Stats
-        hudRoster.textContent = roster ? roster.length : 0;
-
+        // Onboarding Logic
         if (gigsSnap.empty) {
             emptyState.classList.remove('hidden');
-            hudActiveCount.textContent = "0";
-            hudNextShow.textContent = "--";
+            statsContainer.classList.add('hidden');
+            onboardingContainer.classList.remove('hidden');
             return;
         }
         emptyState.classList.add('hidden');
@@ -265,11 +269,11 @@
             const data = d.data();
             return { id: d.id, ...data, dateObject: data.date?.toDate ? data.date.toDate() : new Date() };
         });
-
+        
+        // Standard Stats Logic
+        hudRoster.textContent = roster ? roster.length : 0;
         const today = new Date(); today.setHours(0,0,0,0);
         const active = gigs.filter(g => g.dateObject >= today);
-        
-        // Find next booked show
         const nextBooked = active.filter(g => g.status === 'booked').sort((a,b) => a.dateObject - b.dateObject)[0];
         
         hudActiveCount.textContent = active.length;
@@ -327,21 +331,9 @@
     if (user) {
       try {
         const userData = await gracefulGet(getUserData(user.uid));
-
-        // --- ROLE GUARD CHECK ---
-        if (!userData || !userData.roles || !userData.roles.includes('promoter')) {
-             if(userData.roles.includes('musician')) window.location.href = 'setflow-musician-dashboard.html';
-             else if(userData.roles.includes('venue')) window.location.href = 'setflow-venue-dashboard.html';
-             return;
-        }
-
         if (userData && userData.name) promoterNameHeader.innerText = userData.name;
-        await loadPromoterData(user.uid);
-
-      } catch (error) {
-         loadingState.style.display = 'none';
-         errorState.style.display = 'block';
-      }
+        await loadPromoterData(user.uid); // Nav hardcoded, no need to call renderBottomNav
+      } catch (error) { console.error(error); }
     } else {
       window.location.href = 'setflow-login-page.html';
     }
