@@ -81,8 +81,8 @@
     border-radius: 0.75rem;
     /* Explicit border color */
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    /* Force Dark Background */
-    background-color: rgba(20, 20, 20, 0.6) !important; 
+    /* Force Dark Background (No transparency to prevent white bleed) */
+    background-color: #171717 !important; 
     padding: 0.75rem 1rem;
     /* Force White Text */
     color: white !important;
@@ -95,24 +95,29 @@
 .glass-input:focus {
     outline: none;
     border-color: #10B981 !important; /* Emerald-500 */
-    background-color: rgba(20, 20, 20, 0.9) !important;
+    background-color: #262626 !important;
     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 .glass-input::placeholder {
-    color: #a3a3a3 !important; /* neutral-400 */
+    color: #737373 !important; /* neutral-500 */
 }
 
-/* Browser Autofill Override (The "White Box" Killer) */
-.glass-input:-webkit-autofill,
-.glass-input:-webkit-autofill:hover, 
-.glass-input:-webkit-autofill:focus, 
-.glass-input:-webkit-autofill:active {
+/* Aggressive Autofill Fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active {
     -webkit-text-fill-color: white !important;
-    /* This box-shadow trick hides the white background */
-    -webkit-box-shadow: 0 0 0px 1000px #171717 inset !important;
+    /* Use a solid inner shadow to cover the browser's white background */
+    -webkit-box-shadow: 0 0 0 1000px #171717 inset !important;
     background-color: #171717 !important;
     transition: background-color 5000s ease-in-out 0s;
+    caret-color: white;
 }
 
 .btn-press {
