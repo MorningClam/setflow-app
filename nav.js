@@ -12,7 +12,11 @@ window.renderBottomNav = function(role, tier = 'free', activePage = '') {
     const navContainer = document.getElementById('bottom-nav-container');
     if (!navContainer) return;
 
-    const isActive = (page) => page === activePage ? 'active text-emerald-400' : 'text-neutral-400';
+    // Updated Active State: Adds a pill background, glow, and scale effect
+    const isActive = (page) => page === activePage 
+        ? 'active text-emerald-400 bg-emerald-500/15 shadow-[0_0_15px_rgba(16,185,129,0.2)] rounded-xl transform scale-105' 
+        : 'text-neutral-500 hover:text-neutral-300';
+    
     const isCurrent = (page) => page === activePage ? 'aria-current="page"' : '';
 
     let navHtml = '';

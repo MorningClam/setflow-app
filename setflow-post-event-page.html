@@ -11,7 +11,7 @@
     body{font-family:'Inter',sans-serif; background-color:#000;}
     #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
     .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
-    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .glass-card { background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
   </style>
@@ -35,29 +35,29 @@
     <form id="post-gig-form" class="space-y-6">
         <div>
              <label for="event-name" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Event Name / Venue <span class="text-red-400">*</span></label>
-            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600">
+            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="glass-input">
         </div>
         <div>
             <label for="event-location" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location <span class="text-red-400">*</span></label>
-            <input id="event-location" type="text" placeholder="123 Main St" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600">
+            <input id="event-location" type="text" placeholder="123 Main St" class="glass-input">
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="event-date" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Date <span class="text-red-400">*</span></label>
-                <input id="event-date" type="date" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition appearance-none" style="color-scheme: dark;">
+                <input id="event-date" type="date" class="glass-input appearance-none" style="color-scheme: dark;">
             </div>
             <div>
                 <label for="event-payout" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Payout ($) <span class="text-red-400">*</span></label>
-                <input id="event-payout" type="number" placeholder="500" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600"> 
+                <input id="event-payout" type="number" placeholder="500" class="glass-input"> 
             </div>
         </div>
          <div>
              <label for="event-genre" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Genre(s)</label>
-             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul" class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition placeholder-neutral-600">
+             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul" class="glass-input">
          </div>
         <div>
             <label for="event-description" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Description</label>
-            <textarea id="event-description" rows="4" placeholder="Details..." class="w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white focus:ring-2 focus:ring-emerald-500 transition resize-none"></textarea>
+            <textarea id="event-description" rows="4" placeholder="Details..." class="glass-input resize-none"></textarea>
         </div>
     </form>
   </main>

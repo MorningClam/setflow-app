@@ -21,15 +21,12 @@
   text-align: center;
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  
-  /* CRITICAL FIX: Allows clicking through the invisible toast container */
   pointer-events: none; 
 }
 
 #toast-notification.opacity-100 {
   opacity: 1;
   transform: translateX(-50%) translateY(-10px);
-  /* Re-enable clicks only when visible */
   pointer-events: auto; 
 }
 
@@ -70,11 +67,52 @@
 
 /* High-End UI Utilities */
 .glass-card {
-    background: rgba(30, 30, 30, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* --- MASTER INPUT FIX --- */
+.glass-input {
+    display: block;
+    width: 100%;
+    border-radius: 0.75rem;
+    /* Explicit border color */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    /* Force Dark Background */
+    background-color: rgba(20, 20, 20, 0.6) !important; 
+    padding: 0.75rem 1rem;
+    /* Force White Text */
+    color: white !important;
+    transition: all 0.2s ease;
+    /* Ensure Tailwind doesn't override */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: #10B981 !important; /* Emerald-500 */
+    background-color: rgba(20, 20, 20, 0.9) !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.glass-input::placeholder {
+    color: #a3a3a3 !important; /* neutral-400 */
+}
+
+/* Browser Autofill Override (The "White Box" Killer) */
+.glass-input:-webkit-autofill,
+.glass-input:-webkit-autofill:hover, 
+.glass-input:-webkit-autofill:focus, 
+.glass-input:-webkit-autofill:active {
+    -webkit-text-fill-color: white !important;
+    /* This box-shadow trick hides the white background */
+    -webkit-box-shadow: 0 0 0px 1000px #171717 inset !important;
+    background-color: #171717 !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 .btn-press {

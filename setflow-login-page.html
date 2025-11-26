@@ -20,7 +20,7 @@
         background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%);
         pointer-events: none; z-index: 0;
     }
-    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); }
+    .glass-card { background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); }
     .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
   </style>
 </head>
@@ -40,21 +40,21 @@
     <div class="glass-card rounded-2xl p-8 animate-enter" style="animation-delay: 0.1s;">
       <form id="login-form" class="space-y-6">
         <div>
-          <label for="email" class="block text-xs font-bold uppercase text-neutral-500 tracking-wider mb-1">Email address</label>
+          <label for="email" class="block text-xs font-bold uppercase text-neutral-400 tracking-wider mb-1">Email address</label>
           <div class="mt-2">
-            <input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-neutral-600 focus:ring-2 focus:ring-inset focus:ring-emerald-500 sm:text-sm sm:leading-6 transition-all outline-none">
+            <input id="email" name="email" type="email" autocomplete="email" required class="glass-input">
           </div>
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label for="password" class="block text-xs font-bold uppercase text-neutral-500 tracking-wider">Password</label>
+            <label for="password" class="block text-xs font-bold uppercase text-neutral-400 tracking-wider">Password</label>
             <div class="text-sm">
               <a href="setflow-password-reset-flow.html" class="font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">Forgot password?</a>
             </div>
           </div>
           <div class="mt-2">
-            <input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-xl border-0 bg-white/5 px-4 py-3 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-neutral-600 focus:ring-2 focus:ring-inset focus:ring-emerald-500 sm:text-sm sm:leading-6 transition-all outline-none">
+            <input id="password" name="password" type="password" autocomplete="current-password" required class="glass-input">
           </div>
         </div>
 
