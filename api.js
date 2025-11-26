@@ -76,9 +76,23 @@ export function resizeImage(file, maxWidth, quality = 0.7) {
     });
 }
 
+// FIX: Enhanced Error Handling
 export async function gracefulGet(promise, fallback = null) {
-    try { return await promise; }
-    catch (e) { console.error(e); return fallback; }
+    try {
+        return await promise;
+    } catch (error) {
+        console.error("API Error:", error);
+        
+        // Visual Feedback for Testers/Users
+        if (window.toast) {
+            let msg = "Unable to load data.";
+            if (error.code === 'permission-denied') msg = "Access denied.";
+            if (error.code === 'unavailable') msg = "Network error.";
+            window.toast.show(msg, 'error');
+        }
+        
+        return fallback;
+    }
 }
 
 // --- AUTH ---

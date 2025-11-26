@@ -15,9 +15,9 @@
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
     
+    /* Nav Styles - Critical for nav.js injection */
     .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
-    /* REVERTED: Simple Text Color Active State */
     .bottom-nav-link.active { color: #34D399; } 
     .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
     
@@ -172,28 +172,8 @@
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-    <div class="flex h-16 items-center justify-around">
-      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
-        <span class="text-xs font-medium">Home</span>
-      </a>
-      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        <span class="text-xs font-medium">Gigs</span>
-      </a>
-      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-         <span class="text-xs font-medium">Applied</span>
-      </a>
-      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
-        <span class="text-xs font-medium">Inbox</span>
-      </a>
-      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        <span class="text-xs font-medium">Account</span>
-      </a>
-    </div>
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full">
+        </div>
   </nav>
 </div>
 
@@ -220,11 +200,16 @@
 
   onAuthState(async (user) => {
     if (user) {
+      // FIX: Render nav immediately on auth to prevent flickering/missing menu
+      if(window.renderBottomNav) {
+          window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
+      }
+
       try {
         const userData = await gracefulGet(getUserData(user.uid), null);
         if (userData && userData.name) welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
         
-        // Parallel fetches
+        // Parallel fetches for dashboard data
         await Promise.all([loadLocalFeed(), loadEarnings(user.uid), loadNextGig(user.uid)]);
       } catch (error) { console.error(error); }
     } else window.location.href = 'setflow-login-page.html';
@@ -233,7 +218,7 @@
   async function loadEarnings(userId) {
       const completed = await gracefulGet(fetchCompletedGigsForUser(userId));
       
-      // Onboarding Logic: If no gigs found, show onboarding state
+      // Onboarding Logic
       if (!completed || completed.length === 0) {
           statsContainer.classList.add('hidden');
           onboardingContainer.classList.remove('hidden');
@@ -243,8 +228,6 @@
       const total = completed.reduce((sum, gig) => sum + (Number(gig.payout) || 0), 0);
       hudEarnings.textContent = `$${total.toLocaleString()}`;
       hudGigsCount.textContent = completed.length;
-      
-      // Random "View" count for prototype populated if active
       hudViewsCount.textContent = Math.floor(Math.random() * 50) + 100;
   }
 

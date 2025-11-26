@@ -46,9 +46,9 @@
         <div>
             <label class="mb-2 block text-sm font-medium text-neutral-300">I am a...</label>
             <div class="glass-card grid grid-cols-3 gap-1 rounded-xl p-1 bg-white/5 border border-white/10">
-                <button type="button" class="role-btn active rounded-lg px-3 py-2 text-sm btn-press">Musician</button>
-                <button type="button" class="role-btn rounded-lg px-3 py-2 text-sm btn-press">Venue</button>
-                <button type="button" class="role-btn rounded-lg px-3 py-2 text-sm btn-press">Promoter</button>
+                <button type="button" class="role-btn active rounded-lg px-3 py-2 text-sm btn-press" data-role="Musician">Musician</button>
+                <button type="button" class="role-btn rounded-lg px-3 py-2 text-sm btn-press" data-role="Venue">Venue</button>
+                <button type="button" class="role-btn rounded-lg px-3 py-2 text-sm btn-press" data-role="Promoter">Promoter</button>
             </div>
         </div>
         <div>
@@ -97,7 +97,8 @@
         btn.addEventListener('click', () => {
             btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            role = btn.textContent; // Capture text (e.g., "Venue")
+            // FIX: Read role from data attribute instead of textContent
+            role = btn.dataset.role; 
         });
     });
 

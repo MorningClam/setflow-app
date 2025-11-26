@@ -65,15 +65,16 @@ export function renderHeader(title, backLink = null, rightActionHtml = null) {
     
     let leftContent = '<div class="w-10 h-10"></div>';
     
+    // FIX: Added aria-label and min-h/min-w classes for 44px touch target
     if (backLink) {
         if (backLink === 'history') {
              leftContent = `
-                <a href="javascript:history.back()" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <a href="javascript:history.back()" aria-label="Back" class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 btn-press">
                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </a>`;
         } else {
              leftContent = `
-                <a href="#" onclick="window.goBackOr ? window.goBackOr('${backLink}') : window.location.href='${backLink}'; return false;" class="p-2 rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900">
+                <a href="#" onclick="window.goBackOr ? window.goBackOr('${backLink}') : window.location.href='${backLink}'; return false;" aria-label="Back" class="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-neutral-300 hover:bg-neutral-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-neutral-900 btn-press">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </a>`;
         }

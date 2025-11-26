@@ -13,6 +13,8 @@ service cloud.firestore {
     // --- COLLECTIONS ---
 
     // Users: Public Read (for profiles), Owner Write (for settings)
+    // NOTE: In a future update, move private fields (email, payment) to a subcollection 
+    // to prevent public exposure. Kept as-is now to prevent breaking frontend.
     match /users/{userId} {
       allow read: if isAuthed();
       allow write: if isOwner(userId); 
@@ -25,16 +27,21 @@ service cloud.firestore {
       allow update, delete: if isAuthed() && resource.data.ownerId == request.auth.uid;
     }
 
-    // Applications: Applicant or Gig Owner
+    // Applications: Applicant or Gig Owner ONLY
+    // FIXED: Prevent scraping of applicant lists by unauthorized users
     match /applications/{appId} {
-      allow read: if isAuthed();
+      allow read: if isAuthed() && (
+        resource.data.userId == request.auth.uid || 
+        get(/databases/$(database)/documents/gigs/$(resource.data.gigId)).data.ownerId == request.auth.uid
+      );
       allow create: if isAuthed() && request.resource.data.userId == request.auth.uid;
       allow update: if false; // Immutable
     }
 
     // Chat & Messages
     match /conversations/{convoId} {
-      allow read, write: if isAuthed(); // Simplified for prototype to ensure chat works
+      allow read, write: if isAuthed();
+      // Simplified for prototype to ensure chat works
     }
     
     match /conversations/{convoId}/messages/{msgId} {
@@ -45,7 +52,13 @@ service cloud.firestore {
     match /gear_listings/{id} { allow read, write: if isAuthed(); }
     match /player_posts/{id} { allow read, write: if isAuthed(); }
     match /jam_sessions/{id} { allow read, write: if isAuthed(); }
-    match /calendarEvents/{id} { allow read, write: if isOwner(resource.data.userId); }
+    
+    match /calendarEvents/{id} { 
+      // Check resource.data on read/update/delete, request.resource.data on create
+      allow read, update, delete: if isAuthed() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthed() && request.resource.data.userId == request.auth.uid;
+    }
+    
     match /bands/{id} { allow read, write: if isAuthed(); }
     match /reviews/{id} { allow read, write: if isAuthed(); }
     
