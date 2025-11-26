@@ -1,5 +1,5 @@
 /* =========================================================================
- * Setflow Dynamic Navigation Helper (Fixed Consistency)
+ * Setflow Dynamic Navigation Helper (Enhanced UI)
  * ========================================================================= */
 
 /**
