@@ -27,9 +27,10 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="text-white antialiased">
+<body class="text-white antialiased" style="background-color: #0a0a0a;">
+
 <div class="mx-auto max-w-md bg-neutral-900 relative z-10 pb-24">
-  <div id="offline-banner">You are currently offline. Data may be out of sync.</div>
+  <div id="offline-banner" style="display: none;">You are currently offline. Data may be out of sync.</div>
   <div class="ambient-light"></div>
 
   <header class="border-b border-white/10 bg-black/20 backdrop-blur-md px-5 py-4 sticky top-0 z-20">
@@ -274,7 +275,7 @@
           const borderClass = isOfficial ? 'border-emerald-500/40 bg-emerald-900/10' : 'border-transparent hover:bg-white/5';
           const btnClass = isOfficial 
               ? 'bg-emerald-500 text-black hover:bg-emerald-400' 
-              : 'border border-white/10 bg-white/5 text-neutral-300 hover:text-white';
+              : 'border border-white/10 bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10';
           
           const [month, day] = show.formattedDate.split(' ');
 
