@@ -117,8 +117,14 @@
 
   function renderGigs(gigs) {
     loadingState.style.display = 'none';
-    const items = gigsContainer.querySelectorAll('a');
-    items.forEach(i => i.remove());
+    
+    // CRITICAL FIX: Safely clear only dynamically added gig cards
+    // Do NOT use querySelectorAll('a') as it kills the empty state links
+    Array.from(gigsContainer.children).forEach(child => {
+        if (child.id !== 'loading-state' && child.id !== 'empty-state') {
+            child.remove();
+        }
+    });
 
     if (!gigs || gigs.length === 0) {
       emptyState.style.display = 'block';
