@@ -14,7 +14,7 @@
     .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
-    /* Nav Alignment */
+    
     .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; }
@@ -26,7 +26,7 @@
   </style>
 </head>
 <body class="text-white antialiased">
-<div class="mx-auto max-w-md bg-neutral-900 relative z-10 pb-20">
+<div class="mx-auto max-w-md bg-neutral-900 relative z-10 pb-24">
   <div id="offline-banner">You are currently offline. Data may be out of sync.</div>
   <div class="ambient-light"></div>
 
@@ -49,99 +49,116 @@
     </div>
   </header>
 
-  <main class="p-5 space-y-8">
+  <main class="p-5 space-y-6">
     
     <section class="glass-card relative overflow-hidden rounded-2xl p-5 animate-enter">
       <div class="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-emerald-500/20 blur-2xl"></div>
       <div class="flex items-center justify-between relative z-10">
          <div>
             <h1 id="welcome-header" class="text-lg font-bold text-white">Hello, Musician</h1>
-            <p class="text-xs text-neutral-400 font-medium tracking-wide">YOUR CAREER SNAPSHOT</p>
+            <p class="text-xs text-neutral-400 font-medium tracking-wide">CAREER SNAPSHOT</p>
          </div>
-         <div class="text-right">
-             <p class="text-xs text-neutral-400">YTD Earnings</p>
-             <p class="text-2xl font-bold text-emerald-400" id="hud-earnings">$0</p>
-         </div>
+         <a href="setflow-earnings-report.html" class="text-right group cursor-pointer">
+             <p class="text-xs text-neutral-400 group-hover:text-white transition">YTD Earnings</p>
+             <p class="text-2xl font-bold text-emerald-400 flex items-center justify-end gap-1">
+                <span id="hud-earnings">$0</span>
+                <svg class="w-4 h-4 opacity-50 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+             </p>
+         </a>
       </div>
       <div class="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-4 relative z-10">
           <div class="text-center">
               <span class="block text-lg font-bold text-white" id="hud-gigs-count">0</span>
-              <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Gigs Played</span>
+              <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Gigs</span>
           </div>
           <div class="text-center border-l border-white/10">
                <span class="block text-lg font-bold text-white" id="hud-views-count">--</span>
                <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Views</span>
           </div>
           <div class="text-center border-l border-white/10">
-               <span class="block text-lg font-bold text-amber-400 truncate" id="hud-next-show">--</span>
+               <span class="block text-lg font-bold text-white truncate" id="hud-next-show">--</span>
                <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Next Show</span>
           </div>
       </div>
     </section>
 
     <section class="animate-enter" style="animation-delay: 0.1s;">
-        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Quick Actions</h2>
-        <div class="grid grid-cols-3 gap-3">
+        <a href="setflow-browse-gigs.html" class="glass-card flex items-center justify-between w-full rounded-xl p-4 transition btn-press bg-gradient-to-r from-emerald-900/40 to-emerald-800/20 border border-emerald-500/30 group relative overflow-hidden">
+            <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition"></div>
+            <div class="flex items-center z-10">
+                <div class="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 mr-4 group-hover:scale-110 transition">
+                    <svg class="h-5 w-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <div class="text-left">
+                    <h2 class="text-lg font-black text-white uppercase tracking-tight group-hover:text-emerald-300 transition">Find A Gig</h2>
+                    <p class="text-[10px] text-emerald-400 font-bold">BROWSE OPEN LISTINGS</p>
+                </div>
+            </div>
+            <div class="z-10">
+                <svg class="h-6 w-6 text-emerald-500 opacity-50 group-hover:opacity-100 transition transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+        </a>
+    </section>
+
+    <section class="animate-enter" style="animation-delay: 0.2s;">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Command Center</h2>
+        
+        <div class="grid grid-cols-4 gap-3">
+            <a href="setflow-calendar.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-white"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Calendar</span>
+            </a>
+
+            <a href="setflow-promo-kit.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-indigo-400"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-300 uppercase tracking-wide">Promo Kit</span>
+            </a>
+
+            <a href="setflow-network.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-purple-400"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Network</span>
+            </a>
+
+            <a href="setflow-find-a-player.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-sky-400"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Scout</span>
+            </a>
             
-            <a href="setflow-find-a-player.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40">
-                <div class="mb-1 text-sky-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
-                <span class="text-[10px] font-bold text-neutral-300">Find Player</span>
+            <a href="setflow-gear-swap.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-amber-400"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Gear</span>
             </a>
 
-            <a href="setflow-jam-sessions.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40">
-                <div class="mb-1 text-rose-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path></svg></div>
-                <span class="text-[10px] font-bold text-neutral-300">Join Jam</span>
+            <a href="setflow-band-management.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-neutral-300"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Bands</span>
             </a>
 
-            <a href="setflow-routing-availability.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40">
-                <div class="mb-1 text-emerald-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
-                <span class="text-[10px] font-bold text-neutral-300">Calendar</span>
+            <a href="setflow-jam-sessions.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-rose-400"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-300">Jams</span>
             </a>
 
-            <a href="setflow-network.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40">
-                <div class="mb-1 text-purple-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-4.5-5a5 5 0 100-10 5 5 0 000 10z"></path></svg></div>
-                <span class="text-[10px] font-bold text-neutral-300">My Network</span>
-            </a>
-
-            <a href="setflow-promo-kit.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40">
-                <div class="mb-1 text-indigo-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
-                <span class="text-[10px] font-bold text-neutral-300">Promo Kit</span>
-            </a>
-
-            <a href="setflow-gear-swap.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40">
-                <div class="mb-1 text-amber-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg></div>
-                <span class="text-[10px] font-bold text-neutral-300">Gear Swap</span>
+            <a href="setflow-musician-profile.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+                <div class="mb-1 text-neutral-300"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+                <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wide">Profile</span>
             </a>
         </div>
     </section>
 
-    <section class="animate-enter" style="animation-delay: 0.2s;">
-       <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-bold text-white">Hot Opportunities 🔥</h2>
-          <a href="setflow-browse-gigs.html" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 uppercase tracking-wide">See All</a>
-       </div>
-       <div id="gigs-loading" class="flex justify-center py-4"><div class="loading-spinner"></div></div>
-       <div id="hot-gigs-container" class="flex space-x-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory"></div>
-       <div id="gigs-empty" class="hidden text-center text-sm text-neutral-500 py-4 glass-card rounded-xl">No hot gigs right now.</div>
-    </section>
-
     <section class="animate-enter" style="animation-delay: 0.3s;">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-bold text-white">Up Next</h2>
-        <a href="setflow-calendar.html" class="text-xs font-semibold text-neutral-400 hover:text-white uppercase tracking-wide">Full Calendar</a>
+        <h2 class="text-lg font-bold text-white">Shows in the Area 📍</h2>
+        <a href="setflow-local-shows.html" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 uppercase tracking-wide">View All</a>
       </div>
-      <div id="schedule-loading" class="hidden justify-center py-4"><div class="loading-spinner"></div></div>
-      <div id="schedule-list" class="space-y-3"></div>
-      <div id="schedule-empty" class="hidden glass-card rounded-xl px-4 py-8 text-center border-dashed border border-white/10">
-        <p class="text-sm text-neutral-400">Nothing on the books.</p>
-        <a href="setflow-new-calendar-event.html" class="mt-2 inline-block text-sm font-semibold text-emerald-400 hover:underline">Add Event</a>
-      </div>
+      
+      <div id="local-shows-list" class="space-y-3"></div>
     </section>
 
   </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/80 backdrop-blur-xl pb-safe">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around">
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+    <div class="flex h-16 items-center justify-around">
       <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
         <span class="text-xs font-medium">Home</span>
@@ -173,18 +190,12 @@
 <script src="nav.js"></script>
 
 <script type="module">
-  import { onAuthState, fetchCalendarEvents, gracefulGet, getUserData, fetchGigs, fetchCompletedGigsForUser, escapeHTML, isOnline } from './api.js';
+  import { onAuthState, fetchLocalShows, gracefulGet, getUserData, fetchCompletedGigsForUser, escapeHTML, isOnline } from './api.js';
 
   const offlineBanner = document.getElementById('offline-banner');
   if (!isOnline()) offlineBanner.style.display = 'block';
 
   const welcomeHeader = document.getElementById('welcome-header');
-  const scheduleList = document.getElementById('schedule-list');
-  const scheduleLoading = document.getElementById('schedule-loading');
-  const scheduleEmpty = document.getElementById('schedule-empty');
-  const hotGigsContainer = document.getElementById('hot-gigs-container');
-  const gigsLoading = document.getElementById('gigs-loading');
-  const gigsEmpty = document.getElementById('gigs-empty');
   const hudEarnings = document.getElementById('hud-earnings');
   const hudGigsCount = document.getElementById('hud-gigs-count');
   const hudViewsCount = document.getElementById('hud-views-count');
@@ -195,9 +206,12 @@
       try {
         const userData = await gracefulGet(getUserData(user.uid), null);
         if (userData && userData.name) welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
+        
+        // Random "View" count for prototype
         hudViewsCount.textContent = Math.floor(Math.random() * 50) + 100;
-        await Promise.all([loadSchedule(user.uid), loadEarnings(user.uid), loadHotGigs()]);
-        if (window.renderBottomNav) window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
+
+        // Run parallel fetches
+        await Promise.all([loadLocalFeed(), loadEarnings(user.uid), loadNextGig(user.uid)]);
       } catch (error) { console.error(error); }
     } else window.location.href = 'setflow-login-page.html';
   });
@@ -211,33 +225,56 @@
       }
   }
 
-  async function loadSchedule(userId) {
-    const events = await gracefulGet(fetchCalendarEvents(userId));
-    if (scheduleLoading) scheduleLoading.style.display = 'none';
-    if(!events || events.length === 0) { scheduleEmpty.style.display = 'block'; hudNextShow.textContent = "None"; return; }
-    const nextEvent = events[0];
-    hudNextShow.textContent = nextEvent.dateObject ? nextEvent.dateObject.toLocaleDateString('en-US', { weekday: 'short' }) : 'TBD';
-    events.slice(0, 2).forEach(evt => {
-        const div = document.createElement('div');
-        const borderColor = evt.type === 'gig' ? 'border-emerald-500' : 'border-neutral-600';
-        div.className = `glass-card flex items-center space-x-3 rounded-xl p-3 border-l-4 ${borderColor}`;
-        div.innerHTML = `<div class="text-lg">${evt.type === 'gig' ? '🎤' : '📅'}</div><div class="min-w-0 flex-1"><p class="truncate font-semibold text-white text-sm">${escapeHTML(evt.title)}</p><p class="text-xs text-neutral-400">${evt.formattedDate}</p></div>`;
-        scheduleList.appendChild(div);
-    });
+  async function loadNextGig(userId) {
+      // Placeholder for future logic to find the very next committed gig
+      hudNextShow.textContent = 'TBD';
   }
 
-  async function loadHotGigs() {
-    const gigs = await gracefulGet(fetchGigs());
-    if(gigsLoading) gigsLoading.style.display = 'none';
-    if(!gigs || gigs.length === 0) { gigsEmpty.style.display = 'block'; return; }
-    const hotGigs = gigs.sort((a, b) => b.payout - a.payout).slice(0, 5);
-    hotGigs.forEach(gig => {
-        const div = document.createElement('a');
-        div.href = `setflow-gig-detail-view.html?id=${gig.id}`;
-        div.className = 'glass-card flex-shrink-0 w-64 snap-start rounded-xl p-4 hover:bg-white/5 transition group';
-        div.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">$${gig.payout}</span><span class="text-[10px] text-neutral-400">${gig.formattedDate}</span></div><h3 class="font-bold text-white truncate group-hover:text-emerald-400 transition">${escapeHTML(gig.venueName)}</h3><p class="text-xs text-neutral-400 truncate">${escapeHTML(gig.location)}</p><div class="mt-3 text-xs text-neutral-500 uppercase tracking-wider font-semibold">${escapeHTML(gig.genre || 'Open')}</div>`;
-        hotGigsContainer.appendChild(div);
-    });
+  async function loadLocalFeed() {
+      const list = document.getElementById('local-shows-list');
+      if(!list) return;
+      
+      const shows = await fetchLocalShows();
+      list.innerHTML = '';
+
+      if (!shows || shows.length === 0) {
+          list.innerHTML = `
+            <div class="text-center py-6 bg-white/5 rounded-xl border border-dashed border-white/10">
+                <p class="text-neutral-400 text-sm">No upcoming shows nearby.</p>
+            </div>
+          `;
+          return;
+      }
+
+      // Show top 3
+      shows.slice(0, 3).forEach(show => {
+          const isOfficial = show.isOfficial;
+          const div = document.createElement('div');
+          
+          const borderClass = isOfficial ? 'border-emerald-500/40 bg-emerald-900/10' : 'border-transparent hover:bg-white/5';
+          const btnClass = isOfficial 
+              ? 'bg-emerald-500 text-black hover:bg-emerald-400' 
+              : 'border border-white/10 bg-white/5 text-neutral-300 hover:text-white';
+          
+          const [month, day] = show.formattedDate.split(' ');
+
+          div.className = `glass-card flex rounded-xl overflow-hidden transition btn-press border ${borderClass} relative mb-3`;
+          div.innerHTML = `
+              ${isOfficial ? '<div class="absolute top-0 right-0 bg-emerald-500 text-black text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">Official</div>' : ''}
+              <div class="w-16 ${isOfficial ? 'bg-neutral-800/50' : 'bg-neutral-800/30'} flex flex-col items-center justify-center border-r border-white/5">
+                  <span class="text-[10px] font-bold ${isOfficial ? 'text-emerald-400' : 'text-neutral-500'} uppercase">${month}</span>
+                  <span class="text-xl font-black text-white">${day}</span>
+              </div>
+              <div class="p-3 flex-1 min-w-0 flex justify-between items-center">
+                  <div class="min-w-0 mr-2">
+                      <h3 class="font-bold text-white truncate text-sm">${escapeHTML(show.title)}</h3>
+                      <p class="text-xs ${isOfficial ? 'text-emerald-300' : 'text-neutral-400'} truncate">${escapeHTML(show.venue)} • ${show.time}</p>
+                  </div>
+                  <a href="${show.link}" class="text-xs font-bold rounded-lg px-3 py-2 transition shadow-lg whitespace-nowrap ${btnClass}">${show.action}</a>
+              </div>
+          `;
+          list.appendChild(div);
+      });
   }
 </script>
 </body>

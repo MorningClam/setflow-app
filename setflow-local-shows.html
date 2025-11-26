@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setflow - Local Shows</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="toast.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
+    #offline-banner { display: none; position: sticky; top: 0; left: 0; right: 0; padding: 0.5rem; background-color: #DC2626; color: white; text-align: center; font-size: 0.875rem; font-weight: 500; z-index: 9998; }
+    .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 4px solid rgba(115, 115, 115, 0.3); border-radius: 50%; border-top-color: #10B981; animation: spin 1s ease-in-out infinite; }
+    .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
+    .ambient-light { position: fixed; top: 0; left: 0; right: 0; height: 100%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 60%); pointer-events: none; z-index: 0; }
+    
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
+    .bottom-nav-link:hover { color: white; }
+    .bottom-nav-link.active { color: #34D399; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .animate-enter { animation: fadeUp 0.4s ease-out forwards; opacity: 0; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="text-white antialiased">
+<div class="mx-auto max-w-md bg-neutral-900 relative z-10 pb-24">
+  <div id="offline-banner">You are currently offline.</div>
+  <div class="ambient-light"></div>
+
+  <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-auto max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 py-3">
+    <div class="flex h-10 items-center justify-between">
+      <a href="#" onclick="window.history.back(); return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press transition">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      </a>
+      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-white">Local Shows</h1>
+      <div class="w-10 h-10"></div> 
+    </div>
+    <div class="mt-2">
+      <div class="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
+        <svg class="mr-2 h-4 w-4 flex-shrink-0 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <input id="search-input" type="search" placeholder="Search bands, venues..." class="w-full border-0 bg-transparent py-2.5 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
+      </div>
+    </div>
+    <div class="mt-3 flex space-x-2 overflow-x-auto no-scrollbar">
+        <button class="filter-btn active px-4 py-1.5 rounded-full bg-white text-black text-xs font-bold shadow-lg transition btn-press">All</button>
+        <button class="filter-btn px-4 py-1.5 rounded-full bg-white/10 text-neutral-300 border border-white/5 text-xs font-medium hover:bg-white/20 transition btn-press">Official</button>
+        <button class="filter-btn px-4 py-1.5 rounded-full bg-white/10 text-neutral-300 border border-white/5 text-xs font-medium hover:bg-white/20 transition btn-press">Tonight</button>
+    </div>
+  </header>
+
+  <main id="shows-container" class="flex-1 space-y-4 p-5 pt-40 pb-24 relative z-10"> 
+    <div class="flex justify-center items-center py-20" id="loading-state">
+      <div class="loading-spinner"></div>
+    </div>
+    
+    <div class="hidden text-center py-10" id="empty-state">
+        <p class="text-neutral-400 text-sm">No shows found in this area.</p>
+    </div>
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+    <div class="flex h-16 items-center justify-around w-full">
+      <a href="setflow-musician-dashboard.html" class="bottom-nav-link active text-emerald-400">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z"></path></svg>
+        <span class="text-xs font-medium">Home</span>
+      </a>
+      <a href="setflow-browse-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <span class="text-xs font-medium">Gigs</span>
+      </a>
+      <a href="setflow-applied-gigs.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+         <span class="text-xs font-medium">Applied</span>
+      </a>
+      <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z"></path></svg>
+        <span class="text-xs font-medium">Inbox</span>
+      </a>
+      <a href="setflow-musician-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <span class="text-xs font-medium">Account</span>
+      </a>
+    </div>
+  </nav>
+</div>
+
+<div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
+  <span id="toast-message"></span>
+</div>
+<script src="toast.js"></script>
+
+<script type="module">
+  import { isOnline, escapeHTML, fetchLocalShows } from './api.js';
+
+  const container = document.getElementById('shows-container');
+  const loading = document.getElementById('loading-state');
+  const empty = document.getElementById('empty-state');
+  const searchInput = document.getElementById('search-input');
+  const filters = document.querySelectorAll('.filter-btn');
+  
+  if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
+
+  let allShows = [];
+
+  function renderShows(list) {
+      loading.style.display = 'none';
+      container.querySelectorAll('.show-card').forEach(el => el.remove());
+
+      if(!list || list.length === 0) {
+          empty.classList.remove('hidden');
+          return;
+      }
+      empty.classList.add('hidden');
+
+      list.forEach((show, index) => {
+          const isOfficial = show.isOfficial;
+          const div = document.createElement('div');
+          
+          const cardStyle = isOfficial 
+            ? 'border border-emerald-500/40 bg-emerald-900/10' 
+            : 'border border-transparent';
+
+          const btnStyle = isOfficial 
+            ? 'bg-emerald-500 text-black hover:bg-emerald-400' 
+            : 'border border-white/10 bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10';
+
+          div.className = `show-card relative flex items-center glass-card rounded-xl p-3 mb-3 animate-enter btn-press transition hover:bg-white/5 ${cardStyle}`;
+          div.style.animationDelay = `${index * 0.05}s`;
+
+          // Default image if none provided
+          const imgUrl = show.image || 'https://images.unsplash.com/photo-1514525253440-b39345208668?q=80&w=100&auto=format=fit=crop';
+
+          // Date parts
+          const [month, day] = show.formattedDate.split(' ');
+
+          div.innerHTML = `
+              ${isOfficial ? '<div class="absolute top-0 right-0 bg-emerald-500 text-black text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider z-10">Official</div>' : ''}
+              
+              <div class="h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden bg-neutral-800 relative">
+                  <img src="${imgUrl}" class="h-full w-full object-cover opacity-80">
+                  <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[1px]">
+                      <span class="text-[9px] font-bold ${isOfficial ? 'text-emerald-400' : 'text-neutral-400'} uppercase tracking-widest">${month}</span>
+                      <span class="text-xl font-black text-white">${day}</span>
+                  </div>
+              </div>
+              
+              <div class="flex-1 min-w-0 ml-4">
+                  <h3 class="font-bold text-white truncate text-base ${isOfficial ? 'text-emerald-100' : ''}">${escapeHTML(show.title)}</h3>
+                  <p class="text-xs text-neutral-400 mt-0.5 flex items-center">
+                      <span class="${isOfficial ? 'text-emerald-400 font-medium' : 'text-neutral-300'}">${escapeHTML(show.venue)}</span>
+                      <span class="mx-1.5 text-neutral-600">•</span>
+                      <span>${show.time}</span>
+                  </p>
+              </div>
+
+              <a href="${show.link}" target="${show.source === 'external' ? '_blank' : '_self'}" class="ml-3 flex-shrink-0 text-xs font-bold px-4 py-2 rounded-lg transition shadow-lg ${btnStyle}">
+                  ${show.action}
+              </a>
+          `;
+          container.appendChild(div);
+      });
+  }
+
+  (async () => {
+      try {
+          allShows = await fetchLocalShows();
+          renderShows(allShows);
+      } catch(e) {
+          console.error(e);
+          loading.style.display = 'none';
+          empty.textContent = "Error loading shows.";
+          empty.classList.remove('hidden');
+      }
+  })();
+
+  filters.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+          filters.forEach(b => {
+              b.classList.remove('active', 'bg-white', 'text-black', 'shadow-lg');
+              b.classList.add('bg-white/10', 'text-neutral-300');
+          });
+          e.target.classList.add('active', 'bg-white', 'text-black', 'shadow-lg');
+          e.target.classList.remove('bg-white/10', 'text-neutral-300');
+          
+          const filter = e.target.innerText.toLowerCase();
+          if(filter === 'all') renderShows(allShows);
+          else if(filter === 'official') renderShows(allShows.filter(s => s.isOfficial));
+      });
+  });
+
+  searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      renderShows(allShows.filter(s => s.title.toLowerCase().includes(term) || s.venue.toLowerCase().includes(term)));
+  });
+</script>
+</body>
+</html>
