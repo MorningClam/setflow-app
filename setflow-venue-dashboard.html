@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Setflow - Venue Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="toast.css">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
@@ -14,12 +14,23 @@
     .glass-card { background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: fixed; top: -10%; right: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
-    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; }
+    
+    /* Action Pulse */
+    .live-pulse { animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+    /* Bottom Nav Styles */
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #818cf8; }
-    .bottom-nav-link svg { margin-bottom: 0.25rem; }
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
+    
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .animate-enter { animation: fadeUp 0.4s ease-out forwards; opacity: 0; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Modal Transitions */
     .modal-container { transition: opacity 0.3s ease-out; }
     .modal-overlay { transition: opacity 0.3s ease-out; opacity: 0;}
     .modal-content { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
@@ -28,7 +39,7 @@
   </style>
 </head>
 <body class="text-white antialiased">
-<div class="mx-auto flex min-h-screen max-w-md flex-col relative z-10 bg-neutral-900 shadow-2xl overflow-hidden">
+<div class="mx-auto max-w-md bg-neutral-900 relative z-10 pb-24">
   <div id="offline-banner">You are currently offline. Data may be out of sync.</div>
   <div class="ambient-light"></div>
 
@@ -46,67 +57,82 @@
     </div>
   </header>
 
-  <main id="dashboard-content" class="flex-grow p-5 pb-24 space-y-8 relative z-10"> 
+  <main class="p-5 space-y-6"> 
+    
     <section class="glass-card relative overflow-hidden rounded-2xl p-5 animate-enter">
        <div class="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-indigo-500/20 blur-2xl"></div>
        <div class="flex items-center justify-between relative z-10">
           <div>
-             <h1 id="venue-name-header" class="text-lg font-bold text-white">Loading...</h1>
+             <h1 id="venue-name-header" class="text-lg font-bold text-white">Venue Manager</h1>
              <p class="text-xs text-neutral-400 font-medium tracking-wide">BOX OFFICE</p>
           </div>
+          <div class="text-right">
+             <p class="text-xs text-neutral-400">Active Gigs</p>
+             <p class="text-2xl font-bold text-indigo-400" id="hud-active-count">0</p>
+         </div>
        </div>
        <div class="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-4 relative z-10">
            <div class="text-center">
-               <span class="block text-3xl font-bold text-indigo-400" id="hud-applicants">0</span>
-               <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Applicants Waiting</span>
+               <span class="block text-xl font-bold text-white" id="hud-applicants">0</span>
+               <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">New Applicants</span>
            </div>
            <div class="text-center border-l border-white/10">
-                <span class="block text-lg font-bold text-white truncate px-2" id="hud-next-show">--</span>
-                <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Next Headliner</span>
+                <span class="block text-xl font-bold text-white truncate px-2" id="hud-next-show">--</span>
+                <span class="text-[10px] uppercase tracking-wide text-neutral-500 font-semibold">Next Show</span>
            </div>
        </div>
     </section>
 
     <section class="animate-enter" style="animation-delay: 0.1s;">
-      <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-500">Manage</h2>
-      <div class="grid grid-cols-2 gap-3">
-          <button id="open-post-modal-btn" class="glass-card flex flex-col items-center justify-center rounded-xl p-4 hover:bg-white/5 transition btn-press group border border-transparent hover:border-emerald-500/30 w-full">
-              <div class="mb-2 rounded-full bg-white/5 p-3 text-emerald-400">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-              </div>
-              <span class="text-sm font-medium text-neutral-200">Post Gig</span>
-          </button>
-          <a href="setflow-artist-discovery.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-4 hover:bg-white/5 transition btn-press group border border-transparent hover:border-indigo-500/30">
-              <div class="mb-2 rounded-full bg-white/5 p-3 text-indigo-400">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-              </div>
-              <span class="text-sm font-medium text-neutral-200">Scout Talent</span>
+        <button id="open-post-modal-btn" class="glass-card flex items-center justify-between w-full rounded-xl p-4 transition btn-press bg-gradient-to-r from-indigo-900/40 to-indigo-800/20 border border-indigo-500/30 group relative overflow-hidden">
+            <div class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition"></div>
+            <div class="flex items-center z-10">
+                <div class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 mr-4 group-hover:scale-110 transition">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </div>
+                <div class="text-left">
+                    <h2 class="text-lg font-black text-white uppercase tracking-tight group-hover:text-indigo-300 transition">Post New Gig</h2>
+                    <p class="text-[10px] text-indigo-400 font-bold">FILL THE CALENDAR</p>
+                </div>
+            </div>
+            <div class="z-10">
+                <svg class="h-6 w-6 text-indigo-500 opacity-50 group-hover:opacity-100 transition transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+        </button>
+    </section>
+
+    <section class="animate-enter" style="animation-delay: 0.2s;">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Command Center</h2>
+      <div class="grid grid-cols-3 gap-3">
+          <a href="setflow-artist-discovery.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+              <div class="mb-1 text-indigo-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
+              <span class="text-[10px] font-bold text-neutral-300">Scout</span>
           </a>
-           <a href="setflow-gig-templates.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-4 hover:bg-white/5 transition btn-press group border border-transparent hover:border-amber-500/30">
-              <div class="mb-2 rounded-full bg-white/5 p-3 text-amber-400">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-              </div>
-              <span class="text-sm font-medium text-neutral-200">Templates</span>
+          <a href="setflow-inbox.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg></div>
+              <span class="text-[10px] font-bold text-neutral-300">Inbox</span>
           </a>
-           <div class="glass-card flex flex-col items-center justify-center rounded-xl p-4 opacity-50 cursor-not-allowed">
-              <div class="mb-2 rounded-full bg-white/5 p-3 text-neutral-500">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-              </div>
-              <span class="text-sm font-medium text-neutral-500">Analytics</span>
-          </div>
+          <a href="setflow-gig-templates.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+              <div class="mb-1 text-amber-400"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg></div>
+              <span class="text-[10px] font-bold text-neutral-300">Templates</span>
+          </a>
+           <a href="setflow-calendar.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
+              <span class="text-[10px] font-bold text-neutral-300">Calendar</span>
+          </a>
+          <a href="setflow-venue-profile.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
+              <span class="text-[10px] font-bold text-neutral-300">Public</span>
+          </a>
+          <a href="setflow-venue-settings.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press bg-neutral-800/40 border border-white/5 hover:bg-white/5">
+              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+              <span class="text-[10px] font-bold text-neutral-300">Settings</span>
+          </a>
       </div>
     </section>
 
-    <section id="priority-section" class="hidden animate-enter" style="animation-delay: 0.2s;">
-       <div class="flex items-center justify-between mb-3">
-           <h2 class="text-lg font-bold text-white">Action Required</h2>
-           <span class="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-400 border border-red-500/20">REVIEW NOW</span>
-       </div>
-       <div id="priority-list" class="flex space-x-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory"></div>
-    </section>
-
     <section class="animate-enter" style="animation-delay: 0.3s;">
-      <h2 class="mb-3 text-lg font-bold text-white">Gig Schedule</h2>
+      <h2 class="mb-3 text-lg font-bold text-white">Box Office</h2>
       <div class="flex justify-center items-center py-10" id="loading-state">
           <div class="loading-spinner"></div>
       </div>
@@ -115,7 +141,8 @@
       </div>
       <div id="gigs-list" class="space-y-4"></div>
        <div id="empty-state" class="hidden py-8 text-center rounded-xl border border-dashed border-white/10 glass-card">
-           <p class="text-sm text-neutral-400">No gigs on the calendar.</p>
+           <p class="text-sm text-neutral-400">No gigs listed yet.</p>
+           <button onclick="document.getElementById('open-post-modal-btn').click()" class="text-indigo-400 font-bold text-xs mt-2 hover:text-indigo-300">Create First Gig</button>
        </div>
     </section>
 
@@ -132,7 +159,7 @@
               <span class="text-xs font-medium">Post</span>
           </a>
           <a href="setflow-inbox.html" class="bottom-nav-link text-neutral-400 hover:text-white">
-              <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span class="text-xs font-medium">Inbox</span>
           </a>
           <a href="setflow-venue-settings.html" class="bottom-nav-link text-neutral-400 hover:text-white">
@@ -151,7 +178,7 @@
             <p class="mt-1 text-sm text-neutral-400">Choose an option below to get started.</p>
         </div>
         <div class="space-y-3">
-            <a href="setflow-post-event-page.html" class="block w-full rounded-xl bg-emerald-600 px-6 py-3 text-center text-base font-bold text-white hover:bg-emerald-500 btn-press">Create New Gig</a>
+            <a href="setflow-post-event-page.html" class="block w-full rounded-xl bg-indigo-600 px-6 py-3 text-center text-base font-bold text-white hover:bg-indigo-500 btn-press">Create New Gig</a>
             <a href="setflow-gig-templates.html" class="block w-full rounded-xl bg-white/5 border border-white/5 px-6 py-3 text-center text-base font-bold text-white hover:bg-white/10 btn-press">Use a Template</a>
             <button id="close-post-modal-btn" class="w-full rounded-xl px-6 py-3 text-base font-medium text-neutral-400 hover:text-white">Cancel</button>
         </div>
@@ -165,7 +192,8 @@
 <script src="toast.js"></script>
 
 <script type="module">
-  import { onAuthState, fetchGigsForOwner, getUserData, gracefulGet, escapeHTML, isOnline } from './api.js';
+  import { onAuthState, getUserData, gracefulGet, escapeHTML, isOnline, db } from './api.js';
+  import { collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   document.addEventListener('DOMContentLoaded', () => {
       const modal = document.getElementById('post-modal');
@@ -201,80 +229,96 @@
       if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
   });
 
-  const dashboardContent = document.getElementById('dashboard-content');
   const venueNameHeader = document.getElementById('venue-name-header');
   const loadingState = document.getElementById('loading-state');
   const errorState = document.getElementById('error-state');
   const emptyState = document.getElementById('empty-state');
   const gigsList = document.getElementById('gigs-list');
-  const prioritySection = document.getElementById('priority-section');
-  const priorityList = document.getElementById('priority-list');
-  
   const hudApplicants = document.getElementById('hud-applicants');
   const hudNextShow = document.getElementById('hud-next-show');
+  const hudActiveCount = document.getElementById('hud-active-count');
 
-  function renderDashboard(gigs) {
-    loadingState.style.display = 'none';
+  async function loadVenueGigs(uid) {
+    try {
+        // Direct Query for "All Gigs owned by Me"
+        const q = query(collection(db, "gigs"), where("ownerId", "==", uid), orderBy("date", "desc"));
+        const snap = await getDocs(q);
+        
+        loadingState.style.display = 'none';
+        gigsList.innerHTML = '';
 
-    if (!gigs) {
-        errorState.style.display = 'block';
-        return;
-    }
-    errorState.style.display = 'none';
-    gigsList.innerHTML = '';
-    priorityList.innerHTML = ''; 
-    
-    if (gigs.length === 0) {
-        emptyState.classList.remove('hidden');
-        return;
-    }
-    emptyState.classList.add('hidden');
-
-    gigs.sort((a, b) => (b.dateObject || 0) - (a.dateObject || 0)); 
-    
-    let totalApplicants = 0;
-    let nextShow = null;
-    const today = new Date(); today.setHours(0,0,0,0);
-
-    gigs.forEach(gig => {
-        const gigDate = gig.dateObject;
-        const isFuture = gigDate >= today;
-        const isBooked = gig.status === 'booked';
-        const hasApplicants = gig.applicantCount > 0 && !isBooked;
-
-        if (!isBooked && isFuture) totalApplicants += (gig.applicantCount || 0);
-        if (isBooked && isFuture) { if (!nextShow || gigDate < nextShow.dateObject) nextShow = gig; }
-
-        const cardClass = isBooked ? 'border-white/5 bg-white/5 opacity-60' : 'border-indigo-500/30 bg-white/5';
-        const statusBadge = isBooked ? `<span class="text-[10px] font-bold text-neutral-400 uppercase">Booked</span>` : `<span class="text-[10px] font-bold text-indigo-400 uppercase">${gig.applicantCount} Apps</span>`;
-        const link = isBooked ? `setflow-show-sheet.html?gigId=${gig.id}` : `setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}`;
-
-        gigsList.innerHTML += `
-            <a href="${link}" class="block rounded-xl border ${cardClass} p-4 transition hover:bg-white/10 btn-press glass-card">
-                 <div class="flex justify-between items-start">
-                   <div>
-                       <p class="font-bold text-white">${escapeHTML(gig.venueName)}</p>
-                       <p class="text-sm text-neutral-400">${gig.formattedDate}</p>
-                   </div>
-                   ${statusBadge}
-                 </div>
-            </a>
-        `;
-
-        if (hasApplicants && isFuture) {
-            prioritySection.classList.remove('hidden');
-            priorityList.innerHTML += `
-                <a href="${link}" class="flex-shrink-0 w-48 snap-start rounded-xl border border-indigo-500 bg-indigo-500/10 p-3 hover:bg-indigo-500/20 transition btn-press backdrop-blur-md">
-                    <p class="text-xs text-indigo-300 font-bold mb-1">${gig.applicantCount} Waiting</p>
-                    <p class="text-sm font-bold text-white truncate">${gig.formattedDate}</p>
-                    <p class="text-xs text-neutral-400 mt-1">Review Now →</p>
-                </a>
-            `;
+        if (snap.empty) {
+            emptyState.classList.remove('hidden');
+            hudApplicants.textContent = "0";
+            hudActiveCount.textContent = "0";
+            hudNextShow.textContent = "--";
+            return;
         }
-    });
+        emptyState.classList.add('hidden');
 
-    hudApplicants.textContent = totalApplicants;
-    hudNextShow.textContent = nextShow ? nextShow.dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'None';
+        let gigs = snap.docs.map(d => {
+            const data = d.data();
+            return { id: d.id, ...data, dateObject: data.date?.toDate ? data.date.toDate() : new Date() };
+        });
+
+        // Stats Calculation
+        const today = new Date(); today.setHours(0,0,0,0);
+        const active = gigs.filter(g => g.dateObject >= today);
+        const pendingApps = active.reduce((sum, g) => sum + (g.status === 'open' ? (g.applicantCount || 0) : 0), 0);
+        
+        // Find next booked show
+        const nextBooked = active.filter(g => g.status === 'booked').sort((a,b) => a.dateObject - b.dateObject)[0];
+        
+        hudActiveCount.textContent = active.length;
+        hudApplicants.textContent = pendingApps;
+        hudNextShow.textContent = nextBooked ? nextBooked.dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "TBD";
+
+        // Render Feed
+        gigs.forEach(gig => {
+            const isBooked = gig.status === 'booked';
+            const hasApplicants = !isBooked && (gig.applicantCount > 0);
+            const dateStr = gig.dateObject.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            // Logic for Card Style
+            let cardStyle = 'border border-transparent bg-white/5'; // Default
+            let statusBadge = '';
+            let actionBtn = '';
+
+            if (isBooked) {
+                statusBadge = '<span class="text-[10px] font-bold text-neutral-500 uppercase bg-neutral-800 px-2 py-1 rounded">Booked</span>';
+                actionBtn = `<a href="setflow-show-sheet.html?gigId=${gig.id}" class="text-xs font-bold text-neutral-300 bg-white/5 border border-white/10 px-3 py-2 rounded-lg hover:bg-white/10 transition">Show Sheet</a>`;
+            } else if (hasApplicants) {
+                cardStyle = 'border border-indigo-500/40 bg-indigo-900/10 shadow-lg shadow-indigo-500/5';
+                statusBadge = `<span class="text-[10px] font-bold text-indigo-200 bg-indigo-500/20 px-2 py-1 rounded border border-indigo-500/30 flex items-center"><span class="h-1.5 w-1.5 rounded-full bg-indigo-400 mr-1.5 live-pulse"></span> ${gig.applicantCount} Apps</span>`;
+                actionBtn = `<a href="setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}" class="text-xs font-bold text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20">Review</a>`;
+            } else {
+                statusBadge = '<span class="text-[10px] font-bold text-neutral-400 border border-white/10 px-2 py-1 rounded">Open</span>';
+                actionBtn = `<a href="#" class="text-xs font-bold text-neutral-400 hover:text-white transition px-3 py-2">Edit</a>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = `glass-card rounded-xl p-4 mb-3 animate-enter btn-press ${cardStyle}`;
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-bold text-white text-base truncate">${escapeHTML(gig.venueName)}</h3>
+                        <p class="text-xs text-neutral-400">${dateStr} • ${escapeHTML(gig.genre || 'Open')}</p>
+                    </div>
+                    ${statusBadge}
+                </div>
+                <div class="flex justify-between items-center border-t border-white/5 pt-3">
+                    <span class="text-xs font-mono text-neutral-500">$${gig.payout}</span>
+                    ${actionBtn}
+                </div>
+            `;
+            gigsList.appendChild(card);
+        });
+
+    } catch (e) {
+        console.error(e);
+        errorState.style.display = 'block';
+        loadingState.style.display = 'none';
+    }
   }
 
   onAuthState(async (user) => {
@@ -289,11 +333,9 @@
              return;
         }
 
-        const gigs = await gracefulGet(fetchGigsForOwner(user.uid));
-
         if (userData && userData.name) venueNameHeader.innerText = userData.name;
-        else venueNameHeader.innerText = "Venue Dashboard";
-        renderDashboard(gigs);
+        await loadVenueGigs(user.uid);
+
       } catch (error) {
          loadingState.style.display = 'none';
          errorState.style.display = 'block';
