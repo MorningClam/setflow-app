@@ -94,99 +94,30 @@ export async function gracefulGet(promise, fallback = null) {
 export function onAuthState(cb) { return onAuthStateChanged(auth, cb); }
 export async function signInUser(e, p) { return signInWithEmailAndPassword(auth, e, p); }
 export async function signOutUser() { return signOut(auth); }
-
 export async function signUpUser(name, email, password, role) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = cred.user.uid;
-    const batch = writeBatch(db);
-
-    // 1. Public Profile (Name, Role, Status)
-    const publicRef = doc(db, "users", uid);
-    batch.set(publicRef, {
-        name,
-        roles: [role.toLowerCase()],
-        bands: {},
-        profileSetupComplete: false,
-        createdAt: serverTimestamp()
+    await setDoc(doc(db, "users", cred.user.uid), {
+        name, email, roles: [role.toLowerCase()], bands: {}, profileSetupComplete: false, createdAt: serverTimestamp()
     });
-
-    // 2. Private Data (Email, etc.)
-    const privateRef = doc(db, "users", uid, "private", "data");
-    batch.set(privateRef, {
-        email: email,
-        updatedAt: serverTimestamp()
-    });
-
-    await batch.commit();
     return cred;
 }
-
 export async function sendPasswordReset(email) { return sendPasswordResetEmail(auth, email); }
 export async function deleteUserAccount() {
     const fn = httpsCallable(functions, 'deleteAccountAtomic');
     return (await fn()).data;
 }
 
-// --- USER DATA & PRIVACY LOGIC ---
-
+// --- USER DATA ---
 export async function getUserData(uid) {
     if (!uid) return null;
-    
-    // 1. Fetch Public Profile
-    const publicSnap = await gracefulGet(getDoc(doc(db, "users", uid)));
-    if (!publicSnap || !publicSnap.exists()) return null;
-    
-    let data = { id: publicSnap.id, ...publicSnap.data() };
-
-    // 2. If requesting OWN data, fetch Private Data and merge
-    if (auth.currentUser && auth.currentUser.uid === uid) {
-        try {
-            const privateSnap = await getDoc(doc(db, "users", uid, "private", "data"));
-            if (privateSnap.exists()) {
-                data = { ...data, ...privateSnap.data() }; // Merge email/payment info back in
-            }
-        } catch (e) {
-            console.warn("Could not fetch private data (expected if offline/restricted).");
-        }
-    }
-
-    return data;
+    const snap = await gracefulGet(getDoc(doc(db, "users", uid)));
+    return snap?.exists() ? { id: snap.id, ...snap.data() } : null;
 }
-
 export async function updateUserProfile(uid, data) {
-    // Define sensitive fields that MUST go to private doc
-    const privateFields = ['email', 'paymentMethodLast4', 'phoneNumber', 'stripeId'];
-    
-    const publicData = {};
-    const privateData = {};
-
-    // Sort fields
-    for (const [key, value] of Object.entries(data)) {
-        if (privateFields.includes(key)) {
-            privateData[key] = value;
-        } else {
-            publicData[key] = value;
-        }
-    }
-
-    const promises = [];
-
-    // Update Public
-    if (Object.keys(publicData).length > 0) {
-        promises.push(setDoc(doc(db, "users", uid), { ...publicData, updatedAt: serverTimestamp() }, { merge: true }));
-    }
-
-    // Update Private
-    if (Object.keys(privateData).length > 0) {
-        promises.push(setDoc(doc(db, "users", uid, "private", "data"), { ...privateData, updatedAt: serverTimestamp() }, { merge: true }));
-    }
-
-    return Promise.all(promises);
+    return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
-
 export async function updateUserPreferences(uid, data) {
-    // Preferences usually public (like travel radius), but reusing logic just in case
-    return updateUserProfile(uid, data);
+    return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
 
 // --- DATA FUNCTIONS ---
@@ -264,12 +195,54 @@ export async function confirmBooking(gigId, artistId, artistName) {
     return result.data;
 }
 
+// FIX: Now fetches BOTH Bookings (CalendarEvents) AND Owned Gigs (Gigs)
 export async function fetchCalendarEvents(uid) { 
-    const q = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
-    const snap = await gracefulGet(getDocs(q));
-    if(!snap) return [];
-    return snap.docs.map(d => { const data = d.data(); const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); return { id: d.id, ...data, dateObject: date, formattedDate: date.toLocaleDateString(), formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) }; });
+    // 1. Fetch standard calendar events (e.g. bookings for musicians)
+    const qEvents = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
+    const eventsSnap = await gracefulGet(getDocs(qEvents));
+    
+    let events = eventsSnap ? eventsSnap.docs.map(d => {
+        const data = d.data();
+        const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); 
+        return { 
+            id: d.id, 
+            ...data, 
+            dateObject: date, 
+            formattedDate: date.toLocaleDateString(), 
+            formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+            source: 'calendar'
+        }; 
+    }) : [];
+
+    // 2. Fetch Gigs owned by this user (for Venues)
+    const qGigs = query(collection(db, "gigs"), where("ownerId", "==", uid));
+    const gigsSnap = await gracefulGet(getDocs(qGigs));
+
+    if (gigsSnap) {
+        const myGigs = gigsSnap.docs.map(d => {
+            const data = d.data();
+            const date = data.date?.toDate ? data.date.toDate() : new Date();
+            return {
+                id: d.id,
+                type: 'gig_listing', // Distinct type to style differently if needed
+                title: `${data.venueName} (${data.status})`,
+                dateTime: data.date,
+                dateObject: date,
+                formattedDate: date.toLocaleDateString(),
+                formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+                notes: `Payout: $${data.payout}`,
+                source: 'gig'
+            };
+        });
+        events = [...events, ...myGigs];
+    }
+
+    // 3. Sort combined list by date
+    events.sort((a, b) => a.dateObject - b.dateObject);
+
+    return events;
 }
+
 export async function fetchNotifications(uid) { 
     const q = query(collection(db, "users", uid, "notifications"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
