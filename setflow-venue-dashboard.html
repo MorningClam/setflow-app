@@ -55,6 +55,13 @@
            </a>
        </div>
     </div>
+    
+    <div class="mt-3">
+      <div class="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+        <svg class="mr-2 h-4 w-4 flex-shrink-0 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <input id="search-input" type="search" placeholder="Search gigs..." class="w-full border-0 bg-transparent py-2.5 text-sm text-white placeholder-neutral-500 outline-none focus:ring-0"/>
+      </div>
+    </div>
   </header>
 
   <main class="p-5 space-y-6"> 
@@ -158,7 +165,7 @@
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-      <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
   </nav>
 </div> 
 
@@ -185,7 +192,7 @@
 <script src="nav.js"></script>
 
 <script>
-  // Instant Load: Venue Name & Nav
+  // Instant Load
   const role = localStorage.getItem('setflow_role') || 'venue';
   const name = localStorage.getItem('setflow_name');
   
@@ -201,38 +208,39 @@
   import { onAuthState, getUserData, gracefulGet, escapeHTML, isOnline, db } from './api.js';
   import { collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+  // Modal Logic
   document.addEventListener('DOMContentLoaded', () => {
       const modal = document.getElementById('post-modal');
       const openBtn = document.getElementById('open-post-modal-btn');
       const closeBtn = document.getElementById('close-post-modal-btn');
       const overlay = modal.querySelector('.modal-overlay');
       const content = modal.querySelector('.modal-content');
+      const searchInput = document.getElementById('search-input'); // Add search var
 
       function openModal() {
           modal.classList.remove('hidden');
           modal.classList.add('flex');
-          requestAnimationFrame(() => {
-              overlay.style.opacity = '1';
-              content.style.opacity = '1';
-              content.style.transform = 'scale(1)';
-          });
+          requestAnimationFrame(() => { overlay.style.opacity = '1'; content.style.opacity = '1'; content.style.transform = 'scale(1)'; });
       }
 
       function closeModal() {
-          overlay.style.opacity = '0';
-          content.style.opacity = '0';
-          content.style.transform = 'scale(0.95)';
-          setTimeout(() => {
-              modal.classList.add('hidden');
-              modal.classList.remove('flex');
-          }, 300);
+          overlay.style.opacity = '0'; content.style.opacity = '0'; content.style.transform = 'scale(0.95)';
+          setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
       }
 
       if(openBtn) openBtn.addEventListener('click', openModal);
       if(closeBtn) closeBtn.addEventListener('click', closeModal);
       if(overlay) overlay.addEventListener('click', closeModal);
-      
       if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
+      
+      // Search Logic
+      if(searchInput) {
+          searchInput.addEventListener('input', (e) => {
+              const term = e.target.value.toLowerCase();
+              const filtered = allGigs.filter(g => g.venueName.toLowerCase().includes(term) || (g.genre && g.genre.toLowerCase().includes(term)));
+              renderGigsList(filtered);
+          });
+      }
   });
 
   const venueNameHeader = document.getElementById('venue-name-header');
@@ -240,48 +248,34 @@
   const errorState = document.getElementById('error-state');
   const emptyState = document.getElementById('empty-state');
   const gigsList = document.getElementById('gigs-list');
+  // HUD elements...
   const hudApplicants = document.getElementById('hud-applicants');
   const hudNextShow = document.getElementById('hud-next-show');
   const hudActiveCount = document.getElementById('hud-active-count');
   const statsContainer = document.getElementById('stats-container');
   const onboardingContainer = document.getElementById('onboarding-container');
 
-  async function loadVenueGigs(uid) {
-    try {
-        const q = query(collection(db, "gigs"), where("ownerId", "==", uid), orderBy("date", "desc"));
-        const snap = await getDocs(q);
-        
-        loadingState.style.display = 'none';
-        gigsList.innerHTML = '';
+  let allGigs = []; // Store for search
 
-        if (snap.empty) {
-            emptyState.classList.remove('hidden');
-            if(statsContainer) statsContainer.classList.add('hidden');
-            if(onboardingContainer) onboardingContainer.classList.remove('hidden');
-            
-            hudApplicants.textContent = "0";
-            hudActiveCount.textContent = "0";
-            hudNextShow.textContent = "--";
-            return;
+  function renderGigsList(gigs) {
+    gigsList.innerHTML = '';
+    if (gigs.length === 0) {
+        // Only show empty state if ALL gigs are empty, otherwise show "No results" for search
+        if (allGigs.length === 0) {
+             emptyState.classList.remove('hidden');
+             if(statsContainer) statsContainer.classList.add('hidden');
+             if(onboardingContainer) onboardingContainer.classList.remove('hidden');
+        } else {
+             gigsList.innerHTML = '<p class="text-center text-neutral-500 py-4">No matches found.</p>';
         }
-        emptyState.classList.add('hidden');
+        return;
+    }
+    
+    emptyState.classList.add('hidden');
+    if(statsContainer) statsContainer.classList.remove('hidden');
+    if(onboardingContainer) onboardingContainer.classList.add('hidden');
 
-        let gigs = snap.docs.map(d => {
-            const data = d.data();
-            return { id: d.id, ...data, dateObject: data.date?.toDate ? data.date.toDate() : new Date() };
-        });
-
-        const today = new Date(); today.setHours(0,0,0,0);
-        const active = gigs.filter(g => g.dateObject >= today);
-        const pendingApps = active.reduce((sum, g) => sum + (g.status === 'open' ? (g.applicantCount || 0) : 0), 0);
-        
-        const nextBooked = active.filter(g => g.status === 'booked').sort((a,b) => a.dateObject - b.dateObject)[0];
-        
-        hudActiveCount.textContent = active.length;
-        hudApplicants.textContent = pendingApps;
-        hudNextShow.textContent = nextBooked ? nextBooked.dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "TBD";
-
-        gigs.forEach(gig => {
+    gigs.forEach(gig => {
             const isBooked = gig.status === 'booked';
             const hasApplicants = !isBooked && (gig.applicantCount > 0);
             const dateStr = gig.dateObject.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -299,7 +293,6 @@
                 actionBtn = `<a href="setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}" class="text-xs font-bold text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20">Review</a>`;
             } else {
                 statusBadge = '<span class="text-[10px] font-bold text-neutral-400 border border-white/10 px-2 py-1 rounded">Open</span>';
-                // UPDATED: Replaced href="#" with link to edit page
                 actionBtn = `<a href="setflow-post-event-page.html?gigId=${gig.id}" class="text-xs font-bold text-neutral-400 hover:text-white transition px-3 py-2">Edit</a>`;
             }
 
@@ -319,7 +312,33 @@
                 </div>
             `;
             gigsList.appendChild(card);
+    });
+  }
+
+  async function loadVenueGigs(uid) {
+    try {
+        const q = query(collection(db, "gigs"), where("ownerId", "==", uid), orderBy("date", "desc"));
+        const snap = await getDocs(q);
+        
+        loadingState.style.display = 'none';
+        
+        let gigs = snap.docs.map(d => {
+            const data = d.data();
+            return { id: d.id, ...data, dateObject: data.date?.toDate ? data.date.toDate() : new Date() };
         });
+
+        // Stats Logic
+        const today = new Date(); today.setHours(0,0,0,0);
+        const active = gigs.filter(g => g.dateObject >= today);
+        const pendingApps = active.reduce((sum, g) => sum + (g.status === 'open' ? (g.applicantCount || 0) : 0), 0);
+        const nextBooked = active.filter(g => g.status === 'booked').sort((a,b) => a.dateObject - b.dateObject)[0];
+        
+        hudActiveCount.textContent = active.length;
+        hudApplicants.textContent = pendingApps;
+        hudNextShow.textContent = nextBooked ? nextBooked.dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "TBD";
+
+        allGigs = gigs; // Store for search
+        renderGigsList(gigs);
 
     } catch (e) {
         console.error(e);
@@ -338,12 +357,10 @@
              return;
         }
         
-        // Hydrate name if missing
         if (userData && userData.name) {
             venueNameHeader.innerText = userData.name;
             localStorage.setItem('setflow_name', userData.name);
         }
-        
         await loadVenueGigs(user.uid);
       } catch (error) {
          loadingState.style.display = 'none';
