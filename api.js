@@ -153,9 +153,15 @@ export async function fetchGigs() {
 }
 
 export async function getGigDetails(id) { return getDoc(doc(db, "gigs", id)); }
+
 export async function createGig(data) {
     const dateObj = new Date(data.date);
     return addDoc(collection(db, "gigs"), { ...data, date: Timestamp.fromDate(dateObj), status: 'open', createdAt: serverTimestamp() });
+}
+
+// NEW: Delete Gig Functionality
+export async function deleteGig(id) {
+    return deleteDoc(doc(db, "gigs", id));
 }
 
 export async function createOrGetConversation(u1, u2) {
