@@ -172,8 +172,7 @@
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full">
-        </div>
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
   </nav>
 </div>
 
@@ -184,16 +183,24 @@
 <script src="nav.js"></script>
 
 <script>
-  // FIX: Instant Render from LocalStorage before Firebase loads
-  const cachedRole = localStorage.getItem('setflow_role') || 'musician';
-  // Only render if we haven't already (nav.js might run fast)
+  // FIX: Instant Render from window.name (file:// friendly) or localStorage
+  let sessionData = {};
+  try {
+      if (window.name && window.name.startsWith('{')) {
+          sessionData = JSON.parse(window.name);
+      }
+  } catch(e) {}
+
+  const role = sessionData.role || localStorage.getItem('setflow_role') || 'musician';
+  const name = sessionData.name || localStorage.getItem('setflow_name');
+
   if(window.renderBottomNav) {
-      window.renderBottomNav(cachedRole, 'free', 'setflow-musician-dashboard.html');
+      window.renderBottomNav(role, 'free', 'setflow-musician-dashboard.html');
   }
   
-  const cachedName = localStorage.getItem('setflow_name');
-  if(cachedName) {
-      document.getElementById('welcome-header').textContent = `Hello, ${cachedName.split(' ')[0]}`;
+  if(name) {
+      const header = document.getElementById('welcome-header');
+      if(header) header.textContent = `Hello, ${name.split(' ')[0]}`;
   }
 </script>
 
@@ -219,10 +226,11 @@
         const userData = await gracefulGet(getUserData(user.uid), null);
         
         if (userData) {
-             // Update local storage with fresh data
+             // Update window.name and local storage with fresh data
              if(userData.name) {
-                 localStorage.setItem('setflow_name', userData.name);
-                 welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
+                 const newName = userData.name;
+                 localStorage.setItem('setflow_name', newName);
+                 welcomeHeader.textContent = `Hello, ${newName.split(' ')[0]}`;
              }
              if(userData.roles && userData.roles[0]) {
                  localStorage.setItem('setflow_role', userData.roles[0]);
@@ -305,4 +313,3 @@
 </script>
 </body>
 </html>
-}
