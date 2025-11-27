@@ -188,12 +188,14 @@ export async function fetchApplicantsForGig(gigId) {
     if (!snap) return [];
     return snap.docs.map(d => d.data()); 
 }
+
+// FIX: Calls Cloud Function for secure booking
 export async function confirmBooking(gigId, artistId, artistName) {
-    const batch = writeBatch(db);
-    batch.update(doc(db, "gigs", gigId), { status: 'booked', bookedArtistId: artistId, bookedArtistName: artistName });
-    batch.set(doc(collection(db, "calendarEvents")), { userId: artistId, type: 'gig', title: 'Gig Booking', notes: `Booked as ${artistName}`, dateTime: Timestamp.now(), gigId });
-    return batch.commit();
+    const fn = httpsCallable(functions, 'confirmBooking');
+    const result = await fn({ gigId, artistId, artistName });
+    return result.data;
 }
+
 export async function fetchCalendarEvents(uid) { 
     const q = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
     const snap = await gracefulGet(getDocs(q));
@@ -201,7 +203,6 @@ export async function fetchCalendarEvents(uid) {
     return snap.docs.map(d => { const data = d.data(); const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); return { id: d.id, ...data, dateObject: date, formattedDate: date.toLocaleDateString(), formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) }; });
 }
 
-// --- UPDATED NOTIFICATIONS FETCH ---
 export async function fetchNotifications(uid) { 
     const q = query(collection(db, "users", uid, "notifications"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
@@ -209,7 +210,6 @@ export async function fetchNotifications(uid) {
 
     return snap.docs.map(d => {
         const data = d.data();
-        // Calculate relative time
         let timeStr = 'Just now';
         if (data.createdAt?.toDate) {
             const diff = (new Date() - data.createdAt.toDate()) / 1000 / 60; // minutes

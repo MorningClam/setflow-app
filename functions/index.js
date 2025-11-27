@@ -16,78 +16,109 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
 
-// --- Callable Function for Atomic Account Deletion ---
+// --- Callable Function: Atomic Account Deletion ---
 exports.deleteAccountAtomic = onCall(async (request) => {
-  // 1. Check authentication context
   if (!request.auth) {
-    logger.error("Unauthenticated call to deleteAccountAtomic");
-    throw new HttpsError(
-      "unauthenticated",
-      "The function must be called while authenticated.",
-    );
+    throw new HttpsError("unauthenticated", "The function must be called while authenticated.");
   }
 
   const uid = request.auth.uid;
-  logger.info(`Attempting to delete account for UID: ${uid}`);
-
   const userDocRef = db.collection("users").doc(uid);
 
   try {
     const batch = db.batch();
-
-    // Delete the user document
     batch.delete(userDocRef);
 
-    // Example: Delete gigs owned by the user
-    const gigsRef = db.collection("gigs");
-    const gigsQuery = gigsRef.where("ownerId", "==", uid);
+    // Cleanup user-owned data
+    const gigsQuery = db.collection("gigs").where("ownerId", "==", uid);
     const gigsSnapshot = await gigsQuery.get();
     gigsSnapshot.forEach((doc) => batch.delete(doc.ref));
 
-    // Example: Delete gear listings owned by the user
-    const listingsRef = db.collection("gear_listings");
-    const listingsQuery = listingsRef.where("sellerId", "==", uid);
+    const listingsQuery = db.collection("gear_listings").where("sellerId", "==", uid);
     const listingsSnapshot = await listingsQuery.get();
     listingsSnapshot.forEach((doc) => batch.delete(doc.ref));
 
-    // Commit Firestore deletions
     await batch.commit();
-
-    // 3. Delete the Firebase Auth user
     await admin.auth().deleteUser(uid);
 
     return { success: true, message: "Account deleted successfully." };
   } catch (error) {
     logger.error(`Error deleting account for UID: ${uid}`, error);
-    if (error.code === "auth/user-not-found") {
-      return { success: true, message: "Account likely deleted." };
-    }
     throw new HttpsError("internal", "Failed to delete account data.", error.message);
   }
 });
 
+// --- Callable Function: Secure Booking Transaction ---
+exports.confirmBooking = onCall(async (request) => {
+    // 1. Auth Check
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'User must be logged in.');
+    }
+
+    const { gigId, artistId, artistName } = request.data;
+    const gigRef = db.collection('gigs').doc(gigId);
+
+    // 2. Run Transaction (Prevents Race Conditions)
+    await db.runTransaction(async (t) => {
+        const gigDoc = await t.get(gigRef);
+        
+        if (!gigDoc.exists) {
+            throw new HttpsError('not-found', 'Gig not found.');
+        }
+
+        const gigData = gigDoc.data();
+
+        // 3. Security Check: Only Owner can book
+        if (gigData.ownerId !== request.auth.uid) {
+            throw new HttpsError('permission-denied', 'Only the gig owner can confirm bookings.');
+        }
+
+        // 4. Availability Check
+        if (gigData.status !== 'open') {
+            throw new HttpsError('failed-precondition', 'This gig is no longer available.');
+        }
+
+        // 5. Execute Updates
+        // Update Gig Status
+        t.update(gigRef, {
+            status: 'booked',
+            bookedArtistId: artistId,
+            bookedArtistName: artistName,
+            bookedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Create Calendar Event for the Artist
+        // (Server-side creation bypasses the "Venue writing to Artist Calendar" permission rule)
+        const eventRef = db.collection('calendarEvents').doc(); 
+        t.set(eventRef, {
+            userId: artistId,
+            type: 'gig',
+            title: `Gig at ${gigData.venueName}`,
+            dateTime: gigData.date, // Use the actual Gig Date
+            notes: `Confirmed booking. Payout: $${gigData.payout}`,
+            gigId: gigId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+    });
+
+    return { success: true };
+});
+
 // --- NOTIFICATION TRIGGERS ---
 
-/**
- * Trigger: When a musician applies for a gig.
- * Action: Send a notification to the Venue (Gig Owner).
- */
 exports.notifyVenueOnApplication = onDocumentCreated("applications/{appId}", async (event) => {
     const appData = event.data.data();
     const gigId = appData.gigId;
     const applicantId = appData.userId;
 
     try {
-        // 1. Get Gig Details to find the Owner
         const gigDoc = await db.collection("gigs").doc(gigId).get();
         const gigData = gigDoc.data();
         const ownerId = gigData.ownerId;
 
-        // 2. Get Applicant Name
         const applicantDoc = await db.collection("users").doc(applicantId).get();
         const applicantName = applicantDoc.data().name || "A musician";
 
-        // 3. Create Notification for Venue
         await db.collection("users").doc(ownerId).collection("notifications").add({
             type: "new_application",
             text: `${applicantName} applied for ${gigData.venueName}`,
@@ -95,22 +126,16 @@ exports.notifyVenueOnApplication = onDocumentCreated("applications/{appId}", asy
             isUnread: true,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
-
-        logger.info(`Notification sent to venue ${ownerId} for app ${event.params.appId}`);
     } catch (err) {
         logger.error("Error sending application notification", err);
     }
 });
 
-/**
- * Trigger: When a Gig is booked (status changes to 'booked').
- * Action: Send a notification to the Musician.
- */
 exports.notifyMusicianOnBooking = onDocumentUpdated("gigs/{gigId}", async (event) => {
     const newData = event.data.after.data();
     const oldData = event.data.before.data();
 
-    // Only trigger if status changed to 'booked'
+    // Trigger only when status changes to 'booked'
     if (oldData.status !== 'booked' && newData.status === 'booked') {
         const musicianId = newData.bookedArtistId;
         const venueName = newData.venueName;
@@ -124,7 +149,6 @@ exports.notifyMusicianOnBooking = onDocumentUpdated("gigs/{gigId}", async (event
                     isUnread: true,
                     createdAt: admin.firestore.FieldValue.serverTimestamp()
                 });
-                logger.info(`Booking notification sent to musician ${musicianId}`);
             } catch (err) {
                 logger.error("Error sending booking notification", err);
             }
