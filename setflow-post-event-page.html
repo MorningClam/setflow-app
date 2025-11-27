@@ -37,6 +37,7 @@
              <label for="event-name" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Event Name / Venue <span class="text-red-400">*</span></label>
             <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="glass-input">
         </div>
+        
         <div>
              <label for="gig-type" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Gig Type <span class="text-red-400">*</span></label>
              <div class="relative">
@@ -55,6 +56,7 @@
                  </div>
              </div>
          </div>
+
         <div>
             <label for="event-location" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location <span class="text-red-400">*</span></label>
             <input id="event-location" type="text" placeholder="123 Main St" class="glass-input">
@@ -84,7 +86,9 @@
     <button type="submit" form="post-gig-form" id="submit-btn" class="w-full rounded-xl bg-emerald-500 px-6 py-3 text-base font-bold text-black hover:bg-emerald-400 transition-colors btn-press shadow-lg shadow-emerald-500/20">Post Event</button>
     <button id="delete-btn" type="button" class="hidden w-full rounded-xl border border-red-500/30 text-red-400 px-6 py-3 text-base font-bold hover:bg-red-500/10 transition-colors btn-press">Delete Event</button>
   </footer>
+  
   </div> 
+
 <script src="toast.js"></script>
 <script src="nav.js"></script>
 
@@ -105,12 +109,14 @@
     if(user) {
         currentUserId = user.uid;
         
-        // NOTE: Navigation intentionally NOT rendered here to keep UI focused on the form.
+        // FIX: Removed the renderBottomNav call. 
+        // This ensures the menu never loads over the Post button.
 
+        // If Edit Mode, load data
         if(gigId) {
             titleEl.textContent = "Edit Gig";
             btn.textContent = "Update Event";
-            deleteBtn.classList.remove('hidden');
+            deleteBtn.classList.remove('hidden'); 
             loadGigData(gigId);
         }
     }
@@ -155,15 +161,17 @@
 
       try {
           if (gigId) {
+              // UPDATE EXISTING
               await updateDoc(doc(db, "gigs", gigId), {
                   ...formData,
                   date: Timestamp.fromDate(dateObj)
               });
               window.toast.show('Gig Updated!', 'success');
           } else {
+              // CREATE NEW
               await createGig({
                   ownerId: currentUserId,
-                  date: rawDate,
+                  date: rawDate, 
                   ...formData
               });
               window.toast.show('Gig Posted!', 'success');
