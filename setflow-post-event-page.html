@@ -37,6 +37,26 @@
              <label for="event-name" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Event Name / Venue <span class="text-red-400">*</span></label>
             <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="glass-input">
         </div>
+        
+        <div>
+            <label for="gig-type" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Gig Type <span class="text-red-400">*</span></label>
+            <div class="relative">
+                <select id="gig-type" class="glass-input appearance-none">
+                    <option value="Paid Gig">Paid Gig</option>
+                    <option value="Headliner">Headliner Slot</option>
+                    <option value="Opener">Opener Slot</option>
+                    <option value="Open Mic">Open Mic</option>
+                    <option value="Battle of the Bands">Battle of the Bands</option>
+                    <option value="Showcase">Showcase</option>
+                    <option value="Charity">Charity / Benefit</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+        </div>
+
         <div>
             <label for="event-location" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location <span class="text-red-400">*</span></label>
             <input id="event-location" type="text" placeholder="123 Main St" class="glass-input">
@@ -62,17 +82,13 @@
     </form>
   </main>
 
-  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md space-y-3">
+  <footer class="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md space-y-3">
     <button type="submit" form="post-gig-form" id="submit-btn" class="w-full rounded-xl bg-emerald-500 px-6 py-3 text-base font-bold text-black hover:bg-emerald-400 transition-colors btn-press shadow-lg shadow-emerald-500/20">Post Event</button>
     <button id="delete-btn" type="button" class="hidden w-full rounded-xl border border-red-500/30 text-red-400 px-6 py-3 text-base font-bold hover:bg-red-500/10 transition-colors btn-press">Delete Event</button>
   </footer>
-
-  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
-  </nav>
-</div> 
+  
+  </div> 
 <script src="toast.js"></script>
-<script src="nav.js"></script>
 
 <script type="module">
   import { onAuthState, createGig, getGigDetails, deleteGig, isOnline, getUserData, gracefulGet, db } from './api.js';
@@ -91,11 +107,6 @@
     if(user) {
         currentUserId = user.uid;
         
-        // 1. Setup Navigation
-        const userData = await gracefulGet(getUserData(user.uid));
-        const role = userData?.roles?.[0] || 'venue'; 
-        if(window.renderBottomNav) window.renderBottomNav(role, 'free', 'setflow-post-event-page.html');
-
         // 2. If Edit Mode, load data
         if(gigId) {
             titleEl.textContent = "Edit Gig";
@@ -116,6 +127,7 @@
           document.getElementById('event-payout').value = data.payout || '';
           document.getElementById('event-genre').value = data.genre || '';
           document.getElementById('event-description').value = data.description || '';
+          if(data.gigType) document.getElementById('gig-type').value = data.gigType; // Load Gig Type
           
           if (data.date) {
              const d = data.date.toDate ? data.date.toDate() : new Date(data.date);
@@ -132,6 +144,7 @@
 
       const formData = {
           venueName: document.getElementById('event-name').value,
+          gigType: document.getElementById('gig-type').value, // New Field
           location: document.getElementById('event-location').value,
           payout: document.getElementById('event-payout').value,
           genre: document.getElementById('event-genre').value,
@@ -143,15 +156,17 @@
 
       try {
           if (gigId) {
+              // UPDATE EXISTING
               await updateDoc(doc(db, "gigs", gigId), {
                   ...formData,
                   date: Timestamp.fromDate(dateObj)
               });
               window.toast.show('Gig Updated!', 'success');
           } else {
+              // CREATE NEW
               await createGig({
                   ownerId: currentUserId,
-                  date: rawDate,
+                  date: rawDate, // api.js handles conversion for create
                   ...formData
               });
               window.toast.show('Gig Posted!', 'success');

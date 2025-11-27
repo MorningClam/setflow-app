@@ -59,6 +59,10 @@
             <input id="location" type="text" class="glass-input rounded-xl px-4 py-3 w-full">
         </div>
         <div>
+            <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Website / Social</label>
+            <input id="website" type="url" placeholder="https://..." class="glass-input rounded-xl px-4 py-3 w-full">
+        </div>
+        <div>
             <label class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Bio</label>
             <textarea id="bio" rows="4" class="glass-input rounded-xl px-4 py-3 w-full resize-none"></textarea>
         </div>
@@ -138,6 +142,7 @@
     const saveBtn = document.getElementById('save-btn');
     const nameIn = document.getElementById('name');
     const locIn = document.getElementById('location');
+    const webIn = document.getElementById('website'); // New
     const bioIn = document.getElementById('bio');
     const lookingBandsToggle = document.getElementById('looking-for-bands');
     const lookingJamToggle = document.getElementById('looking-to-jam');
@@ -199,6 +204,7 @@
                     nameIn.value = d.name || '';
                     locIn.value = d.location || '';
                     bioIn.value = d.bio || '';
+                    webIn.value = d.website || ''; // Load website
                     if(d.profileImageUrl) imgEl.src = d.profileImageUrl;
 
                     // Role Check
@@ -243,6 +249,7 @@
             name: nameIn.value.trim(),
             location: locIn.value.trim(),
             bio: bioIn.value.trim(),
+            website: webIn.value.trim()
         };
         if(imgData) data.profileImageUrl = imgData;
 

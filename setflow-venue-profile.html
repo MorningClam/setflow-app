@@ -70,7 +70,7 @@
                     <a href="setflow-gig-detail-view.html?id=${show.id}" class="flex items-center justify-between rounded-xl glass-card p-4 hover:bg-white/5 transition btn-press">
                         <div>
                             <p class="font-bold text-white">${escapeHTML(show.venueName)}</p>
-                            <p class="text-xs text-neutral-400">${show.formattedDate}</p>
+                            <p class="text-xs text-neutral-400">${show.formattedDate} • <span class="text-emerald-400">${escapeHTML(show.gigType || 'Gig')}</span></p>
                         </div>
                         <svg class="h-5 w-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
@@ -83,6 +83,18 @@
          const location = venueData.location ? escapeHTML(venueData.location) : 'Location N/A';
          const name = venueData.name ? escapeHTML(venueData.name) : 'Venue Name';
          const profileImg = venueData.profileImageUrl || ''; 
+         const website = venueData.website || '';
+
+         // Website Link HTML
+         let websiteHtml = '';
+         if (website) {
+             websiteHtml = `
+                <a href="${website}" target="_blank" class="inline-flex items-center mt-3 px-4 py-2 rounded-lg bg-white/10 text-xs font-bold text-white hover:bg-white/20 transition btn-press">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    Visit Website
+                </a>
+             `;
+         }
 
          profileContainer.innerHTML = `
             <section class="text-center mb-8 animate-enter">
@@ -93,6 +105,7 @@
                  </div>
                  <h2 class="text-2xl font-bold text-white">${name}</h2>
                  <p class="text-sm text-neutral-400">${location}</p>
+                 ${websiteHtml}
             </section>
             <section class="glass-card rounded-xl p-4 animate-enter" style="animation-delay: 0.1s;">
                 <h3 class="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-500">About</h3>
