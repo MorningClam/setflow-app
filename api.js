@@ -52,7 +52,6 @@ export const navigation = {
 };
 window.goBackOr = navigation.goBackOr; 
 
-// Centralized Image Resizer (Fixes 1MB Limit)
 export function resizeImage(file, maxWidth, quality = 0.7) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -76,21 +75,17 @@ export function resizeImage(file, maxWidth, quality = 0.7) {
     });
 }
 
-// FIX: Enhanced Error Handling
 export async function gracefulGet(promise, fallback = null) {
     try {
         return await promise;
     } catch (error) {
         console.error("API Error:", error);
-        
-        // Visual Feedback for Testers/Users
         if (window.toast) {
             let msg = "Unable to load data.";
             if (error.code === 'permission-denied') msg = "Access denied.";
             if (error.code === 'unavailable') msg = "Network error.";
             window.toast.show(msg, 'error');
         }
-        
         return fallback;
     }
 }
@@ -101,7 +96,6 @@ export async function signInUser(e, p) { return signInWithEmailAndPassword(auth,
 export async function signOutUser() { return signOut(auth); }
 export async function signUpUser(name, email, password, role) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    // Explicitly create user doc
     await setDoc(doc(db, "users", cred.user.uid), {
         name, email, roles: [role.toLowerCase()], bands: {}, profileSetupComplete: false, createdAt: serverTimestamp()
     });
@@ -119,8 +113,6 @@ export async function getUserData(uid) {
     const snap = await gracefulGet(getDoc(doc(db, "users", uid)));
     return snap?.exists() ? { id: snap.id, ...snap.data() } : null;
 }
-
-// CRITICAL FIX: Use setDoc with merge:true.
 export async function updateUserProfile(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
@@ -128,19 +120,16 @@ export async function updateUserPreferences(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
 
-// --- DATA FUNCTIONS (Full Implementation) ---
+// --- DATA FUNCTIONS ---
 export async function fetchPlayerPosts() {
     const q = query(collection(db, "player_posts"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return null;
-    // Basic mapping without batching for simplicity/robustness in prototype
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-
 export async function createPlayerPost(data) {
     return addDoc(collection(db, "player_posts"), { ...data, createdAt: serverTimestamp() });
 }
-
 export async function fetchGigs() {
     const q = query(collection(db, "gigs"), where("status", "==", "open"), orderBy("date", "asc"), limit(50));
     const snap = await gracefulGet(getDocs(q));
@@ -151,19 +140,14 @@ export async function fetchGigs() {
         return { ...data, id: d.id, dateObject: dateObj, formattedDate: dateObj?.toLocaleDateString() || 'TBD' };
     });
 }
-
 export async function getGigDetails(id) { return getDoc(doc(db, "gigs", id)); }
-
 export async function createGig(data) {
     const dateObj = new Date(data.date);
     return addDoc(collection(db, "gigs"), { ...data, date: Timestamp.fromDate(dateObj), status: 'open', createdAt: serverTimestamp() });
 }
-
-// NEW: Delete Gig Functionality
 export async function deleteGig(id) {
     return deleteDoc(doc(db, "gigs", id));
 }
-
 export async function createOrGetConversation(u1, u2) {
     const id = [u1, u2].sort().join('_');
     const ref = doc(db, "conversations", id);
@@ -172,19 +156,16 @@ export async function createOrGetConversation(u1, u2) {
     }
     return id;
 }
-
 export function getMessages(cid, cb, err) {
     const q = query(collection(db, "conversations", cid, "messages"), orderBy("timestamp", "asc"), limit(50));
     return onSnapshot(q, (s) => cb(s.docs.map(d => ({ id: d.id, ...d.data() }))), err);
 }
-
 export async function sendMessage(cid, data) {
     const batch = writeBatch(db);
     batch.set(doc(collection(db, "conversations", cid, "messages")), { ...data, timestamp: serverTimestamp() });
     batch.update(doc(db, "conversations", cid), { lastMessage: { ...data, timestamp: serverTimestamp() }});
     return batch.commit();
 }
-
 export async function getConversations(uid) {
     const q = query(collection(db, "conversations"), where("participants", "array-contains", uid), orderBy("lastMessage.timestamp", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
@@ -192,10 +173,9 @@ export async function getConversations(uid) {
     return snap.docs.map(d => {
         const data = d.data();
         const otherId = data.participants.find(p => p !== uid);
-        return { ...data, id: d.id, otherUserId: otherId, otherUserName: 'User', otherUserImage: null }; // Simplified for reliability
+        return { ...data, id: d.id, otherUserId: otherId, otherUserName: 'User', otherUserImage: null };
     });
 }
-
 export async function applyForGig(gigId, userId) {
     const batch = writeBatch(db);
     batch.set(doc(collection(db, "applications")), { gigId, userId, status: 'applied', appliedAt: serverTimestamp() });
@@ -206,17 +186,14 @@ export async function fetchApplicantsForGig(gigId) {
     const q = query(collection(db, "applications"), where("gigId", "==", gigId));
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return [];
-    // Simplified fetch for prototype stability
     return snap.docs.map(d => d.data()); 
 }
-
 export async function confirmBooking(gigId, artistId, artistName) {
     const batch = writeBatch(db);
     batch.update(doc(db, "gigs", gigId), { status: 'booked', bookedArtistId: artistId, bookedArtistName: artistName });
     batch.set(doc(collection(db, "calendarEvents")), { userId: artistId, type: 'gig', title: 'Gig Booking', notes: `Booked as ${artistName}`, dateTime: Timestamp.now(), gigId });
     return batch.commit();
 }
-
 export async function fetchCalendarEvents(uid) { 
     const q = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
     const snap = await gracefulGet(getDocs(q));
@@ -224,7 +201,27 @@ export async function fetchCalendarEvents(uid) {
     return snap.docs.map(d => { const data = d.data(); const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); return { id: d.id, ...data, dateObject: date, formattedDate: date.toLocaleDateString(), formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) }; });
 }
 
-// Placeholders to prevent crashes
+// --- UPDATED NOTIFICATIONS FETCH ---
+export async function fetchNotifications(uid) { 
+    const q = query(collection(db, "users", uid, "notifications"), orderBy("createdAt", "desc"), limit(20));
+    const snap = await gracefulGet(getDocs(q));
+    if (!snap) return [];
+
+    return snap.docs.map(d => {
+        const data = d.data();
+        // Calculate relative time
+        let timeStr = 'Just now';
+        if (data.createdAt?.toDate) {
+            const diff = (new Date() - data.createdAt.toDate()) / 1000 / 60; // minutes
+            if (diff < 60) timeStr = `${Math.floor(diff)}m ago`;
+            else if (diff < 1440) timeStr = `${Math.floor(diff/60)}h ago`;
+            else timeStr = `${Math.floor(diff/1440)}d ago`;
+        }
+        return { id: d.id, ...data, timestampRelative: timeStr };
+    });
+}
+
+// Placeholders
 export async function fetchMyApplications(uid) { return []; }
 export async function fetchGigsForOwner(uid) { return fetchGigs(); } 
 export async function fetchCompletedGigsForUser(uid) { return []; }
@@ -253,7 +250,6 @@ export async function getAllPlayers() {
     return snap ? snap.docs.map(d => ({id: d.id, ...d.data()})) : [];
 }
 export async function createReview(data) { return addDoc(collection(db, "reviews"), data); }
-export async function fetchNotifications(uid) { return []; }
 export async function fetchUserNetwork(uid) { return []; }
 export async function fetchGigTemplates(uid) { return []; }
 export async function createCalendarEvent(data) { return addDoc(collection(db, "calendarEvents"), { ...data, createdAt: serverTimestamp() }); }
