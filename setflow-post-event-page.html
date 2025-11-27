@@ -31,25 +31,25 @@
     </div>
   </header>
 
-  <main class="flex-1 p-5 pt-24 pb-28 relative z-10"> 
+  <main class="flex-1 p-5 pt-24 pb-32 relative z-10"> 
     <form id="post-gig-form" class="space-y-6">
         <div>
              <label for="event-name" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Event Name / Venue <span class="text-red-400">*</span></label>
-            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="glass-input">
+            <input id="event-name" type="text" placeholder="e.g., Apex Fall Festival" class="glass-input w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
         </div>
         
         <div>
              <label for="gig-type" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Gig Type <span class="text-red-400">*</span></label>
              <div class="relative">
-                 <select id="gig-type" class="glass-input appearance-none">
-                     <option value="Paid Gig">Paid Gig</option>
-                     <option value="Headliner">Headliner Slot</option>
-                     <option value="Opener">Opener Slot</option>
-                     <option value="Open Mic">Open Mic</option>
-                     <option value="Battle of the Bands">Battle of the Bands</option>
-                     <option value="Showcase">Showcase</option>
-                     <option value="Charity">Charity / Benefit</option>
-                     <option value="Other">Other</option>
+                 <select id="gig-type" class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+                     <option value="Paid Gig" class="bg-neutral-900">Paid Gig</option>
+                     <option value="Headliner" class="bg-neutral-900">Headliner Slot</option>
+                     <option value="Opener" class="bg-neutral-900">Opener Slot</option>
+                     <option value="Open Mic" class="bg-neutral-900">Open Mic</option>
+                     <option value="Battle of the Bands" class="bg-neutral-900">Battle of the Bands</option>
+                     <option value="Showcase" class="bg-neutral-900">Showcase</option>
+                     <option value="Charity" class="bg-neutral-900">Charity / Benefit</option>
+                     <option value="Other" class="bg-neutral-900">Other</option>
                  </select>
                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -59,38 +59,35 @@
 
         <div>
             <label for="event-location" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location <span class="text-red-400">*</span></label>
-            <input id="event-location" type="text" placeholder="123 Main St" class="glass-input">
+            <input id="event-location" type="text" placeholder="123 Main St" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="event-date" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Date <span class="text-red-400">*</span></label>
-                <input id="event-date" type="date" class="glass-input appearance-none" style="color-scheme: dark;">
+                <input id="event-date" type="date" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none appearance-none" style="color-scheme: dark;">
             </div>
             <div>
                 <label for="event-payout" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Payout ($) <span class="text-red-400">*</span></label>
-                <input id="event-payout" type="number" placeholder="500" class="glass-input"> 
+                <input id="event-payout" type="number" placeholder="500" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"> 
             </div>
         </div>
          <div>
              <label for="event-genre" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Genre(s)</label>
-             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul" class="glass-input">
+             <input id="event-genre" type="text" placeholder="e.g., Funk, Soul" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
          </div>
         <div>
             <label for="event-description" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Description</label>
-            <textarea id="event-description" rows="4" placeholder="Details..." class="glass-input resize-none"></textarea>
+            <textarea id="event-description" rows="4" placeholder="Details..." class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none resize-none"></textarea>
         </div>
     </form>
   </main>
 
-  <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md space-y-3">
+  <footer class="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-md border-t border-white/10 bg-neutral-900 p-4 backdrop-blur-md space-y-3">
     <button type="submit" form="post-gig-form" id="submit-btn" class="w-full rounded-xl bg-emerald-500 px-6 py-3 text-base font-bold text-black hover:bg-emerald-400 transition-colors btn-press shadow-lg shadow-emerald-500/20">Post Event</button>
     <button id="delete-btn" type="button" class="hidden w-full rounded-xl border border-red-500/30 text-red-400 px-6 py-3 text-base font-bold hover:bg-red-500/10 transition-colors btn-press">Delete Event</button>
   </footer>
-  
-  </div> 
-
+</div> 
 <script src="toast.js"></script>
-<script src="nav.js"></script>
 
 <script type="module">
   import { onAuthState, createGig, getGigDetails, deleteGig, isOnline, gracefulGet, db } from './api.js';
@@ -108,15 +105,11 @@
   onAuthState(async (user) => {
     if(user) {
         currentUserId = user.uid;
-        
-        // FIX: Removed the renderBottomNav call. 
-        // This ensures the menu never loads over the Post button.
-
-        // If Edit Mode, load data
+        // NO NAV LOGIC HERE
         if(gigId) {
             titleEl.textContent = "Edit Gig";
             btn.textContent = "Update Event";
-            deleteBtn.classList.remove('hidden'); 
+            deleteBtn.classList.remove('hidden');
             loadGigData(gigId);
         }
     }
@@ -161,14 +154,12 @@
 
       try {
           if (gigId) {
-              // UPDATE EXISTING
               await updateDoc(doc(db, "gigs", gigId), {
                   ...formData,
                   date: Timestamp.fromDate(dateObj)
               });
               window.toast.show('Gig Updated!', 'success');
           } else {
-              // CREATE NEW
               await createGig({
                   ownerId: currentUserId,
                   date: rawDate, 

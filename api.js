@@ -1,5 +1,5 @@
 /* =========================================================================
- * Setflow Frontend API Helper (Final Production Version)
+ * Setflow Frontend API Helper (Robust Version)
  * ========================================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -26,13 +26,10 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 const functions = getFunctions(app);
 
-// --- Persistence ---
 (async () => {
   try { await enableIndexedDbPersistence(db); }
   catch (err) { console.log("Persistence disabled:", err.code); }
 })();
-
-// --- UTILITIES ---
 
 export function escapeHTML(str) {
     if (!str) return '';
@@ -81,16 +78,15 @@ export async function gracefulGet(promise, fallback = null) {
     } catch (error) {
         console.error("API Error:", error);
         if (window.toast) {
-            let msg = "Unable to load data.";
-            if (error.code === 'permission-denied') msg = "Access denied.";
-            if (error.code === 'unavailable') msg = "Network error.";
-            window.toast.show(msg, 'error');
+            // Suppress known "offline" errors to avoid spamming user
+            if (error.code !== 'unavailable') {
+                 window.toast.show("Data load error.", 'error');
+            }
         }
         return fallback;
     }
 }
 
-// --- AUTH ---
 export function onAuthState(cb) { return onAuthStateChanged(auth, cb); }
 export async function signInUser(e, p) { return signInWithEmailAndPassword(auth, e, p); }
 export async function signOutUser() { return signOut(auth); }
@@ -107,7 +103,6 @@ export async function deleteUserAccount() {
     return (await fn()).data;
 }
 
-// --- USER DATA ---
 export async function getUserData(uid) {
     if (!uid) return null;
     const snap = await gracefulGet(getDoc(doc(db, "users", uid)));
@@ -120,7 +115,6 @@ export async function updateUserPreferences(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
 
-// --- DATA FUNCTIONS ---
 export async function fetchPlayerPosts() {
     const q = query(collection(db, "player_posts"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
@@ -130,16 +124,24 @@ export async function fetchPlayerPosts() {
 export async function createPlayerPost(data) {
     return addDoc(collection(db, "player_posts"), { ...data, createdAt: serverTimestamp() });
 }
+
+// FIX: Removed orderBy("date") to prevent Index errors. 
+// Client-side sorting is fine for <50 items.
 export async function fetchGigs() {
-    const q = query(collection(db, "gigs"), where("status", "==", "open"), orderBy("date", "asc"), limit(50));
+    const q = query(collection(db, "gigs"), where("status", "==", "open"), limit(50));
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return null;
-    return snap.docs.map(d => {
+    
+    const gigs = snap.docs.map(d => {
         const data = d.data();
-        const dateObj = data.date?.toDate ? data.date.toDate() : null;
+        const dateObj = data.date?.toDate ? data.date.toDate() : new Date();
         return { ...data, id: d.id, dateObject: dateObj, formattedDate: dateObj?.toLocaleDateString() || 'TBD' };
     });
+    
+    // Sort in memory
+    return gigs.sort((a, b) => a.dateObject - b.dateObject);
 }
+
 export async function getGigDetails(id) { return getDoc(doc(db, "gigs", id)); }
 export async function createGig(data) {
     const dateObj = new Date(data.date);
@@ -195,9 +197,8 @@ export async function confirmBooking(gigId, artistId, artistName) {
     return result.data;
 }
 
-// FIX: Now fetches BOTH Bookings (CalendarEvents) AND Owned Gigs (Gigs)
 export async function fetchCalendarEvents(uid) { 
-    // 1. Fetch standard calendar events (e.g. bookings for musicians)
+    // 1. Events
     const qEvents = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
     const eventsSnap = await gracefulGet(getDocs(qEvents));
     
@@ -205,16 +206,14 @@ export async function fetchCalendarEvents(uid) {
         const data = d.data();
         const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); 
         return { 
-            id: d.id, 
-            ...data, 
-            dateObject: date, 
+            id: d.id, ...data, dateObject: date, 
             formattedDate: date.toLocaleDateString(), 
             formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
             source: 'calendar'
         }; 
     }) : [];
 
-    // 2. Fetch Gigs owned by this user (for Venues)
+    // 2. Owned Gigs (Simplified Query)
     const qGigs = query(collection(db, "gigs"), where("ownerId", "==", uid));
     const gigsSnap = await gracefulGet(getDocs(qGigs));
 
@@ -224,23 +223,21 @@ export async function fetchCalendarEvents(uid) {
             const date = data.date?.toDate ? data.date.toDate() : new Date();
             return {
                 id: d.id,
-                type: 'gig_listing', // Distinct type to style differently if needed
-                title: `${data.venueName} (${data.status})`,
+                type: 'gig_listing',
+                title: `Hosting: ${data.venueName}`,
                 dateTime: data.date,
                 dateObject: date,
                 formattedDate: date.toLocaleDateString(),
-                formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-                notes: `Payout: $${data.payout}`,
+                formattedTime: "TBD",
+                notes: `Status: ${data.status}`,
                 source: 'gig'
             };
         });
         events = [...events, ...myGigs];
     }
 
-    // 3. Sort combined list by date
-    events.sort((a, b) => a.dateObject - b.dateObject);
-
-    return events;
+    // Sort combined results
+    return events.sort((a, b) => a.dateObject - b.dateObject);
 }
 
 export async function fetchNotifications(uid) { 
@@ -261,7 +258,6 @@ export async function fetchNotifications(uid) {
     });
 }
 
-// Placeholders
 export async function fetchMyApplications(uid) { return []; }
 export async function fetchGigsForOwner(uid) { return fetchGigs(); } 
 export async function fetchCompletedGigsForUser(uid) { return []; }
@@ -304,5 +300,4 @@ export async function createBand(name, user) {
 }
 export async function reportContent(itemId, type, reporterId, reason) { return addDoc(collection(db, "reports"), { itemId, type, reporterId, reason, createdAt: serverTimestamp() }); }
 export async function fetchTalentPool(uid) { return []; }
-// Network
 export const isOnline = () => navigator.onLine;
