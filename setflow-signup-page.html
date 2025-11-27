@@ -15,12 +15,7 @@
     .role-btn:not(.active) { color: #A3A3A3; }
     .role-btn:not(.active):hover { color: white; background-color: rgba(255,255,255,0.05); }
     .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
-    
-    /* CRITICAL FIX: Force Autofill to be Dark */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus, 
-    input:-webkit-autofill:active {
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
         -webkit-text-fill-color: white !important;
         -webkit-box-shadow: 0 0 0px 1000px #171717 inset !important;
         transition: background-color 5000s ease-in-out 0s;
@@ -29,7 +24,6 @@
 </head>
 <body class="text-white antialiased">
   <div id="offline-banner">Sign up requires an internet connection.</div>
-  
   <div class="ambient-light"></div>
 
   <div class="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
@@ -97,7 +91,6 @@
         btn.addEventListener('click', () => {
             btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            // FIX: Read role from data attribute instead of textContent
             role = btn.dataset.role; 
         });
     });
@@ -120,6 +113,10 @@
         submitBtn.innerHTML = '<span class="loading-spinner-inline"></span> Creating...';
 
         try {
+            // FIX: Save to LocalStorage immediately on successful signup
+            localStorage.setItem('setflow_role', role.toLowerCase());
+            localStorage.setItem('setflow_name', name);
+            
             await signUpUser(name, email, password, role);
             window.toast.show("Account created!", "success");
             

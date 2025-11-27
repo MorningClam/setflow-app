@@ -15,7 +15,7 @@
     .btn-press { transition: transform 0.1s ease-in-out; } .btn-press:active { transform: scale(0.95); }
     .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
     
-    /* Nav Styles - Critical for nav.js injection */
+    /* Nav Styles */
     .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
     .bottom-nav-link:hover { color: white; }
     .bottom-nav-link.active { color: #34D399; } 
@@ -183,6 +183,20 @@
 <script src="toast.js"></script>
 <script src="nav.js"></script>
 
+<script>
+  // FIX: Instant Render from LocalStorage before Firebase loads
+  const cachedRole = localStorage.getItem('setflow_role') || 'musician';
+  // Only render if we haven't already (nav.js might run fast)
+  if(window.renderBottomNav) {
+      window.renderBottomNav(cachedRole, 'free', 'setflow-musician-dashboard.html');
+  }
+  
+  const cachedName = localStorage.getItem('setflow_name');
+  if(cachedName) {
+      document.getElementById('welcome-header').textContent = `Hello, ${cachedName.split(' ')[0]}`;
+  }
+</script>
+
 <script type="module">
   import { onAuthState, fetchLocalShows, gracefulGet, getUserData, fetchCompletedGigsForUser, escapeHTML, isOnline } from './api.js';
 
@@ -200,16 +214,22 @@
 
   onAuthState(async (user) => {
     if (user) {
-      // FIX: Render nav immediately on auth to prevent flickering/missing menu
-      if(window.renderBottomNav) {
-          window.renderBottomNav('musician', 'free', 'setflow-musician-dashboard.html');
-      }
-
       try {
+        // Firebase fetch acts as the "hydrator"
         const userData = await gracefulGet(getUserData(user.uid), null);
-        if (userData && userData.name) welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
         
-        // Parallel fetches for dashboard data
+        if (userData) {
+             // Update local storage with fresh data
+             if(userData.name) {
+                 localStorage.setItem('setflow_name', userData.name);
+                 welcomeHeader.textContent = `Hello, ${userData.name.split(' ')[0]}`;
+             }
+             if(userData.roles && userData.roles[0]) {
+                 localStorage.setItem('setflow_role', userData.roles[0]);
+             }
+        }
+        
+        // Parallel fetches
         await Promise.all([loadLocalFeed(), loadEarnings(user.uid), loadNextGig(user.uid)]);
       } catch (error) { console.error(error); }
     } else window.location.href = 'setflow-login-page.html';
@@ -218,7 +238,7 @@
   async function loadEarnings(userId) {
       const completed = await gracefulGet(fetchCompletedGigsForUser(userId));
       
-      // Onboarding Logic
+      // Onboarding Logic: If no gigs found, show onboarding state
       if (!completed || completed.length === 0) {
           statsContainer.classList.add('hidden');
           onboardingContainer.classList.remove('hidden');
@@ -228,6 +248,8 @@
       const total = completed.reduce((sum, gig) => sum + (Number(gig.payout) || 0), 0);
       hudEarnings.textContent = `$${total.toLocaleString()}`;
       hudGigsCount.textContent = completed.length;
+      
+      // Random "View" count for prototype populated if active
       hudViewsCount.textContent = Math.floor(Math.random() * 50) + 100;
   }
 
@@ -283,3 +305,4 @@
 </script>
 </body>
 </html>
+}

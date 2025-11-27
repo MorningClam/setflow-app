@@ -13,8 +13,6 @@
     .ambient-light { position: fixed; top: -10%; left: -10%; width: 120%; height: 60%; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), transparent 70%); pointer-events: none; z-index: 0; }
     .glass-card { background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); }
     .loading-spinner-inline { display: inline-block; vertical-align: middle; width: 1rem; height: 1rem; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 0.8s linear infinite; margin-right: 0.5rem; }
-    
-    /* CRITICAL FIX: Force Autofill to be Dark */
     input:-webkit-autofill,
     input:-webkit-autofill:hover, 
     input:-webkit-autofill:focus, 
@@ -72,7 +70,7 @@
   </div>
 
   <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
-    <span id="toast-message"></span>
+    <span id="toast-message">Placeholder</span>
   </div>
   <script src="toast.js"></script>
 
@@ -109,24 +107,32 @@
         const userCredential = await signInUser(email, password);
         const user = userCredential.user;
 
-        if (redirectUrlParam) {
-            window.location.href = redirectUrlParam;
-            return;
-        }
-
         const userData = await getUserData(user.uid);
 
         if (userData && userData.roles && userData.roles.length > 0) {
           const primaryRole = userData.roles[0];
+          
+          // FIX: Save data to LocalStorage for instant load on next page
+          localStorage.setItem('setflow_role', primaryRole);
+          localStorage.setItem('setflow_name', userData.name || '');
+          localStorage.setItem('setflow_uid', user.uid); // Helpful for checks
+
           if (!userData.profileSetupComplete) {
               window.toast.show('Login successful. Completing setup...', 'success');
               setTimeout(() => window.location.href = `setflow-profile-setup.html?role=${primaryRole}`, 1000);
               return;
           }
+          
+          if (redirectUrlParam) {
+              window.location.href = redirectUrlParam;
+              return;
+          }
+
           window.location.href = roleRedirectMap[primaryRole] || roleRedirectMap['musician'];
         } else {
-          window.toast.show('Login successful. Completing setup...', 'success');
-          setTimeout(() => window.location.href = `setflow-profile-setup.html?role=musician`, 1000);
+            // Fallback if data missing
+            localStorage.setItem('setflow_role', 'musician');
+            window.location.href = `setflow-profile-setup.html?role=musician`;
         }
 
       } catch (error) {
