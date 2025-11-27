@@ -94,30 +94,99 @@ export async function gracefulGet(promise, fallback = null) {
 export function onAuthState(cb) { return onAuthStateChanged(auth, cb); }
 export async function signInUser(e, p) { return signInWithEmailAndPassword(auth, e, p); }
 export async function signOutUser() { return signOut(auth); }
+
 export async function signUpUser(name, email, password, role) {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, "users", cred.user.uid), {
-        name, email, roles: [role.toLowerCase()], bands: {}, profileSetupComplete: false, createdAt: serverTimestamp()
+    const uid = cred.user.uid;
+    const batch = writeBatch(db);
+
+    // 1. Public Profile (Name, Role, Status)
+    const publicRef = doc(db, "users", uid);
+    batch.set(publicRef, {
+        name,
+        roles: [role.toLowerCase()],
+        bands: {},
+        profileSetupComplete: false,
+        createdAt: serverTimestamp()
     });
+
+    // 2. Private Data (Email, etc.)
+    const privateRef = doc(db, "users", uid, "private", "data");
+    batch.set(privateRef, {
+        email: email,
+        updatedAt: serverTimestamp()
+    });
+
+    await batch.commit();
     return cred;
 }
+
 export async function sendPasswordReset(email) { return sendPasswordResetEmail(auth, email); }
 export async function deleteUserAccount() {
     const fn = httpsCallable(functions, 'deleteAccountAtomic');
     return (await fn()).data;
 }
 
-// --- USER DATA ---
+// --- USER DATA & PRIVACY LOGIC ---
+
 export async function getUserData(uid) {
     if (!uid) return null;
-    const snap = await gracefulGet(getDoc(doc(db, "users", uid)));
-    return snap?.exists() ? { id: snap.id, ...snap.data() } : null;
+    
+    // 1. Fetch Public Profile
+    const publicSnap = await gracefulGet(getDoc(doc(db, "users", uid)));
+    if (!publicSnap || !publicSnap.exists()) return null;
+    
+    let data = { id: publicSnap.id, ...publicSnap.data() };
+
+    // 2. If requesting OWN data, fetch Private Data and merge
+    if (auth.currentUser && auth.currentUser.uid === uid) {
+        try {
+            const privateSnap = await getDoc(doc(db, "users", uid, "private", "data"));
+            if (privateSnap.exists()) {
+                data = { ...data, ...privateSnap.data() }; // Merge email/payment info back in
+            }
+        } catch (e) {
+            console.warn("Could not fetch private data (expected if offline/restricted).");
+        }
+    }
+
+    return data;
 }
+
 export async function updateUserProfile(uid, data) {
-    return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+    // Define sensitive fields that MUST go to private doc
+    const privateFields = ['email', 'paymentMethodLast4', 'phoneNumber', 'stripeId'];
+    
+    const publicData = {};
+    const privateData = {};
+
+    // Sort fields
+    for (const [key, value] of Object.entries(data)) {
+        if (privateFields.includes(key)) {
+            privateData[key] = value;
+        } else {
+            publicData[key] = value;
+        }
+    }
+
+    const promises = [];
+
+    // Update Public
+    if (Object.keys(publicData).length > 0) {
+        promises.push(setDoc(doc(db, "users", uid), { ...publicData, updatedAt: serverTimestamp() }, { merge: true }));
+    }
+
+    // Update Private
+    if (Object.keys(privateData).length > 0) {
+        promises.push(setDoc(doc(db, "users", uid, "private", "data"), { ...privateData, updatedAt: serverTimestamp() }, { merge: true }));
+    }
+
+    return Promise.all(promises);
 }
+
 export async function updateUserPreferences(uid, data) {
-    return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+    // Preferences usually public (like travel radius), but reusing logic just in case
+    return updateUserProfile(uid, data);
 }
 
 // --- DATA FUNCTIONS ---
@@ -189,7 +258,6 @@ export async function fetchApplicantsForGig(gigId) {
     return snap.docs.map(d => d.data()); 
 }
 
-// FIX: Calls Cloud Function for secure booking
 export async function confirmBooking(gigId, artistId, artistName) {
     const fn = httpsCallable(functions, 'confirmBooking');
     const result = await fn({ gigId, artistId, artistName });
@@ -202,7 +270,6 @@ export async function fetchCalendarEvents(uid) {
     if(!snap) return [];
     return snap.docs.map(d => { const data = d.data(); const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); return { id: d.id, ...data, dateObject: date, formattedDate: date.toLocaleDateString(), formattedTime: date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) }; });
 }
-
 export async function fetchNotifications(uid) { 
     const q = query(collection(db, "users", uid, "notifications"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
@@ -212,7 +279,7 @@ export async function fetchNotifications(uid) {
         const data = d.data();
         let timeStr = 'Just now';
         if (data.createdAt?.toDate) {
-            const diff = (new Date() - data.createdAt.toDate()) / 1000 / 60; // minutes
+            const diff = (new Date() - data.createdAt.toDate()) / 1000 / 60; 
             if (diff < 60) timeStr = `${Math.floor(diff)}m ago`;
             else if (diff < 1440) timeStr = `${Math.floor(diff/60)}h ago`;
             else timeStr = `${Math.floor(diff/1440)}d ago`;

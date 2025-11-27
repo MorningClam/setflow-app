@@ -27,9 +27,14 @@ exports.deleteAccountAtomic = onCall(async (request) => {
 
   try {
     const batch = db.batch();
+    
+    // 1. Delete Public Profile
     batch.delete(userDocRef);
+    
+    // 2. Delete Private Data
+    batch.delete(db.doc(`users/${uid}/private/data`));
 
-    // Cleanup user-owned data
+    // 3. Cleanup user-owned data (gigs, etc.)
     const gigsQuery = db.collection("gigs").where("ownerId", "==", uid);
     const gigsSnapshot = await gigsQuery.get();
     gigsSnapshot.forEach((doc) => batch.delete(doc.ref));
@@ -50,7 +55,6 @@ exports.deleteAccountAtomic = onCall(async (request) => {
 
 // --- Callable Function: Secure Booking Transaction ---
 exports.confirmBooking = onCall(async (request) => {
-    // 1. Auth Check
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'User must be logged in.');
     }
@@ -58,7 +62,6 @@ exports.confirmBooking = onCall(async (request) => {
     const { gigId, artistId, artistName } = request.data;
     const gigRef = db.collection('gigs').doc(gigId);
 
-    // 2. Run Transaction (Prevents Race Conditions)
     await db.runTransaction(async (t) => {
         const gigDoc = await t.get(gigRef);
         
@@ -68,18 +71,14 @@ exports.confirmBooking = onCall(async (request) => {
 
         const gigData = gigDoc.data();
 
-        // 3. Security Check: Only Owner can book
         if (gigData.ownerId !== request.auth.uid) {
             throw new HttpsError('permission-denied', 'Only the gig owner can confirm bookings.');
         }
 
-        // 4. Availability Check
         if (gigData.status !== 'open') {
             throw new HttpsError('failed-precondition', 'This gig is no longer available.');
         }
 
-        // 5. Execute Updates
-        // Update Gig Status
         t.update(gigRef, {
             status: 'booked',
             bookedArtistId: artistId,
@@ -87,14 +86,12 @@ exports.confirmBooking = onCall(async (request) => {
             bookedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        // Create Calendar Event for the Artist
-        // (Server-side creation bypasses the "Venue writing to Artist Calendar" permission rule)
         const eventRef = db.collection('calendarEvents').doc(); 
         t.set(eventRef, {
             userId: artistId,
             type: 'gig',
             title: `Gig at ${gigData.venueName}`,
-            dateTime: gigData.date, // Use the actual Gig Date
+            dateTime: gigData.date,
             notes: `Confirmed booking. Payout: $${gigData.payout}`,
             gigId: gigId,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
@@ -135,7 +132,6 @@ exports.notifyMusicianOnBooking = onDocumentUpdated("gigs/{gigId}", async (event
     const newData = event.data.after.data();
     const oldData = event.data.before.data();
 
-    // Trigger only when status changes to 'booked'
     if (oldData.status !== 'booked' && newData.status === 'booked') {
         const musicianId = newData.bookedArtistId;
         const venueName = newData.venueName;
