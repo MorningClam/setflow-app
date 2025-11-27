@@ -47,7 +47,7 @@
     </section>
   </main>
 
-  <a href="setflow-new-calendar-event.html" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 btn-press hover:bg-emerald-400 border-2 border-neutral-900">
+  <a id="calendar-fab" href="#" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/40 btn-press hover:bg-emerald-400 border-2 border-neutral-900">
       <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
   </a>
 
@@ -69,12 +69,22 @@
     const container = document.getElementById('upcoming-events-container');
     const loading = document.getElementById('loading-state');
     const empty = document.getElementById('empty-state');
+    const fab = document.getElementById('calendar-fab');
 
     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
-    // FIX: Instant Load Menu from LocalStorage
+    // 1. Instant Load Menu
     const cachedRole = localStorage.getItem('setflow_role') || 'musician';
     if(window.renderBottomNav) window.renderBottomNav(cachedRole, 'free', 'setflow-calendar.html');
+
+    // 2. Configure FAB based on role
+    if (cachedRole === 'venue' || cachedRole === 'promoter') {
+        fab.href = 'setflow-post-event-page.html'; // Venue creates Gigs
+        fab.classList.replace('bg-emerald-500', 'bg-indigo-500'); // Use Venue Color
+        fab.classList.replace('shadow-emerald-500/40', 'shadow-indigo-500/40');
+    } else {
+        fab.href = 'setflow-new-calendar-event.html'; // Musician creates Blocks/Rehearsals
+    }
 
     function renderEvents(events) {
         loading.style.display = 'none';
@@ -82,6 +92,8 @@
             empty.style.display = 'block';
             return;
         }
+        empty.style.display = 'none';
+        container.innerHTML = ''; // Clear loading
 
         events.forEach((event, index) => {
             const div = document.createElement('div');
@@ -89,15 +101,32 @@
             div.style.animationDelay = `${index * 0.05}s`;
             
             let colorClass = 'text-neutral-400';
-            if (event.type === 'gig') colorClass = 'text-emerald-400';
-            else if (event.type?.includes('Blocked')) colorClass = 'text-amber-400';
+            let typeLabel = event.type || 'Event';
+
+            if (event.source === 'gig') {
+                colorClass = 'text-indigo-400';
+                typeLabel = 'My Gig';
+            } else if (event.type === 'gig') {
+                 colorClass = 'text-emerald-400'; // Booked gig for musician
+            }
+
+            // Link logic: Gigs go to management, Events go to edit?
+            let linkHtml = '';
+            if (event.source === 'gig') {
+                linkHtml = `<a href="setflow-post-event-page.html?gigId=${event.id}" class="ml-2 text-xs bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 text-white">Manage</a>`;
+            } else if (event.type === 'gig') {
+                linkHtml = `<a href="setflow-show-sheet.html?gigId=${event.gigId}" class="ml-2 text-xs bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 text-white">Sheet</a>`;
+            }
 
             div.innerHTML = `
                 <div class="flex-1 min-w-0">
                     <p class="truncate text-sm font-semibold text-white">${escapeHTML(event.title)}</p>
-                    <p class="mt-1 truncate text-xs ${colorClass}">${event.formattedDate} • ${event.formattedTime}</p>
+                    <div class="flex items-center mt-1 space-x-2">
+                         <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-white/5 ${colorClass}">${typeLabel}</span>
+                         <span class="truncate text-xs text-neutral-500">${event.formattedDate} • ${event.formattedTime}</span>
+                    </div>
                 </div>
-                ${event.type === 'gig' ? `<a href="setflow-show-sheet.html?gigId=${event.id}" class="ml-2 text-xs bg-white/10 px-3 py-1 rounded-lg hover:bg-white/20 text-white">Sheet</a>` : ''}
+                ${linkHtml}
             `;
             container.appendChild(div);
         });
@@ -105,14 +134,17 @@
 
     onAuthState(async (user) => {
         if (user) {
+            // Refresh Data
             const userData = await gracefulGet(getUserData(user.uid));
             
-            // Update role if changed
+            // Ensure nav is synced if role changed
             if(userData && userData.roles) {
                 const realRole = userData.roles[0];
                 if(realRole !== cachedRole) {
                     localStorage.setItem('setflow_role', realRole);
                     if(window.renderBottomNav) window.renderBottomNav(realRole, userData.subscriptionTier, 'setflow-calendar.html');
+                     // Update FAB if role mismatch found late
+                     if (realRole === 'venue') fab.href = 'setflow-post-event-page.html';
                 }
             }
             

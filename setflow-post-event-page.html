@@ -57,10 +57,14 @@
              </div>
          </div>
 
-        <div>
+        <div class="relative">
             <label for="event-location" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Location <span class="text-red-400">*</span></label>
             <input id="event-location" type="text" placeholder="123 Main St" class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+            <div id="location-lock" class="hidden absolute right-3 top-9 text-neutral-500">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
         </div>
+
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label for="event-date" class="mb-2 block text-xs font-bold uppercase text-neutral-500 tracking-wider">Date <span class="text-red-400">*</span></label>
@@ -88,9 +92,10 @@
   </footer>
 </div> 
 <script src="toast.js"></script>
+<script src="nav.js"></script>
 
 <script type="module">
-  import { onAuthState, createGig, getGigDetails, deleteGig, isOnline, gracefulGet, db } from './api.js';
+  import { onAuthState, createGig, getGigDetails, deleteGig, isOnline, gracefulGet, getUserData, db } from './api.js';
   import { doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
@@ -101,11 +106,28 @@
   const btn = document.getElementById('submit-btn');
   const deleteBtn = document.getElementById('delete-btn');
   const titleEl = document.getElementById('page-title');
+  
+  const locationInput = document.getElementById('event-location');
+  const locationLock = document.getElementById('location-lock');
 
   onAuthState(async (user) => {
     if(user) {
         currentUserId = user.uid;
-        // NO NAV LOGIC HERE
+
+        // Fetch user data for Location logic
+        const userData = await gracefulGet(getUserData(user.uid));
+        
+        // FIX: If Venue, lock location
+        if (userData && userData.roles && userData.roles.includes('venue')) {
+             if(userData.location) {
+                 locationInput.value = userData.location;
+             }
+             locationInput.disabled = true;
+             locationInput.classList.add('opacity-50', 'cursor-not-allowed', 'pr-10');
+             locationLock.classList.remove('hidden');
+        }
+
+        // If Edit Mode, load data
         if(gigId) {
             titleEl.textContent = "Edit Gig";
             btn.textContent = "Update Event";
@@ -121,7 +143,12 @@
       if(snap && snap.exists()) {
           const data = snap.data();
           document.getElementById('event-name').value = data.venueName || '';
-          document.getElementById('event-location').value = data.location || '';
+          
+          // Only overwrite location if NOT locked (or if we want to show what was saved)
+          if (!locationInput.disabled) {
+             document.getElementById('event-location').value = data.location || '';
+          }
+
           document.getElementById('event-payout').value = data.payout || '';
           document.getElementById('event-genre').value = data.genre || '';
           document.getElementById('event-description').value = data.description || '';
@@ -143,7 +170,7 @@
       const formData = {
           venueName: document.getElementById('event-name').value,
           gigType: document.getElementById('gig-type').value,
-          location: document.getElementById('event-location').value,
+          location: document.getElementById('event-location').value, // Sends even if disabled
           payout: document.getElementById('event-payout').value,
           genre: document.getElementById('event-genre').value,
           description: document.getElementById('event-description').value
@@ -154,12 +181,14 @@
 
       try {
           if (gigId) {
+              // UPDATE EXISTING
               await updateDoc(doc(db, "gigs", gigId), {
                   ...formData,
                   date: Timestamp.fromDate(dateObj)
               });
               window.toast.show('Gig Updated!', 'success');
           } else {
+              // CREATE NEW
               await createGig({
                   ownerId: currentUserId,
                   date: rawDate, 

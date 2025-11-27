@@ -77,11 +77,8 @@ export async function gracefulGet(promise, fallback = null) {
         return await promise;
     } catch (error) {
         console.error("API Error:", error);
-        if (window.toast) {
-            // Suppress known "offline" errors to avoid spamming user
-            if (error.code !== 'unavailable') {
-                 window.toast.show("Data load error.", 'error');
-            }
+        if (window.toast && error.code !== 'unavailable') {
+             window.toast.show("Data load error.", 'error');
         }
         return fallback;
     }
@@ -126,7 +123,6 @@ export async function createPlayerPost(data) {
 }
 
 // FIX: Removed orderBy("date") to prevent Index errors. 
-// Client-side sorting is fine for <50 items.
 export async function fetchGigs() {
     const q = query(collection(db, "gigs"), where("status", "==", "open"), limit(50));
     const snap = await gracefulGet(getDocs(q));
@@ -134,11 +130,10 @@ export async function fetchGigs() {
     
     const gigs = snap.docs.map(d => {
         const data = d.data();
-        const dateObj = data.date?.toDate ? data.date.toDate() : new Date();
+        const dateObj = data.date?.toDate ? data.date.toDate() : null;
         return { ...data, id: d.id, dateObject: dateObj, formattedDate: dateObj?.toLocaleDateString() || 'TBD' };
     });
     
-    // Sort in memory
     return gigs.sort((a, b) => a.dateObject - b.dateObject);
 }
 
@@ -197,14 +192,19 @@ export async function confirmBooking(gigId, artistId, artistName) {
     return result.data;
 }
 
+export async function createCalendarEvent(data) {
+    // Helper for manual event creation
+    return addDoc(collection(db, "calendarEvents"), { ...data, createdAt: serverTimestamp() });
+}
+
 export async function fetchCalendarEvents(uid) { 
-    // 1. Events
+    // 1. Events (Bookings/Personal)
     const qEvents = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
     const eventsSnap = await gracefulGet(getDocs(qEvents));
     
     let events = eventsSnap ? eventsSnap.docs.map(d => {
         const data = d.data();
-        const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(); 
+        const date = data.dateTime?.toDate ? data.dateTime.toDate() : new Date(data.date || Date.now()); 
         return { 
             id: d.id, ...data, dateObject: date, 
             formattedDate: date.toLocaleDateString(), 
@@ -213,7 +213,7 @@ export async function fetchCalendarEvents(uid) {
         }; 
     }) : [];
 
-    // 2. Owned Gigs (Simplified Query)
+    // 2. Owned Gigs (Simplified Query - No Sort)
     const qGigs = query(collection(db, "gigs"), where("ownerId", "==", uid));
     const gigsSnap = await gracefulGet(getDocs(qGigs));
 
@@ -236,7 +236,7 @@ export async function fetchCalendarEvents(uid) {
         events = [...events, ...myGigs];
     }
 
-    // Sort combined results
+    // Sort combined results in memory
     return events.sort((a, b) => a.dateObject - b.dateObject);
 }
 
@@ -259,7 +259,7 @@ export async function fetchNotifications(uid) {
 }
 
 export async function fetchMyApplications(uid) { return []; }
-export async function fetchGigsForOwner(uid) { return fetchGigs(); } 
+export async function fetchGigsForOwner(uid) { return fetchGigs(); } // Just fetch all gigs logic for now
 export async function fetchCompletedGigsForUser(uid) { return []; }
 export async function getBandsForUser(uid) { return []; }
 export async function getBandData(id) { return null; }
@@ -288,7 +288,6 @@ export async function getAllPlayers() {
 export async function createReview(data) { return addDoc(collection(db, "reviews"), data); }
 export async function fetchUserNetwork(uid) { return []; }
 export async function fetchGigTemplates(uid) { return []; }
-export async function createCalendarEvent(data) { return addDoc(collection(db, "calendarEvents"), { ...data, createdAt: serverTimestamp() }); }
 export async function requestToJoinBand(bid, uid) {}
 export async function getAllBands() { 
     const q = query(collection(db, "bands"), limit(20));
