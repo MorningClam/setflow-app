@@ -11,6 +11,11 @@
     body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; }
     .loading-spinner { display: inline-block; width: 1.5rem; height: 1.5rem; border: 3px solid rgba(255, 255, 255, 0.1); border-radius: 50%; border-top-color: #10B981; animation: spin 0.8s linear infinite; }
     .ambient-light { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.1), transparent 70%); pointer-events: none; z-index: 0; }
+    /* Nav Styles */
+    .bottom-nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 500; color: #A3A3A3; transition: color 0.15s ease-in-out; width: 100%; }
+    .bottom-nav-link:hover { color: white; }
+    /* Active state color handled by JS */
+    .bottom-nav-link svg { margin-bottom: 0.25rem; display: block; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body class="text-white antialiased">
@@ -20,7 +25,7 @@
 
   <header class="fixed top-0 left-0 right-0 z-20 mx-auto h-16 max-w-md border-b border-white/10 bg-black/80 backdrop-blur-md px-4 backdrop-blur-sm">
     <div class="flex h-full items-center justify-between">
-      <a href="setflow-musician-dashboard.html" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
+      <a href="#" onclick="window.history.back(); return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
       <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-emerald-400">Calendar</h1>
@@ -67,6 +72,10 @@
 
     if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
 
+    // FIX: Instant Load Menu from LocalStorage
+    const cachedRole = localStorage.getItem('setflow_role') || 'musician';
+    if(window.renderBottomNav) window.renderBottomNav(cachedRole, 'free', 'setflow-calendar.html');
+
     function renderEvents(events) {
         loading.style.display = 'none';
         if (!events || events.length === 0) {
@@ -76,7 +85,6 @@
 
         events.forEach((event, index) => {
             const div = document.createElement('div');
-            // Glass Card Style
             div.className = 'glass-card flex items-center justify-between rounded-xl p-4 mb-3 animate-enter hover:bg-white/5 transition';
             div.style.animationDelay = `${index * 0.05}s`;
             
@@ -98,7 +106,16 @@
     onAuthState(async (user) => {
         if (user) {
             const userData = await gracefulGet(getUserData(user.uid));
-            if(window.renderBottomNav) window.renderBottomNav('musician', userData?.subscriptionTier, 'setflow-calendar.html');
+            
+            // Update role if changed
+            if(userData && userData.roles) {
+                const realRole = userData.roles[0];
+                if(realRole !== cachedRole) {
+                    localStorage.setItem('setflow_role', realRole);
+                    if(window.renderBottomNav) window.renderBottomNav(realRole, userData.subscriptionTier, 'setflow-calendar.html');
+                }
+            }
+            
             const events = await gracefulGet(fetchCalendarEvents(user.uid));
             renderEvents(events);
         } else {
