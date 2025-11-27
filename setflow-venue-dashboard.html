@@ -154,10 +154,11 @@
            <button onclick="document.getElementById('open-post-modal-btn').click()" class="text-indigo-400 font-bold text-xs mt-2 hover:text-indigo-300">Create First Gig</button>
        </div>
     </section>
+
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
   </nav>
 </div> 
 
@@ -175,6 +176,7 @@
         </div>
     </div>
 </div>
+
 <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
  <span id="toast-message">Placeholder</span>
 </div>
@@ -199,7 +201,6 @@
   import { onAuthState, getUserData, gracefulGet, escapeHTML, isOnline, db } from './api.js';
   import { collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Modal Logic
   document.addEventListener('DOMContentLoaded', () => {
       const modal = document.getElementById('post-modal');
       const openBtn = document.getElementById('open-post-modal-btn');
@@ -234,7 +235,6 @@
       if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
   });
 
-  // Dashboard Logic
   const venueNameHeader = document.getElementById('venue-name-header');
   const loadingState = document.getElementById('loading-state');
   const errorState = document.getElementById('error-state');
@@ -299,7 +299,8 @@
                 actionBtn = `<a href="setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}" class="text-xs font-bold text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20">Review</a>`;
             } else {
                 statusBadge = '<span class="text-[10px] font-bold text-neutral-400 border border-white/10 px-2 py-1 rounded">Open</span>';
-                actionBtn = `<a href="#" class="text-xs font-bold text-neutral-400 hover:text-white transition px-3 py-2">Edit</a>`;
+                // UPDATED: Replaced href="#" with link to edit page
+                actionBtn = `<a href="setflow-post-event-page.html?gigId=${gig.id}" class="text-xs font-bold text-neutral-400 hover:text-white transition px-3 py-2">Edit</a>`;
             }
 
             const card = document.createElement('div');

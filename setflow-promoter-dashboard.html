@@ -116,7 +116,7 @@
               <span class="text-[10px] font-bold text-neutral-300">My Roster</span>
           </a>
           <a href="setflow-inbox.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
-              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 01-2 2h14a2 2 0 012 2v10z"></path></svg></div>
+              <div class="mb-1 text-neutral-300"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg></div>
               <span class="text-[10px] font-bold text-neutral-300">Inbox</span>
           </a>
           <a href="setflow-gig-templates.html" class="glass-card flex flex-col items-center justify-center rounded-xl p-3 transition btn-press hover:bg-white/5 border border-transparent hover:border-white/10">
@@ -152,7 +152,7 @@
   </main>
 
   <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
-    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
+      <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
   </nav>
 </div> 
 
@@ -170,6 +170,7 @@
         </div>
     </div>
 </div>
+
 <div id="toast-notification" class="fixed bottom-20 left-1/2 z-[9999] max-w-[90%] -translate-x-1/2 transform rounded-xl px-6 py-3 text-center text-base text-white shadow-lg opacity-0 transition-opacity duration-300 ease-in-out">
  <span id="toast-message">Placeholder</span>
 </div>
@@ -194,7 +195,7 @@
   import { onAuthState, getUserData, gracefulGet, escapeHTML, isOnline, db, fetchTalentPool } from './api.js';
   import { collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Modal Logic...
+  // ... Modal logic same ...
   document.addEventListener('DOMContentLoaded', () => {
       const modal = document.getElementById('post-modal');
       const openBtn = document.getElementById('open-post-modal-btn');
@@ -229,7 +230,6 @@
       if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
   });
 
-  // Dashboard Logic
   const promoterNameHeader = document.getElementById('promoter-name-header');
   const loadingState = document.getElementById('loading-state');
   const errorState = document.getElementById('error-state');
@@ -295,7 +295,8 @@
                 actionBtn = `<a href="setflow-review-applicants.html?gigId=${gig.id}&gigName=${encodeURIComponent(gig.venueName)}" class="text-xs font-bold text-white bg-rose-600 px-4 py-2 rounded-lg hover:bg-rose-500 transition shadow-lg shadow-rose-500/20">Review</a>`;
             } else {
                 statusBadge = '<span class="text-[10px] font-bold text-neutral-400 border border-white/10 px-2 py-1 rounded">Open</span>';
-                actionBtn = `<a href="#" class="text-xs font-bold text-neutral-400 hover:text-white transition px-3 py-2">Edit</a>`;
+                // UPDATED: Replaced href="#" with link to edit page
+                actionBtn = `<a href="setflow-post-event-page.html?gigId=${gig.id}" class="text-xs font-bold text-neutral-400 hover:text-white transition px-3 py-2">Edit</a>`;
             }
 
             const card = document.createElement('div');

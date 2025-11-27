@@ -26,7 +26,7 @@
       <a href="#" onclick="window.history.back(); return false;" class="p-2 rounded-full text-neutral-400 hover:text-white btn-press">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
       </a>
-      <h1 class="flex-grow text-center text-lg font-bold tracking-tight text-emerald-400">Post Gig</h1>
+      <h1 id="page-title" class="flex-grow text-center text-lg font-bold tracking-tight text-emerald-400">Post Gig</h1>
       <div class="w-10 h-10"></div> 
     </div>
   </header>
@@ -65,41 +65,104 @@
   <footer class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 p-4 backdrop-blur-md">
     <button type="submit" form="post-gig-form" id="submit-btn" class="w-full rounded-xl bg-emerald-500 px-6 py-3 text-base font-bold text-black hover:bg-emerald-400 transition-colors btn-press shadow-lg shadow-emerald-500/20">Post Event</button>
   </footer>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-md border-t border-white/10 bg-black/90 backdrop-blur-xl pb-safe">
+    <div id="bottom-nav-container" class="flex h-16 items-center justify-around w-full"></div>
+  </nav>
 </div> 
 <script src="toast.js"></script>
+<script src="nav.js"></script>
+
 <script type="module">
-  import { onAuthState, createGig, isOnline } from './api.js';
+  import { onAuthState, createGig, getGigDetails, isOnline, getUserData, gracefulGet, db } from './api.js';
+  import { doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   if(!isOnline()) document.getElementById('offline-banner').style.display = 'block';
+  
   let currentUserId = null;
+  const urlParams = new URLSearchParams(window.location.search);
+  const gigId = urlParams.get('gigId');
+  const btn = document.getElementById('submit-btn');
+  const titleEl = document.getElementById('page-title');
 
-  onAuthState(user => {
-    if(user) currentUserId = user.uid;
+  onAuthState(async (user) => {
+    if(user) {
+        currentUserId = user.uid;
+        
+        // 1. Setup Navigation
+        const userData = await gracefulGet(getUserData(user.uid));
+        const role = userData?.roles?.[0] || 'venue'; 
+        if(window.renderBottomNav) window.renderBottomNav(role, 'free', 'setflow-post-event-page.html');
+
+        // 2. If Edit Mode, load data
+        if(gigId) {
+            titleEl.textContent = "Edit Gig";
+            btn.textContent = "Update Event";
+            loadGigData(gigId);
+        }
+    }
     else window.location.href = 'setflow-login-page.html';
   });
 
+  async function loadGigData(id) {
+      const snap = await gracefulGet(getGigDetails(id));
+      if(snap && snap.exists()) {
+          const data = snap.data();
+          document.getElementById('event-name').value = data.venueName || '';
+          document.getElementById('event-location').value = data.location || '';
+          document.getElementById('event-payout').value = data.payout || '';
+          document.getElementById('event-genre').value = data.genre || '';
+          document.getElementById('event-description').value = data.description || '';
+          
+          if (data.date) {
+             // Convert Firestore Timestamp to YYYY-MM-DD
+             const d = data.date.toDate ? data.date.toDate() : new Date(data.date);
+             const iso = d.toISOString().split('T')[0];
+             document.getElementById('event-date').value = iso;
+          }
+      }
+  }
+
   document.getElementById('post-gig-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn = document.getElementById('submit-btn');
       btn.disabled = true;
-      btn.innerHTML = '<span class="loading-spinner-inline"></span> Posting...';
+      btn.innerHTML = '<span class="loading-spinner-inline"></span> Processing...';
+
+      const formData = {
+          venueName: document.getElementById('event-name').value,
+          location: document.getElementById('event-location').value,
+          payout: document.getElementById('event-payout').value,
+          genre: document.getElementById('event-genre').value,
+          description: document.getElementById('event-description').value
+      };
+
+      // Handle Date
+      const rawDate = document.getElementById('event-date').value;
+      const dateObj = new Date(rawDate);
 
       try {
-          await createGig({
-              ownerId: currentUserId,
-              venueName: document.getElementById('event-name').value,
-              location: document.getElementById('event-location').value,
-              date: document.getElementById('event-date').value,
-              payout: document.getElementById('event-payout').value,
-              genre: document.getElementById('event-genre').value,
-              description: document.getElementById('event-description').value
-          });
-          window.toast.show('Gig Posted!', 'success');
+          if (gigId) {
+              // UPDATE EXISTING
+              await updateDoc(doc(db, "gigs", gigId), {
+                  ...formData,
+                  date: Timestamp.fromDate(dateObj)
+              });
+              window.toast.show('Gig Updated!', 'success');
+          } else {
+              // CREATE NEW
+              await createGig({
+                  ownerId: currentUserId,
+                  date: rawDate, // api.js handles conversion for create
+                  ...formData
+              });
+              window.toast.show('Gig Posted!', 'success');
+          }
           setTimeout(() => window.history.back(), 1000);
       } catch(err) {
-          window.toast.show('Error posting.', 'error');
+          console.error(err);
+          window.toast.show('Error saving event.', 'error');
           btn.disabled = false;
-          btn.innerText = 'Post Event';
+          btn.innerText = gigId ? 'Update Event' : 'Post Event';
       }
   });
 </script>
