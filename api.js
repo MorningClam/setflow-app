@@ -1,5 +1,5 @@
 /* =========================================================================
- * Setflow Frontend API Helper (Robust Version)
+ * Setflow Frontend API Helper (Final Production Version)
  * ========================================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -26,10 +26,13 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 const functions = getFunctions(app);
 
+// --- Persistence ---
 (async () => {
   try { await enableIndexedDbPersistence(db); }
   catch (err) { console.log("Persistence disabled:", err.code); }
 })();
+
+// --- UTILITIES ---
 
 export function escapeHTML(str) {
     if (!str) return '';
@@ -77,13 +80,15 @@ export async function gracefulGet(promise, fallback = null) {
         return await promise;
     } catch (error) {
         console.error("API Error:", error);
-        if (window.toast && error.code !== 'unavailable') {
+        // Only show toast for permission/logic errors, not offline/index errors
+        if (window.toast && error.code !== 'unavailable' && error.code !== 'failed-precondition') {
              window.toast.show("Data load error.", 'error');
         }
         return fallback;
     }
 }
 
+// --- AUTH ---
 export function onAuthState(cb) { return onAuthStateChanged(auth, cb); }
 export async function signInUser(e, p) { return signInWithEmailAndPassword(auth, e, p); }
 export async function signOutUser() { return signOut(auth); }
@@ -100,6 +105,7 @@ export async function deleteUserAccount() {
     return (await fn()).data;
 }
 
+// --- USER DATA ---
 export async function getUserData(uid) {
     if (!uid) return null;
     const snap = await gracefulGet(getDoc(doc(db, "users", uid)));
@@ -112,6 +118,7 @@ export async function updateUserPreferences(uid, data) {
     return setDoc(doc(db, "users", uid), { ...data, updatedAt: serverTimestamp() }, { merge: true });
 }
 
+// --- DATA FUNCTIONS ---
 export async function fetchPlayerPosts() {
     const q = query(collection(db, "player_posts"), orderBy("createdAt", "desc"), limit(20));
     const snap = await gracefulGet(getDocs(q));
@@ -122,7 +129,7 @@ export async function createPlayerPost(data) {
     return addDoc(collection(db, "player_posts"), { ...data, createdAt: serverTimestamp() });
 }
 
-// FIX: Removed orderBy("date") to prevent Index errors. 
+// FIX: No orderBy to prevent index issues on "Browse Gigs"
 export async function fetchGigs() {
     const q = query(collection(db, "gigs"), where("status", "==", "open"), limit(50));
     const snap = await gracefulGet(getDocs(q));
@@ -193,13 +200,13 @@ export async function confirmBooking(gigId, artistId, artistName) {
 }
 
 export async function createCalendarEvent(data) {
-    // Helper for manual event creation
     return addDoc(collection(db, "calendarEvents"), { ...data, createdAt: serverTimestamp() });
 }
 
+// FIX: Removed orderBy from Calendar Query to prevent missing index errors
 export async function fetchCalendarEvents(uid) { 
-    // 1. Events (Bookings/Personal)
-    const qEvents = query(collection(db, "calendarEvents"), where("userId", "==", uid), orderBy("dateTime", "asc"));
+    // 1. Events
+    const qEvents = query(collection(db, "calendarEvents"), where("userId", "==", uid));
     const eventsSnap = await gracefulGet(getDocs(qEvents));
     
     let events = eventsSnap ? eventsSnap.docs.map(d => {
@@ -213,7 +220,7 @@ export async function fetchCalendarEvents(uid) {
         }; 
     }) : [];
 
-    // 2. Owned Gigs (Simplified Query - No Sort)
+    // 2. Owned Gigs
     const qGigs = query(collection(db, "gigs"), where("ownerId", "==", uid));
     const gigsSnap = await gracefulGet(getDocs(qGigs));
 
@@ -236,16 +243,17 @@ export async function fetchCalendarEvents(uid) {
         events = [...events, ...myGigs];
     }
 
-    // Sort combined results in memory
+    // Sort combined results safely in memory
     return events.sort((a, b) => a.dateObject - b.dateObject);
 }
 
+// FIX: Removed orderBy from Notifications Query
 export async function fetchNotifications(uid) { 
-    const q = query(collection(db, "users", uid, "notifications"), orderBy("createdAt", "desc"), limit(20));
+    const q = query(collection(db, "users", uid, "notifications"), limit(20));
     const snap = await gracefulGet(getDocs(q));
     if (!snap) return [];
 
-    return snap.docs.map(d => {
+    const notifs = snap.docs.map(d => {
         const data = d.data();
         let timeStr = 'Just now';
         if (data.createdAt?.toDate) {
@@ -254,12 +262,16 @@ export async function fetchNotifications(uid) {
             else if (diff < 1440) timeStr = `${Math.floor(diff/60)}h ago`;
             else timeStr = `${Math.floor(diff/1440)}d ago`;
         }
-        return { id: d.id, ...data, timestampRelative: timeStr };
+        return { id: d.id, ...data, timestampRelative: timeStr, createdAtObj: data.createdAt };
     });
+
+    // Client-side sort
+    return notifs.sort((a, b) => b.createdAtObj - a.createdAtObj);
 }
 
+// Placeholders
 export async function fetchMyApplications(uid) { return []; }
-export async function fetchGigsForOwner(uid) { return fetchGigs(); } // Just fetch all gigs logic for now
+export async function fetchGigsForOwner(uid) { return fetchGigs(); } 
 export async function fetchCompletedGigsForUser(uid) { return []; }
 export async function getBandsForUser(uid) { return []; }
 export async function getBandData(id) { return null; }

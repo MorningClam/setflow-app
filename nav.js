@@ -1,78 +1,66 @@
 /* =========================================================================
- * Setflow Dynamic Navigation Helper (Clean & Simple)
+ * Setflow Navigation Helper (Canonical Class-Based Version)
  * ========================================================================= */
 
 window.renderBottomNav = function(role, tier = 'free', activePage = '') {
     const navContainer = document.getElementById('bottom-nav-container');
     if (!navContainer) return;
 
-    // REVERTED: Back to simple text color highlighting. No backgrounds/glows.
-    const isActive = (page) => page === activePage 
-        ? 'active text-emerald-400' 
-        : 'text-neutral-400 hover:text-white';
-    
-    // For promoters/venues who use different accent colors (Rose/Indigo)
-    const getActiveColor = (r) => {
-        if (r === 'promoter') return 'text-rose-400';
-        if (r === 'venue') return 'text-indigo-400';
-        return 'text-emerald-400';
+    // 1. Inject Theme Variables based on Role
+    // This allows the CSS to automatically recolor active states/spinners
+    const root = document.documentElement;
+    if (role === 'promoter') {
+        root.style.setProperty('--brand-primary', '#fb7185'); // Rose-400
+        root.style.setProperty('--brand-glow', 'rgba(251, 113, 133, 0.2)');
+    } else if (role === 'venue') {
+        root.style.setProperty('--brand-primary', '#818cf8'); // Indigo-400
+        root.style.setProperty('--brand-glow', 'rgba(129, 140, 248, 0.2)');
+    } else {
+        root.style.setProperty('--brand-primary', '#34d399'); // Emerald-400 (Default)
+        root.style.setProperty('--brand-glow', 'rgba(52, 211, 153, 0.2)');
+    }
+
+    // 2. Helper to determine active state class
+    const getLinkClass = (page) => {
+        // Simple check: does the current URL contain the page filename?
+        // We use .includes() to handle local file paths or hosted URLs safely.
+        const isActive = activePage.includes(page);
+        return `nav-item ${isActive ? 'active' : ''}`;
     };
 
-    const activeClass = (page) => page === activePage 
-        ? `active ${getActiveColor(role)}` 
-        : 'text-neutral-400 hover:text-white';
+    // 3. Define Navigation Maps
+    const menus = {
+        musician: [
+            { href: 'setflow-musician-dashboard.html', label: 'Home', icon: 'M3 12l2-2m0 0l7-7 7-7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z' },
+            { href: 'setflow-browse-gigs.html', label: 'Gigs', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
+            { href: 'setflow-applied-gigs.html', label: 'Applied', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+            { href: 'setflow-inbox.html', label: 'Inbox', icon: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z' },
+            { href: 'setflow-musician-settings.html', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' }
+        ],
+        venue: [
+            { href: 'setflow-venue-dashboard.html', label: 'Dash', icon: 'M3 12l2-2m0 0l7-7 7-7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z' },
+            { href: 'setflow-post-event-page.html', label: 'Post', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
+            { href: 'setflow-inbox.html', label: 'Inbox', icon: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z' },
+            { href: 'setflow-venue-settings.html', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' }
+        ],
+        promoter: [
+            { href: 'setflow-promoter-dashboard.html', label: 'Dash', icon: 'M3 12l2-2m0 0l7-7 7-7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z' },
+            { href: 'setflow-post-event-page.html', label: 'Post', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
+            { href: 'setflow-inbox.html', label: 'Inbox', icon: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z' },
+            { href: 'setflow-promoter-settings.html', label: 'Account', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' }
+        ]
+    };
 
-    const isCurrent = (page) => page === activePage ? 'aria-current="page"' : '';
+    // 4. Render
+    // Default to 'musician' if role is missing or invalid
+    const links = menus[role] || menus['musician'];
 
-    let navHtml = '';
+    const navHtml = links.map(link => `
+        <a href="${link.href}" class="${getLinkClass(link.href)}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="${link.icon}" /></svg>
+            <span>${link.label}</span>
+        </a>
+    `).join('');
 
-    if (role === 'musician') {
-        navHtml = `
-            <a href="setflow-musician-dashboard.html" class="bottom-nav-link ${activeClass('setflow-musician-dashboard.html')}" ${isCurrent('setflow-musician-dashboard.html')} aria-label="Home">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6-4a1 1 0 001 1h2a1 1 0 00-1-1h-2a1 1 0 00-1 1v4z" /></svg>
-                <span class="text-xs font-medium">Home</span>
-            </a>
-            <a href="setflow-browse-gigs.html" class="bottom-nav-link ${activeClass('setflow-browse-gigs.html')}" ${isCurrent('setflow-browse-gigs.html')} aria-label="Gigs">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                <span class="text-xs font-medium">Gigs</span>
-            </a>
-            <a href="setflow-applied-gigs.html" class="bottom-nav-link ${activeClass('setflow-applied-gigs.html')}" ${isCurrent('setflow-applied-gigs.html')} aria-label="Applied">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-xs font-medium">Applied</span>
-            </a>
-            <a href="setflow-inbox.html" class="bottom-nav-link ${activeClass('setflow-inbox.html')}" ${isCurrent('setflow-inbox.html')} aria-label="Inbox">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" /></svg>
-                <span class="text-xs font-medium">Inbox</span>
-            </a>
-            <a href="setflow-musician-settings.html" class="bottom-nav-link ${activeClass('setflow-musician-settings.html')}" ${isCurrent('setflow-musician-settings.html')} aria-label="Account">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                <span class="text-xs font-medium">Account</span>
-            </a>
-        `;
-    } else {
-        // Venue/Promoter Nav
-        const dashLink = role === 'venue' ? 'setflow-venue-dashboard.html' : 'setflow-promoter-dashboard.html';
-        const settingsLink = role === 'venue' ? 'setflow-venue-settings.html' : 'setflow-promoter-settings.html';
-        
-        navHtml = `
-            <a href="${dashLink}" class="bottom-nav-link ${activeClass(dashLink)}" ${isCurrent(dashLink)} aria-label="Dashboard">
-                <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V3zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V7zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zm0 4a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1z" clip-rule="evenodd"></path></svg>
-                <span class="text-xs font-medium">Dashboard</span>
-            </a>
-            <a href="setflow-post-event-page.html" class="bottom-nav-link ${activeClass('setflow-post-event-page.html')}" ${isCurrent('setflow-post-event-page.html')} aria-label="Post Gig">
-                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v12m6-6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-xs font-medium">Post</span>
-            </a>
-            <a href="setflow-inbox.html" class="bottom-nav-link ${activeClass('setflow-inbox.html')}" ${isCurrent('setflow-inbox.html')} aria-label="Inbox">
-                <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8h2a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="text-xs font-medium">Inbox</span>
-            </a>
-            <a href="${settingsLink}" class="bottom-nav-link ${activeClass(settingsLink)}" ${isCurrent(settingsLink)} aria-label="Account">
-               <svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="text-xs font-medium">Account</span>
-            </a>
-        `;
-    }
     navContainer.innerHTML = navHtml;
-}
-window.renderBottomNav = renderBottomNav;
+};

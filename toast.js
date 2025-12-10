@@ -1,67 +1,62 @@
 /* =========================================================================
- * Setflow Toast Notification Utility (Canonical Version)
+ * Setflow Toast Notification Utility (Canonical Class-Based Version)
  * ========================================================================= */
 
 const toast = {
   element: null,
-  messageElement: null,
   timeoutId: null,
 
   init: function() {
     this.element = document.getElementById('toast-notification');
-    this.messageElement = document.getElementById('toast-message');
-    if (!this.element || !this.messageElement) {
-      console.error("Toast elements (#toast-notification, #toast-message) not found.");
+    if (!this.element) {
+      // Auto-create if missing (failsafe)
+      this.element = document.createElement('div');
+      this.element.id = 'toast-notification';
+      document.body.appendChild(this.element);
     }
   },
 
   /**
-   * Shows a toast notification using canonical styles.
+   * Shows a toast notification.
    * @param {string} message - The message to display.
    * @param {'success'|'error'} [type='success'] - Type of toast.
    * @param {number} [duration=3000] - Duration in milliseconds.
    */
   show: function(message, type = 'success', duration = 3000) {
-    if (!this.element || !this.messageElement) {
-      // Fallback alert if elements missing
-      console.warn("Toast UI not found, using alert:", message);
-      alert(message);
-      return;
-    }
+    if (!this.element) this.init();
 
     clearTimeout(this.timeoutId);
 
-    this.messageElement.textContent = message;
+    // Set Text
+    this.element.textContent = message;
 
-    // Remove previous type classes, apply new one based on canonical names
-    this.element.classList.remove('bg-emerald-500', 'bg-red-600'); // Remove specific colors
+    // Reset Classes
+    this.element.className = ''; // Wipe all classes
+    
+    // Add Base ID (for CSS targeting if needed, though ID handles most)
+    // Add Type Class (Defined in styles.css)
     if (type === 'error') {
-      this.element.classList.add('bg-red-600'); // Canonical error color
+      this.element.classList.add('toast-error');
     } else {
-      this.element.classList.add('bg-emerald-500'); // Canonical success color
+      this.element.classList.add('toast-success');
     }
 
-    // Show toast using opacity transition
-    this.element.classList.remove('opacity-0');
-    // Force reflow might be needed for transition if hiding immediately before showing
-    // void this.element.offsetWidth;
-    this.element.classList.add('opacity-100');
+    // Trigger Animation (Reflow hack to restart CSS transition if needed)
+    void this.element.offsetWidth; 
+    
+    // Add 'show' class to trigger CSS opacity/transform
+    this.element.classList.add('show');
 
-
+    // Auto Hide
     this.timeoutId = setTimeout(() => {
-      this.hide(); // Call hide method
+      this.hide();
     }, duration);
   },
 
-  /**
-   * Hides the currently displayed toast.
-   */
   hide: function() {
      if (this.element) {
-        this.element.classList.remove('opacity-100');
-        this.element.classList.add('opacity-0');
+        this.element.classList.remove('show');
      }
-     clearTimeout(this.timeoutId); // Clear timeout if hidden manually
   }
 };
 
@@ -70,8 +65,5 @@ document.addEventListener('DOMContentLoaded', () => {
   toast.init();
 });
 
-// Expose globally (optional, but used by inline handlers)
+// Expose globally
 window.toast = toast;
-
-// Export if using as a module elsewhere (though currently used globally)
-// export { toast };
